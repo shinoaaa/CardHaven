@@ -26,7 +26,7 @@
                         <div class="keterangan" id="err-password"></div>
                         <div style="display: flex; justify-content: space-between;">
                             <div>
-                                <input type="checkbox" name="remember" class="form-box"><label for="remember">Remember me</label>
+                                <div><input type="checkbox" name="remember" value="remember">Remember me</div>
                             </div>
                                 <a href="forgot-password.php">Forgot password?</a>
                         </div>
