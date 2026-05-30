@@ -1,3 +1,6 @@
+*{
+    box-sizing: border-box;
+}
 .container{
     width: 100vw;
     height: 100vh;
@@ -15,4 +18,7 @@
     background-color: white;
     border-radius: 15px;
     padding: 50px 60px; 
+}
+.form-box{
+    width:100%;padding:0.5rem;margin-top:0.5rem;border:1px solid #0F3891;border-radius:15px
 }
