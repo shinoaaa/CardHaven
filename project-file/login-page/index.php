@@ -15,7 +15,9 @@
             </div>
             <div style="background-color: gray; width: 50%; height: 100%; justify-content: center; align-items: center">
                 <h1>Login</h1>
-                <div>or</div>
+                <div class="divider">
+                    <span>Or</span>
+                </div>
                 <form id="form-login" method="POST">
                     <div class="form-group">
                         <label>Email<span class="required">*</span></label><input type="email" name="email" class="form-box">

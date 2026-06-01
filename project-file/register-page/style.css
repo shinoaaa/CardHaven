@@ -1,4 +1,15 @@
-.container{
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #000; /* Latar belakang luar sangat gelap */
+}
+
+.container {
     width: 100vw;
     height: 100vh;
     background-color: #E6EEFF;
@@ -7,12 +18,167 @@
     align-items: center;
 }
 
-.card{
-    box-sizing: border-box;
-    width: 77%;
+.card {
+    width: 85%;
+    max-width: 1000px;
     height: 85%;
-    display: flex;
     background-color: white;
-    border-radius: 15px;
-    padding: 50px 60px; 
+    border-radius: 20px;
+    display: flex;
+    overflow: hidden;
+    padding: 40px;
+}
+
+/* Bagian Gambar */
+.image-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 20px;
+}
+
+/* .image-wrapper {
+    width: 100%;
+    height: 100%;
+    border: 8px solid #0F3891;
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: #0F3891;
+} */
+
+.image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Bagian Form */
+.form-section {
+    flex: 1.2;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-container {
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* Social Buttons */
+.social-login {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.social-btn {
+    width: 60px;
+    height: 35px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    background: #F8F9FF;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.social-btn img {
+    width: 20px;
+}
+
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #A0C4FF;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #DCE7FF;
+}
+
+.divider span {
+    padding: 0 10px;
+    font-size: 0.9rem;
+}
+
+/* Form Styling */
+.form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.required {
+    color: red;
+}
+
+input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1.5px solid #6D92E0;
+    border-radius: 20px;
+    outline: none;
+    font-size: 0.85rem;
+}
+
+input::placeholder {
+    color: #A0A0A0;
+}
+
+.btn-signup {
+    width: 100%;
+    padding: 12px;
+    background-color: #2D62D3;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-signup:hover {
+    background-color: #1A4AB2;
+}
+
+.footer-text {
+    margin-top: 20px;
+    font-size: 0.85rem;
+}
+
+.footer-text a {
+    color: #2D62D3;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.terms-text {
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: #888;
 }
