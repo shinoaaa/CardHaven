@@ -16,7 +16,7 @@
             </div>
             <div style="background-color: red; width: 55%; height: 100%;">
                 <a href="register">
-                    [unya anak]
+                    uuuhhhhhhh
                 </a>
             </div>
         </div>

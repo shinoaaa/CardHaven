@@ -15,7 +15,7 @@
             </div>
             <div style="background-color: blue; width: 55%; height: 100%;">
                 <a href="home">
-                    [unya anak]
+                    k
                 </a>
             </div>
         </div>
