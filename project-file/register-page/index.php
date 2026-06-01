@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" class="btn-signup">Sign Up</button>
                     </form>
 
-                    <p class="footer-text">Have an account? <a href="login.php">Log in</a></p>
+                    <p class="footer-text">Have an account? <span><a href="login.php" style="text-decoration: underline; color: #0088FF;">Log in</a></span></p>
                     <p class="terms-text">By Proceeding you agree to our terms of use</p>
                 </div>
             </div>
