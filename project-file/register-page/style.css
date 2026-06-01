@@ -1,3 +1,14 @@
+
+
+
+:root {
+    --primary-color: #0F3891;      
+    --bg-light: #E6EEFF;
+    --divider-color: #C7D9FF;
+    --text-dark: #000000;
+    --text-gray: #888888;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -13,7 +24,7 @@ body {
 .container {
     width: 100vw;
     height: 100vh;
-    background-color: #E6EEFF;
+    background-color: var(--bg-light);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,7 +33,7 @@ body {
 .card {
     width: 85%;
     max-width: 1000px;
-    height: 85%;
+    height: 95%;
     background-color: white;
     border-radius: 20px;
     display: flex;
@@ -87,9 +98,9 @@ h1 {
 .social-btn {
     width: 60px;
     height: 35px;
-    border: 1px solid #E0E0E0;
+    border: 0px solid var(--divider-color);
     border-radius: 8px;
-    background: #F8F9FF;
+    background: var(--bg-light);
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -112,7 +123,7 @@ h1 {
 .divider::before, .divider::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid #DCE7FF;
+    border-bottom: 1px solid var(--divider-color);
 }
 
 .divider span {
@@ -140,7 +151,7 @@ h1 {
 input {
     width: 100%;
     padding: 10px 15px;
-    border: 1.5px solid #6D92E0;
+    border: 1.5px solid var(--primary-color);
     border-radius: 20px;
     outline: none;
     font-size: 0.85rem;
