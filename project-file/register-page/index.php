@@ -1,3 +1,38 @@
+<?php
+
+//require database connection disini gak tau yang mana
+// belum jalan ya ngab ini
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // Enkripsi Password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // Cek apakah email sudah terdaftar
+    $sql_check = "SELECT email FROM customer WHERE email = ?";
+    $params_check = array($email);
+    $stmt_check = sqlsrv_query($conn, $sql_check, $params_check);
+
+    if (sqlsrv_has_rows($stmt_check)) {
+        echo json_encode(['status' => 'error', 'message' => 'Email sudah digunakan']);
+    } else {
+        // Simpan ke database
+        $sql_insert = "INSERT INTO customer (nama, email, password) VALUES (?, ?, ?)";
+        $params_insert = array($username, $email, $hashed_password);
+        $stmt_insert = sqlsrv_query($conn, $sql_insert, $params_insert);
+
+        if ($stmt_insert) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan data']);
+        }
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
