@@ -1,5 +1,4 @@
 <?php
-require 'controller/accountController.php';
 
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -11,6 +10,11 @@ if ($segments[0] === '' || $segments[0] === 'home') {
     include '../CardHaven/interface/login-page/index.php';
 } 
 
+else if($segments[0] === 'berhasil'){
+    echo "Berhasil jir";
+}
+
+
 else if ($segments[0] === 'register') {
     include '../CardHaven/interface/register-page/index.php';
 } 
@@ -19,3 +23,7 @@ else {
     echo "404 Not Found";
 }
 ?>
+
+<script>
+    console.table(sessionStorage);
+</script>

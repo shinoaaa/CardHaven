@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="/cardhaven/interface/login-page/style.css">
+    <!-- <link rel="stylesheet" href="/cardhaven/interface/login-page/style.css"> -->
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
 </head>
 <body>
@@ -27,25 +27,24 @@
                         <span>Or</span>
                     </div>
 
-                    <form id="loginForm">
+                    <form id="loginForm" novalidate>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="text" name="Email" placeholder="enter username..." required>
+                            <input type="email" id="emailInput" name="email" placeholder="enter email..." required>
+                            <small id="error-email" style="font-size: 12px; color: red; display: none; margin-top: 4px;"></small>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="email" name="Password" placeholder="enter email..." required>
+                            <input type="password" id="passwordInput" name="password" placeholder="enter password..." required>
+                            <small id="error-pass" style="font-size: 12px; color: red; display: none; margin-top: 4px;"></small>
                         </div>
+                        
                         <div style="width: 100%; height: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 17px;">
                             <div style="width: auto; height: 100%; display: flex; align-items: center; gap: 10px;">
-                                <div id="checkbox">
-                                    ✔
-                                </div>
-                                <p style="text-decoration: underline; color: #0088FF;  font-size: 13px;">Remember Me</p>
+                                <div id="checkbox">✔</div>
+                                <p id="checkText" style="text-decoration: underline; color: #0088FF; font-size: 13px; cursor: pointer;">Remember Me</p>
                             </div>
-                            <a style="color: #0088FF;  font-size: 13px;">
-                                Forgot Password?
-                            </a>
+                            <a style="color: #0088FF; font-size: 13px; cursor: pointer;">Forgot Password?</a>
                         </div>
 
                         <button type="submit" class="btn-signup">Login</button>
@@ -58,9 +57,6 @@
         </div>
     </div>
 
-    <script src="/cardhaven/interface/login-page/script.js">
-        
-
-    </script>
+    <script src="/cardhaven/interface/login-page/script.js"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json');
 
-// 1. Koneksi Database (Gunakan path relatif yang aman)
 require_once '../../connection.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,9 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // --- PROSES SQL SERVER ---
-
-        // 1. Cek apakah username atau email sudah ada
         $sqlCheck = "SELECT id_customer FROM customer WHERE username = ? OR email = ?";
         $paramsCheck = array($username, $email);
         $stmtCheck = sqlsrv_query($conn, $sqlCheck, $paramsCheck);
@@ -37,10 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // 2. Hash Password
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // 3. Insert Data Baru
         $sqlInsert = "INSERT INTO customer (username, email, password) VALUES (?, ?, ?)";
         $paramsInsert = array($username, $email, $hashedPassword);
         $stmtInsert = sqlsrv_query($conn, $sqlInsert, $paramsInsert);

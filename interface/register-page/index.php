@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Akun</title>
-    <link rel="stylesheet" href="/CardHaven/interface/register-page/style.css">
+    <!-- <title>Buat Akun</title>
+    <link rel="stylesheet" href="/CardHaven/interface/register-page/style.css"> -->
     <link rel="stylesheet" href="/CardHaven/interface/global.css">
     <script src="/CardHaven/interface/register-page/script_register.js" defer></script>
 </head>
