@@ -14,6 +14,6 @@
         die(print_r(sqlsrv_errors(), true));
     }
     else{
-        echo "lesgo";
+        // echo "lesgo";
     }
 ?>
