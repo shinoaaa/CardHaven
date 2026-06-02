@@ -21,7 +21,7 @@ body {
 
 .card {
     width: 78%;
-    height: 90%;
+    height: 93%;
     background-color: white;
     border-radius: 20px;
     display: flex;
@@ -79,7 +79,7 @@ h1 {
     display: flex;
     align-items: center;
     text-align: center;
-    margin: 20px 0;
+    margin: 15px 0;
     color: #A0C4FF;
 }
 
@@ -96,7 +96,7 @@ h1 {
 
 .form-group {
     text-align: left;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .form-group label {
@@ -121,6 +121,13 @@ input {
 
 input::placeholder {
     color: #A0A0A0;
+}
+
+.error-message {
+    display: none;
+    color: red;
+    font-size: 0.75rem;
+    margin-top: 2px;
 }
 
 .btn-signup {
