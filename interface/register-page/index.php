@@ -33,18 +33,22 @@
                         <div class="form-group">
                             <label>Username<span class="required">*</span></label>
                             <input type="text" name="username" placeholder="enter username..." required>
+                            <div id="usernameError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Email<span class="required">*</span></label>
                             <input type="email" name="email" placeholder="enter email..." required>
+                            <div id="emailError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Password<span class="required">*</span></label>
                             <input type="password" name="password" id="password" placeholder="enter password..." required>
+                            <div id="passwordError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Confirm password<span class="required">*</span></label>
                             <input type="password" name="confirm_password" id="confirm_password" placeholder="confirm password" required>
+                            <div id="confirmPasswordError" class="error-message"></div>
                         </div>
 
                         <button type="submit" class="btn-signup">Sign Up</button>
