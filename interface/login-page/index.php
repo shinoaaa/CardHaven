@@ -29,12 +29,12 @@
 
                     <form id="signupForm">
                         <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" name="username" placeholder="enter username..." required>
+                            <label>Email</label>
+                            <input type="text" name="Email" placeholder="enter username..." required>
                         </div>
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="enter email..." required>
+                            <label>Password</label>
+                            <input type="email" name="Password" placeholder="enter email..." required>
                         </div>
                         <div style="width: 100%; height: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 17px;">
                             <div style="width: auto; height: 100%; display: flex; align-items: center; gap: 10px;">
@@ -58,23 +58,8 @@
         </div>
     </div>
 
-    <script>
-        const checkBox = document.getElementById("checkbox");
-        let clicked = true;
-
-        checkBox.addEventListener('click', () => {
-
-            if(clicked){
-                checkBox.style.backgroundColor = '#0088FF';
-                checkBox.style.color = 'white'
-                clicked = false;
-            }
-            else{
-                checkBox.style.backgroundColor = '';
-                checkBox.style.color = '#0088FF'
-                clicked = true;
-            }
-        })
+    <script src="/cardhaven/interface/login-page/script.js">
+        
 
     </script>
 </body>
