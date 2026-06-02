@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <title>Buat Akun</title>
-    <link rel="stylesheet" href="/CardHaven/interface/register-page/style.css"> -->
+    <title>Buat Akun</title>
     <link rel="stylesheet" href="/CardHaven/interface/global.css">
     <script src="/CardHaven/interface/register-page/script_register.js" defer></script>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <div style="width: 45%; height: 100%; display: flex; justify-content: center;">
-                <img src="/CardHaven/assets/image/login-image.svg" style="object-fit: cover; height: 100%;">
+            <div class="image-wrap">
+                <img src="/CardHaven/assets/image/login-image.svg">
             </div>
 
             <div class="form-section">
