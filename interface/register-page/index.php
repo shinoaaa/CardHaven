@@ -6,7 +6,7 @@
     <title>Buat Akun</title>
     <link rel="stylesheet" href="/CardHaven/interface/register-page/style.css">
     <link rel="stylesheet" href="/CardHaven/interface/global.css">
-    <script src="script.js" defer></script>
+    <script src="/CardHaven/interface/register-page/script_register.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -17,7 +17,7 @@
 
             <div class="form-section">
                 <div class="form-container">
-                    <h1>Sign Up</h1>
+                    <h1 class="coolvetica">Sign Up</h1>
                     
                     <div class="social-login">
                         <button class="social-btn"><img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google"></button>
@@ -32,19 +32,23 @@
                     <form id="signupForm">
                         <div class="form-group">
                             <label>Username<span class="required">*</span></label>
-                            <input type="text" name="username" placeholder="enter username..." required>
+                            <input type="text" name="username" placeholder="enter username...">
+                            <div id="usernameError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Email<span class="required">*</span></label>
-                            <input type="email" name="email" placeholder="enter email..." required>
+                            <input type="email" name="email" placeholder="enter email...">
+                            <div id="emailError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Password<span class="required">*</span></label>
-                            <input type="password" name="password" id="password" placeholder="enter password..." required>
+                            <input type="password" name="password" id="password" placeholder="enter password...">
+                            <div id="passwordError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Confirm password<span class="required">*</span></label>
-                            <input type="password" name="confirm_password" id="confirm_password" placeholder="confirm password" required>
+                            <input type="password" name="confirm_password" id="confirm_password" placeholder="confirm password">
+                            <div id="confirmPasswordError" class="error-message"></div>
                         </div>
 
                         <button type="submit" class="btn-signup">Sign Up</button>

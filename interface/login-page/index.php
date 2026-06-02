@@ -27,7 +27,7 @@
                         <span>Or</span>
                     </div>
 
-                    <form id="signupForm">
+                    <form id="loginForm">
                         <div class="form-group">
                             <label>Email</label>
                             <input type="text" name="Email" placeholder="enter username..." required>
@@ -48,7 +48,7 @@
                             </a>
                         </div>
 
-                        <button type="submit" class="btn-signup">Sign Up</button>
+                        <button type="submit" class="btn-signup">Login</button>
                     </form>
 
                     <p style="margin-bottom: 16px;" class="footer-text">Doesn't have an account? <span><a href="register" style="text-decoration: underline; color: #0088FF;">Sign Up</a></span></p>
