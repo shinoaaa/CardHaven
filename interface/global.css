@@ -40,15 +40,18 @@ body {
     align-items: center;
 }
 
+
+/* Login dan Register */
+
 .card {
-    width: 78%;
+    width: 73%;
     height: 93%;
     background-color: white;
     border-radius: 20px;
     display: flex;
     /* max-width: 1000px;
     overflow: hidden; */
-    padding: 40px;
+    padding: 40px 20px;
 }
 
 .form-section {
@@ -89,10 +92,15 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.3s ease;
 }
 
 .social-btn img {
     width: 20px;
+}
+
+.social-btn:hover{
+    transform: scale(1.2);
 }
 
 .divider {
@@ -199,3 +207,5 @@ input::placeholder {
 #checkbox:hover {
     cursor: pointer;
 }
+
+/* Login dan Register */
