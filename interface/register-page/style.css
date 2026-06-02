@@ -1,20 +1,9 @@
-
-
-
 :root {
     --primary-color: #0F3891;      
     --bg-light: #E6EEFF;
     --divider-color: #C7D9FF;
     --text-dark: #000000;
     --text-gray: #888888;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-    /* overflow: hidden; */
 }
 
 body {
@@ -31,41 +20,16 @@ body {
 }
 
 .card {
-    width: 85%;
-    max-width: 1000px;
-    height: 95%;
+    width: 78%;
+    height: 90%;
     background-color: white;
     border-radius: 20px;
     display: flex;
-    overflow: hidden;
+    /* max-width: 1000px;
+    overflow: hidden; */
     padding: 40px;
 }
 
-/* Bagian Gambar */
-.image-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-right: 20px;
-}
-
-/* .image-wrapper {
-    width: 100%;
-    height: 100%;
-    border: 8px solid #0F3891;
-    border-radius: 20px;
-    overflow: hidden;
-    background-color: #0F3891;
-} */
-
-.image-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Bagian Form */
 .form-section {
     flex: 1.2;
     padding: 0 20px;
@@ -87,7 +51,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* Social Buttons */
 .social-login {
     display: flex;
     justify-content: center;
@@ -131,7 +94,6 @@ h1 {
     font-size: 0.9rem;
 }
 
-/* Form Styling */
 .form-group {
     text-align: left;
     margin-bottom: 15px;
