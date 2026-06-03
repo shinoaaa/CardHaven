@@ -9,15 +9,15 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let clicked = false;
 
+    // --- JALUR AUTO REDIRECT JIKA SUDAH LOGIN ---
+    const savedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedRole = localStorage.getItem("role") || sessionStorage.getItem("role");
 
-    // Ini buat tes kalo ada localstorgae dan session dia bakal auto redirect ke berhasil
-    // const isLocalLogin = localStorage.getItem("isLoggedIn") === "true";
-    // const isSessionLogin = sessionStorage.getItem("isLoggedIn") === "true";
-
-    // if (isLocalLogin || isSessionLogin) {
-    //     window.location.replace("/CardHaven/berhasil"); 
-    //     return;
-    // }
+    if (savedToken && savedRole !== null) {
+        if (savedRole == "1") window.location.replace("/CardHaven/superadmin");
+        else if (savedRole == "0") window.location.replace("/CardHaven/admin");
+        else if (savedRole == "2") window.location.replace("/CardHaven/owner");
+    }
 
     const rememberMe = () => {
         if (!clicked) {
@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loginForm.addEventListener("submit", async function(e) {
         e.preventDefault();
-
         resetErrors([emailInput, passwordInput], [errorEmail, errorPass]);
 
         const email = emailInput.value.trim();
@@ -47,12 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
             showError(emailInput, errorEmail, "Email tidak boleh kosong");
             isValid = false;
         }
-        
         if (!password) {
             showError(passwordInput, errorPass, "Password tidak boleh kosong");
             isValid = false;
         }
-
         if (!isValid) return;
 
         const formData = new FormData(this);
@@ -70,18 +67,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = JSON.parse(responseText);
                 
                 if (data.status === "success") {
-                    if (clicked) {
-                        localStorage.setItem("isLoggedIn", "true");
-                        localStorage.setItem("userEmail", email);
-                        localStorage.setItem("token", data.token);
-                    } else {
-                        sessionStorage.setItem("isLoggedIn", "true");
-                        sessionStorage.setItem("userEmail", email);
-                        sessionStorage.setItem("token", data.token);
-                    }
+                    // Simpan ke Storage berdasarkan Remember Me
+                    const storage = clicked ? localStorage : sessionStorage;
+                    storage.setItem("userEmail", email);
+                    storage.setItem("token", data.token);
+                    storage.setItem("role", data.role);
                     
                     alert("Login Berhasil!");
-                    window.location.replace("/CardHaven/berhasil"); 
+                    
+                    // LEMPAR SESUAI ROLE LANGSUNG DARI BROWSER
+                    if (data.role == 1) {
+                        window.location.replace("/CardHaven/superadmin");
+                    } else if (data.role == 0) {
+                        window.location.replace("/CardHaven/admin");
+                    } else if (data.role == 2) {
+                        window.location.replace("/CardHaven/owner");
+                    } else {
+                        window.location.replace("/CardHaven/home");
+                    }
                     
                 } else {
                     if (data.target === "email") {
@@ -94,9 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (jsonError) {
                 console.error("Server Error Response:", responseText);
-                alert("Terjadi kesalahan pada server (PHP Error). Cek console log (F12) untuk melihat detailnya.");
+                alert("Terjadi kesalahan pada server.");
             }
-
         } catch (error) {
             console.error("Fetch Error:", error);
             alert("Tidak dapat terhubung ke server.");
@@ -111,10 +113,6 @@ function showError(inputElement, errorElement, message) {
 }
 
 function resetErrors(inputs, errors) {
-    inputs.forEach(input => {
-        input.style.borderColor = "#0F3891";
-    });
-    errors.forEach(error => {
-        error.style.display = "none";
-    });
+    inputs.forEach(input => { input.style.borderColor = "#0F3891"; });
+    errors.forEach(error => { error.style.display = "none"; });
 }
