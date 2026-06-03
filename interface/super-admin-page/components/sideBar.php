@@ -52,5 +52,7 @@
             </a>
         </div>
         
+
+        <?php include 'logout.php' ?>
     </div>
 </div>
