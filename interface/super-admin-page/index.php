@@ -14,7 +14,6 @@ $row_count = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC);
 $total_rows = $row_count['total'];
 $total_pages = ceil($total_rows / $limit);
 
-
 $sql_game = "SELECT * FROM dbo.game 
             ORDER BY aktif DESC, id_game ASC 
             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
@@ -48,7 +47,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
         
         <div class="main-content">
             
-            <!-- 1. TABEL PRODUK (Fixed Height for 7 Rows) -->
             <div class="content-card">
                 <div class="card-title-row">
                     <h2 class="coolveticaa">Products</h2>
@@ -70,9 +68,10 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                     </thead>
                     <tbody>
                         <?php 
-                        // Loop data produk (Ganti dengan fetch dari mysqli)
+                        // Loop data produk (Ganti dengan fetch dari mysqli/sqlsrv nanti)
+                        // Catatan: Pastikan variabel $products sudah didefinisikan sebelumnya agar tidak error notice
                         for($i=0; $i<7; $i++): 
-                            $item = $products[0]; // Pakai dummy
+                            $item = isset($products[0]) ? $products[0] : ['name'=>'-','pid'=>'-','game'=>'-','set'=>'-','stock'=>'-','cond'=>'-','price'=>'-']; 
                         ?>
                         <tr>
                             <td><?= $item['name'] ?></td>
@@ -104,83 +103,49 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                 </div>
             </div>
 
-            <!-- 2. WRAPPER MASTER DATA -->
             <div class="master-data-wrapper">
+                
                 <div class="master-table-card">
-<<<<<<< Updated upstream
-                    <div>
-                        <div class="card-title-row">
-                            <h2 class="coolveticaa" style="font-size: 1.2rem;">Game</h2>
-                            <button class="btn-add-green">+ Add Game</button>
-                        </div>
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>Game Name</th>
-                                    <th>Game ID</th>
-                                    <th>Developer</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php for($i=0; $i<3; $i++): ?>
-                                <tr>
-                                    <td>Pokemon</td>
-                                    <td>GM-099</td>
-                                    <td>Stepanus</td>
-                                    <td>Active</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <button class="btn-edit-icon">✏️</button>
-                                            <button class="btn-delete-icon">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endfor; ?>
-                            </tbody>
-                        </table>
-=======
                     <div class="card-title-row">
                         <h2 class="coolveticaa" style="font-size: 1.2rem;">Game</h2>
                         <button class="btn-add-green" onclick="openAddModal()">+ Add Game</button>
->>>>>>> Stashed changes
                     </div>
                     <table class="styled-table">
                         <thead>
-                        <tr>
-                            <th>Game Name</th>
-                            <th>Game ID</th>
-                            <th>Developer</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        if ($stmt_game):
-                            while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): 
-                                $statusText = ($row['aktif'] == 1) ? 'Active' : 'Inactive';
-                                $statusColor = ($row['aktif'] == 1) ? '#27AE60' : '#E74C3C';
-                        ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['nama_game']) ?></td>
-                            <td><?= htmlspecialchars($row['id_game']) ?></td>
-                            <td><?= htmlspecialchars($row['developer']) ?></td>
-                            <td style="color: <?= $statusColor ?>; font-weight: bold;"><?= $statusText ?></td>
-                            <td>
-                                <div class="btn-action-group">
-                                    <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
-                                    <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php 
-                            endwhile; 
-                        endif; 
-                        ?>
-                    </tbody>
+                            <tr>
+                                <th>Game Name</th>
+                                <th>Game ID</th>
+                                <th>Developer</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            if ($stmt_game):
+                                while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): 
+                                    $statusText = ($row['aktif'] == 1) ? 'Active' : 'Inactive';
+                                    $statusColor = ($row['aktif'] == 1) ? '#27AE60' : '#E74C3C';
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars($row['nama_game']) ?></td>
+                                <td><?= htmlspecialchars($row['id_game']) ?></td>
+                                <td><?= htmlspecialchars($row['developer']) ?></td>
+                                <td style="color: <?= $statusColor ?>; font-weight: bold;"><?= $statusText ?></td>
+                                <td>
+                                    <div class="btn-action-group">
+                                        <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
+                                        <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php 
+                                endwhile; 
+                            endif; 
+                            ?>
+                        </tbody>
                     </table>
+                    
                     <div class="pagination-container">
                         <a href="?p_game=<?= max(1, $page_game - 1) ?>" class="page-num"> < </a>
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
@@ -192,7 +157,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                     </div>
                 </div>
 
-                <!-- MODAL ADD/EDIT GAME -->
                 <div id="gameModal" class="modal-overlay">
                     <div class="modal-box">
                         <div class="modal-header">
@@ -214,7 +178,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                                 <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." required>
                             </div>
 
-                            <!-- Bagian Log (Hanya muncul saat Edit) -->
                             <div id="logSection" style="display:none;">
                                 <div class="modal-form-group">
                                     <label>Created By</label>
@@ -241,7 +204,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                     </div>
                 </div>
 
-                <!-- TABEL SET -->
                 <div class="master-table-card">
                     <div>
                         <div class="card-title-row">
@@ -282,7 +244,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                     </div>
                 </div>
 
-                <!-- TABEL RARITY -->
                 <div class="master-table-card">
                     <div>
                         <div class="card-title-row">
@@ -323,14 +284,7 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                     </div>
                 </div>
 
-            </div> <!-- End Master Wrapper -->
-
-        </div> <!-- End Main Content -->
-    </div>
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
+            </div> </div> </div>
     <script src="game_script.js"></script>
 </body>
 </html>
