@@ -510,4 +510,155 @@ input::placeholder {
     border-radius: 10px;
 }
 
+<<<<<<< Updated upstream
+=======
+.main-content::-webkit-scrollbar {
+    width: 10px; /* Lebar scrollbar vertikal */
+}
+
+/* 2. Track (Latar belakang jalur scrollbar) */
+.main-content::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Warna abu-abu sangat terang */
+    border-radius: 10px;
+    margin: 5px 0; /* Memberi jarak sedikit di atas dan bawah */
+}
+
+/* 3. Thumb (Bagian yang digeser) */
+.main-content::-webkit-scrollbar-thumb {
+    background: var(--primary-light); /* Warna biru muda sesuai tema */
+    border-radius: 10px;
+    border: 2px solid #ffffff; /* Memberi efek 'padding' di dalam scrollbar */
+}
+
+/* 4. Thumb saat di-hover (saat kursor di atasnya) */
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color); /* Berubah menjadi biru tua saat disentuh */
+}
+
+/* --- FIREFOX SUPPORT --- */
+/* Untuk browser Firefox, gunakan properti standar ini */
+.main-content {
+    scrollbar-width: thin; /* Membuat scrollbar lebih tipis */
+    scrollbar-color: var(--primary-light) #f1f1f1; /* [Warna Thumb] [Warna Track] */
+}
+
+
+
+/* Modal Backdrop */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* Default hidden */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Box Design */
+.modal-box {
+    background: linear-gradient(180deg, #FFFFFF 0%, #E1EBFF 100%);
+    width: 450px;
+    padding: 30px;
+    border-radius: 40px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.modal-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #333;
+}
+
+.modal-header .blue-text {
+    color: #0088FF;
+}
+
+.modal-header .game-id {
+    color: #0088FF;
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 5px;
+}
+
+.modal-form-group {
+    margin-bottom: 15px;
+}
+
+.modal-form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1.5px solid #888;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    background: white;
+}
+
+/* Log Display (Created By / Edited By) */
+.log-display {
+    background: #0088FF;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.status-text {
+    text-align: center;
+    margin: 15px 0;
+    font-weight: 600;
+}
+
+.status-inactive { color: #E74C3C; }
+.status-active { color: #27AE60; }
+
+.btn-confirm {
+    width: 60%;
+    display: block;
+    margin: 20px auto 0;
+    background: #0088FF;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+.btn-confirm:hover {
+    background: #0066CC;
+    transform: translateY(-2px);
+}
+
+.pagination-container a {
+    text-decoration: none;
+    display: inline-block;
+}
+.pagination-container a.page-num:hover {
+    background-color: var(--primary-light);
+    color: white;
+    border-radius: 5px;
+}
+>>>>>>> Stashed changes
 /* Super Admin */
