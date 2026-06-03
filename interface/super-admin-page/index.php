@@ -12,24 +12,37 @@ $dummy_products = array_fill(0, 7, [
     'price' => '$10.22'
 ]);
 
-// Pagination Logic
+// Pagination Logic Game
 $limit = 3; 
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $page = ($page < 1) ? 1 : $page;
 $offset = ($page - 1) * $limit;
 
-// Count Total
 $sql_count = "SELECT COUNT(*) as total FROM dbo.game";
 $stmt_count = sqlsrv_query($conn, $sql_count);
 $total_rows = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC)['total'];
 $total_pages = ceil($total_rows / $limit);
 
-// Fetch Data
-$sql_game = "SELECT * FROM dbo.game ORDER BY aktif DESC, id_game ASC 
-            OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
+$sql_game = "SELECT * FROM dbo.game ORDER BY aktif DESC, id_game ASC OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
 $stmt_game = sqlsrv_query($conn, $sql_game);
-?>
 
+// Pagination Logic Rarity
+$limit_r = 3; 
+$page_r = isset($_GET['pr']) ? (int)$_GET['pr'] : 1;
+$page_r = ($page_r < 1) ? 1 : $page_r;
+$offset_r = ($page_r - 1) * $limit_r;
+
+$sql_count_r = "SELECT COUNT(*) as total FROM dbo.rarity";
+$stmt_count_r = sqlsrv_query($conn, $sql_count_r);
+$total_rows_r = sqlsrv_fetch_array($stmt_count_r, SQLSRV_FETCH_ASSOC)['total'];
+$total_pages_r = ceil($total_rows_r / $limit_r);
+
+$sql_rarity = "SELECT r.id_rarity, r.nama_rarity, r.kode_rarity, r.aktif, g.nama_game 
+               FROM dbo.rarity r 
+               LEFT JOIN dbo.game g ON r.id_game = g.id_game 
+               ORDER BY r.id_rarity DESC OFFSET $offset_r ROWS FETCH NEXT $limit_r ROWS ONLY";
+$stmt_rarity = sqlsrv_query($conn, $sql_rarity);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -42,8 +55,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
         (function() {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const role = localStorage.getItem("role") || sessionStorage.getItem("role");
-            
-            // Jika token kosong ATAU role bukan 1 (Superadmin), tendang!
             if (!token || role !== "1") {
                 window.location.replace("/CardHaven");
             }
@@ -57,14 +68,11 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
         </div>
         
         <div class="main-content">
-            
-            <!-- 1. TABEL PRODUK (Fixed Height for 7 Rows) -->
             <div class="content-card">
                 <div class="card-title-row">
                     <h2 class="coolveticaa">Products</h2>
                     <button class="btn-add-green">+ Add Product</button>
                 </div>
-                
                 <table class="styled-table">
                     <thead>
                         <tr>
@@ -98,7 +106,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-
                 <div class="pagination-container">
                     <span class="page-num"> < </span>
                     <span class="page-num">1</span>
@@ -110,10 +117,7 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                 </div>
             </div>
 
-            <!-- 2. WRAPPER MASTER DATA (Pastikan Class Ini Ada) -->
             <div class="master-data-wrapper">
-                
-                <!-- TABEL GAME -->
                 <div class="master-table-card">
                     <div style="flex: 1;">
                         <div class="card-title-row">
@@ -151,15 +155,14 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                         </table>
                     </div>
                     <div class="pagination-container">
-                        <a href="?p=<?= max(1, $page-1) ?>" class="page-link"> < </a>
+                        <a href="?p=<?= max(1, $page-1) ?>&pr=<?= $page_r ?>" class="page-link"> < </a>
                         <?php for($i=1; $i<=$total_pages; $i++): ?>
-                            <a href="?p=<?= $i ?>" class="page-link <?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
+                            <a href="?p=<?= $i ?>&pr=<?= $page_r ?>" class="page-link <?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
                         <?php endfor; ?>
-                        <a href="?p=<?= min($total_pages, $page+1) ?>" class="page-link"> > </a>
+                        <a href="?p=<?= min($total_pages, $page+1) ?>&pr=<?= $page_r ?>" class="page-link"> > </a>
                     </div>
                 </div>
 
-                <!-- TABEL SET -->
                 <div class="master-table-card">
                     <div style="flex: 1;">
                         <div class="card-title-row">
@@ -192,17 +195,13 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                             </tbody>
                         </table>
                     </div>
-                    <div class="pagination-container">
-                        <span class="page-num"><</span> <span class="page-num active">1</span> <span class="page-num">></span>
-                    </div>
                 </div>
 
-                <!-- TABEL RARITY -->
                 <div class="master-table-card">
                     <div style="flex: 1;">
                         <div class="card-title-row">
                             <h2 class="coolveticaa" style="font-size: 1.2rem;">Rarity</h2>
-                            <button class="btn-add-green">+ Add Rarity</button>
+                            <button class="btn-add-green" onclick="openModalRarity()">+ Add Rarity</button>
                         </div>
                         <table class="styled-table">
                             <thead>
@@ -215,30 +214,40 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)): ?>
                                 <tr>
-                                    <td>Super Rare</td>
-                                    <td>RAR-001</td>
-                                    <td style="color: #4A90E2;">Pokemon</td>
-                                    <td style="color: #4A90E2; font-weight: bold;">Active</td>
+                                    <td>
+                                        <?= htmlspecialchars($rowRarity['nama_rarity']) ?>
+                                        <?= !empty($rowRarity['kode_rarity']) ? ' (' . htmlspecialchars($rowRarity['kode_rarity']) . ')' : '' ?>
+                                    </td>
+                                    <td>RAR-<?= str_pad($rowRarity['id_rarity'], 3, '0', STR_PAD_LEFT) ?></td>
+                                    <td style="color: #4A90E2;"><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
+                                    <td style="color: #4A90E2; font-weight: bold;">
+                                        <?= $rowRarity['aktif'] == 1 ? 'Active' : 'Inactive' ?>
+                                    </td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <button class="btn-edit-icon">✏️</button>
-                                            <button class="btn-delete-icon">🗑️</button>
+                                            <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
+                                            <button class="btn-delete-icon" onclick="confirmDeleteRarity(<?= $rowRarity['id_rarity'] ?>)">🗑️</button>
                                         </div>
                                     </td>
                                 </tr>
+                                <?php endwhile; endif; ?>
                             </tbody>
                         </table>
                     </div>
                     <div class="pagination-container">
-                        <span class="page-num"><</span> <span class="page-num active">1</span> <span class="page-num">></span>
+                        <a href="?p=<?= $page ?>&pr=<?= max(1, $page_r-1) ?>" class="page-link"> < </a>
+                        <?php for($i=1; $i<=$total_pages_r; $i++): ?>
+                            <a href="?p=<?= $page ?>&pr=<?= $i ?>" class="page-link <?= ($i == $page_r) ? 'active' : '' ?>"><?= $i ?></a>
+                        <?php endfor; ?>
+                        <a href="?p=<?= $page ?>&pr=<?= min($total_pages_r, $page_r+1) ?>" class="page-link"> > </a>
                     </div>
                 </div>
-
-            </div> <!-- END OF master-data-wrapper -->
-
-        </div> <!-- End Main Content -->
+            </div> 
+        </div> 
     </div>
+    
     <div id="gameModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
@@ -248,32 +257,82 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
             <form id="gameForm">
                 <input type="hidden" name="action" id="formAction">
                 <input type="hidden" name="id_game" id="formID">
-                
                 <div class="modal-form-group">
                     <label>Game Name</label>
-                    <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." required>
+                    <input type="text" name="nama_game" id="nama_game" class="modal-input" required>
                 </div>
                 <div class="modal-form-group">
                     <label>Dev Name</label>
-                    <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." required>
+                    <input type="text" name="developer" id="developer" class="modal-input" required>
                 </div>
-
                 <div id="logSection" style="display:none;">
-                    <div class="modal-form-group"><label>Created By</label>
-                        <div class="log-display"><span id="createdBy"></span><span id="createdDate"></span></div>
-                    </div>
-                    <div class="modal-form-group"><label>Edited By</label>
-                        <div class="log-display"><span id="editedBy"></span><span id="editedDate"></span></div>
-                    </div>
-                    <div class="status-text">
-                        This game status is currently <span id="statusLabel">Active</span>
-                        <input type="hidden" name="aktif" id="aktifStatus">
-                    </div>
+                    <div class="modal-form-group"><label>Created By</label><div class="log-display"><span id="createdBy"></span><span id="createdDate"></span></div></div>
+                    <div class="modal-form-group"><label>Edited By</label><div class="log-display"><span id="editedBy"></span><span id="editedDate"></span></div></div>
+                    <div class="status-text">Status: <span id="statusLabel">Active</span><input type="hidden" name="aktif" id="aktifStatus"></div>
                 </div>
                 <button type="submit" class="btn-confirm">Confirm</button>
             </form>
         </div>
     </div>
+    
+    <div id="rarityModal" class="rarity-modal-overlay">
+        <div class="rarity-modal-box">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 id="modalTitleRarity" class="coolveticaa" style="margin: 0; font-size: 24px;">ADD <span class="blue-text">RARITY</span></h2>
+                <span id="displayIDRarity" class="game-id" style="font-weight: bold; color: #7F8C8D;"></span>
+            </div>
+            
+            <form id="rarityForm">
+                <input type="hidden" name="action" id="formActionRarity">
+                <input type="hidden" name="id_rarity" id="inputIdRarity">
+                
+                <div class="rarity-form-group">
+                    <label class="rarity-form-label">Game</label>
+                    <select id="inputGameRarity" name="id_game" required class="rarity-form-input">
+                        <option value="">-- Select Game --</option>
+                        <?php 
+                        $sql_dropdown = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
+                        $stmt_dropdown = sqlsrv_query($conn, $sql_dropdown);
+                        if ($stmt_dropdown) {
+                            while ($rowGame = sqlsrv_fetch_array($stmt_dropdown, SQLSRV_FETCH_ASSOC)) {
+                                echo '<option value="' . htmlspecialchars($rowGame['id_game']) . '">' . htmlspecialchars($rowGame['nama_game']) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="rarity-form-group">
+                    <label class="rarity-form-label">Rarity Name</label>
+                    <input type="text" id="inputNamaRarity" name="nama_rarity" class="rarity-form-input" required>
+                </div>
+                <div class="rarity-form-group">
+                    <label class="rarity-form-label">Rarity Code</label>
+                    <input type="text" id="inputKodeRarity" name="kode_rarity" class="rarity-form-input">
+                </div>
+
+                <div id="logSectionRarity" style="display:none; margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <label style="font-size: 13px; font-weight: 600;">Created By</label>
+                        <div style="font-size: 13px;"><span id="createdByRarity" style="color:#2980b9;"></span> <span id="createdDateRarity"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <label style="font-size: 13px; font-weight: 600;">Edited By</label>
+                        <div style="font-size: 13px;"><span id="editedByRarity" style="color:#2980b9;"></span> <span id="editedDateRarity"></span></div>
+                    </div>
+                    <div style="text-align: right; font-size: 13px; font-weight: 600;">
+                        Status: <span id="statusLabelRarity">Active</span>
+                        <input type="hidden" name="aktif" id="aktifStatusRarity">
+                    </div>
+                </div>
+
+                <div class="rarity-action-group">
+                    <button type="submit" class="rarity-btn-save">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <script src="game_script.js"></script>
+    <script src="rarity_script.js"></script>
 </body>
 </html>
