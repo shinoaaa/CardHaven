@@ -28,7 +28,7 @@ try {
             exit;
         }
 
-        $sql = "SELECT id_customer, email, password FROM customer WHERE email = ?";
+        $sql = "SELECT id_karyawan, email, password, role FROM karyawan WHERE email = ?";
         $params = array($email);
         
         $stmt = sqlsrv_prepare($conn, $sql, $params);
@@ -53,7 +53,7 @@ try {
             exit;
         }
 
-        if (!password_verify($password, $user['password'])) {
+        if ($password !== $user['password']) {
             echo json_encode(["status" => "error", "target" => "password", "message" => "Password yang dimasukkan salah"]);
             sqlsrv_free_stmt($stmt);
             exit;
@@ -73,13 +73,13 @@ try {
         // =========================================================================
         $maskedToken = bin2hex(random_bytes(16));
 
-        // Simpan semuanya di Session Server (Aman)
         $_SESSION['isLoggedIn'] = true;
-        $_SESSION['id_customer'] = $user['id_customer']; // ID asli tetep di server
+        $_SESSION['id_karyawan'] = $user['id_karyawan'];
         $_SESSION['userEmail'] = $user['email'];
+        $_SESSION['role'] = $user['role'];
         $_SESSION['userToken'] = $maskedToken;
 
-        echo json_encode(["status" => "success", "message" => "Login sukses", "token" => $maskedToken]);
+        echo json_encode(["status" => "success", "message" => "Login sukses", "token" => $maskedToken, "role" => $user['role']]);
         sqlsrv_free_stmt($stmt);
 
     } else {

@@ -28,6 +28,17 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management - Super Admin</title>
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
+    <script>
+        (function() {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const role = localStorage.getItem("role") || sessionStorage.getItem("role");
+            
+            // Jika token kosong ATAU role bukan 1 (Superadmin), tendang!
+            if (!token || role !== "1") {
+                window.location.replace("/CardHaven");
+            }
+        })();
+    </script>
 </head>
 <body>
     <div class="container" style="justify-content: flex-start; align-items: flex-start;">
