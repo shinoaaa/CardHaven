@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- <link rel="stylesheet" href="/cardhaven/interface/login-page/style.css"> -->
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <div style="width: 45%; height: 100%; display: flex; justify-content: center;">
+            <div class="image-wrap">
                 <img src="/cardhaven/assets/image/login-image.svg" style="object-fit: cover; height: 100%;">
             </div>
             <div class="form-section">
                 <div class="form-container">
                     <h1 class="coolvetica">Login</h1>
-                    
                     <div class="social-login">
                         <button class="social-btn"><img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google"></button>
                         <button class="social-btn"><img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="Github"></button>
@@ -31,12 +29,12 @@
                         <div class="form-group">
                             <label>Email</label>
                             <input type="email" id="emailInput" name="email" placeholder="enter email..." required>
-                            <small id="error-email" style="font-size: 12px; color: red; display: none; margin-top: 4px;"></small>
+                            <small id="error-email" class="error-message"></small>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
                             <input type="password" id="passwordInput" name="password" placeholder="enter password..." required>
-                            <small id="error-pass" style="font-size: 12px; color: red; display: none; margin-top: 4px;"></small>
+                            <small id="error-pass" class="error-message"></small>
                         </div>
                         
                         <div style="width: 100%; height: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 17px;">

@@ -1,7 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap');
+
+@media screen and (min-width: 1440px) {
+    html {
+        font-size: 15px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+
+@media screen and (max-width: 768px) {
+    html {
+        font-size: 8px;
+    }
+}
+
 *{
     padding: 0;
     margin: 0;
-    font-size: 16px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -11,20 +31,36 @@
     src: url(/cardhaven/assets/font/Coolvetica\ Rg.otf);
 }
 
-
-
 .coolvetica{
     font-family: coolvetica;
     letter-spacing: 2px
 }
 
+.coolveticaa{
+    font-family: coolvetica;
+    letter-spacing: 0.5px;
+}
+
+a{
+    text-decoration: none;
+}
+
 :root {
     --primary-color: #0F3891;
-    --bg-light: #E6EEFF;
+    --primary-light: #3571EA;
+    --bg-light: #dee8ff;
     --divider-color: #C7D9FF;
     --text-dark: #000000;
     --text-gray: #888888;
-    --higlight: #0088FF;
+    --highlight: #0088FF;
+
+    --bg-gradient: linear-gradient(75deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    --main-font: 'Inter', sans-serif;
+}
+
+h2, h3 {
+    font-family: var(--main-font);
+    font-weight: 400; /* 400 itu artinya Regular */
 }
 
 body {
@@ -54,8 +90,20 @@ body {
     padding: 40px 20px;
 }
 
+.image-wrap{
+    width: 55%; 
+    height: 100%; 
+    display: flex; 
+    justify-content: center;
+}
+
+.image-wrap img{
+    object-fit: cover; height: 100%;
+}
+
 .form-section {
-    flex: 1.2;
+    width: 45%; 
+    height: 100%; 
     padding: 0 20px;
     display: flex;
     flex-direction: column;
@@ -199,8 +247,8 @@ input::placeholder {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid var(--higlight);
-    color: var(--higlight);
+    border: 2px solid var(--highlight);
+    color: var(--highlight);
     border-radius: 2px;
 }
 
@@ -209,3 +257,98 @@ input::placeholder {
 }
 
 /* Login dan Register */
+
+
+/* Super Admin */
+
+.sideBar{
+    width: 11%; 
+    height: 100%; 
+    background-color: white;
+    padding: 1.75rem 1rem;
+}
+
+.logo-wrap {
+    width: 10rem;
+    height: 4rem;
+    display: flex; 
+    justify-content: center;
+}
+
+.profile-employee {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    text-align: center;
+    width: 10rem;    
+    margin-top: 1rem;
+}
+
+.photo-Profile {
+    width: 6.5rem;
+    height: 6.5rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 2px solid var(--primary-color);
+}
+
+.navMenu {
+    width: 100%;
+    margin-top: 2rem;
+    align-self: flex-start;
+}
+
+.menuOption {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.selectedOption{
+    width: 100%;
+    background-color: #E1EBFF;
+    padding: .5rem .5rem;
+    border-radius: .5rem;
+}
+
+.selectedOption img{
+    object-fit: fill; 
+    width: 1.25rem; 
+    height: 1.25rem;
+}
+
+.selectedOption h2{
+    font-size: .6rem; 
+}
+
+.unselected img{
+    object-fit:fill; 
+    width: 1.5rem; 
+    height: 1.5rem;
+    
+}
+
+.unselected{
+    transition: transform 0.3s ease;
+    
+}
+
+.unselected h2{
+    font-size: .65rem;
+}
+
+.unselected:hover{
+    transform: scale(1.1);
+}
+
+.userTag{
+    padding: .35rem .75rem;
+    background: var(--bg-gradient);
+    border-radius: 999px;
+    position: absolute;
+    top: 12rem;
+}
+
+/* Super Admin */
