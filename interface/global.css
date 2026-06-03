@@ -351,4 +351,203 @@ input::placeholder {
     top: 12rem;
 }
 
+/* --- MAIN CONTENT (Bisa Scroll Vertikal) --- */
+.main-content {
+    flex: 1;
+    height: 100vh;
+    padding: 2rem;
+    overflow-y: auto; /* Izinkan scroll seluruh konten ke bawah */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* --- CARD GENERAL STYLE --- */
+.content-card, .master-table-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* --- PRODUCT SECTION (7 ROWS) --- */
+.content-card {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 520px; /* Tinggi pas untuk 7 baris data + header + paging */
+    flex-shrink: 0;
+}
+
+.card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-title-row h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* --- MASTER DATA SECTION (Game, Set, Rarity) --- */
+.master-data-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto; 
+    padding-bottom: 1rem;
+    flex-shrink: 0;
+    
+}
+
+.master-table-card {
+    min-width: 450px;
+    flex: 0 0 auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 330px; 
+    overflow-y: hidden; 
+}
+
+/* --- TABLE STYLING --- */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.styled-table thead th {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 12px 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.styled-table tbody td {
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #333;
+    border-bottom: 2px solid var(--primary-color); 
+}
+
+
+
+
+.btn-action-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-edit-icon, .btn-delete-icon {
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    transition: 0.2s ease;
+}
+
+.btn-edit-icon { background-color: #F39C12; }
+.btn-delete-icon { background-color: #E74C3C; }
+
+.btn-edit-icon:hover { transform: scale(1.1); background-color: #e67e22; }
+.btn-delete-icon:hover { transform: scale(1.1); background-color: #c0392b; }
+
+.btn-add-green {
+    background-color: #27AE60;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.btn-add-green:hover {
+    background-color: #219150;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto; 
+    padding-top: 15px;
+}
+
+.page-num {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 600;
+    padding: 2px 5px;
+}
+
+.page-num.active {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 5px;
+}
+
+/* Custom Scrollbar untuk horizontal scroll tabel master */
+.master-data-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.master-data-wrapper::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 10px;
+}
+.master-data-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar {
+    width: 10px; /* Lebar scrollbar vertikal */
+}
+
+/* 2. Track (Latar belakang jalur scrollbar) */
+.main-content::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Warna abu-abu sangat terang */
+    border-radius: 10px;
+    margin: 5px 0; /* Memberi jarak sedikit di atas dan bawah */
+}
+
+/* 3. Thumb (Bagian yang digeser) */
+.main-content::-webkit-scrollbar-thumb {
+    background: var(--primary-light); /* Warna biru muda sesuai tema */
+    border-radius: 10px;
+    border: 2px solid #ffffff; /* Memberi efek 'padding' di dalam scrollbar */
+}
+
+/* 4. Thumb saat di-hover (saat kursor di atasnya) */
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color); /* Berubah menjadi biru tua saat disentuh */
+}
+
+/* --- FIREFOX SUPPORT --- */
+/* Untuk browser Firefox, gunakan properti standar ini */
+.main-content {
+    scrollbar-width: thin; /* Membuat scrollbar lebih tipis */
+    scrollbar-color: var(--primary-light) #f1f1f1; /* [Warna Thumb] [Warna Track] */
+}
+
+
 /* Super Admin */
