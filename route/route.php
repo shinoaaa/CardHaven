@@ -22,6 +22,6 @@ else if ($segments[0] === 'admin') {
 // } 
 else {
     http_response_code(404);
-    echo "404 Not Fdound";
+    echo "404 Not Found";
 }
 ?>
