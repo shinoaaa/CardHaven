@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../CardHaven/connection.php'; 
+require_once '../cardhaven/connection.php';
 
 $dummy_products = array_fill(0, 7, [
     'name' => 'Rayquaza V',
@@ -99,7 +99,13 @@ $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
                             <td>
                                 <div class="btn-action-group">
                                     <button class="btn-edit-icon" style="background-color: #F39C12; border:none; padding:5px; border-radius:5px; color:white;">✏️</button>
-                                    <button class="btn-delete-icon" style="background-color: #E74C3C; border:none; padding:5px; border-radius:5px; color:white;">🗑️</button>
+                                    <?php if ($row['aktif'] == 1): ?>
+                                        <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
+                                    <?php else: ?>
+                                        <button class="btn-restore-icon" 
+                                                style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -137,16 +143,22 @@ $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
                             <tbody>
                                 <?php while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
                                 <tr>
-                                    <td style="color: #4A90E2;"><?= htmlspecialchars($row['nama_game']) ?></td>
-                                    <td>GAM-<?= str_pad($row['id_game'], 3, '0', STR_PAD_LEFT) ?></td>
+                                    <td><?= htmlspecialchars($row['nama_game']) ?></td>
+                                    <td><?= htmlspecialchars($row['id_game']) ?></td>
                                     <td><?= htmlspecialchars($row['developer']) ?></td>
-                                    <td style="color: #4A90E2; font-weight: bold;">
+                                    <td>
                                         <?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?>
                                     </td>
                                     <td>
                                         <div class="btn-action-group">
                                             <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
-                                            <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
+                                            <?php if ($row['aktif'] == 1): ?>
+                                                <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
+                                            <?php else: ?>
+                                                <button class="btn-restore-icon" 
+                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                        onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -334,5 +346,6 @@ $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
     
     <script src="game_script.js"></script>
     <script src="rarity_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
 </body>
 </html>

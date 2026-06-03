@@ -40,6 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else if ($action === 'delete') {
         $sql = "UPDATE dbo.game SET aktif=0, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
+    }else if ($action === 'restore') {
+        $sql = "UPDATE dbo.game SET aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
+        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Action tidak valid!']);
+        exit;
     }
 
     echo json_encode(['status' => $stmt ? 'success' : 'error', 'message' => $stmt ? '' : 'Database error']);
@@ -48,14 +54,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch Detail
 if (isset($_GET['get_detail'])) {
-    $sql = "SELECT g.*, k1.nama_karyawan as creator, k2.nama_karyawan as modifier 
-            FROM dbo.game g LEFT JOIN dbo.karyawan k1 ON g.created_by = k1.id_karyawan
-            LEFT JOIN dbo.karyawan k2 ON g.modified_by = k2.id_karyawan WHERE g.id_game = ?";
-    $stmt = sqlsrv_query($conn, $sql, [$_GET['get_detail']]);
-    $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    if($data) {
-        $data['created_date'] = $data['created_date']->format('d-M-Y');
-        $data['modified_date'] = $data['modified_date'] ? $data['modified_date']->format('d-M-Y') : '-';
+    $id = $_GET['get_detail'];
+    
+    // Query hanya ke tabel game
+    $sql = "SELECT * FROM dbo.game WHERE id_game = ?";
+    $stmt = sqlsrv_query($conn, $sql, [$id]);
+
+    if ($stmt === false) {
+        die(json_encode(['error' => sqlsrv_errors()]));
     }
-    echo json_encode($data); exit;
+
+    $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+
+    if ($data) {
+        // Format Tanggal (Sangat penting agar tidak error di JS)
+        $data['created_date'] = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
+        $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
+        
+        // Karena tidak pakai JOIN, kita kirim ID karyawannya saja sebagai teks
+        $data['creator'] = "User ID: " . ($data['created_by'] ?? '-');
+        $data['modifier'] = ($data['modified_by']) ? "User ID: " . $data['modified_by'] : '-';
+
+        echo json_encode($data);
+    } else {
+        echo json_encode(['error' => 'Data tidak ditemukan']);
+    }
+    exit;
 }
