@@ -66,7 +66,7 @@ $products = [
                             <th>Stock</th>
                             <th>Condition</th>
                             <th>Price</th>
-                            <th>Action</th>
+                            <th>Actiodn</th>
                         </tr>
                     </thead>
                     <tbody>
