@@ -2,20 +2,20 @@
 
 @media screen and (min-width: 1440px) {
     html {
-        font-size: 16px;
+        font-size: 15px;
     }
 }
 
 @media screen and (max-width: 1024px) {
     html {
-        font-size: 12px;
+        font-size: 10px;
     }
 }
 
 
 @media screen and (max-width: 768px) {
     html {
-        font-size: 10px;
+        font-size: 8px;
     }
 }
 
@@ -262,7 +262,7 @@ input::placeholder {
 /* Super Admin */
 
 .sideBar{
-    width: 15%; 
+    width: 11%; 
     height: 100%; 
     background-color: white;
     padding: 1.75rem 1rem;
@@ -330,12 +330,21 @@ input::placeholder {
     
 }
 
+.unselected{
+    transition: transform 0.3s ease;
+    
+}
+
 .unselected h2{
     font-size: .65rem;
 }
 
+.unselected:hover{
+    transform: scale(1.1);
+}
+
 .userTag{
-    padding: 7px 12px;
+    padding: .35rem .75rem;
     background: var(--bg-gradient);
     border-radius: 999px;
     position: absolute;

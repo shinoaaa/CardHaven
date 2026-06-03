@@ -5,10 +5,10 @@
 
     <div class="profile-employee">
         <div class="photo-Profile">
-            <img src="https://i.pinimg.com/736x/e8/2b/43/e82b43056d04e86c577a443485049d9b.jpg" style="object-fit: cover; width: 100%; height: 100%;">
+            <img src="https://i.pinimg.com/736x/61/cf/2b/61cf2bbab72c1aff20e755b97e0e9c36.jpg" style="object-fit: cover; width: 100%; height: 100%;">
         </div>
         <div class="userTag">
-            <h2 class="coolveticaa" style="color: white; font-size: .65rem;">Super Admin</h2>
+            <h2 class="coolveticaa" style="color: white; font-size: .65rem;">Admin</h2>
         </div>
         <div style="margin-top: 1rem;">
             <h2 class="coolveticaa" style="font-size: 1rem; color: var(--primary-color);">Wō Kuraimu</h2>
