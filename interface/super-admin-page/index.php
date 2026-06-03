@@ -40,7 +40,7 @@ $total_pages_r = ceil($total_rows_r / $limit_r);
 $sql_rarity = "SELECT r.id_rarity, r.nama_rarity, r.kode_rarity, r.aktif, g.nama_game 
                FROM dbo.rarity r 
                LEFT JOIN dbo.game g ON r.id_game = g.id_game 
-               ORDER BY r.id_rarity DESC OFFSET $offset_r ROWS FETCH NEXT $limit_r ROWS ONLY";
+               ORDER BY r.aktif DESC, r.id_rarity ASC OFFSET $offset_r ROWS FETCH NEXT $limit_r ROWS ONLY";
 $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
 ?>
 
@@ -240,7 +240,15 @@ $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
                                     <td>
                                         <div class="btn-action-group">
                                             <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
-                                            <button class="btn-delete-icon" onclick="confirmDeleteRarity(<?= $rowRarity['id_rarity'] ?>)">🗑️</button>
+                                            <?php if ($rowRarity['aktif'] == 1): ?>
+                                                <!-- Jika Aktif, tampilkan tombol Hapus/Nonaktifkan -->
+                                                <button class="btn-delete-icon" onclick="confirmDeleteRarity(<?= $rowRarity['id_rarity'] ?>)">🗑️</button>
+                                            <?php else: ?>
+                                                <!-- Jika Tidak Aktif, tampilkan tombol Pulihkan/Aktifkan Kembali -->
+                                                <button class="btn-restore-icon" 
+                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                        onclick="confirmRestoreRarity(<?= $rowRarity['id_rarity'] ?>)">🔄</button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -344,8 +352,7 @@ $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
         </div>
     </div>
     
-    <script src="game_script.js"></script>
-    <script src="rarity_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/rarity_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
 </body>
 </html>
