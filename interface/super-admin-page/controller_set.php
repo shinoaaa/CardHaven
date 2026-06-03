@@ -54,8 +54,8 @@ if (isset($_GET['get_list'])) {
 if (isset($_GET['get_detail'])) {
     $id  = (int)$_GET['get_detail'];
     $sql = "SELECT s.*, g.nama_game,
-                k1.nama_karyawan as creator,
-                k2.nama_karyawan as modifier
+                k1.nama as creator,
+                k2.nama as modifier
             FROM dbo.set_kartu s
             INNER JOIN dbo.game g ON s.id_game = g.id_game
             LEFT JOIN dbo.karyawan k1 ON s.created_by  = k1.id_karyawan

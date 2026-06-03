@@ -1,106 +1,28 @@
 // =============================================================
-//  SET – set_script.js
-//  Pola identik dengan game_script.js
+//  SET – set_script.js (VERSI SYNC PHP & BACKEND TERBARU)
 // =============================================================
 
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
 
-// Ambil id karyawan dari storage (sama persis dengan game_script.js)
+// Gunakan nama variabel yang unik agar tidak bentrok dengan script lain
+const SET_API_URL_PATH = '/CardHaven/interface/super-admin-page/controller_set.php'; 
+
 function getEmployeeId() {
-    const id = localStorage.getItem('id_karyawan');
-    if (!id) {
-        console.warn("ID Karyawan tidak ditemukan di storage!");
-        return 2;
-    }
-    return id;
+    return localStorage.getItem('id_karyawan') || 2;
 }
 
 // ================================================================
-// LOAD TABEL SET
+// DROPDOWN GAME (Isi otomatis saat modal dibuka)
 // ================================================================
-let currentSetPage = 1;
-
-function loadSetTable(page) {
-    currentSetPage = page;
-
-    fetch(`controller_set.php?get_list=1&page=${page}`)
-        .then(res => res.json())
-        .then(res => {
-            if (res.status !== 'success') return;
-
-            const tbody = document.getElementById('setTableBody');
-            tbody.innerHTML = '';
-
-            if (res.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">Tidak ada data</td></tr>';
-            } else {
-                res.data.forEach(row => {
-                    const statusText  = row.aktif == 1 ? 'Active'   : 'Inactive';
-                    const statusColor = row.aktif == 1 ? '#27AE60'  : '#E74C3C';
-                    const setIdLabel  = 'SET-' + String(row.id_set).padStart(3, '0');
-
-                    tbody.innerHTML += `
-                    <tr>
-                        <td>${escHtml(row.nama_set)}</td>
-                        <td>${escHtml(setIdLabel)}</td>
-                        <td>${escHtml(row.nama_game)}</td>
-                        <td style="color:${statusColor}; font-weight:bold;">${statusText}</td>
-                        <td>
-                            <div class="btn-action-group">
-                                <button class="btn-edit-icon"   onclick="openEditSetModal(${row.id_set})">✏️</button>
-                                <button class="btn-delete-icon" onclick="confirmDeleteSet(${row.id_set})">🗑️</button>
-                            </div>
-                        </td>
-                    </tr>`;
-                });
-            }
-
-            renderSetPagination(res.total_pages, res.current_page);
-        })
-        .catch(err => console.error("Gagal load set:", err));
-}
-
-function renderSetPagination(totalPages, currentPage) {
-    const container = document.getElementById('setPaginationContainer');
-    container.innerHTML = '';
-
-    const prev = document.createElement('span');
-    prev.className = 'page-num';
-    prev.innerText = ' < ';
-    if (currentPage > 1) prev.style.cursor = 'pointer';
-    prev.onclick = () => { if (currentPage > 1) loadSetTable(currentPage - 1); };
-    container.appendChild(prev);
-
-    for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('span');
-        btn.className = 'page-num' + (i === currentPage ? ' active' : '');
-        btn.innerText = i;
-        btn.style.cursor = 'pointer';
-        btn.onclick = () => loadSetTable(i);
-        container.appendChild(btn);
-    }
-
-    const next = document.createElement('span');
-    next.className = 'page-num';
-    next.innerText = ' > ';
-    if (currentPage < totalPages) next.style.cursor = 'pointer';
-    next.onclick = () => { if (currentPage < totalPages) loadSetTable(currentPage + 1); };
-    container.appendChild(next);
-}
-
-// ================================================================
-// DROPDOWN GAME (isi saat modal dibuka pertama kali)
-// ================================================================
-let gamesLoaded = false;
-
-function loadGameOptions(selectedId) {
-    if (gamesLoaded) {
-        if (selectedId) document.getElementById('setGameId').value = selectedId;
+let setGamesLoaded = false;
+function loadGameOptionsForSet(selectedId) {
+    if (setGamesLoaded && selectedId) {
+        document.getElementById('setGameId').value = selectedId;
         return;
     }
-
-    fetch('controller_set.php?get_games=1')
+    // Ambil list game aktif dari backend
+    fetch(`${SET_API_URL_PATH}?get_games=1`)
         .then(res => res.json())
         .then(res => {
             const select = document.getElementById('setGameId');
@@ -109,7 +31,7 @@ function loadGameOptions(selectedId) {
                 const opt = new Option(g.nama_game, g.id_game);
                 select.appendChild(opt);
             });
-            gamesLoaded = true;
+            setGamesLoaded = true;
             if (selectedId) select.value = selectedId;
         });
 }
@@ -123,7 +45,7 @@ function openAddSetModal() {
     document.getElementById('setFormAction').value = 'add';
     document.getElementById('setLogSection').style.display = 'none';
     setForm.reset();
-    loadGameOptions(null);
+    loadGameOptionsForSet(null);
     setModal.style.display = 'flex';
 }
 
@@ -131,16 +53,23 @@ function openAddSetModal() {
 // MODAL EDIT
 // ================================================================
 function openEditSetModal(id) {
-    fetch(`/CardHaven/interface/super-admin-page/controller_set.php?get_detail=${id}`)
+    fetch(`${SET_API_URL_PATH}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
+            if(!data || data.error) return alert("Gagal mengambil data detail");
+
             document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">SET</span> DETAIL';
             document.getElementById('setDisplayID').innerText = 'SET-' + String(id).padStart(3, '0');
             document.getElementById('setFormAction').value = 'edit';
             document.getElementById('setIdInput').value   = id;
             document.getElementById('setNama').value      = data.nama_set;
             document.getElementById('setKode').value      = data.kode_set;
-            document.getElementById('setTanggal').value   = data.tanggal_rilis || '';
+            
+            // Format tanggal untuk input type="date" (Y-m-d)
+            if(data.tanggal_rilis) {
+                document.getElementById('setTanggal').value = data.tanggal_rilis;
+            }
+
             document.getElementById('setLogSection').style.display = 'block';
             document.getElementById('setCreatedBy').innerText   = data.creator  || 'System';
             document.getElementById('setCreatedDate').innerText = data.created_date || '-';
@@ -152,45 +81,36 @@ function openEditSetModal(id) {
             statusLabel.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
             document.getElementById('setAktifStatus').value = data.aktif;
 
-            loadGameOptions(data.id_game);
+            loadGameOptionsForSet(data.id_game);
             setModal.style.display = 'flex';
-        });
+        })
+        .catch(err => console.error("Error Edit Modal:", err));
 }
 
 // ================================================================
-// SUBMIT FORM (add / edit)
+// SUBMIT FORM (Add / Edit)
 // ================================================================
 setForm.onsubmit = function(e) {
     e.preventDefault();
 
-    const nama  = document.getElementById('setNama').value.trim();
-    const kode  = document.getElementById('setKode').value.trim();
-    const game  = document.getElementById('setGameId').value;
-
-    if (nama === '' || kode === '' || game === '') {
-        alert("Nama set, kode set, dan game wajib diisi!");
-        return;
-    }
-
     const formData = new FormData(setForm);
     formData.append('id_karyawan_js', getEmployeeId());
 
-    fetch('/CardHaven/interface/super-admin-page/controller_set.php', { method: 'POST', body: formData })
+    fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') {
                 alert("Data berhasil disimpan");
-                setModal.style.display = 'none';
-                loadSetTable(currentSetPage);
+                location.reload(); // REFRESH AGAR LOGIKA PHP MENAMPILKAN DATA TERBARU
             } else {
                 alert("Peringatan: " + res.message);
             }
         })
-        .catch(() => alert("Terjadi kesalahan pada server"));
+        .catch(err => alert("Terjadi kesalahan sistem saat menyimpan."));
 };
 
 // ================================================================
-// DELETE (soft delete)
+// DELETE & RESTORE
 // ================================================================
 function confirmDeleteSet(id) {
     if (confirm("Nonaktifkan set ini? (Soft Delete)")) {
@@ -199,14 +119,15 @@ function confirmDeleteSet(id) {
         formData.append('id_set',         id);
         formData.append('id_karyawan_js', getEmployeeId());
 
-        fetch('/CardHaven/interface/super-admin-page/controller_set.php', { method: 'POST', body: formData })
+        fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(res => {
-                if (res.status === 'success') loadSetTable(currentSetPage);
+                if (res.status === 'success') location.reload();
                 else alert("Gagal menghapus: " + res.message);
             });
     }
 }
+
 function confirmRestoreSet(id) {
     if (confirm("Aktifkan kembali set ini?")) {
         const formData = new FormData();
@@ -214,35 +135,16 @@ function confirmRestoreSet(id) {
         formData.append('id_set',         id);
         formData.append('id_karyawan_js', getEmployeeId());
 
-        fetch('/CardHaven/interface/super-admin-page/controller_set.php', { method: 'POST', body: formData })
+        fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(res => {
-                if (res.status === 'success') loadSetTable(currentSetPage);
+                if (res.status === 'success') location.reload();
                 else alert("Gagal mengembalikan: " + res.message);
             });
     }
 }
 
-// ================================================================
-// TUTUP MODAL klik di luar box
-// ================================================================
+// Close modal klik luar box
 window.addEventListener('click', function(e) {
     if (e.target === setModal) setModal.style.display = 'none';
 });
-
-// ================================================================
-// HELPER: escape HTML biar aman dari XSS
-// ================================================================
-function escHtml(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
-
-// ================================================================
-// INIT — load tabel saat halaman pertama kali dibuka
-// ================================================================
-document.addEventListener('DOMContentLoaded', () => loadSetTable(1));
