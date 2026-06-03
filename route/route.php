@@ -10,7 +10,10 @@ if ($segments[0] === '' || $segments[0] === 'home') {
 } 
 else if ($segments[0] === 'register') {
     include '../CardHaven/interface/register-page/index.php';
-} 
+}
+else if ($segments[0] === 'master-set') {
+    include '../CardHaven/interface/master-set/index.php';
+}
 else if ($segments[0] === 'superadmin') {
     include '../CardHaven/interface/super-admin-page/index.php';
 } 
