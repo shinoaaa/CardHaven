@@ -75,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     alert("Login Berhasil!");
                     
-                    // LEMPAR SESUAI ROLE LANGSUNG DARI BROWSER
                     if (data.role == 1) {
                         window.location.replace("/CardHaven/superadmin");
                     } else if (data.role == 0) {
