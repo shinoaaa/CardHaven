@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../cardhaven/connection.php';
+require_once '../../connection.php';
 
 header('Content-Type: application/json');
 
@@ -168,6 +168,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt) echo json_encode(['status' => 'success']);
         else       echo json_encode(['status' => 'error', 'message' => 'Gagal menonaktifkan set']);
+        exit;
+    }
+    if($action === 'restore') {
+        $id_set = (int)$_POST['id_set'];
+        $sql    = "UPDATE dbo.set_kartu SET aktif = 1, modified_by = ?, modified_date = GETDATE() WHERE id_set = ?";
+        $stmt   = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
+
+        if ($stmt) echo json_encode(['status' => 'success']);
+        else       echo json_encode(['status' => 'error', 'message' => 'Gagal mengaktifkan set']);
         exit;
     }
 

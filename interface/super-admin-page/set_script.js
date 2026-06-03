@@ -131,7 +131,7 @@ function openAddSetModal() {
 // MODAL EDIT
 // ================================================================
 function openEditSetModal(id) {
-    fetch(`controller_set.php?get_detail=${id}`)
+    fetch(`/CardHaven/interface/super-admin-page/controller_set.php?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
             document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">SET</span> DETAIL';
@@ -175,7 +175,7 @@ setForm.onsubmit = function(e) {
     const formData = new FormData(setForm);
     formData.append('id_karyawan_js', getEmployeeId());
 
-    fetch('controller_set.php', { method: 'POST', body: formData })
+    fetch('/CardHaven/interface/super-admin-page/controller_set.php', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') {
@@ -199,11 +199,26 @@ function confirmDeleteSet(id) {
         formData.append('id_set',         id);
         formData.append('id_karyawan_js', getEmployeeId());
 
-        fetch('controller_set.php', { method: 'POST', body: formData })
+        fetch('/CardHaven/interface/super-admin-page/controller_set.php', { method: 'POST', body: formData })
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'success') loadSetTable(currentSetPage);
                 else alert("Gagal menghapus: " + res.message);
+            });
+    }
+}
+function confirmRestoreSet(id) {
+    if (confirm("Aktifkan kembali set ini?")) {
+        const formData = new FormData();
+        formData.append('action',         'restore');
+        formData.append('id_set',         id);
+        formData.append('id_karyawan_js', getEmployeeId());
+
+        fetch('/CardHaven/interface/super-admin-page/controller_set.php', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') loadSetTable(currentSetPage);
+                else alert("Gagal mengembalikan: " + res.message);
             });
     }
 }
