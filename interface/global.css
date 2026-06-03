@@ -351,36 +351,38 @@ input::placeholder {
     top: 12rem;
 }
 
-/* --- Dashboard Layout --- */
-/* --- Dashboard Layout --- */
+/* --- MAIN CONTENT (Bisa Scroll Vertikal) --- */
 .main-content {
     flex: 1;
     height: 100vh;
-    padding: 1.5rem;
-    overflow-y: auto;
-    background-color: var(--bg-light);
+    padding: 2rem;
+    overflow-y: auto; /* Izinkan scroll seluruh konten ke bawah */
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
-/* --- Card Styles --- */
-.content-card {
+/* --- CARD GENERAL STYLE --- */
+.content-card, .master-table-card {
     background: white;
     border-radius: 20px;
-    padding: 1.5rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* --- PRODUCT SECTION (7 ROWS) --- */
+.content-card {
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    /* Tinggi tetap agar muat 7 baris + header + pagination */
-    min-height: 520px; 
+    min-height: 520px; /* Tinggi pas untuk 7 baris data + header + paging */
+    flex-shrink: 0;
 }
 
 .card-title-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .card-title-row h2 {
@@ -389,60 +391,53 @@ input::placeholder {
     font-weight: 700;
 }
 
-/* --- Master Tables Horizontal Scroll --- */
+/* --- MASTER DATA SECTION (Game, Set, Rarity) --- */
 .master-data-wrapper {
     display: flex;
     gap: 1.5rem;
-    overflow-x: auto;
+    overflow-x: auto; 
     padding-bottom: 1rem;
-    scroll-snap-type: x mandatory;
+    flex-shrink: 0;
+    
 }
 
 .master-table-card {
-    min-width: 480px;
-    flex: 1;
-    background: white;
-    border: 2px solid var(--primary-light);
-    border-radius: 20px;
+    min-width: 450px;
+    flex: 0 0 auto;
     padding: 1.25rem;
-    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 350px;
+    height: 330px; 
+    overflow-y: hidden; 
 }
 
-/* --- Styled Table (Matching Design) --- */
+/* --- TABLE STYLING --- */
 .styled-table {
     width: 100%;
-    border-collapse: collapse; /* Ganti ke collapse untuk border-bottom saja */
-    margin-bottom: 10px;
+    border-collapse: collapse;
 }
 
 .styled-table thead th {
-    border: 1.5px solid var(--primary-color);
+    border: 2px solid var(--primary-color);
     color: var(--primary-color);
-    padding: 12px 8px;
+    padding: 12px 10px;
     font-size: 0.75rem;
-    font-weight: bold;
-    text-align: center;
+    font-weight: 800;
+    text-transform: capitalize;
 }
 
 .styled-table tbody td {
-    padding: 12px 8px;
+    padding: 12px 10px;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: #333;
-    /* Hanya border bottom sesuai permintaan */
-    border-bottom: 1px solid #C7D9FF; 
+    border-bottom: 2px solid var(--primary-color); 
 }
 
-/* Menghapus border bottom pada baris terakhir agar rapi */
-.styled-table tbody tr:last-child td {
-    border-bottom: none;
-}
 
-/* --- Action Buttons --- */
+
+
 .btn-action-group {
     display: flex;
     justify-content: center;
@@ -451,59 +446,73 @@ input::placeholder {
 
 .btn-edit-icon, .btn-delete-icon {
     border: none;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
+    color: white;
+    font-size: 0.9rem;
+    transition: 0.2s ease;
 }
 
-.btn-edit-icon { background-color: #F39C12; color: white; }
-.btn-delete-icon { background-color: #E74C3C; color: white; }
-.btn-edit-icon:hover { background-color: #d68910; }
-.btn-delete-icon:hover { background-color: #c0392b; }
+.btn-edit-icon { background-color: #F39C12; }
+.btn-delete-icon { background-color: #E74C3C; }
+
+.btn-edit-icon:hover { transform: scale(1.1); background-color: #e67e22; }
+.btn-delete-icon:hover { transform: scale(1.1); background-color: #c0392b; }
 
 .btn-add-green {
     background-color: #27AE60;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 8px 15px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    transition: 0.3s;
 }
 
-/* --- Pagination Style --- */
+.btn-add-green:hover {
+    background-color: #219150;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+
 .pagination-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
-    margin-top: auto; /* Taruh di paling bawah card */
-    padding-top: 10px;
+    gap: 10px;
+    margin-top: auto; 
+    padding-top: 15px;
 }
 
 .page-num {
     font-size: 0.85rem;
     color: var(--primary-color);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    padding: 2px 5px;
 }
 
 .page-num.active {
     background-color: var(--primary-color);
     color: white;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 5px;
 }
 
-/* Scrollbar styling untuk master wrapper */
+/* Custom Scrollbar untuk horizontal scroll tabel master */
 .master-data-wrapper::-webkit-scrollbar {
     height: 8px;
+}
+.master-data-wrapper::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 10px;
 }
 .master-data-wrapper::-webkit-scrollbar-thumb {
     background: var(--primary-light);
@@ -541,121 +550,79 @@ input::placeholder {
 }
 
 
-
-/* Modal Backdrop */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: none; /* Default hidden */
+    background: rgba(0, 0, 0, 0.6);
+    display: none; /* Hidden by default */
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 9999;
 }
 
-/* Modal Box Design */
 .modal-box {
     background: linear-gradient(180deg, #FFFFFF 0%, #E1EBFF 100%);
     width: 450px;
     padding: 30px;
     border-radius: 40px;
     position: relative;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.modal-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
+.modal-header { text-align: center; margin-bottom: 20px; }
+.modal-header h2 { font-size: 1.8rem; font-weight: 800; color: #333; text-transform: uppercase; }
+.blue-text { color: #0088FF; }
+.game-id { color: #0088FF; font-size: 0.9rem; display: block; margin-top: 5px; font-weight: bold; }
 
-.modal-header h2 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #333;
-}
-
-.modal-header .blue-text {
-    color: #0088FF;
-}
-
-.modal-header .game-id {
-    color: #0088FF;
-    font-size: 0.9rem;
-    display: block;
-    margin-top: 5px;
-}
-
-.modal-form-group {
-    margin-bottom: 15px;
-}
-
-.modal-form-group label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-    color: #333;
-}
-
+.modal-form-group { margin-bottom: 15px; text-align: left; }
+.modal-form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; color: #333; }
 .modal-input {
-    width: 100%;
-    padding: 12px 20px;
-    border: 1.5px solid #888;
-    border-radius: 25px;
-    font-size: 0.85rem;
-    background: white;
+    width: 100%; padding: 12px 20px; border: 1.5px solid #888;
+    border-radius: 25px; font-size: 0.9rem; outline: none;
 }
 
-/* Log Display (Created By / Edited By) */
+/* Log Display (Created/Edited) */
 .log-display {
-    background: #0088FF;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 10px;
+    background: #0088FF; color: white; padding: 10px 18px;
+    border-radius: 25px; display: flex; justify-content: space-between;
+    font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;
 }
 
-.status-text {
-    text-align: center;
-    margin: 15px 0;
-    font-weight: 600;
-}
-
-.status-inactive { color: #E74C3C; }
-.status-active { color: #27AE60; }
-
+.status-text { text-align: center; margin: 15px 0; font-weight: 700; font-size: 0.9rem; }
 .btn-confirm {
-    width: 60%;
-    display: block;
-    margin: 20px auto 0;
-    background: #0088FF;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 25px;
-    font-weight: 700;
+    width: 60%; display: block; margin: 10px auto 0;
+    background: #0088FF; color: white; border: none;
+    padding: 12px; border-radius: 25px; font-weight: 700;
+    cursor: pointer; font-size: 1rem; transition: 0.3s;
+}
+.btn-confirm:hover { background: #005bb5; transform: scale(1.05); }
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto; /* Dorong pagination ke bawah kartu */
+    padding-top: 15px;
+    width: 100%;
+}
+.page-link {
+    font-size: 0.85rem;
+    color: var(--primary-color);
     cursor: pointer;
-    font-size: 1rem;
-    transition: 0.3s;
+    font-weight: 600;
+    padding: 2px 5px;
 }
-
-.btn-confirm:hover {
-    background: #0066CC;
-    transform: translateY(-2px);
-}
-
-.pagination-container a {
-    text-decoration: none;
-    display: inline-block;
-}
-.pagination-container a.page-num:hover {
-    background-color: var(--primary-light);
+.page-link.active {
+    background-color: var(--primary-color);
     color: white;
+    padding: 2px 8px;
     border-radius: 5px;
 }
+.page-link:hover:not(.active) {
+    background-color: var(--bg-light);
+}
+
 /* Super Admin */
