@@ -1,27 +1,4 @@
 <?php
-<<<<<<< Updated upstream
-// Contoh koneksi (Sesuaikan dengan file koneksi Anda)
-// include 'config/db.php'; 
-
-/**
- * Fungsi untuk mengambil data dengan urutan:
- * 1. Status Aktif (1) di depan, Inaktif (0) di belakang
- * 2. Urut berdasarkan ID
- */
-function fetchData($conn, $table) {
-    // Sesuaikan query jika nama kolom status di tiap tabel berbeda
-    $query = "SELECT * FROM $table ORDER BY status DESC, id ASC LIMIT 7"; 
-    // LIMIT 7 untuk Products, untuk yang lain mungkin butuh pagination logic
-    return mysqli_query($conn, $query);
-}
-
-// Dummy Data untuk simulasi jika DB belum siap (Hapus jika DB sudah konek)
-$products = [
-    ['name'=>'Rayquaza V', 'pid'=>'#CRD-1003', 'game'=>'Pokemon', 'set'=>'Scarlet and Violet', 'stock'=>82, 'cond'=>'NM', 'price'=>'$10.22', 'status'=>1],
-    // ... ulangi sampai 7 data
-];
-// Untuk implementasi asli gunakan: $resProducts = fetchData($conn, 'products');
-=======
 require_once '../../connection.php'; 
 
 // --- LOGIC PAGINATION GAME ---
@@ -42,7 +19,6 @@ $sql_game = "SELECT * FROM dbo.game
             ORDER BY aktif DESC, id_game ASC 
             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
 $stmt_game = sqlsrv_query($conn, $sql_game);
->>>>>>> Stashed changes
 ?>
 
 <!DOCTYPE html>
