@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../connection.php'; 
+require_once '../CardHaven/connection.php'; 
 
 $dummy_products = array_fill(0, 7, [
     'name' => 'Rayquaza V',
