@@ -351,4 +351,163 @@ input::placeholder {
     top: 12rem;
 }
 
+/* --- Dashboard Layout --- */
+/* --- Dashboard Layout --- */
+.main-content {
+    flex: 1;
+    height: 100vh;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* --- Card Styles --- */
+.content-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    /* Tinggi tetap agar muat 7 baris + header + pagination */
+    min-height: 520px; 
+}
+
+.card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-title-row h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* --- Master Tables Horizontal Scroll --- */
+.master-data-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+}
+
+.master-table-card {
+    min-width: 480px;
+    flex: 1;
+    background: white;
+    border: 2px solid var(--primary-light);
+    border-radius: 20px;
+    padding: 1.25rem;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 350px;
+}
+
+/* --- Styled Table (Matching Design) --- */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse; /* Ganti ke collapse untuk border-bottom saja */
+    margin-bottom: 10px;
+}
+
+.styled-table thead th {
+    border: 1.5px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 12px 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.styled-table tbody td {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #333;
+    /* Hanya border bottom sesuai permintaan */
+    border-bottom: 1px solid #C7D9FF; 
+}
+
+/* Menghapus border bottom pada baris terakhir agar rapi */
+.styled-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- Action Buttons --- */
+.btn-action-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-edit-icon, .btn-delete-icon {
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.btn-edit-icon { background-color: #F39C12; color: white; }
+.btn-delete-icon { background-color: #E74C3C; color: white; }
+.btn-edit-icon:hover { background-color: #d68910; }
+.btn-delete-icon:hover { background-color: #c0392b; }
+
+.btn-add-green {
+    background-color: #27AE60;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+/* --- Pagination Style --- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto; /* Taruh di paling bawah card */
+    padding-top: 10px;
+}
+
+.page-num {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.page-num.active {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Scrollbar styling untuk master wrapper */
+.master-data-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+.master-data-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
+
 /* Super Admin */
