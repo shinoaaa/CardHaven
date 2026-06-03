@@ -1,5 +1,5 @@
 <?php
-require_once '../../connection.php'; 
+require_once '../cardhaven/connection.php'; 
 
 // --- LOGIC PAGINATION GAME ---
 $limit = 3; 
@@ -205,45 +205,86 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                 </div>
 
                 <div class="master-table-card">
-                    <div>
-                        <div class="card-title-row">
-                            <h2 class="coolveticaa" style="font-size: 1.2rem;">Set</h2>
-                            <button class="btn-add-green">+ Add Set</button>
-                        </div>
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>Set Name</th>
-                                    <th>Set ID</th>
-                                    <th>Game</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Scarlet & Violet Primastic</td>
-                                    <td>SET-001</td>
-                                    <td>Pokemon</td>
-                                    <td>Active</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <button class="btn-edit-icon">✏️</button>
-                                            <button class="btn-delete-icon">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="pagination-container">
-                        <span class="page-num"> < </span>
-                        <span class="page-num">1</span>
-                        <span class="page-num active">2</span>
-                        <span class="page-num"> > </span>
+    <div class="card-title-row">
+        <h2 class="coolveticaa" style="font-size: 1.2rem;">Set</h2>
+        <button class="btn-add-green" onclick="openAddSetModal()">+ Add Set</button>
+    </div>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Set Name</th>
+                <th>Set ID</th>
+                <th>Game</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="setTableBody">
+            <tr><td colspan="5" style="text-align:center;color:#888;">Loading...</td></tr>
+        </tbody>
+    </table>
+    <div class="pagination-container" id="setPaginationContainer"></div>
+</div>
+
+<!-- MODAL SET -->
+<div id="setModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="setModalTitle">ADD <span class="blue-text">SET</span></h2>
+            <span id="setDisplayID" class="game-id"></span>
+        </div>
+
+        <form id="setForm">
+            <input type="hidden" name="action"  id="setFormAction" value="add">
+            <input type="hidden" name="id_set"  id="setIdInput">
+
+            <div class="modal-form-group">
+                <label>Set Name</label>
+                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." required>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Set Code</label>
+                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" required>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Game</label>
+                <select name="id_game" id="setGameId" class="modal-input" required>
+                    <option value="">-- Pilih Game --</option>
+                </select>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Release Date <span style="color:#888;font-size:0.85em;">(opsional)</span></label>
+                <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
+            </div>
+
+            <div id="setLogSection" style="display:none;">
+                <div class="modal-form-group">
+                    <label>Created By</label>
+                    <div class="log-display">
+                        <span id="setCreatedBy"></span>
+                        <span id="setCreatedDate"></span>
                     </div>
                 </div>
+                <div class="modal-form-group">
+                    <label>Edited By</label>
+                    <div class="log-display">
+                        <span id="setEditedBy"></span>
+                        <span id="setEditedDate"></span>
+                    </div>
+                </div>
+                <div class="status-text">
+                    This set status is currently <span id="setStatusLabel"></span>
+                    <input type="hidden" name="aktif" id="setAktifStatus">
+                </div>
+            </div>
 
+            <button type="submit" class="btn-confirm">Confirm</button>
+        </form>
+    </div>
+</div>
                 <div class="master-table-card">
                     <div>
                         <div class="card-title-row">
@@ -285,6 +326,7 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                 </div>
 
             </div> </div> </div>
-    <script src="game_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
+<script src="/cardhaven/interface/super-admin-page/set_script.js"></script>
 </body>
 </html>
