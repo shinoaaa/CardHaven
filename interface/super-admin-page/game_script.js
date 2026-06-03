@@ -1,16 +1,8 @@
 const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
 
-
-function getEmployeeId() {
-
-    const id = localStorage.getItem('id_karyawan');
-    if (!id) {
-        console.warn("ID Karyawan tidak ditemukan di storage!");
-        return 2; 
-    }
-    return id;
-}
+// Ambil ID Karyawan
+const getEmpId = () => localStorage.getItem('id_karyawan') || 0;
 
 function openAddModal() {
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
@@ -35,63 +27,38 @@ function openEditModal(id) {
             document.getElementById('createdBy').innerText = data.creator || 'System';
             document.getElementById('createdDate').innerText = data.created_date;
             document.getElementById('editedBy').innerText = data.modifier || '-';
-            document.getElementById('editedDate').innerText = data.modified_date || '-';
+            document.getElementById('editedDate').innerText = data.modified_date;
             
-            const statusLabel = document.getElementById('statusLabel');
-            statusLabel.innerText = data.aktif == 1 ? 'Active' : 'Inactive';
-            statusLabel.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
+            const lbl = document.getElementById('statusLabel');
+            lbl.innerText = data.aktif == 1 ? 'Active' : 'Inactive';
+            lbl.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
             document.getElementById('aktifStatus').value = data.aktif;
-
             modal.style.display = 'flex';
         });
 }
 
 gameForm.onsubmit = function(e) {
     e.preventDefault();
-    
-    const nama = document.getElementById('nama_game').value.trim();
-    const dev = document.getElementById('developer').value.trim();
-    
-    if (nama === "" || dev === "") {
-        alert("Semua kolom bertanda * wajib diisi!");
-        return;
-    }
-
     const formData = new FormData(gameForm);
-    
-    formData.append('id_karyawan_js', getEmployeeId());
+    formData.append('id_karyawan_js', getEmpId());
 
     fetch('controller_game.php', { method: 'POST', body: formData })
     .then(res => res.json())
     .then(res => {
-        if (res.status === 'success') {
-            alert("Data berhasil disimpan");
-            location.reload();
-        } else {
-
-            alert("Peringatan: " + res.message);
-        }
-    })
-    .catch(err => alert("Terjadi kesalahan pada server"));
+        if (res.status === 'success') location.reload();
+        else alert(res.message);
+    });
 };
 
 function confirmDelete(id) {
-    if (confirm("Nonaktifkan game ini? (Soft Delete)")) {
-        const formData = new FormData();
-        formData.append('action', 'delete');
-        formData.append('id_game', id);
-        
-        formData.append('id_karyawan_js', getEmployeeId());
-
-        fetch('controller_game.php', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status === 'success') location.reload();
-            else alert("Gagal menghapus: " + res.message);
-        });
+    if (confirm("Nonaktifkan game ini?")) {
+        const fd = new FormData();
+        fd.append('action', 'delete');
+        fd.append('id_game', id);
+        fd.append('id_karyawan_js', getEmpId());
+        fetch('controller_game.php', { method: 'POST', body: fd })
+        .then(res => res.json()).then(res => location.reload());
     }
 }
 
-window.onclick = function(event) {
-    if (event.target == modal) modal.style.display = "none";
-}
+window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
