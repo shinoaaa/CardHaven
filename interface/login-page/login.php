@@ -79,7 +79,13 @@ try {
         $_SESSION['role'] = $user['role'];
         $_SESSION['userToken'] = $maskedToken;
 
-        echo json_encode(["status" => "success", "message" => "Login sukses", "token" => $maskedToken, "role" => $user['role']]);
+        echo json_encode([
+                            "status" => "success", 
+                            "message" => "Login sukses", 
+                            "token" => $maskedToken, 
+                            "role" => $user['role'], 
+                            "id_karyawan" => $user['id_karyawan'] // <--- Tambahkan ini
+                        ]);
         sqlsrv_free_stmt($stmt);
 
     } else {
