@@ -28,7 +28,7 @@ try {
             exit;
         }
 
-        $sql = "SELECT id_karyawan, email, password, role FROM karyawan WHERE email = ?";
+        $sql = "SELECT id_karyawan, email,nama, password, role FROM karyawan WHERE email = ?";
         $params = array($email);
         
         $stmt = sqlsrv_prepare($conn, $sql, $params);
@@ -79,7 +79,14 @@ try {
         $_SESSION['role'] = $user['role'];
         $_SESSION['userToken'] = $maskedToken;
 
-        echo json_encode(["status" => "success", "message" => "Login sukses", "token" => $maskedToken, "role" => $user['role']]);
+        echo json_encode([
+                            "status" => "success", 
+                            "message" => "Login sukses", 
+                            "token" => $maskedToken, 
+                            "role" => $user['role'], 
+                            "id_karyawan" => $user['id_karyawan'],
+                            "nama" => $user['nama']
+                        ]);
         sqlsrv_free_stmt($stmt);
 
     } else {
