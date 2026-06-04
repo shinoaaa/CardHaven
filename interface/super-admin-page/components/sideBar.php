@@ -33,13 +33,13 @@
                 <h2 class="coolveticaa" style="color: var(--highlight)">Dashboard</h2>
             </a>
         </div>
-        <div class="menuOption selectedOption">
+        <div class="menuOption unselected">
             <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/transaction.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Transaction</h2>
             </a>
         </div>
-        <div class="menuOption unselected">
+        <div class="menuOption selectedOption">
             <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/product.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Product</h2>

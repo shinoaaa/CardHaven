@@ -461,13 +461,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <script>
 const idKaryawan = sessionStorage.getItem("id_karyawan");
+const idKaryawann = localStorage.getItem("id_karyawan");
 
-if (!idKaryawan) {
+
+if ((!idKaryawan) && (!idKaryawann)) {
     window.location.href = "/cardhaven/interface/login-page/";
 }
 
 async function loadData() {
-    const res = await fetch(`/cardhaven/interface/super-admin-page/account-setting.php?action=get&id_karyawan=${encodeURIComponent(idKaryawan)}`);
+    const res = await fetch(`/cardhaven/interface/super-admin-page/account-setting.php?action=get&id_karyawan=${encodeURIComponent(idKaryawan || idKaryawann)}`);
     const data = await res.json();
 
     if (data.status !== "success") {

@@ -2,7 +2,7 @@ const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
 
 // Ambil ID Karyawan
-const getEmpId = () => localStorage.getItem('id_karyawan') || 0;
+const getEmpId = () => localStorage.getItem('id_karyawan') || sessionStorage.getItem('id_karyawan') || 0;
 
 function openAddModal() {
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';

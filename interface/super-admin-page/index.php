@@ -27,8 +27,8 @@ $total_rows = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
 $total_pages = max(1, ceil($total_rows / $limit));
 
 $sql_game = "SELECT * FROM dbo.game
-             ORDER BY aktif DESC, id_game ASC
-             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
+            ORDER BY aktif DESC, id_game ASC
+            OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
 $stmt_game = sqlsrv_query($conn, $sql_game);
 if ($stmt_game === false) {
     die(print_r(sqlsrv_errors(), true));
@@ -48,7 +48,7 @@ if ($stmt_count_s === false) {
 $total_rows_s = sqlsrv_fetch_array($stmt_count_s, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
 $total_pages_s = max(1, ceil($total_rows_s / $limit_s));
 
-$sql_set = "SELECT s.*, g.nama_game
+$sql_set = "SELECT s.id_set,s.nama_set,s.kode_set,s.tanggal_rilis,s.aktif, g.nama_game
             FROM dbo.set_kartu s
             LEFT JOIN dbo.game g ON s.id_game = g.id_game
             ORDER BY s.aktif DESC, s.id_set ASC
@@ -180,9 +180,11 @@ if ($stmt_rarity === false) {
                                 <?php while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($row['nama_game']) ?></td>
-                                    <td><?= htmlspecialchars($row['id_game']) ?></td>
+                                    <td>GM-<?= str_pad($row['id_game'], 3, '0', STR_PAD_LEFT) ?></td>
                                     <td><?= htmlspecialchars($row['developer']) ?></td>
-                                    <td><?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?></td>
+                                    <td style="color: <?= $row['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
+                                        <?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?>
+                                    </td>
                                     <td>
                                         <div class="btn-action-group">
                                             <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
@@ -336,7 +338,7 @@ if ($stmt_rarity === false) {
                                     </td>
                                     <td>RAR-<?= str_pad($rowRarity['id_rarity'], 3, '0', STR_PAD_LEFT) ?></td>
                                     <td style="color: #4A90E2;"><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
-                                    <td style="color: #4A90E2; font-weight: bold;">
+                                    <td style="color: <?= $rowRarity['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
                                         <?= $rowRarity['aktif'] == 1 ? 'Active' : 'Inactive' ?>
                                     </td>
                                     <td>
