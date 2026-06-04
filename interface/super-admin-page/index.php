@@ -159,58 +159,7 @@ if ($stmt_rarity === false) {
             </div>
 
             <div class="master-data-wrapper">
-                <div class="master-table-card">
-                    <div style="flex: 1;">
-                        <div class="card-title-row">
-                            <h2 class="coolveticaa" style="font-size: 1.2rem;">Game</h2>
-                            <button class="btn-add-green" onclick="openAddModal()">+ Add Game</button>
-                        </div>
-
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>Game Name</th>
-                                    <th>Game ID</th>
-                                    <th>Developer</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($row['nama_game']) ?></td>
-                                    <td>GM-<?= str_pad($row['id_game'], 3, '0', STR_PAD_LEFT) ?></td>
-                                    <td><?= htmlspecialchars($row['developer']) ?></td>
-                                    <td style="color: <?= $row['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
-                                        <?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?>
-                                    </td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
-                                            <?php if ($row['aktif'] == 1): ?>
-                                                <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
-                                            <?php else: ?>
-                                                <button class="btn-restore-icon"
-                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                                        onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="pagination-container">
-                        <a href="?p=<?= max(1, $page - 1) ?>&ps=<?= $page_s ?>&pr=<?= $page_r ?>" class="page-link">&lt;</a>
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                            <a href="?p=<?= $i ?>&ps=<?= $page_s ?>&pr=<?= $page_r ?>" class="page-link <?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
-                        <?php endfor; ?>
-                        <a href="?p=<?= min($total_pages, $page + 1) ?>&ps=<?= $page_s ?>&pr=<?= $page_r ?>" class="page-link">&gt;</a>
-                    </div>
-                </div>
+                <?php include 'components/game_card.php'; ?>
 
                 <div id="gameModal" class="modal-overlay">
                     <div class="modal-box">
@@ -260,112 +209,11 @@ if ($stmt_rarity === false) {
                 </div>
 
                 <div class="master-table-card">
-                    <div style="flex: 1;">
-                        <div class="card-title-row">
-                            <h2 class="coolveticaa" style="font-size: 1.2rem;">Set</h2>
-                            <button class="btn-add-green" onclick="openAddSetModal()">+ Add Set</button>
-                        </div>
-
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>Set Name</th>
-                                    <th>Set ID</th>
-                                    <th>Game</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
-                                    <td>SET-<?= str_pad($rowSet['id_set'], 3, '0', STR_PAD_LEFT) ?></td>
-                                    <td style="color: #4A90E2;"><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
-                                    <td style="color: <?= $rowSet['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
-                                        <?= $rowSet['aktif'] == 1 ? 'Active' : 'Inactive' ?>
-                                    </td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>
-                                            <?php if ($rowSet['aktif'] == 1): ?>
-                                                <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)">🗑️</button>
-                                            <?php else: ?>
-                                                <button class="btn-restore-icon"
-                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                                        onclick="confirmRestoreSet(<?= $rowSet['id_set'] ?>)">🔄</button>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endwhile; endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="pagination-container">
-                        <a href="?p=<?= $page ?>&ps=<?= max(1, $page_s - 1) ?>&pr=<?= $page_r ?>" class="page-link">&lt;</a>
-                        <?php for ($i = 1; $i <= $total_pages_s; $i++): ?>
-                            <a href="?p=<?= $page ?>&ps=<?= $i ?>&pr=<?= $page_r ?>" class="page-link <?= ($i == $page_s) ? 'active' : '' ?>"><?= $i ?></a>
-                        <?php endfor; ?>
-                        <a href="?p=<?= $page ?>&ps=<?= min($total_pages_s, $page_s + 1) ?>&pr=<?= $page_r ?>" class="page-link">&gt;</a>
-                    </div>
+                    <?php include 'components/set_card.php'; ?>
                 </div>
 
                 <div class="master-table-card">
-                    <div style="flex: 1;">
-                        <div class="card-title-row">
-                            <h2 class="coolveticaa" style="font-size: 1.2rem;">Rarity</h2>
-                            <button class="btn-add-green" onclick="openModalRarity()">+ Add Rarity</button>
-                        </div>
-
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>Rarity Name</th>
-                                    <th>Rarity ID</th>
-                                    <th>Game</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)): ?>
-                                <tr>
-                                    <td>
-                                        <?= htmlspecialchars($rowRarity['nama_rarity']) ?>
-                                        <?= !empty($rowRarity['kode_rarity']) ? ' (' . htmlspecialchars($rowRarity['kode_rarity']) . ')' : '' ?>
-                                    </td>
-                                    <td>RAR-<?= str_pad($rowRarity['id_rarity'], 3, '0', STR_PAD_LEFT) ?></td>
-                                    <td style="color: #4A90E2;"><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
-                                    <td style="color: <?= $rowRarity['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
-                                        <?= $rowRarity['aktif'] == 1 ? 'Active' : 'Inactive' ?>
-                                    </td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
-                                            <?php if ($rowRarity['aktif'] == 1): ?>
-                                                <button class="btn-delete-icon" onclick="confirmDeleteRarity(<?= $rowRarity['id_rarity'] ?>)">🗑️</button>
-                                            <?php else: ?>
-                                                <button class="btn-restore-icon"
-                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                                        onclick="confirmRestoreRarity(<?= $rowRarity['id_rarity'] ?>)">🔄</button>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endwhile; endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="pagination-container">
-                        <a href="?p=<?= $page ?>&pr=<?= max(1, $page_r - 1) ?>" class="page-link">&lt;</a>
-                        <?php for ($i = 1; $i <= $total_pages_r; $i++): ?>
-                            <a href="?p=<?= $page ?>&pr=<?= $i ?>" class="page-link <?= ($i == $page_r) ? 'active' : '' ?>"><?= $i ?></a>
-                        <?php endfor; ?>
-                        <a href="?p=<?= $page ?>&pr=<?= min($total_pages_r, $page_r + 1) ?>" class="page-link">&gt;</a>
-                    </div>
+                    <?php include 'components/rarity_card.php'; ?>
                 </div>
             </div>
         </div>
