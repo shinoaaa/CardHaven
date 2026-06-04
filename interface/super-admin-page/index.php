@@ -470,6 +470,10 @@ if ($stmt_rarity === false) {
                     <label>Set Code</label>
                     <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" required>
                 </div>
+                <div class="modal-form-group">
+                    <label>Release Date</label>
+                    <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
+                </div>
 
                 <div id="setLogSection" style="display:none;">
                     <div class="modal-form-group">

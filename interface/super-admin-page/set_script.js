@@ -45,6 +45,8 @@ function openAddSetModal() {
     document.getElementById('setFormAction').value = 'add';
     document.getElementById('setLogSection').style.display = 'none';
     setForm.reset();
+
+    document.getElementById('setTanggal').value = ''; 
     loadGameOptionsForSet(null);
     setModal.style.display = 'flex';
 }
