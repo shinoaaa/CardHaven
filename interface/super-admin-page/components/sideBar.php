@@ -11,14 +11,14 @@
             <h2 class="coolveticaa" style="color: white; font-size: .65rem;">Super Admin</h2>
         </div>
         <div style="margin-top: 1rem;">
-            <h2 class="coolveticaa" style="font-size: 1rem; color: var(--primary-color);">Wō Kuraimu</h2>
-            <h3 style="font-size: 0.75rem; opacity: 55%; margin: 0.25rem 0 0 0;">warcrimer@gmail.com</h3>
+            <h2 id="userName" class="coolveticaa" style="font-size: 1rem; color: var(--primary-color);"></h2>
+            <h3 id="userEmail" style="font-size: 0.75rem; opacity: 55%; margin: 0.25rem 0 0 0;"></h3>
         </div>
         <div style="width: 100%; margin-top: 0.5rem; display: flex; justify-content: center; gap: .75rem;">
             <a href="">
                 <img src="/cardhaven/assets/image/inbox.svg" style="object-fit:fill; width: 1.15rem; height: 1.15rem;">
             </a>
-            <a href="">
+            <a href="javascript:void(0)" id="btnLogout">
                 <img src="/cardhaven/assets/image/logout.svg" style="object-fit:fill; width: 1.15rem; height: 1.15rem;">
             </a>
         </div>
@@ -46,7 +46,7 @@
             </a>
         </div>
         <div class="menuOption unselected">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="/cardhaven/interface/super-admin-page/account-setting.php" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/setting.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Account Setting</h2>
             </a>
@@ -56,3 +56,13 @@
         <?php include 'logout.php' ?>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("userName").textContent =
+        sessionStorage.getItem("nama") || "Guest";
+
+    document.getElementById("userEmail").textContent =
+        sessionStorage.getItem("userEmail") || "-";
+});
+</script>

@@ -28,7 +28,7 @@ try {
             exit;
         }
 
-        $sql = "SELECT id_karyawan, email, password, role FROM karyawan WHERE email = ?";
+        $sql = "SELECT id_karyawan, email,nama, password, role FROM karyawan WHERE email = ?";
         $params = array($email);
         
         $stmt = sqlsrv_prepare($conn, $sql, $params);
@@ -84,7 +84,8 @@ try {
                             "message" => "Login sukses", 
                             "token" => $maskedToken, 
                             "role" => $user['role'], 
-                            "id_karyawan" => $user['id_karyawan'] // <--- Tambahkan ini
+                            "id_karyawan" => $user['id_karyawan'],
+                            "nama" => $user['nama']
                         ]);
         sqlsrv_free_stmt($stmt);
 
