@@ -270,8 +270,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: .9rem 1rem;
             border-radius: 14px;
             border: 1px solid rgba(255,255,255,.12);
-            background: #0f0f0f;
-            color: white;
+            background: #fff;
+            color: #333;
             outline: none;
             font-size: .95rem;
         }

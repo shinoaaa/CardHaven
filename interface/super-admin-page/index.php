@@ -73,10 +73,10 @@ $total_rows_r = sqlsrv_fetch_array($stmt_count_r, SQLSRV_FETCH_ASSOC)['total'] ?
 $total_pages_r = max(1, ceil($total_rows_r / $limit_r));
 
 $sql_rarity = "SELECT r.id_rarity, r.nama_rarity, r.kode_rarity, r.aktif, g.nama_game
-               FROM dbo.rarity r
-               LEFT JOIN dbo.game g ON r.id_game = g.id_game
-               ORDER BY r.aktif DESC, r.id_rarity ASC
-               OFFSET $offset_r ROWS FETCH NEXT $limit_r ROWS ONLY";
+                FROM dbo.rarity r
+                LEFT JOIN dbo.game g ON r.id_game = g.id_game
+                ORDER BY r.aktif DESC, r.id_rarity ASC
+                OFFSET $offset_r ROWS FETCH NEXT $limit_r ROWS ONLY";
 $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
 if ($stmt_rarity === false) {
     die(print_r(sqlsrv_errors(), true));
