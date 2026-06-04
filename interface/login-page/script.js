@@ -72,8 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     storage.setItem("userEmail", email);
                     storage.setItem("token", data.token);
                     storage.setItem("role", data.role);
-                    storage.setItem("id_karyawan", data.id_karyawan); 
-                    storage.setItem("nama", data.nama); 
                     
                     alert("Login Berhasil!");
                     
