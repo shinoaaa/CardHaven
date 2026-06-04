@@ -1,23 +1,67 @@
 <?php
-require_once '../../connection.php'; 
+session_start();
+require_once '../cardhaven/connection.php';
 
-// --- LOGIC PAGINATION GAME ---
+$dummy_products = array_fill(0, 7, [
+    'name' => 'Rayquaza V',
+    'id' => '#CRD-1003',
+    'game' => 'Pokemon',
+    'set' => 'Scarlet and Violet Primastic',
+    'stock' => 82,
+    'condition' => 'NM',
+    'price' => '$10.22'
+]);
+
+// Pagination Logic Game
 $limit = 3; 
-$page_game = isset($_GET['p_game']) ? (int)$_GET['p_game'] : 1;
-if ($page_game < 1) $page_game = 1;
-$offset = ($page_game - 1) * $limit;
+$page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$page = ($page < 1) ? 1 : $page;
+$offset = ($page - 1) * $limit;
 
-// 1. Hitung total data untuk pagination
 $sql_count = "SELECT COUNT(*) as total FROM dbo.game";
 $stmt_count = sqlsrv_query($conn, $sql_count);
-$row_count = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC);
-$total_rows = $row_count['total'];
+$total_rows = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC)['total'];
 $total_pages = ceil($total_rows / $limit);
 
 $sql_game = "SELECT * FROM dbo.game 
             ORDER BY aktif DESC, id_game ASC 
             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
+$sql_game = "SELECT * FROM dbo.game ORDER BY aktif DESC, id_game ASC OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
 $stmt_game = sqlsrv_query($conn, $sql_game);
+
+// --- Pagination Logic Set (BARU) ---
+$limit_s = 3;
+$page_s = isset($_GET['ps']) ? (int)$_GET['ps'] : 1;
+$page_s = ($page_s < 1) ? 1 : $page_s;
+$offset_s = ($page_s - 1) * $limit_s;
+
+$sql_count_s = "SELECT COUNT(*) as total FROM dbo.set_kartu"; // Sesuaikan nama tabel Anda
+$stmt_count_s = sqlsrv_query($conn, $sql_count_s);
+$total_rows_s = sqlsrv_fetch_array($stmt_count_s, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
+$total_pages_s = ceil($total_rows_s / $limit_s);
+
+$sql_set = "SELECT s.*, g.nama_game 
+            FROM dbo.set_kartu s 
+            LEFT JOIN dbo.game g ON s.id_game = g.id_game 
+            ORDER BY s.aktif DESC, s.id_set ASC OFFSET $offset_s ROWS FETCH NEXT $limit_s ROWS ONLY";
+$stmt_set = sqlsrv_query($conn, $sql_set);
+
+// Pagination Logic Rarity
+$limit_r = 3; 
+$page_r = isset($_GET['pr']) ? (int)$_GET['pr'] : 1;
+$page_r = ($page_r < 1) ? 1 : $page_r;
+$offset_r = ($page_r - 1) * $limit_r;
+
+$sql_count_r = "SELECT COUNT(*) as total FROM dbo.rarity";
+$stmt_count_r = sqlsrv_query($conn, $sql_count_r);
+$total_rows_r = sqlsrv_fetch_array($stmt_count_r, SQLSRV_FETCH_ASSOC)['total'];
+$total_pages_r = ceil($total_rows_r / $limit_r);
+
+$sql_rarity = "SELECT r.id_rarity, r.nama_rarity, r.kode_rarity, r.aktif, g.nama_game 
+                FROM dbo.rarity r 
+                LEFT JOIN dbo.game g ON r.id_game = g.id_game 
+                ORDER BY r.aktif DESC, r.id_rarity ASC OFFSET $offset_r ROWS FETCH NEXT $limit_r ROWS ONLY";
+$stmt_rarity = sqlsrv_query($conn, $sql_rarity);
 ?>
 
 <!DOCTYPE html>
@@ -31,8 +75,6 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
         (function() {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const role = localStorage.getItem("role") || sessionStorage.getItem("role");
-            
-            // Jika token kosong ATAU role bukan 1 (Superadmin), tendang!
             if (!token || role !== "1") {
                 window.location.replace("/CardHaven");
             }
@@ -46,13 +88,15 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
         </div>
         
         <div class="main-content">
+<<<<<<< HEAD
             
+=======
+>>>>>>> bcb9f27
             <div class="content-card">
                 <div class="card-title-row">
                     <h2 class="coolveticaa">Products</h2>
                     <button class="btn-add-green">+ Add Product</button>
                 </div>
-                
                 <table class="styled-table">
                     <thead>
                         <tr>
@@ -67,31 +111,40 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                         </tr>
                     </thead>
                     <tbody>
+<<<<<<< HEAD
                         <?php 
                         // Loop data produk (Ganti dengan fetch dari mysqli/sqlsrv nanti)
                         // Catatan: Pastikan variabel $products sudah didefinisikan sebelumnya agar tidak error notice
                         for($i=0; $i<7; $i++): 
                             $item = isset($products[0]) ? $products[0] : ['name'=>'-','pid'=>'-','game'=>'-','set'=>'-','stock'=>'-','cond'=>'-','price'=>'-']; 
                         ?>
+=======
+                        <?php foreach ($dummy_products as $item): ?>
+>>>>>>> bcb9f27
                         <tr>
-                            <td><?= $item['name'] ?></td>
-                            <td><?= $item['pid'] ?></td>
-                            <td><?= $item['game'] ?></td>
+                            <td style="color: #4A90E2;"><?= $item['name'] ?></td>
+                            <td><?= $item['id'] ?></td>
+                            <td style="color: #4A90E2;"><?= $item['game'] ?></td>
                             <td><?= $item['set'] ?></td>
                             <td><?= $item['stock'] ?></td>
-                            <td><?= $item['cond'] ?></td>
-                            <td><?= $item['price'] ?></td>
+                            <td><?= $item['condition'] ?></td>
+                            <td style="color: #4A90E2; font-weight: bold;"><?= $item['price'] ?></td>
                             <td>
                                 <div class="btn-action-group">
-                                    <button class="btn-edit-icon">✏️</button>
-                                    <button class="btn-delete-icon">🗑️</button>
+                                    <button class="btn-edit-icon" style="background-color: #F39C12; border:none; padding:5px; border-radius:5px; color:white;">✏️</button>
+                                    <?php if ($row['aktif'] == 1): ?>
+                                        <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
+                                    <?php else: ?>
+                                        <button class="btn-restore-icon" 
+                                                style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
-                        <?php endfor; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
-
                 <div class="pagination-container">
                     <span class="page-num"> < </span>
                     <span class="page-num">1</span>
@@ -106,109 +159,63 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
             <div class="master-data-wrapper">
                 
                 <div class="master-table-card">
-                    <div class="card-title-row">
-                        <h2 class="coolveticaa" style="font-size: 1.2rem;">Game</h2>
-                        <button class="btn-add-green" onclick="openAddModal()">+ Add Game</button>
-                    </div>
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <th>Game Name</th>
-                                <th>Game ID</th>
-                                <th>Developer</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php 
-                            if ($stmt_game):
-                                while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): 
-                                    $statusText = ($row['aktif'] == 1) ? 'Active' : 'Inactive';
-                                    $statusColor = ($row['aktif'] == 1) ? '#27AE60' : '#E74C3C';
-                            ?>
-                            <tr>
-                                <td><?= htmlspecialchars($row['nama_game']) ?></td>
-                                <td><?= htmlspecialchars($row['id_game']) ?></td>
-                                <td><?= htmlspecialchars($row['developer']) ?></td>
-                                <td style="color: <?= $statusColor ?>; font-weight: bold;"><?= $statusText ?></td>
-                                <td>
-                                    <div class="btn-action-group">
-                                        <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
-                                        <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php 
-                                endwhile; 
-                            endif; 
-                            ?>
-                        </tbody>
-                    </table>
-                    
-                    <div class="pagination-container">
-                        <a href="?p_game=<?= max(1, $page_game - 1) ?>" class="page-num"> < </a>
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                            <a href="?p_game=<?= $i ?>" class="page-num <?= ($i == $page_game) ? 'active' : '' ?>">
-                                <?= $i ?>
-                            </a>
-                        <?php endfor; ?>
-                        <a href="?p_game=<?= min($total_pages, $page_game + 1) ?>" class="page-num"> > </a>
-                    </div>
-                </div>
-
-                <div id="gameModal" class="modal-overlay">
-                    <div class="modal-box">
-                        <div class="modal-header">
-                            <h2 id="modalTitle">ADD <span class="blue-text">GAME</span></h2>
-                            <span id="displayID" class="game-id"></span>
+                    <div style="flex: 1;">
+                        <div class="card-title-row">
+                            <h2 class="coolveticaa" style="font-size: 1.2rem;">Game</h2>
+                            <button class="btn-add-green" onclick="openAddModal()">+ Add Game</button>
                         </div>
-                        
-                        <form id="gameForm">
-                            <input type="hidden" name="action" id="formAction" value="add">
-                            <input type="hidden" name="id_game" id="formID">
-
-                            <div class="modal-form-group">
-                                <label>Game Name</label>
-                                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." required>
-                            </div>
-
-                            <div class="modal-form-group">
-                                <label id="labelDev">Dev Name</label>
-                                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." required>
-                            </div>
-
-                            <div id="logSection" style="display:none;">
-                                <div class="modal-form-group">
-                                    <label>Created By</label>
-                                    <div class="log-display">
-                                        <span id="createdBy"></span>
-                                        <span id="createdDate"></span>
-                                    </div>
-                                </div>
-                                <div class="modal-form-group">
-                                    <label>Edited By</label>
-                                    <div class="log-display">
-                                        <span id="editedBy"></span>
-                                        <span id="editedDate"></span>
-                                    </div>
-                                </div>
-                                <div class="status-text">
-                                    This game status is currently <span id="statusLabel"></span>
-                                    <input type="hidden" name="aktif" id="aktifStatus">
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn-confirm">Confirm</button>
-                        </form>
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Game Name</th>
+                                    <th>Game ID</th>
+                                    <th>Developer</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($row['nama_game']) ?></td>
+                                    <td><?= htmlspecialchars($row['id_game']) ?></td>
+                                    <td><?= htmlspecialchars($row['developer']) ?></td>
+                                    <td>
+                                        <?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?>
+                                    </td>
+                                    <td>
+                                        <div class="btn-action-group">
+                                            <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
+                                            <?php if ($row['aktif'] == 1): ?>
+                                                <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
+                                            <?php else: ?>
+                                                <button class="btn-restore-icon" 
+                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                        onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+>>>>>>> bcb9f27
+                    <div class="pagination-container">
+                        <a href="?p=<?= max(1, $page-1) ?>&pr=<?= $page_r ?>" class="page-link"> < </a>
+                        <?php for($i=1; $i<=$total_pages; $i++): ?>
+                            <a href="?p=<?= $i ?>&pr=<?= $page_r ?>" class="page-link <?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
+                        <?php endfor; ?>
+                        <a href="?p=<?= min($total_pages, $page+1) ?>&pr=<?= $page_r ?>" class="page-link"> > </a>
                     </div>
                 </div>
 
+>>>>>>> bcb9f27
                 <div class="master-table-card">
-                    <div>
+                    <div style="flex: 1;">
                         <div class="card-title-row">
                             <h2 class="coolveticaa" style="font-size: 1.2rem;">Set</h2>
-                            <button class="btn-add-green">+ Add Set</button>
+                            <button class="btn-add-green" onclick="openAddSetModal()">+ Add Set</button>
                         </div>
                         <table class="styled-table">
                             <thead>
@@ -221,34 +228,43 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
                                 <tr>
-                                    <td>Scarlet & Violet Primastic</td>
-                                    <td>SET-001</td>
-                                    <td>Pokemon</td>
-                                    <td>Active</td>
+                                    <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
+                                    <td>SET-<?= str_pad($rowSet['id_set'], 3, '0', STR_PAD_LEFT) ?></td>
+                                    <td style="color: #4A90E2;"><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
+                                    <td style="color: <?= $rowSet['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
+                                        <?= $rowSet['aktif'] == 1 ? 'Active' : 'Inactive' ?>
+                                    </td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <button class="btn-edit-icon">✏️</button>
-                                            <button class="btn-delete-icon">🗑️</button>
+                                            <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>
+                                            <?php if ($rowSet['aktif'] == 1): ?>
+                                                <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)">🗑️</button>
+                                            <?php else: ?>
+                                                <button class="btn-restore-icon" style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" onclick="confirmRestoreSet(<?= $rowSet['id_set'] ?>)">🔄</button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
+                                <?php endwhile; endif; ?>
                             </tbody>
                         </table>
                     </div>
                     <div class="pagination-container">
-                        <span class="page-num"> < </span>
-                        <span class="page-num">1</span>
-                        <span class="page-num active">2</span>
-                        <span class="page-num"> > </span>
+                        <a href="?p=<?= $page ?>&ps=<?= max(1, $page_s-1) ?>&pr=<?= $page_r ?>" class="page-link"> < </a>
+                        <?php for($i=1; $i<=$total_pages_s; $i++): ?>
+                            <a href="?p=<?= $page ?>&ps=<?= $i ?>&pr=<?= $page_r ?>" class="page-link <?= ($i == $page_s) ? 'active' : '' ?>"><?= $i ?></a>
+                        <?php endfor; ?>
+                        <a href="?p=<?= $page ?>&ps=<?= min($total_pages_s, $page_s+1) ?>&pr=<?= $page_r ?>" class="page-link"> > </a>
                     </div>
                 </div>
 
                 <div class="master-table-card">
-                    <div>
+                    <div style="flex: 1;">
                         <div class="card-title-row">
                             <h2 class="coolveticaa" style="font-size: 1.2rem;">Rarity</h2>
-                            <button class="btn-add-green">+ Add Rarity</button>
+                            <button class="btn-add-green" onclick="openModalRarity()">+ Add Rarity</button>
                         </div>
                         <table class="styled-table">
                             <thead>
@@ -261,30 +277,185 @@ $stmt_game = sqlsrv_query($conn, $sql_game);
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)): ?>
                                 <tr>
-                                    <td>Super Rare</td>
-                                    <td>RAR-001</td>
-                                    <td>Pokemon</td>
-                                    <td>Active</td>
+                                    <td>
+                                        <?= htmlspecialchars($rowRarity['nama_rarity']) ?>
+                                        <?= !empty($rowRarity['kode_rarity']) ? ' (' . htmlspecialchars($rowRarity['kode_rarity']) . ')' : '' ?>
+                                    </td>
+                                    <td>RAR-<?= str_pad($rowRarity['id_rarity'], 3, '0', STR_PAD_LEFT) ?></td>
+                                    <td style="color: #4A90E2;"><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
+                                    <td style="color: #4A90E2; font-weight: bold;">
+                                        <?= $rowRarity['aktif'] == 1 ? 'Active' : 'Inactive' ?>
+                                    </td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <button class="btn-edit-icon">✏️</button>
-                                            <button class="btn-delete-icon">🗑️</button>
+                                            <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
+                                            <?php if ($rowRarity['aktif'] == 1): ?>
+                                                <!-- Jika Aktif, tampilkan tombol Hapus/Nonaktifkan -->
+                                                <button class="btn-delete-icon" onclick="confirmDeleteRarity(<?= $rowRarity['id_rarity'] ?>)">🗑️</button>
+                                            <?php else: ?>
+                                                <!-- Jika Tidak Aktif, tampilkan tombol Pulihkan/Aktifkan Kembali -->
+                                                <button class="btn-restore-icon" 
+                                                        style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                        onclick="confirmRestoreRarity(<?= $rowRarity['id_rarity'] ?>)">🔄</button>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
+                                <?php endwhile; endif; ?>
                             </tbody>
                         </table>
                     </div>
                     <div class="pagination-container">
-                        <span class="page-num"> < </span>
-                        <span class="page-num">1</span>
-                        <span class="page-num active">2</span>
-                        <span class="page-num"> > </span>
+                        <a href="?p=<?= $page ?>&pr=<?= max(1, $page_r-1) ?>" class="page-link"> < </a>
+                        <?php for($i=1; $i<=$total_pages_r; $i++): ?>
+                            <a href="?p=<?= $page ?>&pr=<?= $i ?>" class="page-link <?= ($i == $page_r) ? 'active' : '' ?>"><?= $i ?></a>
+                        <?php endfor; ?>
+                        <a href="?p=<?= $page ?>&pr=<?= min($total_pages_r, $page_r+1) ?>" class="page-link"> > </a>
+                    </div>
+                </div>
+            </div> 
+        </div> 
+    </div>
+    
+    <div id="gameModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="modalTitle">ADD <span class="blue-text">GAME</span></h2>
+                <span id="displayID" class="game-id"></span>
+            </div>
+            <form id="gameForm">
+                <input type="hidden" name="action" id="formAction">
+                <input type="hidden" name="id_game" id="formID">
+                <div class="modal-form-group">
+                    <label>Game Name</label>
+                    <input type="text" name="nama_game" id="nama_game" class="modal-input" required>
+                </div>
+                <div class="modal-form-group">
+                    <label>Dev Name</label>
+                    <input type="text" name="developer" id="developer" class="modal-input" required>
+                </div>
+                <div id="logSection" style="display:none;">
+                    <div class="modal-form-group"><label>Created By</label><div class="log-display"><span id="createdBy"></span><span id="createdDate"></span></div></div>
+                    <div class="modal-form-group"><label>Edited By</label><div class="log-display"><span id="editedBy"></span><span id="editedDate"></span></div></div>
+                    <div class="status-text">Status: <span id="statusLabel">Active</span><input type="hidden" name="aktif" id="aktifStatus"></div>
+                </div>
+                <button type="submit" class="btn-confirm">Confirm</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="rarityModal" class="rarity-modal-overlay">
+        <div class="rarity-modal-box">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 id="modalTitleRarity" class="coolveticaa" style="margin: 0; font-size: 24px;">ADD <span class="blue-text">RARITY</span></h2>
+                <span id="displayIDRarity" class="game-id" style="font-weight: bold; color: #7F8C8D;"></span>
+            </div>
+            
+            <form id="rarityForm">
+                <input type="hidden" name="action" id="formActionRarity">
+                <input type="hidden" name="id_rarity" id="inputIdRarity">
+                
+                <div class="rarity-form-group">
+                    <label class="rarity-form-label">Game</label>
+                    <select id="inputGameRarity" name="id_game" required class="rarity-form-input">
+                        <option value="">-- Select Game --</option>
+                        <?php 
+                        $sql_dropdown = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
+                        $stmt_dropdown = sqlsrv_query($conn, $sql_dropdown);
+                        if ($stmt_dropdown) {
+                            while ($rowGame = sqlsrv_fetch_array($stmt_dropdown, SQLSRV_FETCH_ASSOC)) {
+                                echo '<option value="' . htmlspecialchars($rowGame['id_game']) . '">' . htmlspecialchars($rowGame['nama_game']) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="rarity-form-group">
+                    <label class="rarity-form-label">Rarity Name</label>
+                    <input type="text" id="inputNamaRarity" name="nama_rarity" class="rarity-form-input" required>
+                </div>
+                <div class="rarity-form-group">
+                    <label class="rarity-form-label">Rarity Code</label>
+                    <input type="text" id="inputKodeRarity" name="kode_rarity" class="rarity-form-input">
+                </div>
+
+                <div id="logSectionRarity" style="display:none; margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <label style="font-size: 13px; font-weight: 600;">Created By</label>
+                        <div style="font-size: 13px;"><span id="createdByRarity" style="color:#2980b9;"></span> <span id="createdDateRarity"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <label style="font-size: 13px; font-weight: 600;">Edited By</label>
+                        <div style="font-size: 13px;"><span id="editedByRarity" style="color:#2980b9;"></span> <span id="editedDateRarity"></span></div>
+                    </div>
+                    <div style="text-align: right; font-size: 13px; font-weight: 600;">
+                        Status: <span id="statusLabelRarity">Active</span>
+                        <input type="hidden" name="aktif" id="aktifStatusRarity">
                     </div>
                 </div>
 
+<<<<<<< HEAD
             </div> </div> </div>
     <script src="game_script.js"></script>
+=======
+                <div class="rarity-action-group">
+                    <button type="submit" class="rarity-btn-save">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="setModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="setModalTitle">ADD <span class="blue-text">SET</span></h2>
+                <span id="setDisplayID" class="game-id"></span>
+            </div>
+            <form id="setForm">
+                <input type="hidden" name="action" id="setFormAction" value="add">
+                <input type="hidden" name="id_set" id="setIdInput">
+                
+                <div class="modal-form-group">
+                    <label>Game</label>
+                    <select name="id_game" id="setGameId" class="modal-input" required>
+                        <option value="">-- Pilih Game --</option>
+                        <?php 
+                        $sql_g = "SELECT id_game, nama_game FROM dbo.game WHERE aktif=1 ORDER BY nama_game ASC";
+                        $res_g = sqlsrv_query($conn, $sql_g);
+                        while($g = sqlsrv_fetch_array($res_g, SQLSRV_FETCH_ASSOC)) {
+                            echo "<option value='".$g['id_game']."'>".$g['nama_game']."</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>Set Name</label>
+                    <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." required>
+                </div>
+                <div class="modal-form-group">
+                    <label>Set Code</label>
+                    <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" required>
+                </div>
+                
+                <div id="setLogSection" style="display:none;">
+                    <div class="modal-form-group">
+                        <label>Created By</label>
+                        <div class="log-display"><span id="setCreatedBy"></span> <span id="setCreatedDate"></span></div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label>Edited By</label>
+                        <div class="log-display"><span id="setEditedBy"></span> <span id="setEditedDate"></span></div>
+                    </div>
+                    <div class="status-text">Status: <span id="setStatusLabel"></span><input type="hidden" name="aktif" id="setAktifStatus"></div>
+                </div>
+                <button type="submit" class="btn-confirm">Confirm</button>
+            </form>
+        </div>
+    </div>
+    <script src="/cardhaven/interface/super-admin-page/set_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/rarity_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
+>>>>>>> bcb9f27
 </body>
 </html>
