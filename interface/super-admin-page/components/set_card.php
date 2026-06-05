@@ -8,7 +8,6 @@
         <thead>
             <tr>
                 <th>Set Name</th>
-                <th>Set ID</th>
                 <th>Game</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -18,7 +17,6 @@
             <?php if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
             <tr>
                 <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
-                <td>SET-<?= str_pad($rowSet['id_set'], 3, '0', STR_PAD_LEFT) ?></td>
                 <td style="color: #4A90E2;"><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
                 <td style="color: <?= $rowSet['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
                     <?= $rowSet['aktif'] == 1 ? 'Active' : 'Inactive' ?>
@@ -42,9 +40,34 @@
 </div>
 
 <div class="pagination-container">
-    <a href="?p=<?= $page ?>&ps=<?= max(1, $page_s - 1) ?>&pr=<?= $page_r ?>" class="page-link">&lt;</a>
-    <?php for ($i = 1; $i <= $total_pages_s; $i++): ?>
-        <a href="?p=<?= $page ?>&ps=<?= $i ?>&pr=<?= $page_r ?>" class="page-link <?= ($i == $page_s) ? 'active' : '' ?>"><?= $i ?></a>
-    <?php endfor; ?>
-    <a href="?p=<?= $page ?>&ps=<?= min($total_pages_s, $page_s + 1) ?>&pr=<?= $page_r ?>" class="page-link">&gt;</a>
+    <?php if ($page_set > 1): ?>
+        <a href="?pg=<?= $page_game ?>&ps=<?= $page_set-1 ?>&pr=<?= $page_rarity ?>" class="page-link">&lt;</a>
+    <?php else: ?>
+        <span class="page-link disabled">&lt;</span>
+    <?php endif; ?>
+
+    <?php
+    $range = 3;
+    if ($page_set > ($range + 2)) {
+        echo '<a href="?pg='.$page_game.'&ps=1&pr='.$page_rarity.'" class="page-link">1</a><span class="dots">...</span>';
+    } elseif ($page_set > $range + 1) {
+        echo '<a href="?pg='.$page_game.'&ps=1&pr='.$page_rarity.'" class="page-link">1</a>';
+    }
+
+    for ($i = max(1, $page_set - $range); $i <= min($total_pages_set, $page_set + $range); $i++) {
+        echo '<a href="?pg='.$page_game.'&ps='.$i.'&pr='.$page_rarity.'" class="page-link '.($i == $page_set ? 'active' : '').'">'.$i.'</a>';
+    }
+
+    if ($page_set < ($total_pages_set - $range - 1)) {
+        echo '<span class="dots">...</span><a href="?pg='.$page_game.'&ps='.$total_pages_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_set.'</a>';
+    } elseif ($page_set < $total_pages_set - $range) {
+        echo '<a href="?pg='.$page_game.'&ps='.$total_pages_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_set.'</a>';
+    }
+    ?>
+
+    <?php if ($page_set < $total_pages_set): ?>
+        <a href="?pg=<?= $page_game ?>&ps=<?= $page_set+1 ?>&pr=<?= $page_rarity ?>" class="page-link">&gt;</a>
+    <?php else: ?>
+        <span class="page-link disabled">&gt;</span>
+    <?php endif; ?>
 </div>
