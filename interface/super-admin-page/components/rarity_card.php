@@ -8,7 +8,6 @@
         <thead>
             <tr>
                 <th>Rarity Name</th>
-                <th>Rarity ID</th>
                 <th>Game</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -21,7 +20,6 @@
                     <?= htmlspecialchars($rowRarity['nama_rarity']) ?>
                     <?= !empty($rowRarity['kode_rarity']) ? ' (' . htmlspecialchars($rowRarity['kode_rarity']) . ')' : '' ?>
                 </td>
-                <td>RAR-<?= str_pad($rowRarity['id_rarity'], 3, '0', STR_PAD_LEFT) ?></td>
                 <td style="color: #4A90E2;"><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
                 <td style="color: <?= $rowRarity['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
                     <?= $rowRarity['aktif'] == 1 ? 'Active' : 'Inactive' ?>

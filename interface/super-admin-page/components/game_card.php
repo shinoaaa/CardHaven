@@ -9,7 +9,6 @@
             <thead>
                 <tr>
                     <th>Game Name</th>
-                    <th>Game ID</th>
                     <th>Developer</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -19,7 +18,6 @@
                 <?php while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
                 <tr>
                     <td><?= htmlspecialchars($row['nama_game']) ?></td>
-                    <td>GM-<?= str_pad($row['id_game'], 3, '0', STR_PAD_LEFT) ?></td>
                     <td><?= htmlspecialchars($row['developer']) ?></td>
                     <td style="color: <?= $row['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
                         <?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?>
