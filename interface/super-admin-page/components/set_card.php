@@ -8,7 +8,6 @@
         <thead>
             <tr>
                 <th>Set Name</th>
-                <th>Set ID</th>
                 <th>Game</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -18,7 +17,6 @@
             <?php if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
             <tr>
                 <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
-                <td>SET-<?= str_pad($rowSet['id_set'], 3, '0', STR_PAD_LEFT) ?></td>
                 <td style="color: #4A90E2;"><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
                 <td style="color: <?= $rowSet['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
                     <?= $rowSet['aktif'] == 1 ? 'Active' : 'Inactive' ?>
