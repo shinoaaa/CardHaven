@@ -4,7 +4,7 @@ require_once '../../connection.php';
 
 header('Content-Type: application/json');
 
-$id_user = $_POST['id_karyawan_js'] ?? ($_SESSION['id_karyawan'] ?? 2000);
+$id_user = $_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 2000);
 
 // ================================================================
 // GET — ambil list set untuk tabel (dengan pagination)
@@ -58,8 +58,8 @@ if (isset($_GET['get_detail'])) {
                 k2.nama as modifier
             FROM dbo.set_kartu s
             INNER JOIN dbo.game g ON s.id_game = g.id_game
-            LEFT JOIN dbo.karyawan k1 ON s.created_by  = k1.id_karyawan
-            LEFT JOIN dbo.karyawan k2 ON s.modified_by = k2.id_karyawan
+            LEFT JOIN dbo.pengguna k1 ON s.created_by  = k1.id_pengguna
+            LEFT JOIN dbo.pengguna k2 ON s.modified_by = k2.id_pengguna
             WHERE s.id_set = ?";
 
     $stmt = sqlsrv_query($conn, $sql, [$id]);

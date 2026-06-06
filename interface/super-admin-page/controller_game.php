@@ -4,7 +4,7 @@ require_once '../../connection.php';
 header('Content-Type: application/json');
 
 
-$id_user = $_POST['id_karyawan_js'] ?? ($_SESSION['id_karyawan'] ?? 0);
+$id_user = $_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';

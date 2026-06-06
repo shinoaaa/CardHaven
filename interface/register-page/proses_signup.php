@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $sqlCheck = "SELECT id_customer FROM customer WHERE username = ? OR email = ?";
+        $sqlCheck = "SELECT id_pengguna FROM pengguna WHERE username = ? OR email = ?";
         $paramsCheck = array($username, $email);
         $stmtCheck = sqlsrv_query($conn, $sqlCheck, $paramsCheck);
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        $sqlInsert = "INSERT INTO customer (username, email, password) VALUES (?, ?, ?)";
+        $sqlInsert = "INSERT INTO pengguna (username, email, password) VALUES (?, ?, ?)";
         $paramsInsert = array($username, $email, $hashedPassword);
         $stmtInsert = sqlsrv_query($conn, $sqlInsert, $paramsInsert);
 

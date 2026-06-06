@@ -14,9 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedRole = localStorage.getItem("role") || sessionStorage.getItem("role");
 
     if (savedToken && savedRole !== null) {
-        if (savedRole == "1") window.location.replace("/CardHaven/superadmin");
-        else if (savedRole == "0") window.location.replace("/CardHaven/admin");
-        else if (savedRole == "2") window.location.replace("/CardHaven/owner");
+        if (savedRole == "2") window.location.replace("/CardHaven/superadmin");
+        else if (savedRole == "1") window.location.replace("/CardHaven/admin");
+        else if (savedRole == "3") window.location.replace("/CardHaven/owner");
+        else if (savedRole == "0") window.location.replace("/CardHaven/home");
     }
 
     const rememberMe = () => {
@@ -72,16 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     storage.setItem("userEmail", email);
                     storage.setItem("token", data.token);
                     storage.setItem("role", data.role);
-                    storage.setItem("id_karyawan", data.id_karyawan); 
-                    storage.setItem("nama", data.nama); 
+                    storage.setItem("id_pengguna", data.id_pengguna); 
+                    storage.setItem("username", data.username); 
                     
                     alert("Login Berhasil!");
                     
-                    if (data.role == 1) {
+                    if (data.role == 2) {
                         window.location.replace("/CardHaven/superadmin");
-                    } else if (data.role == 0) {
+                    } else if (data.role == 1) {
                         window.location.replace("/CardHaven/admin");
-                    } else if (data.role == 2) {
+                    } else if (data.role == 3) {
                         window.location.replace("/CardHaven/owner");
                     } else {
                         window.location.replace("/CardHaven/home");

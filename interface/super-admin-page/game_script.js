@@ -1,8 +1,8 @@
 const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
 
-// Ambil ID Karyawan
-const getEmpId = () => localStorage.getItem('id_karyawan') || sessionStorage.getItem('id_karyawan') || 0;
+// Ambil ID Pengguna
+const getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || 0;
 
 function openAddModal() {
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
@@ -53,7 +53,7 @@ function openEditModal(id) {
 gameForm.onsubmit = function(e) {
     e.preventDefault();
     const formData = new FormData(gameForm);
-    formData.append('id_karyawan_js', getEmpId());
+    formData.append('id_pengguna_js', getEmpId());
 
     fetch('/cardhaven/interface/super-admin-page/controller_game.php', { method: 'POST', body: formData })
     .then(res => res.json())
@@ -68,7 +68,7 @@ function confirmDelete(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_game', id);
-        fd.append('id_karyawan_js', getEmpId());
+        fd.append('id_pengguna_js', getEmpId());
         fetch('/cardhaven/interface/super-admin-page/controller_game.php', { method: 'POST', body: fd })
         .then(res => res.json()).then(res => location.reload());
     }
@@ -79,7 +79,7 @@ function confirmRestore(id) {
         const fd = new FormData();
         fd.append('action', 'restore'); 
         fd.append('id_game', id);
-        fd.append('id_karyawan_js', getEmpId());
+        fd.append('id_pengguna_js', getEmpId());
         
         fetch('/cardhaven/interface/super-admin-page/controller_game.php', { 
             method: 'POST', 
