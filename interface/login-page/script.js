@@ -78,13 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     alert("Login Berhasil!");
                     
-                    if (data.role == 2) {
+                    if (data.role === 2) {
                         window.location.replace("/CardHaven/superadmin");
-                    } else if (data.role == 1) {
-                        window.location.replace("/CardHaven/admin");
-                    } else if (data.role == 3) {
-                        window.location.replace("/CardHaven/owner");
-                    } else {
+                    }
+                    else {
                         window.location.replace("/CardHaven/home");
                     }
                     
