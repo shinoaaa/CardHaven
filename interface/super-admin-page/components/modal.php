@@ -45,20 +45,20 @@
     </div>
 </div>
 
-<div id="rarityModal" class="rarity-modal-overlay">
-    <div class="rarity-modal-box">
-        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2 id="modalTitleRarity" class="coolveticaa" style="margin: 0; font-size: 24px;">ADD <span class="blue-text">RARITY</span></h2>
-            <span id="displayIDRarity" class="game-id" style="font-weight: bold; color: #7F8C8D;"></span>
+<div id="rarityModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="modalTitleRarity">ADD <span class="blue-text">RARITY</span></h2>
+            <span id="displayIDRarity" class="game-id"></span>
         </div>
 
         <form id="rarityForm">
             <input type="hidden" name="action" id="formActionRarity">
             <input type="hidden" name="id_rarity" id="inputIdRarity">
 
-            <div class="rarity-form-group">
-                <label class="rarity-form-label">Game</label>
-                <select id="inputGameRarity" name="id_game" required class="rarity-form-input">
+            <div class="modal-form-group">
+                <label>Game</label>
+                <select id="inputGameRarity" name="id_game" class="modal-input" required>
                     <option value="">-- Select Game --</option>
                     <?php
                     $sql_dropdown_r = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
@@ -72,40 +72,38 @@
                 </select>
             </div>
 
-            <div class="rarity-form-group">
-                <label class="rarity-form-label">Rarity Name</label>
-                <input type="text" id="inputNamaRarity" name="nama_rarity" class="rarity-form-input" required>
+            <div class="modal-form-group">
+                <label>Rarity Name</label>
+                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" required>
             </div>
 
-            <div class="rarity-form-group">
-                <label class="rarity-form-label">Rarity Code</label>
-                <input type="text" id="inputKodeRarity" name="kode_rarity" class="rarity-form-input">
+            <div class="modal-form-group">
+                <label>Rarity Code</label>
+                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input">
             </div>
 
-            <div id="logSectionRarity" style="display:none; margin-top: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <label style="font-size: 13px; font-weight: 600;">Created By</label>
-                    <div style="font-size: 13px;">
-                        <span id="createdByRarity" style="color:#2980b9;"></span>
+            <div id="logSectionRarity" style="display:none;">
+                <div class="modal-form-group">
+                    <label>Created By</label>
+                    <div class="log-display">
+                        <span id="createdByRarity"></span>
                         <span id="createdDateRarity"></span>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <label style="font-size: 13px; font-weight: 600;">Edited By</label>
-                    <div style="font-size: 13px;">
-                        <span id="editedByRarity" style="color:#2980b9;"></span>
+                <div class="modal-form-group">
+                    <label>Edited By</label>
+                    <div class="log-display">
+                        <span id="editedByRarity"></span>
                         <span id="editedDateRarity"></span>
                     </div>
                 </div>
-                <div style="text-align: right; font-size: 13px; font-weight: 600;">
-                    Status: <span id="statusLabelRarity">Active</span>
+                <div class="status-text">
+                    Status: <span id="statusLabelRarity"></span>
                     <input type="hidden" name="aktif" id="aktifStatusRarity">
                 </div>
             </div>
 
-            <div class="rarity-action-group">
-                <button type="submit" class="rarity-btn-save">Confirm</button>
-            </div>
+            <button type="submit" class="btn-confirm">Confirm</button>
         </form>
     </div>
 </div>

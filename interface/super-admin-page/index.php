@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../cardhaven/connection.php';
-require_once 'components/fetch_dashboard.php'; // Memanggil mesin data yang baru dibuat
+require_once 'components/fetch_dashboard.php'; 
 ?>
 
 <!DOCTYPE html>
