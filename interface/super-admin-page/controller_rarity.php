@@ -5,17 +5,17 @@ header('Content-Type: application/json');
 
 require_once '../../connection.php';
 
-// --- PENYARINGAN AMAN ID KARYAWAN ---
+
 $raw_id_js = $_POST['id_karyawan_js'] ?? '';
 
-// Jika dari JS kosong, atau berupa string 'undefined' / 'null', beralih ke Session atau default 1
+
 if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
     $id_user = $_SESSION['id_karyawan'] ?? 1;
 } else {
     $id_user = $raw_id_js;
 }
 
-// Paksa tipe data menjadi integer agar diterima dengan benar oleh SQL Server
+
 $id_user = (int)$id_user; 
 
 // ==========================================
@@ -50,12 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     else if ($action === 'delete') {
         $sql = "UPDATE dbo.rarity SET aktif=0, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
-    }else if($action === 'restore'){
+    }
+    //proses restore
+    else if($action === 'restore'){
         $sql = "UPDATE dbo.rarity SET aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
 
-    // PENCEGAT ERROR SQL MUTLAK
+
     if ($stmt) {
         echo json_encode(['status' => 'success', 'message' => '']);
     } else {

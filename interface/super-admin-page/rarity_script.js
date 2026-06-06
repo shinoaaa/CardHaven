@@ -19,7 +19,7 @@ function confirmRestoreRarity(id) {
         const fd = new FormData();
         fd.append('action', 'restore');
         fd.append('id_rarity', id);
-        fd.append('id_karyawan_js', getEmpId()); // Menggunakan fungsi getEmpId() yang aman
+        fd.append('id_karyawan_js', getEmpId()); 
         
         fetch(API_URL,  { method: 'POST', body: fd })
         .then(res => res.json())
@@ -34,11 +34,11 @@ function confirmRestoreRarity(id) {
 function openEditRarity(id) {
     fetch(`${API_URL}?get_detail=${id}`)
         .then(async res => {
-            const rawText = await res.text(); // Ambil wujud mentah dari peladen
+            const rawText = await res.text(); 
             try {
-                return JSON.parse(rawText); // Coba paksa jadi JSON
+                return JSON.parse(rawText); 
             } catch (e) {
-                // Jika gagal, berarti PHP mati/crash. Cetak galat aslinya!
+                
                 alert("CRASH PELADEN (GET):\n\n" + rawText);
                 throw new Error("Transmisi bukan JSON");
             }

@@ -1,27 +1,17 @@
-// =============================================================
-//  SET – set_script.js (VERSI SYNC PHP & BACKEND TERBARU)
-// =============================================================
 
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
 
-// Gunakan nama variabel yang unik agar tidak bentrok dengan script lain
+
 const SET_API_URL_PATH = '/CardHaven/interface/super-admin-page/controller_set.php'; 
 
-function getEmployeeId() {
-    return localStorage.getItem('id_karyawan') || 2;
-}
-
-// ================================================================
-// DROPDOWN GAME (Isi otomatis saat modal dibuka)
-// ================================================================
 let setGamesLoaded = false;
 function loadGameOptionsForSet(selectedId) {
     if (setGamesLoaded && selectedId) {
         document.getElementById('setGameId').value = selectedId;
         return;
     }
-    // Ambil list game aktif dari backend
+
     fetch(`${SET_API_URL_PATH}?get_games=1`)
         .then(res => res.json())
         .then(res => {
@@ -36,9 +26,6 @@ function loadGameOptionsForSet(selectedId) {
         });
 }
 
-// ================================================================
-// MODAL ADD
-// ================================================================
 function openAddSetModal() {
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';
     document.getElementById('setDisplayID').innerText = '';
@@ -51,9 +38,7 @@ function openAddSetModal() {
     setModal.style.display = 'flex';
 }
 
-// ================================================================
-// MODAL EDIT
-// ================================================================
+
 function openEditSetModal(id) {
     fetch(`${SET_API_URL_PATH}?get_detail=${id}`)
         .then(res => res.json())
@@ -89,14 +74,11 @@ function openEditSetModal(id) {
         .catch(err => console.error("Error Edit Modal:", err));
 }
 
-// ================================================================
-// SUBMIT FORM (Add / Edit)
-// ================================================================
 setForm.onsubmit = function(e) {
     e.preventDefault();
 
     const formData = new FormData(setForm);
-    formData.append('id_karyawan_js', getEmployeeId());
+    formData.append('id_karyawan_js', getEmpId());
 
     fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
         .then(res => res.json())
@@ -111,15 +93,13 @@ setForm.onsubmit = function(e) {
         .catch(err => alert("Terjadi kesalahan sistem saat menyimpan."));
 };
 
-// ================================================================
-// DELETE & RESTORE
-// ================================================================
+
 function confirmDeleteSet(id) {
     if (confirm("Nonaktifkan set ini? (Soft Delete)")) {
         const formData = new FormData();
         formData.append('action',         'delete');
         formData.append('id_set',         id);
-        formData.append('id_karyawan_js', getEmployeeId());
+        formData.append('id_karyawan_js', getEmpId());
 
         fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -135,7 +115,7 @@ function confirmRestoreSet(id) {
         const formData = new FormData();
         formData.append('action',         'restore');
         formData.append('id_set',         id);
-        formData.append('id_karyawan_js', getEmployeeId());
+        formData.append('id_karyawan_js', getEmpId());
 
         fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -146,7 +126,6 @@ function confirmRestoreSet(id) {
     }
 }
 
-// Close modal klik luar box
 window.addEventListener('click', function(e) {
     if (e.target === setModal) setModal.style.display = 'none';
 });
