@@ -29,55 +29,96 @@ require_once 'components/fetch_dashboard.php';
 
         <div class="main-content">
             <div class="content-card">
-                <div class="card-title-row">
-                    <h2 class="coolveticaa">Products</h2>
-                    <button class="btn-add-green">+ Add Product</button>
-                </div>
+            <div class="card-title-row">
+                <h2 class="coolveticaa">Products</h2>
+                <button class="btn-add-green" onclick="openAddProductModal()">+ Add Product</button>
+            </div>
 
-                <table class="styled-table">
-                    <thead>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Game</th>
+                        <th>Product Type</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (sqlsrv_has_rows($stmt_produk)): ?>
+                        <?php while ($row = sqlsrv_fetch_array($stmt_produk, SQLSRV_FETCH_ASSOC)): ?>
                         <tr>
-                            <th>Product Name</th>
-                            <th>Product ID</th>
-                            <th>Game</th>
-                            <th>Set</th>
-                            <th>Stock</th>
-                            <th>Condition</th>
-                            <th>Price</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($dummy_products as $item): ?>
-                        <tr>
-                            <td style="color: #4A90E2;"><?= htmlspecialchars($item['name']) ?></td>
-                            <td><?= htmlspecialchars($item['id']) ?></td>
-                            <td style="color: #4A90E2;"><?= htmlspecialchars($item['game']) ?></td>
-                            <td><?= htmlspecialchars($item['set']) ?></td>
-                            <td><?= htmlspecialchars($item['stock']) ?></td>
-                            <td><?= htmlspecialchars($item['condition']) ?></td>
-                            <td style="color: #4A90E2; font-weight: bold;"><?= htmlspecialchars($item['price']) ?></td>
+                            <td style="color: #4A90E2; font-weight: 600; text-align: left;">
+                                <?= htmlspecialchars($row['nama_produk']) ?>
+                            </td>
+                            <td style="color: #4A90E2;"><?= htmlspecialchars($row['nama_game'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($row['tipe_produk'] ?? '-') ?></td>
+                            <td><?= str_pad($row['stok'], 2, '0', STR_PAD_LEFT) ?></td>
+                            <td style="color: #4A90E2; font-weight: bold;">
+                                Rp<?= number_format($row['harga_jual'], 2) ?>
+                            </td>
                             <td>
                                 <div class="btn-action-group">
-                                    <button class="btn-edit-icon" style="background-color: #F39C12; border:none; padding:5px; border-radius:5px; color:white;">✏️</button>
-                                    <button class="btn-delete-icon" style="background-color: #E74C3C; border:none; padding:5px; border-radius:5px; color:white;">🗑️</button>
+                                    <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
+                                    <?php if ($row['status'] == 1): ?>
+                                        <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)">🗑️</button>
+                                    <?php else: ?>
+                                        <button class="btn-restore-icon" 
+                                                style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
+                                                onclick="confirmRestoreProduct(<?= $row['id_produk'] ?>)">🔄</button>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr><td colspan="8">No products found.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
-                <div class="pagination-container">
-                    <span class="page-num">&lt;</span>
-                    <span class="page-num">1</span>
-                    <span class="page-num active">2</span>
-                    <span class="page-num">3</span>
-                    <span class="page-num">...</span>
-                    <span class="page-num">82</span>
-                    <span class="page-num">&gt;</span>
-                </div>
+            <!-- PAGINATION PRODUK -->
+            <div class="pagination-container">
+                <!-- Arrow Back -->
+                <?php if ($page_produk > 1): ?>
+                    <a href="?pp=<?= $page_produk-1 ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&lt;</a>
+                <?php else: ?>
+                    <span class="page-link disabled">&lt;</span>
+                <?php endif; ?>
+
+                <?php
+                $range = 2; // Jumlah angka di kiri & kanan halaman aktif
+                
+                // Halaman Pertama & Dots
+                if ($page_produk > ($range + 2)) {
+                    echo '<a href="?pp=1&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">1</a><span class="dots">...</span>';
+                } elseif ($page_produk > $range + 1) {
+                    echo '<a href="?pp=1&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">1</a>';
+                }
+
+                // Loop Angka Halaman
+                for ($i = max(1, $page_produk - $range); $i <= min($total_pages_produk, $page_produk + $range); $i++) {
+                    $active = ($i == $page_produk) ? 'active' : '';
+                    echo '<a href="?pp='.$i.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link '.$active.'">'.$i.'</a>';
+                }
+
+                // Dots & Halaman Terakhir
+                if ($page_produk < ($total_pages_produk - $range - 1)) {
+                    echo '<span class="dots">...</span><a href="?pp='.$total_pages_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_produk.'</a>';
+                } elseif ($page_produk < $total_pages_produk - $range) {
+                    echo '<a href="?pp='.$total_pages_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_produk.'</a>';
+                }
+                ?>
+
+                <!-- Arrow Next -->
+                <?php if ($page_produk < $total_pages_produk): ?>
+                    <a href="?pp=<?= $page_produk+1 ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&gt;</a>
+                <?php else: ?>
+                    <span class="page-link disabled">&gt;</span>
+                <?php endif; ?>
             </div>
+        </div>
 
             <div class="master-data-wrapper">
                 <div class="master-table-card">
@@ -97,6 +138,7 @@ require_once 'components/fetch_dashboard.php';
 
     <?php include 'components/modal.php'; ?>
 
+    <script src="/cardhaven/interface/super-admin-page/produk_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/set_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/rarity_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>

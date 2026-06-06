@@ -1,3 +1,90 @@
+<div id="productModal" class="modal-overlay">
+    <div class="modal-box" style="width: 650px;">
+        <div class="modal-header">
+            <h2 id="pTitle">ADD <span class="blue-text">PRODUCT</span></h2>
+            <span id="pDisplayID" class="game-id"></span>
+        </div>
+
+        <form id="productForm">
+            <input type="hidden" name="action" id="pAction" value="add">
+            <input type="hidden" name="id_produk" id="pID">
+
+            <!-- Baris 1: Nama & Tipe -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="modal-form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="nama_produk" id="pNama" class="modal-input" placeholder="Rayquaza V...">
+                    <span class="err-msg"></span>
+                </div>
+                <div class="modal-form-group">
+                    <label>Product Type</label>
+                    <select name="tipe_produk" id="pTipe" class="modal-input" onchange="toggleProdFields()">
+                        <option value="Single Card">Single Card</option>
+                        <option value="Booster Pack">Booster Pack</option>
+                        <option value="Booster Box">Booster Box</option>
+                        <option value="Sleeve">Sleeve</option>
+                        <option value="Playmat">Playmat</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Baris 2: Game (Suggestion) -->
+            <div class="modal-form-group">
+                <label>Game</label>
+                <div style="position:relative;">
+                    <input type="text" id="pGameSearch" class="modal-input" placeholder="Type game name..." autocomplete="off">
+                    <input type="hidden" name="id_game" id="pIdGame">
+                    <div id="pGameSuggest" class="suggestion-box"></div>
+                </div>
+                <span class="err-msg"></span>
+            </div>
+
+            <!-- Baris 3: Set (Suggestion) & Rarity (Dropdown) -->
+            <div id="extraFields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="modal-form-group" id="pSetGroup">
+                    <label>Card Set</label>
+                    <div style="position:relative;">
+                        <input type="text" id="pSetSearch" class="modal-input" placeholder="Search set..." autocomplete="off">
+                        <input type="hidden" name="id_set" id="pIdSet">
+                        <div id="pSetSuggest" class="suggestion-box"></div>
+                    </div>
+                    <span class="err-msg"></span>
+                </div>
+                <div class="modal-form-group" id="pRarityGroup">
+                    <label>Rarity</label>
+                    <select name="id_rarity" id="pIdRarity" class="modal-input">
+                        <option value="">-- Select Game First --</option>
+                    </select>
+                    <span class="err-msg"></span>
+                </div>
+            </div>
+
+            <!-- Baris 4: Kondisi, Stok, Harga -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
+                <div class="modal-form-group" id="pKondisiGroup">
+                    <label>Condition</label>
+                    <select name="kondisi" id="pKondisi" class="modal-input">
+                        <option value="NM">Near Mint</option>
+                        <option value="LP">Lightly Played</option>
+                        <option value="MP">Moderately Played</option>
+                    </select>
+                </div>
+                <div class="modal-form-group"><label>Stock</label><input type="number" name="stok" id="pStok" class="modal-input"></div>
+                <div class="modal-form-group"><label>Buy $</label><input type="number" step="0.01" name="harga_beli" id="pBeli" class="modal-input"></div>
+                <div class="modal-form-group"><label>Sell $</label><input type="number" step="0.01" name="harga_jual" id="pJual" class="modal-input"></div>
+            </div>
+
+            <div id="pLogSection" style="display:none; margin-top:15px;">
+                <div class="log-display"><span id="pCreatedBy"></span></div>
+                <div class="status-text">Current Status: <span id="pStatusLabel"></span></div>
+                <input type="hidden" name="status" id="pStatusValue">
+            </div>
+
+            <button type="submit" class="btn-confirm">Confirm Product</button>
+        </form>
+    </div>
+</div>
+
 <div id="gameModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
