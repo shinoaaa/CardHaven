@@ -57,7 +57,11 @@ if (isset($_GET['get_detail'])) {
     $id = $_GET['get_detail'];
     
 
-    $sql = "SELECT * FROM dbo.game WHERE id_game = ?";
+    $sql = "SELECT g.*, u1.username as creator_name, u2.username as modifier_name 
+        FROM dbo.game g 
+        LEFT JOIN dbo.pengguna u1 ON g.created_by = u1.id_pengguna 
+        LEFT JOIN dbo.pengguna u2 ON g.modified_by = u2.id_pengguna 
+        WHERE g.id_game = ?";
     $stmt = sqlsrv_query($conn, $sql, [$id]);
 
     if ($stmt === false) {
@@ -71,8 +75,8 @@ if (isset($_GET['get_detail'])) {
         $data['created_date'] = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
         $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
         
-        $data['creator'] = "User ID: " . ($data['created_by'] ?? '-');
-        $data['modifier'] = ($data['modified_by']) ? "User ID: " . $data['modified_by'] : '-';
+        $data['creator'] = $data['creator_name'] ?? '-';
+        $data['modifier'] = $data['modifier_name'] ?? '-';
 
         echo json_encode($data);
     } else {
