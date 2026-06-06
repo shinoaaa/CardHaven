@@ -70,19 +70,10 @@ try {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        // =========================================================================
-        $maskedToken = bin2hex(random_bytes(16));
-
-        $_SESSION['isLoggedIn'] = true;
-        $_SESSION['id_pengguna'] = $user['id_pengguna'];
-        $_SESSION['userEmail'] = $user['email'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['userToken'] = $maskedToken;
 
         echo json_encode([
                             "status" => "success", 
                             "message" => "Login sukses", 
-                            "token" => $maskedToken, 
                             "role" => $user['role'], 
                             "id_pengguna" => $user['id_pengguna'],
                             "username" => $user['username']

@@ -68,17 +68,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = JSON.parse(responseText);
                 
                 if (data.status === "success") {
-                    // Simpan ke Storage berdasarkan Remember Me
                     const storage = clicked ? localStorage : sessionStorage;
                     storage.setItem("userEmail", email);
-                    storage.setItem("token", data.token);
                     storage.setItem("role", data.role);
                     storage.setItem("id_pengguna", data.id_pengguna); 
                     storage.setItem("username", data.username); 
                     
                     alert("Login Berhasil!");
                     
-                    if (data.role === 2) {
+                    if (data.role == 2) {
                         window.location.replace("/CardHaven/superadmin");
                     }
                     else {
