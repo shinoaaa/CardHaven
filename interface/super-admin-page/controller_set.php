@@ -122,7 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Format tanggal (opsional)
         $tanggal = null;
         $raw = trim($_POST['tanggal_rilis'] ?? '');
         if ($raw !== '') {
@@ -134,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- ADD ---
     if ($action === 'add') {
         $sql    = "INSERT INTO dbo.set_kartu (id_game, nama_set, kode_set, tanggal_rilis, created_by, created_date, aktif)
-                   VALUES (?, ?, ?, ?, ?, GETDATE(), 1)";
+                    VALUES (?, ?, ?, ?, ?, GETDATE(), 1)";
         $params = [$id_game, $nama, $kode, $tanggal, $id_user];
         $stmt   = sqlsrv_query($conn, $sql, $params);
 
@@ -149,9 +148,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $aktif  = (int)($_POST['aktif'] ?? 1);
 
         $sql    = "UPDATE dbo.set_kartu
-                   SET id_game = ?, nama_set = ?, kode_set = ?, tanggal_rilis = ?,
-                       aktif = ?, modified_by = ?, modified_date = GETDATE()
-                   WHERE id_set = ?";
+                    SET id_game = ?, nama_set = ?, kode_set = ?, tanggal_rilis = ?,
+                        aktif = ?, modified_by = ?, modified_date = GETDATE()
+                    WHERE id_set = ?";
         $params = [$id_game, $nama, $kode, $tanggal, $aktif, $id_user, $id_set];
         $stmt   = sqlsrv_query($conn, $sql, $params);
 

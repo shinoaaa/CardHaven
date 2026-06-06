@@ -3,7 +3,7 @@ session_start();
 require_once '../../connection.php';
 header('Content-Type: application/json');
 
-// Ambil ID dari POST (JS) atau Session
+
 $id_user = $_POST['id_karyawan_js'] ?? ($_SESSION['id_karyawan'] ?? 0);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($_GET['get_detail'])) {
     $id = $_GET['get_detail'];
     
-    // Query hanya ke tabel game
+
     $sql = "SELECT * FROM dbo.game WHERE id_game = ?";
     $stmt = sqlsrv_query($conn, $sql, [$id]);
 
@@ -67,11 +67,10 @@ if (isset($_GET['get_detail'])) {
     $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
 
     if ($data) {
-        // Format Tanggal (Sangat penting agar tidak error di JS)
+
         $data['created_date'] = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
         $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
         
-        // Karena tidak pakai JOIN, kita kirim ID karyawannya saja sebagai teks
         $data['creator'] = "User ID: " . ($data['created_by'] ?? '-');
         $data['modifier'] = ($data['modified_by']) ? "User ID: " . $data['modified_by'] : '-';
 
