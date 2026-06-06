@@ -78,7 +78,7 @@ setForm.onsubmit = function(e) {
     e.preventDefault();
 
     const formData = new FormData(setForm);
-    formData.append('id_karyawan_js', getEmpId());
+    formData.append('id_pengguna_js', getEmpId());
 
     fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
         .then(res => res.json())
@@ -99,7 +99,7 @@ function confirmDeleteSet(id) {
         const formData = new FormData();
         formData.append('action',         'delete');
         formData.append('id_set',         id);
-        formData.append('id_karyawan_js', getEmpId());
+        formData.append('id_pengguna_js', getEmpId());
 
         fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
@@ -115,7 +115,7 @@ function confirmRestoreSet(id) {
         const formData = new FormData();
         formData.append('action',         'restore');
         formData.append('id_set',         id);
-        formData.append('id_karyawan_js', getEmpId());
+        formData.append('id_pengguna_js', getEmpId());
 
         fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())

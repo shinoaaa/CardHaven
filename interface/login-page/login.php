@@ -28,7 +28,7 @@ try {
             exit;
         }
 
-        $sql = "SELECT id_karyawan, email,nama, password, role FROM karyawan WHERE email = ?";
+        $sql = "SELECT id_pengguna, email, username, password, role FROM pengguna WHERE email = ?";
         $params = array($email);
         
         $stmt = sqlsrv_prepare($conn, $sql, $params);
@@ -74,7 +74,7 @@ try {
         $maskedToken = bin2hex(random_bytes(16));
 
         $_SESSION['isLoggedIn'] = true;
-        $_SESSION['id_karyawan'] = $user['id_karyawan'];
+        $_SESSION['id_pengguna'] = $user['id_pengguna'];
         $_SESSION['userEmail'] = $user['email'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['userToken'] = $maskedToken;
@@ -84,8 +84,8 @@ try {
                             "message" => "Login sukses", 
                             "token" => $maskedToken, 
                             "role" => $user['role'], 
-                            "id_karyawan" => $user['id_karyawan'],
-                            "nama" => $user['nama']
+                            "id_pengguna" => $user['id_pengguna'],
+                            "username" => $user['username']
                         ]);
         sqlsrv_free_stmt($stmt);
 

@@ -9,20 +9,20 @@ function jsonResponse($arr)
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'get') {
-    $id_karyawan = $_GET['id_karyawan'] ?? '';
+    $id_pengguna = $_GET['id_pengguna'] ?? '';
 
-    if ($id_karyawan === '') {
+    if ($id_pengguna === '') {
         jsonResponse([
             "status" => "error",
-            "message" => "ID karyawan tidak ditemukan"
+            "message" => "ID pengguna tidak ditemukan"
         ]);
     }
 
-    $sql = "SELECT id_karyawan, nama, email, role, foto_profil, status_akun
-            FROM karyawan
-            WHERE id_karyawan = ?";
+    $sql = "SELECT id_pengguna, nama, email, role, foto_profil, status_akun
+            FROM pengguna
+            WHERE id_pengguna = ?";
 
-    $stmt = sqlsrv_prepare($conn, $sql, [$id_karyawan]);
+    $stmt = sqlsrv_prepare($conn, $sql, [$id_pengguna]);
 
     if (!$stmt || !sqlsrv_execute($stmt)) {
         $errors = sqlsrv_errors();
@@ -49,12 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $id_karyawan = $_POST['id_karyawan'] ?? '';
+    $id_pengguna = $_POST['id_pengguna'] ?? '';
 
-    if ($id_karyawan === '') {
+    if ($id_pengguna === '') {
         jsonResponse([
             "status" => "error",
-            "message" => "ID karyawan tidak ditemukan"
+            "message" => "ID pengguna tidak ditemukan"
         ]);
     }
 
@@ -80,11 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $sqlCheck = "SELECT id_karyawan
-                     FROM karyawan
-                     WHERE email = ? AND id_karyawan <> ?";
+        $sqlCheck = "SELECT id_pengguna
+                     FROM pengguna
+                     WHERE email = ? AND id_pengguna <> ?";
 
-        $stmtCheck = sqlsrv_prepare($conn, $sqlCheck, [$email, $id_karyawan]);
+        $stmtCheck = sqlsrv_prepare($conn, $sqlCheck, [$email, $id_pengguna]);
 
         if (!$stmtCheck || !sqlsrv_execute($stmtCheck)) {
             $errors = sqlsrv_errors();
@@ -104,17 +104,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($password !== '') {
-            $sql = "UPDATE karyawan
+            $sql = "UPDATE pengguna
                     SET nama = ?, email = ?, password = ?
-                    WHERE id_karyawan = ?";
+                    WHERE id_pengguna = ?";
 
-            $params = [$nama, $email, $password, $id_karyawan];
+            $params = [$nama, $email, $password, $id_pengguna];
         } else {
-            $sql = "UPDATE karyawan
+            $sql = "UPDATE pengguna
                     SET nama = ?, email = ?
-                    WHERE id_karyawan = ?";
+                    WHERE id_pengguna = ?";
 
-            $params = [$nama, $email, $id_karyawan];
+            $params = [$nama, $email, $id_pengguna];
         }
 
         $stmt = sqlsrv_prepare($conn, $sql, $params);
@@ -134,11 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'deactivate' || $action === 'delete') {
-        $sql = "UPDATE karyawan
+        $sql = "UPDATE pengguna
                 SET status_akun = 0
-                WHERE id_karyawan = ?";
+                WHERE id_pengguna = ?";
 
-        $stmt = sqlsrv_prepare($conn, $sql, [$id_karyawan]);
+        $stmt = sqlsrv_prepare($conn, $sql, [$id_pengguna]);
 
         if (!$stmt || !sqlsrv_execute($stmt)) {
             $errors = sqlsrv_errors();

@@ -6,11 +6,11 @@ header('Content-Type: application/json');
 require_once '../../connection.php';
 
 
-$raw_id_js = $_POST['id_karyawan_js'] ?? '';
+$raw_id_js = $_POST['id_pengguna_js'] ?? '';
 
 
 if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
-    $id_user = $_SESSION['id_karyawan'] ?? 1;
+    $id_user = $_SESSION['id_pengguna'] ?? 1;
 } else {
     $id_user = $raw_id_js;
 }
@@ -83,8 +83,8 @@ if (isset($_GET['get_detail'])) {
                 k1.nama AS creator, 
                 k2.nama AS modifier 
             FROM dbo.rarity r 
-            LEFT JOIN dbo.karyawan k1 ON r.created_by = k1.id_karyawan
-            LEFT JOIN dbo.karyawan k2 ON r.modified_by = k2.id_karyawan 
+            LEFT JOIN dbo.pengguna k1 ON r.created_by = k1.id_pengguna
+            LEFT JOIN dbo.pengguna k2 ON r.modified_by = k2.id_pengguna 
             WHERE r.id_rarity = ?";
             
     $stmt = sqlsrv_query($conn, $sql, [(int)$_GET['get_detail']]);

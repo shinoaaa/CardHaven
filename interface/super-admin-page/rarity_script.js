@@ -19,7 +19,7 @@ function confirmRestoreRarity(id) {
         const fd = new FormData();
         fd.append('action', 'restore');
         fd.append('id_rarity', id);
-        fd.append('id_karyawan_js', getEmpId()); 
+        fd.append('id_pengguna_js', getEmpId()); 
         
         fetch(API_URL,  { method: 'POST', body: fd })
         .then(res => res.json())
@@ -76,7 +76,7 @@ function openEditRarity(id) {
 rarityForm.onsubmit = function(e) {
     e.preventDefault();
     const formData = new FormData(rarityForm);
-    formData.append('id_karyawan_js', getEmpId());
+    formData.append('id_pengguna_js', getEmpId());
 
     fetch(API_URL, { method: 'POST', body: formData })
         .then(async res => {
@@ -100,7 +100,7 @@ function confirmDeleteRarity(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_rarity', id);
-        fd.append('id_karyawan_js', getEmpId());
+        fd.append('id_pengguna_js', getEmpId());
         
         fetch(API_URL, { method: 'POST', body: fd })
             .then(async res => {
