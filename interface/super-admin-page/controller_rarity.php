@@ -80,8 +80,8 @@ if (isset($_GET['get_detail'])) {
                 r.aktif AS aktif, 
                 r.created_date AS created_date, 
                 r.modified_date AS modified_date, 
-                k1.nama AS creator, 
-                k2.nama AS modifier 
+                k1.username AS creator, 
+                k2.username AS modifier  
             FROM dbo.rarity r 
             LEFT JOIN dbo.pengguna k1 ON r.created_by = k1.id_pengguna
             LEFT JOIN dbo.pengguna k2 ON r.modified_by = k2.id_pengguna 

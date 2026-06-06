@@ -6,9 +6,7 @@ header('Content-Type: application/json');
 
 $id_user = $_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 2000);
 
-// ================================================================
-// GET — ambil list set untuk tabel (dengan pagination)
-// ================================================================
+
 if (isset($_GET['get_list'])) {
     $limit  = 3;
     $page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
@@ -54,8 +52,8 @@ if (isset($_GET['get_list'])) {
 if (isset($_GET['get_detail'])) {
     $id  = (int)$_GET['get_detail'];
     $sql = "SELECT s.*, g.nama_game,
-                k1.nama as creator,
-                k2.nama as modifier
+                k1.username as creator,
+                k2.username as modifier
             FROM dbo.set_kartu s
             INNER JOIN dbo.game g ON s.id_game = g.id_game
             LEFT JOIN dbo.pengguna k1 ON s.created_by  = k1.id_pengguna

@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         ]);
     }
 
-    $sql = "SELECT id_pengguna, nama, email, role, foto_profil, status_akun
+    $sql = "SELECT id_pengguna, username, email, role, foto_profil, status_akun
             FROM pengguna
             WHERE id_pengguna = ?";
 
@@ -105,13 +105,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($password !== '') {
             $sql = "UPDATE pengguna
-                    SET nama = ?, email = ?, password = ?
+                    SET username = ?, email = ?, password = ?
                     WHERE id_pengguna = ?";
 
             $params = [$nama, $email, $password, $id_pengguna];
         } else {
             $sql = "UPDATE pengguna
-                    SET nama = ?, email = ?
+                    SET username = ?, email = ?
                     WHERE id_pengguna = ?";
 
             $params = [$nama, $email, $id_pengguna];
@@ -404,7 +404,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("userName").textContent =
-        sessionStorage.getItem("nama") || "Guest";
+        sessionStorage.getItem("username") || "Guest";
 
     document.getElementById("userEmail").textContent =
         sessionStorage.getItem("userEmail") || "-";
@@ -460,8 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
 </div>
 
 <script>
-const idKaryawan = sessionStorage.getItem("id_karyawan");
-const idKaryawann = localStorage.getItem("id_karyawan");
+const idKaryawan = sessionStorage.getItem("id_pengguna");
+const idKaryawann = localStorage.getItem("id_pengguna");
 
 
 if ((!idKaryawan) && (!idKaryawann)) {
@@ -469,7 +469,7 @@ if ((!idKaryawan) && (!idKaryawann)) {
 }
 
 async function loadData() {
-    const res = await fetch(`/cardhaven/interface/super-admin-page/account-setting.php?action=get&id_karyawan=${encodeURIComponent(idKaryawan || idKaryawann)}`);
+    const res = await fetch(`/cardhaven/interface/super-admin-page/account-setting.php?action=get&id_pengguna=${encodeURIComponent(idKaryawan || idKaryawann)}`);
     const data = await res.json();
 
     if (data.status !== "success") {
@@ -478,10 +478,10 @@ async function loadData() {
     }
 
     const user = data.data;
-    document.getElementById("nama").value = user.nama || "";
+    document.getElementById("nama").value = user.username || "";
     document.getElementById("email").value = user.email || "";
     document.getElementById("statusAkun").textContent = `Status: ${user.status_akun == 1 ? "Aktif" : "Nonaktif"}`;
-    document.getElementById("profileInfo").textContent = `${user.nama || "-"} • ${user.email || "-"}`;
+    document.getElementById("profileInfo").textContent = `${user.username || "-"} • ${user.email || "-"}`;
 
     if (user.foto_profil) {
         document.getElementById("fotoProfil").src = `/cardhaven/image-profile/${user.foto_profil}`;
@@ -507,7 +507,7 @@ document.getElementById("accountForm").addEventListener("submit", async (e) => {
 
     const formData = new FormData();
     formData.append("action", "update");
-    formData.append("id_karyawan", idKaryawan);
+    formData.append("id_pengguna", idKaryawan);
     formData.append("nama", nama);
     formData.append("email", email);
     formData.append("password", password);
@@ -535,7 +535,7 @@ document.getElementById("btnDeactivate").addEventListener("click", async () => {
 
     const formData = new FormData();
     formData.append("action", "deactivate");
-    formData.append("id_karyawan", idKaryawan);
+    formData.append("id_pengguna", idKaryawan);
 
     const res = await fetch("/cardhaven/interface/super-admin-page/account-setting.php", {
         method: "POST",
@@ -559,7 +559,7 @@ document.getElementById("btnDelete").addEventListener("click", async () => {
 
     const formData = new FormData();
     formData.append("action", "delete");
-    formData.append("id_karyawan", idKaryawan);
+    formData.append("id_pengguna", idKaryawan);
 
     const res = await fetch("/cardhaven/interface/super-admin-page/account-setting.php", {
         method: "POST",

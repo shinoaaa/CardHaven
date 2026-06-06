@@ -13,9 +13,9 @@ require_once 'components/fetch_dashboard.php';
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <script>
         (function() {
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const token = localStorage.getItem("id_pengguna") || sessionStorage.getItem("id_pengguna");
             const role = localStorage.getItem("role") || sessionStorage.getItem("role");
-            if (!token || role !== "1") {
+            if (!token || role !== "2") {
                 window.location.replace("/CardHaven");
             }
         })();

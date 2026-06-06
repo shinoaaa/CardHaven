@@ -60,7 +60,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("userName").textContent =
-        sessionStorage.getItem("nama") || "Guest";
+        sessionStorage.getItem("username") || "Guest";
 
     document.getElementById("userEmail").textContent =
         sessionStorage.getItem("userEmail") || "-";
