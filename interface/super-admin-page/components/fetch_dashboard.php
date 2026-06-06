@@ -1,15 +1,33 @@
 <?php
 // Pastikan file ini dipanggil SETELAH connection.php
 
-$dummy_products = array_fill(0, 7, [
-    'name' => 'Rayquaza V',
-    'id' => '#CRD-1003',
-    'game' => 'Pokemon',
-    'set' => 'Scarlet and Violet Primastic',
-    'stock' => 82,
-    'condition' => 'NM',
-    'price' => '$10.22'
-]);
+
+$limit_produk = 7; // Menampilkan 7 baris sesuai desain
+$page_produk = isset($_GET['pp']) ? max(1, (int)$_GET['pp']) : 1;
+$offset_produk = ($page_produk - 1) * $limit_produk;
+
+// Ambil state halaman dari master lain agar navigasi tidak reset
+$page_game = isset($_GET['pg']) ? (int)$_GET['pg'] : 1;
+$page_set = isset($_GET['ps']) ? (int)$_GET['ps'] : 1;
+$page_rarity = isset($_GET['pr']) ? (int)$_GET['pr'] : 1;
+
+// 1. Hitung Total Baris Produk
+$sql_count_produk = "SELECT COUNT(*) as total FROM dbo.produk";
+$stmt_count_produk = sqlsrv_query($conn, $sql_count_produk);
+if ($stmt_count_produk === false) die(print_r(sqlsrv_errors(), true));
+$total_rows_produk = sqlsrv_fetch_array($stmt_count_produk, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
+$total_pages_produk = max(1, ceil($total_rows_produk / $limit_produk));
+
+// 2. Query Data Produk dengan JOIN (Game & Set)
+$sql_produk = "SELECT p.*, g.nama_game, s.nama_set 
+                FROM dbo.produk p
+                LEFT JOIN dbo.game g ON p.id_game = g.id_game
+                LEFT JOIN dbo.set_kartu s ON p.id_set = s.id_set
+                ORDER BY p.status DESC, p.id_produk ASC 
+                OFFSET $offset_produk ROWS FETCH NEXT $limit_produk ROWS ONLY";
+
+$stmt_produk = sqlsrv_query($conn, $sql_produk);
+if ($stmt_produk === false) die(print_r(sqlsrv_errors(), true));
 
 // ==========================================
 // 1. LOGIKA PAGINASI & KUERI GAME
