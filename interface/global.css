@@ -557,8 +557,11 @@ input::placeholder {
     background: rgba(0, 0, 0, 0.6);
     display: none; /* Hidden by default */
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding: 20px; 
     z-index: 9999;
+    overflow-y: auto; 
+    height: 100vh;
 }
 
 .modal-box {
@@ -567,6 +570,7 @@ input::placeholder {
     padding: 30px;
     border-radius: 40px;
     position: relative;
+
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 

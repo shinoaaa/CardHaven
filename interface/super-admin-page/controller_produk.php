@@ -7,48 +7,65 @@ $id_user = $_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $id_produk = $_POST['id_produk'] ?? null;
+    $id_produk = isset($_POST['id_produk']) ? (int)$_POST['id_produk'] : null;
 
     try {
         if ($action === 'add' || $action === 'edit') {
             $nama = trim($_POST['nama_produk'] ?? '');
-            $id_game = ($_POST['id_game'] != "") ? $_POST['id_game'] : null;
+            $id_game = !empty($_POST['id_game']) ? (int)$_POST['id_game'] : null;
             $tipe = $_POST['tipe_produk'] ?? '';
+            $id_set = !empty($_POST['id_set']) ? (int)$_POST['id_set'] : null;
+            $id_rarity = !empty($_POST['id_rarity']) ? (int)$_POST['id_rarity'] : null;
+            $kondisi = !empty($_POST['kondisi']) ? $_POST['kondisi'] : null;
+            
+            $harga_jual = (float)($_POST['harga_jual'] ?? 0);
+            $harga_beli = (float)($_POST['harga_beli'] ?? 0);
+            $stok = (int)($_POST['stok'] ?? 0);
+            $deskripsi = $_POST['deskripsi'] ?? '';
 
-            if (!$nama || !$id_game || !$tipe) throw new Exception("Field Nama, Game, dan Tipe wajib diisi!");
-
-            // Logika dinamis: Jika bukan kartu, set dan rarity otomatis dipaksa NULL
-            if (in_array($tipe, ['Single Card', 'Booster Pack', 'Booster Box'])) {
-                $id_set = ($_POST['id_set'] != "") ? $_POST['id_set'] : null;
-            } else {
-                $id_set = null;
+            // --- VALIDASI SERVER-SIDE ---
+            if (!$nama || !$id_game || !$tipe) {
+                throw new Exception("Field Nama, Game, dan Tipe wajib diisi!");
             }
 
-            if ($tipe === 'Single Card') {
-                $id_rarity = ($_POST['id_rarity'] != "") ? $_POST['id_rarity'] : null;
-                $kondisi = ($_POST['kondisi'] != "") ? $_POST['kondisi'] : null;
-            } else {
+            // --- VALIDASI DUPLIKAT (Mencegah Nama yang sama di Game & Set yang sama) ---
+            $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ?";
+            $check_stmt = sqlsrv_query($conn, $check_sql, [$nama, $id_game, ($id_set ?? 0), ($id_produk ?? 0)]);
+            if (sqlsrv_has_rows($check_stmt)) {
+                throw new Exception("Produk '$nama' sudah ada dalam Game dan Set ini!");
+            }
+
+            // Logika pembersihan data berdasarkan tipe
+            if (!in_array($tipe, ['Single Card', 'Booster Pack', 'Booster Box'])) {
+                $id_set = null;
+            }
+            if ($tipe !== 'Single Card') {
                 $id_rarity = null;
                 $kondisi = null;
             }
 
             if ($action === 'add') {
-                $sql = "INSERT INTO dbo.produk (id_game, tipe_produk, nama_produk, harga_jual, harga_beli, stok, deskripsi, id_rarity, id_set, kondisi, created_by) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $params = [$id_game, $tipe, $nama, $_POST['harga_jual'], $_POST['harga_beli'], $_POST['stok'], $_POST['deskripsi'], $id_rarity, $id_set, $kondisi, $id_user];
+                $sql = "INSERT INTO dbo.produk (id_game, tipe_produk, nama_produk, harga_jual, harga_beli, stok, deskripsi, id_rarity, id_set, kondisi, created_by, created_date, status) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), 1)";
+                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user];
             } else {
                 $status = $_POST['status'] ?? 1;
                 $sql = "UPDATE dbo.produk SET id_game=?, tipe_produk=?, nama_produk=?, harga_jual=?, harga_beli=?, stok=?, deskripsi=?, id_rarity=?, id_set=?, kondisi=?, modified_by=?, modified_date=GETDATE(), status=? WHERE id_produk=?";
-                $params = [$id_game, $tipe, $nama, $_POST['harga_jual'], $_POST['harga_beli'], $_POST['stok'], $_POST['deskripsi'], $id_rarity, $id_set, $kondisi, $id_user, $status, $id_produk];
+                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $status, $id_produk];
             }
-        } else if ($action === 'delete' || $action === 'restore') {
+        } 
+        else if ($action === 'delete' || $action === 'restore') {
             $status = ($action === 'delete') ? 0 : 1;
             $sql = "UPDATE dbo.produk SET status=?, modified_by=?, modified_date=GETDATE() WHERE id_produk=?";
             $params = [$status, $id_user, $id_produk];
         }
 
         $stmt = sqlsrv_query($conn, $sql, $params);
-        if ($stmt === false) throw new Exception(json_encode(sqlsrv_errors()));
+        if ($stmt === false) {
+            $errors = sqlsrv_errors();
+            throw new Exception("SQL Error: " . $errors[0]['message']);
+        }
+
         echo json_encode(['status' => 'success']);
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -70,7 +87,14 @@ if (isset($_GET['get_detail'])) {
             WHERE p.id_produk = ?";
     $stmt = sqlsrv_query($conn, $sql, [$id]);
     $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    echo json_encode($data);
+    if ($data) {
+        $data['created_date'] = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d M Y, H:i') : '-';
+        $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d M Y, H:i') : '-';
+        
+        echo json_encode($data);
+    } else {
+        echo json_encode(['error' => 'Data tidak ditemukan']);
+    }
     exit;
 }
 
@@ -107,3 +131,4 @@ if (isset($_GET['get_rarity_list'])) {
     echo json_encode($res);
     exit;
 }
+

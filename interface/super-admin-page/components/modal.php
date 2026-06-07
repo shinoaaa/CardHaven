@@ -89,9 +89,27 @@
                     <div class="error-message"></div>
                 </div>
             </div>
+            <div class="modal-form-group">
+                <label>Description</label>
+                <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional details..."></textarea>
+                <div class="error-message"></div>
+            </div>
 
             <div id="pLogSection" style="display:none; margin-top:15px;">
-                <div class="log-display"><span id="pCreatedBy"></span></div>
+                <div class="modal-form-group">
+                    <label>Created By</label>
+                    <div class="log-display">
+                        <span id="pCreatedBy"></span>
+                        <span id="pCreatedDate"></span>
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Edited By</label>
+                    <div class="log-display">
+                        <span id="pEditedBy"></span>
+                        <span id="pEditedDate"></span>
+                    </div>
+                </div>
                 <div class="status-text">Current Status: <span id="pStatusLabel"></span></div>
                 <input type="hidden" name="status" id="pStatusValue">
             </div>
