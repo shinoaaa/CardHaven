@@ -18,6 +18,21 @@ if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
 
 $id_user = (int)$id_user; 
 
+if (isset($_GET['check_duplicate'])) {
+    $id_game = (int)$_GET['id_game'];
+    $nama = $_GET['nama_rarity'] ?? '';
+    $kode = $_GET['kode_rarity'] ?? '';
+    $id_rarity = (int)($_GET['exclude_id'] ?? 0);
+
+    $sql = "SELECT COUNT(*) as total FROM dbo.rarity 
+            WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?) AND id_rarity <> ?";
+    $stmt = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $id_rarity]);
+    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+
+    echo json_encode(['exists' => $row['total'] > 0]);
+    exit;
+}
+
 // ==========================================
 // BLOK AKSI (ADD, EDIT, DELETE)
 // ==========================================
@@ -31,6 +46,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (($action == 'add' || $action == 'edit') && ($nama == "" || empty($id_game))) {
         echo json_encode(['status' => 'error', 'message' => 'Game dan Nama Rarity wajib diisi!']); 
         exit;
+    }
+    if ($action === 'add' || $action === 'edit') {
+
+        $check_sql = "SELECT nama_rarity, kode_rarity FROM dbo.rarity 
+                    WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?)";
+        $params = [$id_game, $nama, $kode];
+
+
+        if ($action === 'edit') {
+            $check_sql .= " AND id_rarity <> ?";
+            $params[] = $id_rarity;
+        }
+
+        $check_stmt = sqlsrv_query($conn, $check_sql, $params);
+        $duplicate = sqlsrv_fetch_array($check_stmt, SQLSRV_FETCH_ASSOC);
+
+        if ($duplicate) {
+            $pesan = "";
+            if (strcasecmp($duplicate['nama_rarity'], $nama) == 0) {
+                $pesan = "Nama Rarity '$nama' sudah terdaftar di game ini!";
+            } else {
+                $pesan = "Kode Rarity '$kode' sudah terdaftar di game ini!";
+            }
+            echo json_encode(['status' => 'error', 'message' => $pesan]);
+            exit;
+        }
     }
 
     $stmt = false;

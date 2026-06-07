@@ -4,6 +4,12 @@ const rarityForm = document.getElementById('rarityForm');
 // Kunci rute API secara absolut agar kebal dari bentrok router
 const API_URL = '/CardHaven/interface/super-admin-page/controller_rarity.php';
 
+async function isDuplicate(idGame, nama, kode, excludeId) {
+    const resp = await fetch(`${API_URL}?check_duplicate=1&id_game=${idGame}&nama_rarity=${encodeURIComponent(nama)}&kode_rarity=${encodeURIComponent(kode)}&exclude_id=${excludeId}`);
+    const data = await resp.json();
+    return data.exists;
+}
+
 function openModalRarity() {
 
     document.getElementById('modalTitleRarity').innerHTML = 'ADD <span class="blue-text">RARITY</span>';
@@ -75,7 +81,7 @@ function openEditRarity(id) {
         .catch(err => console.error("Proses Edit dihentikan:", err));
 }
 
-rarityForm.onsubmit = function(e) {
+rarityForm.onsubmit = async function(e) {
     e.preventDefault();
 
     let isValid = true;
@@ -100,6 +106,20 @@ rarityForm.onsubmit = function(e) {
     } else clearError(kode);
     if (!isValid) return;
     
+    const submitBtn = rarityForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Checking...";
+
+    const duplicate = await isDuplicate(game.value, nama.value.trim(), kode.value.trim(), idRarity);
+    
+    if (duplicate) {
+        showError(nama, "Nama atau Kode Rarity sudah ada di game ini!");
+        showError(kode, "Cek kembali nama/kode!");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "SAVE";
+        return; 
+    }
+
     const formData = new FormData(rarityForm);
     formData.append('id_pengguna_js', getEmpId());
 
