@@ -100,6 +100,7 @@ setForm.onsubmit = function(e) {
         isValid = false;
     } else clearError(kode);
 
+
     if (!isValid) return;
 
     const formData = new FormData(setForm);
