@@ -89,6 +89,9 @@ rarityForm.onsubmit = async function(e) {
     const game = document.getElementById('inputGameRarity');
     const nama = document.getElementById('inputNamaRarity');
     const kode = document.getElementById('inputKodeRarity');
+    
+    // --- PERBAIKAN: Ambil nilai idRarity dari input hidden ---
+    const idRarity = document.getElementById('inputIdRarity').value; 
 
     if (!game.value) {
         showError(game, "Pilih game dari list");
@@ -104,40 +107,54 @@ rarityForm.onsubmit = async function(e) {
         showError(kode, "Kode rarity wajib diisi!");
         isValid = false;
     } else clearError(kode);
+    
     if (!isValid) return;
     
     const submitBtn = rarityForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.innerText = "Checking...";
 
-    const duplicate = await isDuplicate(game.value, nama.value.trim(), kode.value.trim(), idRarity);
-    
-    if (duplicate) {
-        showError(nama, "Nama atau Kode Rarity sudah ada di game ini!");
-        showError(kode, "Cek kembali nama/kode!");
+    try {
+        // Cek duplikat melalui fungsi async
+        const duplicate = await isDuplicate(game.value, nama.value.trim(), kode.value.trim(), idRarity);
+        
+        if (duplicate) {
+            showError(nama, "Nama atau Kode Rarity sudah ada di game ini!");
+            submitBtn.disabled = false;
+            submitBtn.innerText = "SAVE";
+            return; 
+        }
+
+        const formData = new FormData(rarityForm);
+        formData.append('id_pengguna_js', getEmpId());
+
+        const res = await fetch(API_URL, { method: 'POST', body: formData });
+        const rawText = await res.text();
+        
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (e) {
+            alert("CRASH PELADEN (POST):\n\n" + rawText);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "SAVE";
+            return;
+        }
+
+        if (result.status === 'success') {
+            location.reload();
+        } else {
+            alert(result.message);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "SAVE";
+        }
+
+    } catch (err) {
+        console.error("Proses Simpan dihentikan:", err);
+        alert("Terjadi kesalahan koneksi atau script.");
         submitBtn.disabled = false;
         submitBtn.innerText = "SAVE";
-        return; 
     }
-
-    const formData = new FormData(rarityForm);
-    formData.append('id_pengguna_js', getEmpId());
-
-    fetch(API_URL, { method: 'POST', body: formData })
-        .then(async res => {
-            const rawText = await res.text();
-            try {
-                return JSON.parse(rawText);
-            } catch (e) {
-                alert("CRASH PELADEN (POST):\n\n" + rawText);
-                throw new Error("Transmisi bukan JSON");
-            }
-        })
-        .then(res => {
-            if (res.status === 'success') location.reload();
-            else alert(res.message);
-        })
-        .catch(err => console.error("Proses Simpan dihentikan:", err));
 };
 
 function confirmDeleteRarity(id) {
