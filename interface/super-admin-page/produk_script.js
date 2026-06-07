@@ -113,7 +113,6 @@ document.getElementById('productForm').onsubmit = function(e) {
 
     const fields = [
         { id: 'pNama', msg: "Nama produk wajib diisi" },
-        { id: 'pGameSearch', msg: "Pilih game dari list" },
         { id: 'pStok', msg: "Stok minimal 0" },
         { id: 'pBeli', msg: "Harga beli wajib diisi" },
         { id: 'pJual', msg: "Harga jual wajib diisi" }
@@ -140,6 +139,10 @@ document.getElementById('productForm').onsubmit = function(e) {
         }
     }
     if (tipe.includes('Card') || tipe.includes('Booster')) {
+        if (!document.getElementById('pIdGame').value) {
+            showError(document.getElementById('pGameSearch'), "Pilih game dari list");
+            isValid = false;
+        }
         if (!document.getElementById('pIdSet').value) {
             showError(document.getElementById('pSetSearch'), "Pilih set dari list");
             isValid = false;

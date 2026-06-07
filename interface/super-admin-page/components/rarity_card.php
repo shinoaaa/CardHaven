@@ -44,7 +44,7 @@
 
 <div class="pagination-container">
     <?php if ($page_rarity > 1): ?>
-        <a href="?pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity-1 ?>" class="page-link">&lt;</a>
+        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity-1 ?>" class="page-link">&lt;</a>
     <?php else: ?>
         <span class="page-link disabled">&lt;</span>
     <?php endif; ?>
@@ -52,24 +52,24 @@
     <?php
     $range = 3;
     if ($page_rarity > ($range + 2)) {
-        echo '<a href="?pg='.$page_game.'&ps='.$page_set.'&pr=1" class="page-link">1</a><span class="dots">...</span>';
+        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr=1" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_rarity > $range + 1) {
-        echo '<a href="?pg='.$page_game.'&ps='.$page_set.'&pr=1" class="page-link">1</a>';
+        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr=1" class="page-link">1</a>';
     }
 
     for ($i = max(1, $page_rarity - $range); $i <= min($total_pages_rarity, $page_rarity + $range); $i++) {
-        echo '<a href="?pg='.$page_game.'&ps='.$page_set.'&pr='.$i.'" class="page-link '.($i == $page_rarity ? 'active' : '').'">'.$i.'</a>';
+        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$i.'" class="page-link '.($i == $page_rarity ? 'active' : '').'">'.$i.'</a>';
     }
 
     if ($page_rarity < ($total_pages_rarity - $range - 1)) {
-        echo '<span class="dots">...</span><a href="?pg='.$page_game.'&ps='.$page_set.'&pr='.$total_pages_rarity.'" class="page-link">'.$total_pages_rarity.'</a>';
+        echo '<span class="dots">...</span><a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$total_pages_rarity.'" class="page-link">'.$total_pages_rarity.'</a>';
     } elseif ($page_rarity < $total_pages_rarity - $range) {
-        echo '<a href="?pg='.$page_game.'&ps='.$page_set.'&pr='.$total_pages_rarity.'" class="page-link">'.$total_pages_rarity.'</a>';
+        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$total_pages_rarity.'" class="page-link">'.$total_pages_rarity.'</a>';
     }
     ?>
 
     <?php if ($page_rarity < $total_pages_rarity): ?>
-        <a href="?pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity+1 ?>" class="page-link">&gt;</a>
+        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity+1 ?>" class="page-link">&gt;</a>
     <?php else: ?>
         <span class="page-link disabled">&gt;</span>
     <?php endif; ?>
