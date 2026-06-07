@@ -1,15 +1,27 @@
 const URL_PRODUK = '/CardHaven/interface/super-admin-page/controller_produk.php'; 
 // --- UTILITY: VALIDASI VISUAL ---
 function showError(el, msg) {
-    el.style.border = "2px solid #E74C3C";
-    const err = el.closest('.modal-form-group').querySelector('error-message');
-    if (err) err.innerText = msg;
+    el.style.border = "2px solid #E74C3C"; // Border jadi merah
+    
+    const err = el.closest('.modal-form-group').querySelector('.error-message');
+    
+    if (err) {
+        err.innerText = msg;
+        err.style.display = "block"; // Pastikan muncul
+        err.style.color = "#E74C3C"; // Pastikan warna teks merah
+    }
 }
 
+
 function clearError(el) {
-    el.style.border = "1.5px solid #888";
-    const err = el.closest('.modal-form-group').querySelector('error-message');
-    if (err) err.innerText = "";
+    el.style.border = "1.5px solid #888"; // Border balik normal
+    
+    // TAMBAHKAN TITIK (.) sebelum nama class
+    const err = el.closest('.modal-form-group').querySelector('.error-message');
+    
+    if (err) {
+        err.innerText = "";
+    }
 }
 
 document.querySelectorAll('.modal-input').forEach(input => {

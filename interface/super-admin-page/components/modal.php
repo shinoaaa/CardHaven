@@ -114,13 +114,13 @@
 
             <div class="modal-form-group">
                 <label>Game Name</label>
-                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." required>
+                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." >
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label id="labelDev">Developer Name</label>
-                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." required>
+                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." >
                 <div class="error-message"></div>
             </div>
 
@@ -163,7 +163,7 @@
 
             <div class="modal-form-group">
                 <label>Game</label>
-                <select id="inputGameRarity" name="id_game" class="modal-input" required>
+                <select id="inputGameRarity" name="id_game" class="modal-input" >
                     <option value="">-- Select Game --</option>
                     <?php
                     $sql_dropdown_r = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
@@ -175,11 +175,12 @@
                     }
                     ?>
                 </select>
+                <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Rarity Name</label>
-                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" required>
+                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" >
                 <div class="error-message"></div>
             </div>
 
@@ -228,7 +229,7 @@
 
             <div class="modal-form-group">
                 <label>Game</label>
-                <select name="id_game" id="setGameId" class="modal-input" required>
+                <select name="id_game" id="setGameId" class="modal-input" >
                     <option value="">-- Pilih Game --</option>
                     <?php
                     $sql_dropdown_s = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
@@ -240,17 +241,18 @@
                     }
                     ?>
                 </select>
+                <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Set Name</label>
-                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." required>
+                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." >
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Set Code</label>
-                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" required>
+                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" >
                 <div class="error-message"></div>
             </div>
             <div class="modal-form-group">
