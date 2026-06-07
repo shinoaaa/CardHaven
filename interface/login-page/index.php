@@ -12,7 +12,7 @@
             <div class="image-wrap">
                 <img src="/cardhaven/assets/image/login-image.svg" style="object-fit: cover; height: 100%;">
             </div>
-            <div class="form-section">
+            <div class="form-section" id="login-wrap">
                 <div class="form-container">
                     <h1 class="coolvetica">Login</h1>
                     <div class="social-login">
@@ -42,7 +42,7 @@
                                 <div id="checkbox">✔</div>
                                 <p id="checkText" style="text-decoration: underline; color: #0088FF; font-size: 13px; cursor: pointer;">Remember Me</p>
                             </div>
-                            <a style="color: #0088FF; font-size: 13px; cursor: pointer;">Forgot Password?</a>
+                            <a style="color: #0088FF; font-size: 13px; cursor: pointer;" id="forgot-button">Forgot Password?</a>
                         </div>
 
                         <button type="submit" class="btn-signup">Login</button>
@@ -51,6 +51,9 @@
                     <p style="margin-bottom: 16px;" class="footer-text">Doesn't have an account? <span><a href="register" style="text-decoration: underline; color: #0088FF;">Sign Up</a></span></p>
                     <a href="" style="text-decoration: underline; color: #0088FF;">Return to home page</a>
                 </div>
+            </div>
+            <div class="form-section" id="forgot-wrap">
+                <?php include 'components/forgotPassword.php' ?>
             </div>
         </div>
     </div>
