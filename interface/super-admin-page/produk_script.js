@@ -107,56 +107,95 @@ function toggleProdFields() {
 }
 
 // --- SUBMIT FORM DENGAN VALIDASI ---
-document.getElementById('productForm').onsubmit = function(e) {
+document.getElementById('productForm').onsubmit = async function(e) {
     e.preventDefault();
+    clearAllErrors('productForm');
+    
     let isValid = true;
+    const tipe = document.getElementById('pTipe').value;
 
-    const fields = [
-        { id: 'pNama', msg: "Nama produk wajib diisi" },
-        { id: 'pStok', msg: "Stok minimal 0" },
-        { id: 'pBeli', msg: "Harga beli wajib diisi" },
-        { id: 'pJual', msg: "Harga jual wajib diisi" }
+    // 1. Validasi Input Dasar
+    const requiredFields = [
+        { id: 'pNama', label: "Nama produk" },
+        { id: 'pStok', label: "Stok", isNum: true },
+        { id: 'pBeli', label: "Harga beli", isNum: true },
+        { id: 'pJual', label: "Harga jual", isNum: true }
     ];
-    fields.forEach(f => {
+
+    requiredFields.forEach(f => {
         const el = document.getElementById(f.id);
-        if (!el.value) {
-            showError(el, f.msg);
+        const val = el.value.trim();
+        if (!val) {
+            showError(el, `${f.label} wajib diisi`);
             isValid = false;
-        } else {
-            clearError(el);
+        } else if (f.isNum && (isNaN(val) || parseFloat(val) < 0)) {
+            showError(el, `${f.label} harus angka positif`);
+            isValid = false;
         }
     });
 
-    const tipe = document.getElementById('pTipe').value;
-    if (tipe === 'Single Card') {
-        if (!document.getElementById('pIdRarity').value) {
-            showError(document.getElementById('pIdRarity'), "Pilih rarity");
-            isValid = false;
-        }
-        if (!document.getElementById('pKondisi').value) {
-            showError(document.getElementById('pKondisi'), "Pilih kondisi");
-            isValid = false;
-        }
-    }
+    // 2. Validasi Relasi (Game & Set) - WAJIB MEMILIH DARI LIST
     if (tipe.includes('Card') || tipe.includes('Booster')) {
-        if (!document.getElementById('pIdGame').value) {
-            showError(document.getElementById('pGameSearch'), "Pilih game dari list");
+        const gameID = document.getElementById('pIdGame').value;
+        const gameSearch = document.getElementById('pGameSearch').value;
+        const setID = document.getElementById('pIdSet').value;
+        const setSearch = document.getElementById('pSetSearch').value;
+
+        if (!gameID || !gameSearch) {
+            showError(document.getElementById('pGameSearch'), "Pilih Game dari list yang tersedia");
             isValid = false;
         }
-        if (!document.getElementById('pIdSet').value) {
-            showError(document.getElementById('pSetSearch'), "Pilih set dari list");
+        if (!setID || !setSearch) {
+            showError(document.getElementById('pSetSearch'), "Pilih Set dari list yang tersedia");
             isValid = false;
         }
     }
 
-    if (isValid) {
-        const fd = new FormData(this);
-        fd.append('id_pengguna_js', localStorage.getItem('id_pengguna'));
-        fetch(URL_PRODUK, { method: 'POST', body: fd })
-        .then(res => res.json()).then(res => {
-            if (res.status === 'success') location.reload();
-            else alert(res.message);
-        });
+    // 3. Validasi Khusus Single Card
+    if (tipe === 'Single Card') {
+        if (!document.getElementById('pIdRarity').value) {
+            showError(document.getElementById('pIdRarity'), "Rarity wajib dipilih");
+            isValid = false;
+        }
+        if (!document.getElementById('pKondisi').value) {
+            showError(document.getElementById('pKondisi'), "Kondisi wajib dipilih");
+            isValid = false;
+        }
+    }
+
+    if (!isValid) return;
+
+    // 4. Proses Kirim (POST)
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Saving...";
+
+    const fd = new FormData(this);
+    fd.append('id_pengguna_js', getEmpId());
+
+    try {
+        const response = await fetch(URL_PRODUK, { method: 'POST', body: fd });
+        const rawText = await response.text();
+        let res;
+        
+        try {
+            res = JSON.parse(rawText);
+        } catch (e) {
+            alert("CRASH PELADEN:\n" + rawText);
+            return;
+        }
+
+        if (res.status === 'success') {
+            location.reload();
+        } else {
+            alert("GAGAL: " + res.message);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Terjadi kesalahan koneksi.");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "SAVE PRODUCT";
     }
 };
 
@@ -186,11 +225,66 @@ function openEditProductModal(id) {
         document.getElementById('pBeli').value = data.harga_beli;
         document.getElementById('pJual').value = data.harga_jual;
         document.getElementById('pKondisi').value = data.kondisi;
+        document.getElementById('pDeskripsi').value = data.deskripsi || ''; 
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
+
         document.getElementById('pLogSection').style.display = 'block';
+        document.getElementById('pCreatedBy').innerText = data.creator || 'System'; 
+        document.getElementById('pCreatedDate').innerText = data.created_date; 
+        
+        document.getElementById('pEditedBy').innerText = data.modifier || '-';
+        document.getElementById('pEditedDate').innerText = (data.modifier) ? data.modified_date : ''; 
+
+        const statusLabel = document.getElementById('pStatusLabel');
+        const statusVal = document.getElementById('pStatusValue');
+        statusVal.value = data.status;
+
+        if (data.status == 1) {
+            statusLabel.innerText = "Active";
+            statusLabel.style.color = "#27AE60"; // Hijau
+            statusLabel.style.fontWeight = "bold";
+        } else {
+            statusLabel.innerText = "Inactive";
+            statusLabel.style.color = "#E74C3C"; // Merah
+            statusLabel.style.fontWeight = "bold";
+        }
         document.getElementById('productModal').style.display = 'flex';
     });
+}
+
+function confirmDeleteProduct(id) {
+    if (confirm("Nonaktifkan produk ini?")) {
+        const fd = new FormData();
+        fd.append('action', 'delete');
+        fd.append('id_produk', id);
+        fd.append('id_pengguna_js', getEmpId());
+
+        fetch(URL_PRODUK, { method: 'POST', body: fd })
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === 'success') location.reload();
+            else alert(res.message);
+        })
+        .catch(err => alert("Gagal menghapus data."));
+    }
+}
+
+function confirmRestoreProduct(id) {
+    if (confirm("Aktifkan kembali produk ini?")) {
+        const fd = new FormData();
+        fd.append('action', 'restore');
+        fd.append('id_produk', id);
+        fd.append('id_pengguna_js', getEmpId());
+
+        fetch(URL_PRODUK, { method: 'POST', body: fd })
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === 'success') location.reload();
+            else alert(res.message);
+        })
+        .catch(err => alert("Gagal mengaktifkan data."));
+    }
 }
 
 window.addEventListener('click', function(e) {
