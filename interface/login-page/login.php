@@ -1,167 +1,91 @@
 <?php
+ini_set('display_errors', 0);
+header('Content-Type: application/json');
 
-class ForgotPasswordController
-{
-    private $conn;
+try {
+    require __DIR__ . '/../../connection.php';
 
-    public function __construct($conn)
-    {
-        $this->conn = $conn;
-    }
-
-    private function respond($data)
-    {
-        echo json_encode($data);
+    if (!$conn) {
+        echo json_encode([
+            "status" => "error",
+            "target" => "general",
+            "message" => "Koneksi database gagal."
+        ]);
         exit;
     }
 
-    public function verifyIdentity($email, $createdDate)
-    {
-        $email = trim($email);
-        $createdDate = trim($createdDate);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+        $password = isset($_POST['password']) ? trim($_POST['password']) : '';
+        $remember = isset($_POST['remember']) && $_POST['remember'] === 'true';
 
-        if ($email === '') {
-            $this->respond([
-                "status" => "error",
-                "target" => "email",
-                "message" => "Email harus diisi"
-            ]);
+        if (empty($email)) {
+            echo json_encode(["status" => "error", "target" => "email", "message" => "Email harus diisi"]);
+            exit;
+        }
+        if (empty($password)) {
+            echo json_encode(["status" => "error", "target" => "password", "message" => "Password harus diisi"]);
+            exit;
         }
 
-        if ($createdDate === '') {
-            $this->respond([
-                "status" => "error",
-                "target" => "created_date",
-                "message" => "Created date harus diisi"
-            ]);
-        }
-
-        $sql = "
-            SELECT id_pengguna, email, created_date
-            FROM pengguna
-            WHERE email = ?
-              AND CONVERT(date, created_date) = ?
-        ";
-
-        $params = [$email, $createdDate];
-        $stmt = sqlsrv_prepare($this->conn, $sql, $params);
+        $sql = "SELECT id_pengguna, email, username, password, role FROM pengguna WHERE email = ?";
+        $params = array($email);
+        
+        $stmt = sqlsrv_prepare($conn, $sql, $params);
 
         if (!$stmt) {
             $errors = sqlsrv_errors();
-            $this->respond([
-                "status" => "error",
-                "target" => "general",
-                "message" => "Query Error: " . ($errors[0]['message'] ?? 'Unknown error')
-            ]);
+            echo json_encode(["status" => "error", "target" => "general", "message" => "Query Error: " . $errors[0]['message']]);
+            exit;
         }
 
         if (!sqlsrv_execute($stmt)) {
             $errors = sqlsrv_errors();
-            $this->respond([
-                "status" => "error",
-                "target" => "general",
-                "message" => "Eksekusi Query Gagal: " . ($errors[0]['message'] ?? 'Unknown error')
-            ]);
+            echo json_encode(["status" => "error", "target" => "general", "message" => "Eksekusi Query Gagal: " . $errors[0]['message']]);
+            exit;
         }
 
         $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-        sqlsrv_free_stmt($stmt);
 
         if (!$user) {
-            $this->respond([
-                "status" => "error",
-                "target" => "email",
-                "message" => "Email atau created date tidak cocok"
-            ]);
+            echo json_encode(["status" => "error", "target" => "email", "message" => "Email tidak terdaftar"]);
+            sqlsrv_free_stmt($stmt);
+            exit;
         }
 
-        $_SESSION['forgot_verified'] = true;
-        $_SESSION['forgot_email'] = $email;
-
-        $this->respond([
-            "status" => "success",
-            "message" => "Data cocok. Silakan masukkan password baru."
-        ]);
-    }
-
-    public function resetPassword($password, $confirmPassword)
-    {
-        $password = trim($password);
-        $confirmPassword = trim($confirmPassword);
-
-        if (empty($_SESSION['forgot_verified']) || empty($_SESSION['forgot_email'])) {
-            $this->respond([
-                "status" => "error",
-                "target" => "general",
-                "message" => "Silakan verifikasi data terlebih dahulu."
-            ]);
+        if ($password !== $user['password']) {
+            echo json_encode(["status" => "error", "target" => "password", "message" => "Password yang dimasukkan salah"]);
+            sqlsrv_free_stmt($stmt);
+            exit;
         }
 
-        if ($password === '') {
-            $this->respond([
-                "status" => "error",
-                "target" => "password",
-                "message" => "Password harus diisi"
-            ]);
+        // Sinkronisasi umur session di server dengan JS Storage
+        if ($remember) {
+            ini_set('session.cookie_lifetime', 604800);
+            ini_set('session.gc_maxlifetime', 604800);
+        } else {
+            ini_set('session.cookie_lifetime', 0);
         }
 
-        if (strlen($password) < 8) {
-            $this->respond([
-                "status" => "error",
-                "target" => "password",
-                "message" => "Password minimal 8 karakter"
-            ]);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        if ($confirmPassword === '') {
-            $this->respond([
-                "status" => "error",
-                "target" => "confirm_password",
-                "message" => "Konfirmasi password harus diisi"
-            ]);
-        }
-
-        if ($password !== $confirmPassword) {
-            $this->respond([
-                "status" => "error",
-                "target" => "confirm_password",
-                "message" => "Konfirmasi password tidak cocok"
-            ]);
-        }
-
-        // Sesuaikan dengan sistem login kamu yang sekarang masih compare plaintext.
-        // Kalau nanti mau aman, ganti ke password_hash() + password_verify().
-        $sql = "UPDATE pengguna SET password = ? WHERE email = ?";
-        $params = [$password, $_SESSION['forgot_email']];
-
-        $stmt = sqlsrv_prepare($this->conn, $sql, $params);
-
-        if (!$stmt) {
-            $errors = sqlsrv_errors();
-            $this->respond([
-                "status" => "error",
-                "target" => "general",
-                "message" => "Query Error: " . ($errors[0]['message'] ?? 'Unknown error')
-            ]);
-        }
-
-        if (!sqlsrv_execute($stmt)) {
-            $errors = sqlsrv_errors();
-            $this->respond([
-                "status" => "error",
-                "target" => "general",
-                "message" => "Gagal update password: " . ($errors[0]['message'] ?? 'Unknown error')
-            ]);
-        }
-
+        echo json_encode([
+                            "status" => "success", 
+                            "message" => "Login sukses", 
+                            "role" => $user['role'], 
+                            "id_pengguna" => $user['id_pengguna'],
+                            "username" => $user['username']
+                        ]);
         sqlsrv_free_stmt($stmt);
 
-        unset($_SESSION['forgot_verified']);
-        unset($_SESSION['forgot_email']);
-
-        $this->respond([
-            "status" => "success",
-            "message" => "Password berhasil diubah. Silakan login kembali."
-        ]);
+    } else {
+        echo json_encode(["status" => "error", "target" => "general", "message" => "Metode request tidak diizinkan"]);
     }
+    sqlsrv_close($conn);
+
+} catch (Exception $e) {
+    echo json_encode(["status" => "error", "target" => "general", "message" => "System Error: " . $e->getMessage()]);
 }
+?>
