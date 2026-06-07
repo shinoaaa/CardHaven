@@ -2,14 +2,28 @@ const URL_PRODUK = '/CardHaven/interface/super-admin-page/controller_produk.php'
 // --- UTILITY: VALIDASI VISUAL ---
 function showError(el, msg) {
     el.style.border = "2px solid #E74C3C";
-    const err = el.closest('.modal-form-group').querySelector('.err-msg');
+    const err = el.closest('.modal-form-group').querySelector('error-message');
     if (err) err.innerText = msg;
 }
 
 function clearError(el) {
     el.style.border = "1.5px solid #888";
-    const err = el.closest('.modal-form-group').querySelector('.err-msg');
+    const err = el.closest('.modal-form-group').querySelector('error-message');
     if (err) err.innerText = "";
+}
+
+document.querySelectorAll('.modal-input').forEach(input => {
+    input.addEventListener('input', function() {
+        clearError(this);
+    });
+    input.addEventListener('change', function() {
+        clearError(this);
+    });
+})
+
+function clearAllErrors(formId) {
+    const form = document.getElementById(formId);
+    form.querySelectorAll('.modal-input').forEach(input => clearError(input));
 }
 
 // --- FUNGSI LOAD RARITY (DROPDOWN) ---
@@ -85,9 +99,40 @@ document.getElementById('productForm').onsubmit = function(e) {
     e.preventDefault();
     let isValid = true;
 
-    // Validasi Basic
-    if (!document.getElementById('pNama').value) { showError(document.getElementById('pNama'), "Wajib diisi"); isValid = false; }
-    if (!document.getElementById('pIdGame').value) { showError(document.getElementById('pGameSearch'), "Pilih Game!"); isValid = false; }
+    const fields = [
+        { id: 'pNama', msg: "Nama produk wajib diisi" },
+        { id: 'pGameSearch', msg: "Pilih game dari list" },
+        { id: 'pStok', msg: "Stok minimal 0" },
+        { id: 'pBeli', msg: "Harga beli wajib diisi" },
+        { id: 'pJual', msg: "Harga jual wajib diisi" }
+    ];
+    fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (!el.value) {
+            showError(el, f.msg);
+            isValid = false;
+        } else {
+            clearError(el);
+        }
+    });
+
+    const tipe = document.getElementById('pTipe').value;
+    if (tipe === 'Single Card') {
+        if (!document.getElementById('pIdRarity').value) {
+            showError(document.getElementById('pIdRarity'), "Pilih rarity");
+            isValid = false;
+        }
+        if (!document.getElementById('pKondisi').value) {
+            showError(document.getElementById('pKondisi'), "Pilih kondisi");
+            isValid = false;
+        }
+    }
+    if (tipe.includes('Card') || tipe.includes('Booster')) {
+        if (!document.getElementById('pIdSet').value) {
+            showError(document.getElementById('pSetSearch'), "Pilih set dari list");
+            isValid = false;
+        }
+    }
 
     if (isValid) {
         const fd = new FormData(this);
@@ -102,6 +147,7 @@ document.getElementById('productForm').onsubmit = function(e) {
 
 // --- OPEN MODAL (ADD/EDIT) ---
 function openAddProductModal() {
+    clearAllErrors('productForm');
     document.getElementById('productForm').reset();
     document.getElementById('pAction').value = 'add';
     document.getElementById('pLogSection').style.display = 'none';
@@ -112,6 +158,7 @@ function openAddProductModal() {
 function openEditProductModal(id) {
     fetch(`${URL_PRODUK}?get_detail=${id}`)
     .then(res => res.json()).then(data => {
+        clearAllErrors('productForm');
         document.getElementById('pAction').value = 'edit';
         document.getElementById('pID').value = id;
         document.getElementById('pNama').value = data.nama_produk;
@@ -123,7 +170,7 @@ function openEditProductModal(id) {
         document.getElementById('pStok').value = data.stok;
         document.getElementById('pBeli').value = data.harga_beli;
         document.getElementById('pJual').value = data.harga_jual;
-        
+        document.getElementById('pKondisi').value = data.kondisi;
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
         document.getElementById('pLogSection').style.display = 'block';

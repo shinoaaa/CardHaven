@@ -27,6 +27,7 @@ function loadGameOptionsForSet(selectedId) {
 }
 
 function openAddSetModal() {
+    clearAllErrors('setForm');
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';
     document.getElementById('setDisplayID').innerText = '';
     document.getElementById('setFormAction').value = 'add';
@@ -45,6 +46,7 @@ function openEditSetModal(id) {
         .then(data => {
             if(!data || data.error) return alert("Gagal mengambil data detail");
 
+            clearAllErrors('setForm');
             document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">SET</span> DETAIL';
             document.getElementById('setDisplayID').innerText = 'SET-' + String(id).padStart(3, '0');
             document.getElementById('setFormAction').value = 'edit';
@@ -76,6 +78,29 @@ function openEditSetModal(id) {
 
 setForm.onsubmit = function(e) {
     e.preventDefault();
+
+    let isValid = true;
+
+    const game = document.getElementById('setGameId');
+    const nama = document.getElementById('setNama');
+    const kode = document.getElementById('setKode');
+
+    if (!game.value) {
+        showError(game, "Pilih game dari list");
+        isValid = false;
+    } else clearError(game);
+
+    if (!nama.value.trim()) {
+        showError(nama, "Nama set wajib diisi!");
+        isValid = false;
+    } else clearError(nama);
+
+    if (!kode.value.trim()) {
+        showError(kode, "Kode set wajib diisi!");
+        isValid = false;
+    } else clearError(kode);
+
+    if (!isValid) return;
 
     const formData = new FormData(setForm);
     formData.append('id_pengguna_js', getEmpId());

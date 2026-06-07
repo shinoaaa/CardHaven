@@ -5,11 +5,13 @@ const rarityForm = document.getElementById('rarityForm');
 const API_URL = '/CardHaven/interface/super-admin-page/controller_rarity.php';
 
 function openModalRarity() {
+
     document.getElementById('modalTitleRarity').innerHTML = 'ADD <span class="blue-text">RARITY</span>';
     document.getElementById('displayIDRarity').innerText = '';
     document.getElementById('formActionRarity').value = 'add';
     document.getElementById('logSectionRarity').style.display = 'none';
     rarityForm.reset();
+    clearAllErrors('rarityForm');
     document.getElementById('inputIdRarity').value = "0";
     modalRarity.style.display = 'flex';
 }
@@ -48,7 +50,7 @@ function openEditRarity(id) {
                 alert(data.error);
                 return;
             }
-            
+            clearAllErrors('rarityForm');
             document.getElementById('modalTitleRarity').innerHTML = '<span class="blue-text">RARITY</span> DETAIL';
             document.getElementById('displayIDRarity').innerText = 'RAR-' + String(id).padStart(3, '0');
             document.getElementById('formActionRarity').value = 'edit';
@@ -75,6 +77,29 @@ function openEditRarity(id) {
 
 rarityForm.onsubmit = function(e) {
     e.preventDefault();
+
+    let isValid = true;
+
+    const game = document.getElementById('inputGameRarity');
+    const nama = document.getElementById('inputNamaRarity');
+    const kode = document.getElementById('inputKodeRarity');
+
+    if (!game.value) {
+        showError(game, "Pilih game dari list");
+        isValid = false;
+    } else clearError(game);
+
+    if (!nama.value.trim()) {
+        showError(nama, "Nama rarity wajib diisi!");
+        isValid = false;
+    } else clearError(nama);
+
+    if (!kode.value.trim()) {
+        showError(kode, "Kode rarity wajib diisi!");
+        isValid = false;
+    } else clearError(kode);
+    if (!isValid) return;
+    
     const formData = new FormData(rarityForm);
     formData.append('id_pengguna_js', getEmpId());
 
