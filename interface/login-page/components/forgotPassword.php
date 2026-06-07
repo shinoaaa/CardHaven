@@ -30,10 +30,12 @@
             </div>
         </div>
 
-        <button type="submit" id="forgot-submit">Verify</button>
+        <button type="submit" id="forgot-submit" class="btn-confirm">Verify</button>
     </form>
 
-    <a id="back-to-login" style="color: #0088FF; font-size: 13px; cursor: pointer;">
-        Return to login page
-    </a>
+    <div style="margin-top: 15px;">
+        <a id="back-to-login" style="color: #0088FF; font-size: 13px; cursor: pointer; ">
+            Return to login page
+        </a>
+    </div>
 </div>
