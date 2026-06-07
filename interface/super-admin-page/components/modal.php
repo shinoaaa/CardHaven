@@ -14,7 +14,7 @@
                 <div class="modal-form-group">
                     <label>Product Name</label>
                     <input type="text" name="nama_produk" id="pNama" class="modal-input" placeholder="Rayquaza V...">
-                    <span class="err-msg"></span>
+                    <span class="error-message"></span>
                 </div>
                 <div class="modal-form-group">
                     <label>Product Type</label>
@@ -36,7 +36,7 @@
                     <input type="hidden" name="id_game" id="pIdGame">
                     <div id="pGameSuggest" class="suggestion-box"></div>
                 </div>
-                <span class="err-msg"></span>
+                <div class="error-message"></div>
             </div>
 
             <!-- Baris 3: Set (Suggestion) & Rarity (Dropdown) -->
@@ -48,14 +48,14 @@
                         <input type="hidden" name="id_set" id="pIdSet">
                         <div id="pSetSuggest" class="suggestion-box"></div>
                     </div>
-                    <span class="err-msg"></span>
+                    <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group" id="pRarityGroup">
                     <label>Rarity</label>
                     <select name="id_rarity" id="pIdRarity" class="modal-input">
-                        <option value="">-- Select Game First --</option>
+                        <option value="">-- Select Rarity --</option>
                     </select>
-                    <span class="err-msg"></span>
+                    <div class="error-message"></div>
                 </div>
             </div>
 
@@ -64,14 +64,30 @@
                 <div class="modal-form-group" id="pKondisiGroup">
                     <label>Condition</label>
                     <select name="kondisi" id="pKondisi" class="modal-input">
+                        <option value="M">Mint</option>
                         <option value="NM">Near Mint</option>
                         <option value="LP">Lightly Played</option>
                         <option value="MP">Moderately Played</option>
+                        <option value="HP">Heavily Played</option>
+                        <option value="DMG">Damaged</option>
                     </select>
+                    <div class="error-message"></div>
                 </div>
-                <div class="modal-form-group"><label>Stock</label><input type="number" name="stok" id="pStok" class="modal-input"></div>
-                <div class="modal-form-group"><label>Buy $</label><input type="number" step="0.01" name="harga_beli" id="pBeli" class="modal-input"></div>
-                <div class="modal-form-group"><label>Sell $</label><input type="number" step="0.01" name="harga_jual" id="pJual" class="modal-input"></div>
+                <div class="modal-form-group">
+                    <label>Stock</label>
+                    <input type="number" min="0" name="stok" id="pStok" class="modal-input">
+                    <div class="error-message"></div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Buy (Rp)</label>
+                    <input type="number" min="0" name="harga_beli" id="pBeli" class="modal-input">
+                    <div class="error-message"></div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Sell (Rp)</label>
+                    <input type="number" min="0" name="harga_jual" id="pJual" class="modal-input">
+                    <div class="error-message"></div>
+                </div>
             </div>
 
             <div id="pLogSection" style="display:none; margin-top:15px;">
@@ -99,11 +115,13 @@
             <div class="modal-form-group">
                 <label>Game Name</label>
                 <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." required>
+                <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label id="labelDev">Dev Name</label>
+                <label id="labelDev">Developer Name</label>
                 <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." required>
+                <div class="error-message"></div>
             </div>
 
             <div id="logSection" style="display:none;">
@@ -162,11 +180,13 @@
             <div class="modal-form-group">
                 <label>Rarity Name</label>
                 <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" required>
+                <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Rarity Code</label>
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input">
+                <div class="error-message"></div>
             </div>
 
             <div id="logSectionRarity" style="display:none;">
@@ -225,15 +245,18 @@
             <div class="modal-form-group">
                 <label>Set Name</label>
                 <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." required>
+                <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Set Code</label>
                 <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" required>
+                <div class="error-message"></div>
             </div>
             <div class="modal-form-group">
                 <label>Release Date</label>
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
+                <div class="error-message"></div>
             </div>
 
             <div id="setLogSection" style="display:none;">

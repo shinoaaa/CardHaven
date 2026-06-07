@@ -1,10 +1,16 @@
 const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
 
+const URL_GAME = '/cardhaven/interface/super-admin-page/controller_game.php';
 // Ambil ID Pengguna
 const getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
+document.querySelectorAll('#gameForm .modal-input').forEach(input => {
+    input.addEventListener('input', function() { clearError(this); });
+});
+
 function openAddModal() {
+    clearAllErrors('gameForm');
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
     document.getElementById('displayID').innerText = '';
     document.getElementById('formAction').value = 'add';
@@ -14,7 +20,7 @@ function openAddModal() {
 }
 
 function openEditModal(id) {
-    fetch(`/cardhaven/interface/super-admin-page/controller_game.php?get_detail=${id}`)
+    fetch(`${URL_GAME}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
             if(data.error) {
@@ -22,6 +28,7 @@ function openEditModal(id) {
                 return;
             }
 
+            clearAllErrors('gameForm');
             document.getElementById('modalTitle').innerHTML = '<span class="blue-text">GAME</span> DETAIL';
             document.getElementById('displayID').innerText = 'GAM-' + id;
             document.getElementById('formAction').value = 'edit';
@@ -29,7 +36,6 @@ function openEditModal(id) {
             
             document.getElementById('nama_game').value = data.nama_game;
             document.getElementById('developer').value = data.developer;
-            
 
             document.getElementById('logSection').style.display = 'block';
             document.getElementById('createdBy').innerText = data.creator; 
@@ -51,16 +57,53 @@ function openEditModal(id) {
 }
 
 gameForm.onsubmit = function(e) {
-    e.preventDefault();
-    const formData = new FormData(gameForm);
-    formData.append('id_pengguna_js', getEmpId());
+    e.preventDefault(); 
 
-    fetch('/cardhaven/interface/super-admin-page/controller_game.php', { method: 'POST', body: formData })
-    .then(res => res.json())
-    .then(res => {
-        if (res.status === 'success') location.reload();
-        else alert(res.message);
-    });
+
+    const inputNama = document.getElementById('nama_game');
+    const inputDev = document.getElementById('developer');
+
+    let isValid = true;
+
+
+    if (!inputNama.value.trim()) {
+        showError(inputNama, "Nama game wajib diisi!");
+        isValid = false;
+    } else {
+        clearError(inputNama);
+    }
+
+
+    if (!inputDev.value.trim()) {
+        showError(inputDev, "Developer wajib diisi!");
+        isValid = false;
+    } else {
+        clearError(inputDev);
+    }
+
+
+    if (isValid) {
+        const formData = new FormData(gameForm);
+        formData.append('id_pengguna_js', getEmpId());
+
+        fetch(URL_GAME, { 
+            method: 'POST', 
+            body: formData 
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === 'success') {
+                location.reload();
+            } else {
+                
+                alert(res.message);
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("Terjadi kesalahan sistem.");
+        });
+    }
 };
 
 function confirmDelete(id) {
@@ -69,7 +112,7 @@ function confirmDelete(id) {
         fd.append('action', 'delete');
         fd.append('id_game', id);
         fd.append('id_pengguna_js', getEmpId());
-        fetch('/cardhaven/interface/super-admin-page/controller_game.php', { method: 'POST', body: fd })
+        fetch(URL_GAME, { method: 'POST', body: fd })
         .then(res => res.json()).then(res => location.reload());
     }
 }
@@ -81,7 +124,7 @@ function confirmRestore(id) {
         fd.append('id_game', id);
         fd.append('id_pengguna_js', getEmpId());
         
-        fetch('/cardhaven/interface/super-admin-page/controller_game.php', { 
+        fetch(URL_GAME, { 
             method: 'POST', 
             body: fd 
         })

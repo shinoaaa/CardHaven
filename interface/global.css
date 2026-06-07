@@ -752,10 +752,11 @@ input::placeholder {
     color: #0F3891;
 }
 
-.err-msg {
+.error-message {
     display: block;
     height: 14px;
     font-size: 0.7rem;
     margin-top: 3px;
     font-weight: 600;
+    color: #E74C3C;
 }
