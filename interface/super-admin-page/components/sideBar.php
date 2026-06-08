@@ -46,7 +46,7 @@
             </a>
         </div>
         <div class="menuOption unselected">
-            <a href="/cardhaven/interface/super-admin-page/account-setting.php" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="settingaccount" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/setting.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Account Setting</h2>
             </a>
