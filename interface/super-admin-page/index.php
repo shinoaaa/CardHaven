@@ -37,6 +37,7 @@ require_once 'components/fetch_dashboard.php';
             <table class="styled-table">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Product Name</th>
                         <th>Game</th>
                         <th>Product Type</th>
@@ -47,15 +48,18 @@ require_once 'components/fetch_dashboard.php';
                 </thead>
                 <tbody>
                     <?php if (sqlsrv_has_rows($stmt_produk)): ?>
-                        <?php while ($row = sqlsrv_fetch_array($stmt_produk, SQLSRV_FETCH_ASSOC)): ?>
+                        <?php 
+                            $no = $offset_produk + 1;
+                            while ($row = sqlsrv_fetch_array($stmt_produk, SQLSRV_FETCH_ASSOC)): ?>
                         <tr>
-                            <td style="color: #4A90E2; font-weight: 600; text-align: left;">
+                            <td><?= $no++ ?></td>
+                            <td style="font-weight: 600; text-align: left;">
                                 <?= htmlspecialchars($row['nama_produk']) ?>
                             </td>
-                            <td style="color: #4A90E2;"><?= htmlspecialchars($row['nama_game'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($row['nama_game'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($row['tipe_produk'] ?? '-') ?></td>
-                            <td style="text-align: right;"><?= str_pad($row['stok'], 2, '0', STR_PAD_LEFT) ?></td>
-                            <td style="color: #4A90E2; font-weight: bold; text-align: right;">
+                            <td style="text-align: right;"><?= htmlspecialchars($row['stok']) ?></td>
+                            <td style="font-weight: bold; text-align: right;">
                                 Rp<?= number_format($row['harga_jual'], 2, ',', '.') ?>
                             </td>
                             <td>

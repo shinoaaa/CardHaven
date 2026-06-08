@@ -436,7 +436,16 @@ input::placeholder {
     text-align: center;
     font-size: 0.85rem;
     color: #333;
-    border-bottom: 2px solid var(--primary-color); 
+    border-bottom: 1px solid #7491ca; 
+}
+
+.styled-table tbody tr:nth-child(odd) td {
+    background-color: #ffffff;
+}
+
+/* Mengatur warna baris genap menjadi biru muda pastel */
+.styled-table tbody tr:nth-child(even) td {
+    background-color: #b6cefc; /* Kode warna biru muda pastel */
 }
 
 

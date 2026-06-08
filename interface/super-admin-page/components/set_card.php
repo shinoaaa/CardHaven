@@ -7,20 +7,20 @@
     <table class="styled-table">
         <thead>
             <tr>
+                <th>No</th>
                 <th>Set Name</th>
                 <th>Game</th>
-                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            <?php if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
+            <?php
+            $no = $offset_set + 1;
+            if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
             <tr>
+                <td><?= $no++ ?></td>
                 <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
-                <td style="color: #4A90E2;"><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
-                <td style="color: <?= $rowSet['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
-                    <?= $rowSet['aktif'] == 1 ? 'Active' : 'Inactive' ?>
-                </td>
+                <td><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
                 <td>
                     <div class="btn-action-group">
                         <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>

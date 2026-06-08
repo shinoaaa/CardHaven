@@ -7,20 +7,20 @@
     <table class="styled-table">
         <thead>
             <tr>
+                <th>No</th>
                 <th>Game Name</th>
                 <th>Developer</th>
-                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            <?php while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
+            <?php
+            $no = $offset_game + 1;
+            while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
             <tr>
+                <td><?= $no++ ?></td>
                 <td><?= htmlspecialchars($row['nama_game']) ?></td>
                 <td><?= htmlspecialchars($row['developer']) ?></td>
-                <td style="color: <?= $row['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
-                    <?= $row['aktif'] == 1 ? 'Active' : 'Inactive' ?>
-                </td>
                 <td>
                     <div class="btn-action-group">
                         <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
