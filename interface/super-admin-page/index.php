@@ -54,8 +54,8 @@ require_once 'components/fetch_dashboard.php';
                             </td>
                             <td style="color: #4A90E2;"><?= htmlspecialchars($row['nama_game'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($row['tipe_produk'] ?? '-') ?></td>
-                            <td><?= str_pad($row['stok'], 2, '0', STR_PAD_LEFT) ?></td>
-                            <td style="color: #4A90E2; font-weight: bold;">
+                            <td style="text-align: right;"><?= str_pad($row['stok'], 2, '0', STR_PAD_LEFT) ?></td>
+                            <td style="color: #4A90E2; font-weight: bold; text-align: right;">
                                 Rp<?= number_format($row['harga_jual'], 2, ',', '.') ?>
                             </td>
                             <td>
