@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once '../cardhaven/connection.php';
 require_once 'components/fetch_dashboard.php'; 
@@ -60,7 +60,7 @@ require_once 'components/fetch_dashboard.php';
                             </td>
                             <td><?= htmlspecialchars($row['nama_game'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($row['tipe_produk'] ?? '-') ?></td>
-                            <td style="text-align: right;"><?= htmlspecialchars($row['stok']) ?></td>
+                            <td style="text-align: right;"><?= (int)$row['stok'] ?></td>
                             <td style="font-weight: bold; text-align: right;">
                                 Rp<?= number_format($row['harga_jual'], 2, ',', '.') ?>
                             </td>
