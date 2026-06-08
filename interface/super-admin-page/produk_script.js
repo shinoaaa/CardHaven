@@ -116,20 +116,20 @@ document.getElementById('productForm').onsubmit = async function(e) {
 
     // 1. Validasi Input Dasar
     const requiredFields = [
-        { id: 'pNama', label: "Nama produk" },
-        { id: 'pStok', label: "Stok", isNum: true },
-        { id: 'pBeli', label: "Harga beli", isNum: true },
-        { id: 'pJual', label: "Harga jual", isNum: true }
+        { id: 'pNama', label: "Product Name" },
+        { id: 'pStok', label: "Stock", isNum: true },
+        { id: 'pBeli', label: "Purchase Price", isNum: true },
+        { id: 'pJual', label: "Selling Price", isNum: true }
     ];
 
     requiredFields.forEach(f => {
         const el = document.getElementById(f.id);
         const val = el.value.trim();
         if (!val) {
-            showError(el, `${f.label} wajib diisi`);
+            showError(el, `${f.label} must be filled in`);
             isValid = false;
         } else if (f.isNum && (isNaN(val) || parseFloat(val) < 0)) {
-            showError(el, `${f.label} harus angka positif`);
+            showError(el, `${f.label} must be a positive number`);
             isValid = false;
         }
     });
@@ -142,11 +142,11 @@ document.getElementById('productForm').onsubmit = async function(e) {
         const setSearch = document.getElementById('pSetSearch').value;
 
         if (!gameID || !gameSearch) {
-            showError(document.getElementById('pGameSearch'), "Pilih Game dari list yang tersedia");
+            showError(document.getElementById('pGameSearch'), "Please select a Game from the available list");
             isValid = false;
         }
         if (!setID || !setSearch) {
-            showError(document.getElementById('pSetSearch'), "Pilih Set dari list yang tersedia");
+            showError(document.getElementById('pSetSearch'), "Please select a Set from the available list");
             isValid = false;
         }
     }

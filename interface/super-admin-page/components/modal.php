@@ -9,15 +9,14 @@
             <input type="hidden" name="action" id="pAction" value="add">
             <input type="hidden" name="id_produk" id="pID">
 
-            <!-- Baris 1: Nama & Tipe -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="modal-form-group">
-                    <label>Product Name</label>
+                    <label>Product Name <span style="color: #E74C3C;">*</span></label>
                     <input type="text" name="nama_produk" id="pNama" class="modal-input" placeholder="Rayquaza V...">
                     <span class="error-message"></span>
                 </div>
                 <div class="modal-form-group">
-                    <label>Product Type</label>
+                    <label>Product Type <span style="color: #E74C3C;">*</span></label>
                     <select name="tipe_produk" id="pTipe" class="modal-input" onchange="toggleProdFields()">
                         <option value="Single Card">Single Card</option>
                         <option value="Booster Pack">Booster Pack</option>
@@ -28,9 +27,8 @@
                 </div>
             </div>
 
-            <!-- Baris 2: Game (Suggestion) -->
             <div class="modal-form-group">
-                <label>Game</label>
+                <label>Game <span style="color: #E74C3C;">*</span></label>
                 <div style="position:relative;">
                     <input type="text" id="pGameSearch" class="modal-input" placeholder="Type game name..." autocomplete="off">
                     <input type="hidden" name="id_game" id="pIdGame">
@@ -39,10 +37,9 @@
                 <div class="error-message"></div>
             </div>
 
-            <!-- Baris 3: Set (Suggestion) & Rarity (Dropdown) -->
             <div id="extraFields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="modal-form-group" id="pSetGroup">
-                    <label>Card Set</label>
+                    <label>Card Set <span style="color: #E74C3C;">*</span></label>
                     <div style="position:relative;">
                         <input type="text" id="pSetSearch" class="modal-input" placeholder="Search set..." autocomplete="off">
                         <input type="hidden" name="id_set" id="pIdSet">
@@ -51,7 +48,7 @@
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group" id="pRarityGroup">
-                    <label>Rarity</label>
+                    <label>Rarity <span style="color: #E74C3C;">*</span></label>
                     <select name="id_rarity" id="pIdRarity" class="modal-input">
                         <option value="">-- Select Rarity --</option>
                     </select>
@@ -59,10 +56,9 @@
                 </div>
             </div>
 
-            <!-- Baris 4: Kondisi, Stok, Harga -->
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
                 <div class="modal-form-group" id="pKondisiGroup">
-                    <label>Condition</label>
+                    <label>Condition <span style="color: #E74C3C;">*</span></label>
                     <select name="kondisi" id="pKondisi" class="modal-input">
                         <option value="M">Mint</option>
                         <option value="NM">Near Mint</option>
@@ -74,23 +70,23 @@
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group">
-                    <label>Stock</label>
+                    <label>Stock <span style="color: #E74C3C;">*</span></label>
                     <input type="number" min="0" name="stok" id="pStok" class="modal-input">
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group">
-                    <label>Buy (Rp)</label>
+                    <label>Buy (Rp) <span style="color: #E74C3C;">*</span></label>
                     <input type="number" min="0" name="harga_beli" id="pBeli" class="modal-input">
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group">
-                    <label>Sell (Rp)</label>
+                    <label>Sell (Rp) <span style="color: #E74C3C;">*</span></label>
                     <input type="number" min="0" name="harga_jual" id="pJual" class="modal-input">
                     <div class="error-message"></div>
                 </div>
             </div>
             <div class="modal-form-group">
-                <label>Description</label>
+                <label>Description (Optional)</label>
                 <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional details..."></textarea>
                 <div class="error-message"></div>
             </div>
@@ -131,14 +127,14 @@
             <input type="hidden" name="id_game" id="formID">
 
             <div class="modal-form-group">
-                <label>Game Name</label>
-                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." >
+                <label>Game Name <span style="color: #E74C3C;">*</span></label>
+                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name...">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label id="labelDev">Developer Name</label>
-                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." >
+                <label id="labelDev">Developer Name <span style="color: #E74C3C;">*</span></label>
+                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name...">
                 <div class="error-message"></div>
             </div>
 
@@ -180,8 +176,8 @@
             <input type="hidden" name="id_rarity" id="inputIdRarity">
 
             <div class="modal-form-group">
-                <label>Game</label>
-                <select id="inputGameRarity" name="id_game" class="modal-input" >
+                <label>Game <span style="color: #E74C3C;">*</span></label>
+                <select id="inputGameRarity" name="id_game" class="modal-input">
                     <option value="">-- Select Game --</option>
                     <?php
                     $sql_dropdown_r = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
@@ -197,13 +193,13 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Rarity Name</label>
-                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" >
+                <label>Rarity Name <span style="color: #E74C3C;">*</span></label>
+                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Rarity Code</label>
+                <label>Rarity Code (Optional)</label>
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input">
                 <div class="error-message"></div>
             </div>
@@ -246,8 +242,8 @@
             <input type="hidden" name="id_set" id="setIdInput">
 
             <div class="modal-form-group">
-                <label>Game</label>
-                <select name="id_game" id="setGameId" class="modal-input" >
+                <label>Game <span style="color: #E74C3C;">*</span></label>
+                <select name="id_game" id="setGameId" class="modal-input">
                     <option value="">-- Pilih Game --</option>
                     <?php
                     $sql_dropdown_s = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
@@ -263,18 +259,19 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Set Name</label>
-                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." >
+                <label>Set Name <span style="color: #E74C3C;">*</span></label>
+                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name...">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Set Code</label>
-                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01" >
+                <label>Set Code <span style="color: #E74C3C;">*</span></label>
+                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01">
                 <div class="error-message"></div>
             </div>
+            
             <div class="modal-form-group">
-                <label>Release Date</label>
+                <label>Release Date (Optional)</label>
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
             </div>
