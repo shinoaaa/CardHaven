@@ -10,7 +10,7 @@
                 <th>No</th>
                 <th>Set Name</th>
                 <th>Game</th>
-                <th></th>Status</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
