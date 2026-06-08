@@ -445,7 +445,7 @@ input::placeholder {
 
 /* Mengatur warna baris genap menjadi biru muda pastel */
 .styled-table tbody tr:nth-child(even) td {
-    background-color: #b6cefc; /* Kode warna biru muda pastel */
+    background-color: #dee8fc; /* Kode warna biru muda pastel */
 }
 
 
