@@ -129,10 +129,11 @@ class ForgotPasswordController
             ]);
         }
 
-        // Sesuaikan dengan sistem login kamu yang sekarang masih compare plaintext.
-        // Kalau nanti mau aman, ganti ke password_hash() + password_verify().
+        
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
         $sql = "UPDATE pengguna SET password = ? WHERE email = ?";
-        $params = [$password, $_SESSION['forgot_email']];
+        $params = [$hashedPassword, $_SESSION['forgot_email']];
 
         $stmt = sqlsrv_prepare($this->conn, $sql, $params);
 
