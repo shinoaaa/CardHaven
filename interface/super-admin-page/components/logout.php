@@ -1,9 +1,39 @@
 <style>
 /* =========================================
-   CARDHAVEN SWEETALERT THEME
+   CARDHAVEN SWEETALERT THEME & ANIMATION
 ========================================= */
 
-.cardhaven-popup{
+@keyframes cardhavenShow {
+    from {
+        opacity: 0;
+        transform: scale(.9) translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes cardhavenHide {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(.95) translateY(-10px);
+    }
+}
+
+.swal2-show.cardhaven-popup {
+    animation: cardhavenShow .35s cubic-bezier(.16,1,.3,1) forwards !important;
+}
+
+.swal2-hide.cardhaven-popup {
+    animation: cardhavenHide .25s ease forwards !important;
+}
+
+.cardhaven-popup {
     background: linear-gradient(
         180deg,
         #F8FBFF 0%,
@@ -19,111 +49,88 @@
         0 12px 30px rgba(13,71,161,.12) !important;
 }
 
-.cardhaven-title{
-    color:#0D47A1 !important;
-    font-size:1.8rem !important;
-    font-weight:700 !important;
-    margin-bottom:.5rem !important;
+.cardhaven-title {
+    color: #0D47A1 !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    margin-bottom: .5rem !important;
 }
 
-.cardhaven-text{
-    color:#718096 !important;
-    font-size:.95rem !important;
-    line-height:1.6 !important;
+.cardhaven-text {
+    color: #718096 !important;
+    font-size: .95rem !important;
+    line-height: 1.6 !important;
 }
 
-/* ==========================
-   ICON WARNING
-========================== */
+/* ICON */
 
-.swal2-icon{
-    animation:none !important;
+.swal2-icon.swal2-warning {
+    border-color: #1976D2 !important;
+    color: #1976D2 !important;
 }
 
-.swal2-icon-content{
-    animation:none !important;
-}
-
-.swal2-icon.swal2-warning{
-    border-color:#1976D2 !important;
-    color:#1976D2 !important;
-}
-
-.swal2-icon.swal2-warning .swal2-icon-content{
-    font-size:3rem !important;
-    font-weight:700 !important;
-}
-
-/* Hilangkan animasi bawaan */
-.swal2-show,
-.swal2-hide{
-    animation:none !important;
+.swal2-icon.swal2-warning .swal2-icon-content {
+    font-size: 3rem !important;
+    font-weight: 700 !important;
 }
 
 /* ==========================
    BUTTON AREA
 ========================== */
 
-.swal2-actions{
-    margin-top:1.8rem !important;
-    gap:18px !important;
+.swal2-actions {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    gap: 14px !important;
+
+    width: 100% !important;
+
+    margin-top: 1.8rem !important;
 }
 
-/* Tombol Logout */
+/* Tombol Confirm */
 
-.cardhaven-btn-confirm{
-    min-width:160px !important;
-
-    background:linear-gradient(
-        180deg,
-        #2EA3FF 0%,
-        #1976D2 100%
-    ) !important;
-
-    color:white !important;
-    border:none !important;
-
-    border-radius:999px !important;
-
-    padding:13px 34px !important;
-
-    font-size:1rem !important;
-    font-weight:700 !important;
-
-    box-shadow:
-        0 6px 15px rgba(25,118,210,.25) !important;
-
-    transition:all .2s ease !important;
-}
-
-.cardhaven-btn-confirm:hover{
-    transform:translateY(-2px);
-    filter:brightness(1.05);
+.btn-confirm {
+    flex: 1 !important;
+    max-width: 170px !important;
+    min-width: 170px !important;
 }
 
 /* Tombol Cancel */
 
-.cardhaven-btn-cancel{
-    min-width:160px !important;
+.btn-cancel-outline {
+    flex: 1 !important;
 
-    background:#FFFFFF !important;
+    max-width: 170px !important;
+    min-width: 170px !important;
 
-    color:#0D47A1 !important;
+    background: #FFFFFF !important;
 
-    border:2px solid #1976D2 !important;
+    color: #0D47A1 !important;
 
-    border-radius:999px !important;
+    border: 2px solid #1976D2 !important;
 
-    padding:13px 34px !important;
+    border-radius: 999px !important;
 
-    font-size:1rem !important;
-    font-weight:700 !important;
+    padding: 12px 24px !important;
 
-    transition:all .2s ease !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+
+    cursor: pointer !important;
+
+    transition: all .25s ease !important;
 }
 
-.cardhaven-btn-cancel:hover{
-    background:#EEF4FF !important;
+.btn-cancel-outline:hover {
+    background: #EEF4FF !important;
+    transform: translateY(-2px);
+}
+
+.btn-cancel-outline:active {
+    transform: scale(.97);
 }
 </style>
 
@@ -132,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnLogoutTrigger = document.getElementById("btnLogout");
 
-    if(btnLogoutTrigger){
+    if (btnLogoutTrigger) {
 
         btnLogoutTrigger.addEventListener("click", (e) => {
 
@@ -154,17 +161,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 buttonsStyling: false,
 
+                showClass: {
+                    popup: 'swal2-show cardhaven-popup'
+                },
+
+                hideClass: {
+                    popup: 'swal2-hide cardhaven-popup'
+                },
+
                 customClass: {
                     popup: "cardhaven-popup",
                     title: "coolveticaa cardhaven-title",
                     htmlContainer: "cardhaven-text",
-                    confirmButton: "cardhaven-btn-confirm",
-                    cancelButton: "cardhaven-btn-cancel"
+                    confirmButton: "btn-confirm",
+                    cancelButton: "btn-cancel-outline"
                 }
 
             }).then((result) => {
 
-                if(result.isConfirmed){
+                if (result.isConfirmed) {
 
                     localStorage.clear();
                     sessionStorage.clear();
