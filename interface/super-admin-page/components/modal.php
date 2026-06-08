@@ -194,13 +194,13 @@
 
             <div class="modal-form-group">
                 <label>Rarity Name <span style="color: #E74C3C;">*</span></label>
-                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input">
+                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" placeholder="Enter Rarity Name...">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Rarity Code (Optional)</label>
-                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input">
+                <label>Rarity Code </label>
+                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="E.g. C, U, R, SR...">
                 <div class="error-message"></div>
             </div>
 
