@@ -221,7 +221,7 @@ function openEditProductModal(id) {
         document.getElementById('pGameSearch').value = data.nama_game;
         document.getElementById('pIdSet').value = data.id_set;
         document.getElementById('pSetSearch').value = data.nama_set || '';
-        document.getElementById('pStok').value = data.stok;
+        document.getElementById('pStok').value = parseInt(data.stok, 10);
         document.getElementById('pBeli').value = data.harga_beli;
         document.getElementById('pJual').value = data.harga_jual;
         document.getElementById('pKondisi').value = data.kondisi;
