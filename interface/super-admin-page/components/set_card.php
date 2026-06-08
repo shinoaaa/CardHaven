@@ -10,6 +10,7 @@
                 <th>No</th>
                 <th>Set Name</th>
                 <th>Game</th>
+                <th></th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -21,6 +22,13 @@
                 <td><?= $no++ ?></td>
                 <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
                 <td><?= htmlspecialchars($rowSet['nama_game'] ?? 'N/A') ?></td>
+                <td>
+                    <?php if ($rowSet['aktif'] == 1): ?>
+                        <span style="color: #27AE60; font-weight: bold;">Active</span>
+                    <?php else: ?>
+                        <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
+                    <?php endif; ?>
+                </td>
                 <td>
                     <div class="btn-action-group">
                         <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>

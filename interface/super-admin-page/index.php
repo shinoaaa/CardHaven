@@ -44,6 +44,7 @@ require_once 'components/fetch_dashboard.php';
                         <th>Product Type</th>
                         <th>Stock</th>
                         <th>Price</th>
+                        <th>status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -62,6 +63,13 @@ require_once 'components/fetch_dashboard.php';
                             <td style="text-align: right;"><?= htmlspecialchars($row['stok']) ?></td>
                             <td style="font-weight: bold; text-align: right;">
                                 Rp<?= number_format($row['harga_jual'], 2, ',', '.') ?>
+                            </td>
+                            <td>
+                                <?php if ($row['status'] == 1): ?>
+                                    <span style="color: #27AE60; font-weight: bold;">Active</span>
+                                <?php else: ?>
+                                    <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <div class="btn-action-group">
