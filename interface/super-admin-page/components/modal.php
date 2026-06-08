@@ -194,7 +194,7 @@
 
             <div class="modal-form-group">
                 <label>Rarity Name <span style="color: #E74C3C;">*</span></label>
-                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input">
+                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" placeholder="Enter Rarity Name...">
                 <div class="error-message"></div>
             </div>
 
