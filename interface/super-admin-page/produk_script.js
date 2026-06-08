@@ -128,8 +128,8 @@ document.getElementById('productForm').onsubmit = async function(e) {
         if (!val) {
             showError(el, `${f.label} must be filled in`);
             isValid = false;
-        } else if (f.isNum && (isNaN(val) || parseFloat(val) < 0)) {
-            showError(el, `${f.label} must be a positive number`);
+        } else if (f.isNum && (isNaN(val) || parseFloat(val) < (f.id === 'pStok' ? 1 : 0))) {
+    showError(el, `${f.label} must be at least ${f.id === 'pStok' ? 1 : 0}`);
             isValid = false;
         }
     });

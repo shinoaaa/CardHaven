@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $harga_jual = (float)($_POST['harga_jual'] ?? 0);
             $harga_beli = (float)($_POST['harga_beli'] ?? 0);
             $stok = (int)($_POST['stok'] ?? 0);
+            if ($stok < 1) throw new Exception("Stok minimal 1!");
             $deskripsi = $_POST['deskripsi'] ?? '';
 
             // --- VALIDASI SERVER-SIDE ---
