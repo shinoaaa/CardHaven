@@ -71,7 +71,7 @@
                 </div>
                 <div class="modal-form-group">
                     <label>Stock <span style="color: #E74C3C;">*</span></label>
-                    <input type="number" min="0" name="stok" id="pStok" class="modal-input">
+                    <input type="number" min="1" name="stok" id="pStok" class="modal-input">
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group">
