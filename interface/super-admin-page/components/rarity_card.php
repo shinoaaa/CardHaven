@@ -14,16 +14,16 @@
             </tr>
         </thead>
         <tbody>
-            <?php if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)): ?>
+            <?php 
+            $no = $offset_rarity + 1;
+            if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)): ?>
             <tr>
+                <td><?= $no++ ?></td>
                 <td>
                     <?= htmlspecialchars($rowRarity['nama_rarity']) ?>
                     <?= !empty($rowRarity['kode_rarity']) ? ' (' . htmlspecialchars($rowRarity['kode_rarity']) . ')' : '' ?>
                 </td>
-                <td style="color: #4A90E2;"><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
-                <td style="color: <?= $rowRarity['aktif'] == 1 ? '#27AE60' : '#E74C3C' ?>; font-weight: bold;">
-                    <?= $rowRarity['aktif'] == 1 ? 'Active' : 'Inactive' ?>
-                </td>
+                <td><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
                 <td>
                     <div class="btn-action-group">
                         <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
