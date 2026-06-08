@@ -199,7 +199,7 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Rarity Code (Optional)</label>
+                <label>Rarity Code <span style="color: #E74C3C;">*</span></label>
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input">
                 <div class="error-message"></div>
             </div>

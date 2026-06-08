@@ -154,11 +154,11 @@ document.getElementById('productForm').onsubmit = async function(e) {
     // 3. Validasi Khusus Single Card
     if (tipe === 'Single Card') {
         if (!document.getElementById('pIdRarity').value) {
-            showError(document.getElementById('pIdRarity'), "Rarity wajib dipilih");
+            showError(document.getElementById('pIdRarity'), "Rarity must be selected");
             isValid = false;
         }
         if (!document.getElementById('pKondisi').value) {
-            showError(document.getElementById('pKondisi'), "Kondisi wajib dipilih");
+            showError(document.getElementById('pKondisi'), "Condition must be selected");
             isValid = false;
         }
     }
