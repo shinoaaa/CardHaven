@@ -56,7 +56,7 @@ require_once 'components/fetch_dashboard.php';
                             <td><?= htmlspecialchars($row['tipe_produk'] ?? '-') ?></td>
                             <td><?= str_pad($row['stok'], 2, '0', STR_PAD_LEFT) ?></td>
                             <td style="color: #4A90E2; font-weight: bold;">
-                                Rp<?= number_format($row['harga_jual'], 2) ?>
+                                Rp<?= number_format($row['harga_jual'], 2, ',', '.') ?>
                             </td>
                             <td>
                                 <div class="btn-action-group">
