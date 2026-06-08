@@ -17,6 +17,11 @@ else if ($segments[0] === 'superadmin') {
 else if ($segments[0] === 'admin') {
     include '../CardHaven/interface/admin-page/index.php';
 } 
+else if ($segments[0] === 'settingaccount') {
+    include '../CardHaven/interface/super-admin-page/account-setting.php';
+} 
+
+
 // else if ($segments[0] === 'owner') {
 //     include '../CardHaven/interface/owner-page/index.php';
 // } 
