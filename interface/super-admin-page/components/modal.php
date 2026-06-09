@@ -25,6 +25,7 @@
                         <option value="Sleeve">Sleeve</option>
                         <option value="Playmat">Playmat</option>
                     </select>
+                    <div class="error-message"></div>
                 </div>
             </div>
 
@@ -61,7 +62,7 @@
                 <div class="modal-form-group" id="pKondisiGroup">
                     <label>Condition <span style="color: #E74C3C;">*</span></label>
                     <select name="kondisi" id="pKondisi" class="modal-input">
-                        <option value="">-- Select Condition --</option>
+                        <option value="">-- Condition --</option>
                         <option value="M">Mint</option>
                         <option value="NM">Near Mint</option>
                         <option value="LP">Lightly Played</option>

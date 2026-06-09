@@ -111,6 +111,10 @@ document.getElementById('productForm').onsubmit = async function(e) {
     
     let isValid = true;
     const tipe = document.getElementById('pTipe').value;
+    if (!tipe) {
+    showError(document.getElementById('pTipe'), "Product Type must be selected");
+    isValid = false;
+}
 
     // 1. Validasi Input Dasar
     const requiredFields = [
