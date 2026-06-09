@@ -1,7 +1,4 @@
 <style>
-/* =========================================
-   CARDHAVEN SWEETALERT THEME & ANIMATION
-========================================= */
 
 @keyframes cardhavenShow {
     from {
