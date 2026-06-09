@@ -146,6 +146,10 @@ require_once 'components/fetch_dashboard.php';
                 <div class="master-table-card">
                     <?php include 'components/rarity_card.php'; ?>
                 </div>
+
+                <div class="master-table-card">
+                    <?php include 'components/metode_card.php'; ?>
+                    </div>
             </div>
         </div>
     </div>
@@ -156,5 +160,6 @@ require_once 'components/fetch_dashboard.php';
     <script src="/cardhaven/interface/super-admin-page/set_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/rarity_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/metode_script.js"></script>
 </body>
 </html>

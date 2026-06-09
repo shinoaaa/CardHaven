@@ -304,3 +304,71 @@
         </form>
     </div>
 </div>
+
+<!-- ==================== MODAL PAYMENT METHOD ==================== -->
+<div id="metodeModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="metodeModalTitle">ADD <span class="blue-text">PAYMENT METHOD</span></h2>
+            <span id="metodeDisplayID" class="game-id"></span>
+        </div>
+
+        <form id="metodeForm">
+            <input type="hidden" name="action"    id="metodeFormAction" value="add">
+            <input type="hidden" name="id_metode" id="metodeIdInput">
+
+            <div class="modal-form-group">
+                <label>Method Name <span style="color:#E74C3C;">*</span></label>
+                <input type="text" name="nama_metode" id="metodeNama" class="modal-input" placeholder="e.g. GoPay, QRIS, BCA Transfer">
+                <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Provider</label>
+                <input type="text" name="provider" id="metodeProvider" class="modal-input" placeholder="e.g. GoPay, Bank BCA">
+                <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Account Number</label>
+                <input type="text" name="no_rekening" id="metodeNoRek" class="modal-input" placeholder="e.g. 081234567890">
+                <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Account Name</label>
+                <input type="text" name="atas_nama" id="metodeAtasNama" class="modal-input" placeholder="e.g. CardHaven Store">
+                <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Admin Fee (Rp)</label>
+                <input type="number" name="biaya_admin" id="metodeBiaya" class="modal-input" placeholder="e.g. 2000" min="0" value="0">
+                <div class="error-message"></div>
+            </div>
+
+            <div id="metodeLogSection" style="display:none;">
+                <div class="modal-form-group">
+                    <label>Created By</label>
+                    <div class="log-display">
+                        <span id="metodeCreatedBy"></span>
+                        <span id="metodeCreatedDate"></span>
+                    </div>
+                </div>
+                <div class="modal-form-group">
+                    <label>Edited By</label>
+                    <div class="log-display">
+                        <span id="metodeEditedBy"></span>
+                        <span id="metodeEditedDate"></span>
+                    </div>
+                </div>
+                <div class="status-text">
+                    Status: <span id="metodeStatusLabel"></span>
+                    <input type="hidden" name="aktif" id="metodeAktifStatus">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-confirm">Confirm</button>
+        </form>
+    </div>
+</div>
