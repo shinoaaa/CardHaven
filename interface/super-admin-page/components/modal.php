@@ -18,6 +18,7 @@
                 <div class="modal-form-group">
                     <label>Product Type <span style="color: #E74C3C;">*</span></label>
                     <select name="tipe_produk" id="pTipe" class="modal-input" onchange="toggleProdFields()">
+                        <option value="">-- Select Product Type --</option>
                         <option value="Single Card">Single Card</option>
                         <option value="Booster Pack">Booster Pack</option>
                         <option value="Booster Box">Booster Box</option>
@@ -60,6 +61,7 @@
                 <div class="modal-form-group" id="pKondisiGroup">
                     <label>Condition <span style="color: #E74C3C;">*</span></label>
                     <select name="kondisi" id="pKondisi" class="modal-input">
+                        <option value="">-- Select Condition --</option>
                         <option value="M">Mint</option>
                         <option value="NM">Near Mint</option>
                         <option value="LP">Lightly Played</option>
