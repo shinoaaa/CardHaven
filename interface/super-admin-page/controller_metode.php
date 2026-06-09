@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Cek duplikat nama_metode (global, tidak boleh sama)
     if ($action === 'add' || $action === 'edit') {
-        $check_sql    = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE nama_metode = ?";
+        $check_sql    = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE nama_metode = ? AND is_deleted = 0";
         $params_check = [$nama];
         if ($action === 'edit') {
             $check_sql   .= " AND id_metode <> ?";
@@ -64,11 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt  = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user, $aktif, $id_metode]);
     }
     else if ($action === 'delete') {
-        $sql  = "UPDATE dbo.metode_pembayaran SET aktif=0, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
+        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_metode=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_metode]);
     }
     else if ($action === 'restore') {
-        $sql  = "UPDATE dbo.metode_pembayaran SET aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
+        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=0, deleted_by=?, modified_date=GETDATE() WHERE id_metode=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_metode]);
     }
 
@@ -95,7 +95,7 @@ if (isset($_GET['get_detail'])) {
              FROM dbo.metode_pembayaran m
              LEFT JOIN dbo.pengguna k1 ON m.created_by  = k1.id_pengguna
              LEFT JOIN dbo.pengguna k2 ON m.modified_by = k2.id_pengguna
-             WHERE m.id_metode = ?";
+             WHERE m.id_metode = ? AND m.is_deleted = 0";
     $stmt = sqlsrv_query($conn, $sql, [(int)$_GET['get_detail']]);
 
     if ($stmt === false) {

@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // --- VALIDASI DUPLIKAT (Mencegah Nama yang sama di Game & Set yang sama) ---
-            $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ?";
+            $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ? AND is_deleted = 0";
             $check_stmt = sqlsrv_query($conn, $check_sql, [$nama, $id_game, ($id_set ?? 0), ($id_produk ?? 0)]);
             if (sqlsrv_has_rows($check_stmt)) {
                 throw new Exception("Produk '$nama' sudah ada dalam Game dan Set ini!");
@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } 
         else if ($action === 'delete' || $action === 'restore') {
-            $status = ($action === 'delete') ? 0 : 1;
-            $sql = "UPDATE dbo.produk SET status=?, modified_by=?, modified_date=GETDATE() WHERE id_produk=?";
+            $status = ($action === 'delete') ? 1 : 0;
+            $sql = "UPDATE dbo.produk SET is_deleted=?, deleted_by=?, deleted_date=GETDATE() WHERE id_produk=?";
             $params = [$status, $id_user, $id_produk];
         }
 
@@ -85,7 +85,7 @@ if (isset($_GET['get_detail'])) {
             LEFT JOIN dbo.set_kartu s ON p.id_set = s.id_set
             LEFT JOIN dbo.pengguna u1 ON p.created_by = u1.id_pengguna
             LEFT JOIN dbo.pengguna u2 ON p.modified_by = u2.id_pengguna
-            WHERE p.id_produk = ?";
+            WHERE p.id_produk = ? AND p.is_deleted = 0";
     $stmt = sqlsrv_query($conn, $sql, [$id]);
     $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     if ($data) {
@@ -102,7 +102,7 @@ if (isset($_GET['get_detail'])) {
 // 2. Suggestion Game
 if (isset($_GET['search_game'])) {
     $key = "%" . $_GET['search_game'] . "%";
-    $sql = "SELECT id_game, nama_game FROM dbo.game WHERE nama_game LIKE ? AND aktif = 1";
+    $sql = "SELECT id_game, nama_game FROM dbo.game WHERE nama_game LIKE ? AND aktif = 1 AND is_deleted = 0 ORDER BY nama_game ASC";
     $stmt = sqlsrv_query($conn, $sql, [$key]);
     $res = [];
     while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) { $res[] = $row; }
@@ -114,7 +114,7 @@ if (isset($_GET['search_game'])) {
 if (isset($_GET['search_set'])) {
     $key = "%" . $_GET['search_set'] . "%";
     $id_game = $_GET['id_game'];
-    $sql = "SELECT id_set, nama_set FROM dbo.set_kartu WHERE nama_set LIKE ? AND id_game = ? AND aktif = 1";
+    $sql = "SELECT id_set, nama_set FROM dbo.set_kartu WHERE nama_set LIKE ? AND id_game = ? AND aktif = 1 AND is_deleted = 0 ORDER BY nama_set ASC";
     $stmt = sqlsrv_query($conn, $sql, [$key, $id_game]);
     $res = [];
     while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) { $res[] = $row; }
@@ -125,7 +125,7 @@ if (isset($_GET['search_set'])) {
 // 4. List Rarity (Dropdown - Berdasarkan Game terpilih)
 if (isset($_GET['get_rarity_list'])) {
     $id_game = $_GET['id_game'];
-    $sql = "SELECT id_rarity, nama_rarity, kode_rarity FROM dbo.rarity WHERE id_game = ? AND aktif = 1";
+    $sql = "SELECT id_rarity, nama_rarity, kode_rarity FROM dbo.rarity WHERE id_game = ? AND aktif = 1 AND is_deleted = 0";
     $stmt = sqlsrv_query($conn, $sql, [$id_game]);
     $res = [];
     while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) { $res[] = $row; }

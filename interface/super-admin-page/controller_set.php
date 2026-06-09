@@ -21,6 +21,7 @@ if (isset($_GET['get_list'])) {
     $sql = "SELECT s.id_set, s.nama_set, s.kode_set, s.aktif, g.nama_game
             FROM dbo.set_kartu s
             INNER JOIN dbo.game g ON s.id_game = g.id_game
+            WHERE s.is_deleted = 0
             ORDER BY s.aktif DESC, s.id_set ASC
             OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -58,7 +59,7 @@ if (isset($_GET['get_detail'])) {
             INNER JOIN dbo.game g ON s.id_game = g.id_game
             LEFT JOIN dbo.pengguna k1 ON s.created_by  = k1.id_pengguna
             LEFT JOIN dbo.pengguna k2 ON s.modified_by = k2.id_pengguna
-            WHERE s.id_set = ?";
+            WHERE s.id_set = ? AND s.is_deleted = 0";
 
     $stmt = sqlsrv_query($conn, $sql, [$id]);
     $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -107,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Cek duplikat kode_set
-        $sql_check    = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE kode_set = ?";
+        $sql_check    = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE kode_set = ? AND is_deleted = 0";
         $params_check = [$kode];
         if ($action === 'edit') {
             $sql_check   .= " AND id_set <> ?";
@@ -160,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- DELETE (soft delete) ---
     if ($action === 'delete') {
         $id_set = (int)$_POST['id_set'];
-        $sql    = "UPDATE dbo.set_kartu SET aktif = 0, modified_by = ?, modified_date = GETDATE() WHERE id_set = ?";
+        $sql    = "UPDATE dbo.set_kartu SET is_deleted = 1, deleted_by = ?, deleted_date = GETDATE() WHERE id_set = ?";
         $stmt   = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
 
         if ($stmt) echo json_encode(['status' => 'success']);
@@ -169,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if($action === 'restore') {
         $id_set = (int)$_POST['id_set'];
-        $sql    = "UPDATE dbo.set_kartu SET aktif = 1, modified_by = ?, modified_date = GETDATE() WHERE id_set = ?";
+        $sql    = "UPDATE dbo.set_kartu SET is_deleted = 0, modified_by = ?, modified_date = GETDATE() WHERE id_set = ?";
         $stmt   = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
 
         if ($stmt) echo json_encode(['status' => 'success']);

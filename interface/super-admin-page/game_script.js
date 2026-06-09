@@ -16,6 +16,7 @@ function openAddModal() {
     modal.style.display = 'flex';
 }
 
+
 function openEditModal(id) {
     fetch(`${URL_GAME}?get_detail=${id}`)
         .then(res => res.json())
