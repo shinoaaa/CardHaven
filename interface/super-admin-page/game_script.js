@@ -2,7 +2,6 @@ const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
 
 const URL_GAME = '/cardhaven/interface/super-admin-page/controller_game.php';
-// Ambil ID Pengguna
 const getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 document.querySelectorAll('#gameForm .modal-input').forEach(input => {
@@ -14,7 +13,6 @@ function openAddModal() {
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
     document.getElementById('displayID').innerText = '';
     document.getElementById('formAction').value = 'add';
-    document.getElementById('logSection').style.display = 'none';
     gameForm.reset();
     modal.style.display = 'flex';
 }
@@ -29,7 +27,7 @@ function openEditModal(id) {
             }
 
             clearAllErrors('gameForm');
-            document.getElementById('modalTitle').innerHTML = '<span class="blue-text">GAME</span> DETAIL';
+            document.getElementById('modalTitle').innerHTML = '<span class="blue-text">EDIT</span> GAME';
             document.getElementById('displayID').innerText = 'GAM-' + id;
             document.getElementById('formAction').value = 'edit';
             document.getElementById('formID').value = id;
@@ -37,17 +35,8 @@ function openEditModal(id) {
             document.getElementById('nama_game').value = data.nama_game;
             document.getElementById('developer').value = data.developer;
 
-            document.getElementById('logSection').style.display = 'block';
-            document.getElementById('createdBy').innerText = data.creator; 
-            document.getElementById('createdDate').innerText = " (" + data.created_date + ")";
-            document.getElementById('editedBy').innerText = data.modifier;
-            document.getElementById('editedDate').innerText = data.modified_date !== '-' ? " (" + data.modified_date + ")" : "";
-            
-            const lbl = document.getElementById('statusLabel');
-            lbl.innerText = data.aktif == 1 ? 'Active' : 'Inactive';
-            lbl.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
-            document.getElementById('aktifStatus').value = data.aktif;
-            
+            // Pemanggilan logSection dan statusLabel telah dihapus
+
             modal.style.display = 'flex';
         })
         .catch(err => {
@@ -59,12 +48,10 @@ function openEditModal(id) {
 gameForm.onsubmit = function(e) {
     e.preventDefault(); 
 
-
     const inputNama = document.getElementById('nama_game');
     const inputDev = document.getElementById('developer');
 
     let isValid = true;
-
 
     if (!inputNama.value.trim()) {
         showError(inputNama, "Nama game wajib diisi!");
@@ -73,14 +60,12 @@ gameForm.onsubmit = function(e) {
         clearError(inputNama);
     }
 
-
     if (!inputDev.value.trim()) {
         showError(inputDev, "Developer wajib diisi!");
         isValid = false;
     } else {
         clearError(inputDev);
     }
-
 
     if (isValid) {
         const formData = new FormData(gameForm);
@@ -95,7 +80,6 @@ gameForm.onsubmit = function(e) {
             if (res.status === 'success') {
                 location.reload();
             } else {
-                
                 alert(res.message);
             }
         })

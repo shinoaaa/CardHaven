@@ -108,7 +108,7 @@
                 </div>
                 <div class="status-text">Current Status: <span id="pStatusLabel"></span></div>
                 <input type="hidden" name="status" id="pStatusValue">
-            </div> //ireng
+            </div>
 
             <button type="submit" class="btn-confirm">Confirm Product</button>
         </form>

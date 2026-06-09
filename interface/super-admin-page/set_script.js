@@ -1,7 +1,5 @@
-
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
-
 
 const SET_API_URL_PATH = '/CardHaven/interface/super-admin-page/controller_set.php'; 
 
@@ -31,14 +29,12 @@ function openAddSetModal() {
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';
     document.getElementById('setDisplayID').innerText = '';
     document.getElementById('setFormAction').value = 'add';
-    document.getElementById('setLogSection').style.display = 'none';
     setForm.reset();
 
     document.getElementById('setTanggal').value = ''; 
     loadGameOptionsForSet(null);
     setModal.style.display = 'flex';
 }
-
 
 function openEditSetModal(id) {
     fetch(`${SET_API_URL_PATH}?get_detail=${id}`)
@@ -47,7 +43,7 @@ function openEditSetModal(id) {
             if(!data || data.error) return alert("Gagal mengambil data detail");
 
             clearAllErrors('setForm');
-            document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">SET</span> DETAIL';
+            document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">EDIT</span> SET';
             document.getElementById('setDisplayID').innerText = 'SET-' + String(id).padStart(3, '0');
             document.getElementById('setFormAction').value = 'edit';
             document.getElementById('setIdInput').value   = id;
@@ -59,16 +55,7 @@ function openEditSetModal(id) {
                 document.getElementById('setTanggal').value = data.tanggal_rilis;
             }
 
-            document.getElementById('setLogSection').style.display = 'block';
-            document.getElementById('setCreatedBy').innerText   = data.creator  || 'System';
-            document.getElementById('setCreatedDate').innerText = data.created_date || '-';
-            document.getElementById('setEditedBy').innerText    = data.modifier  || '-';
-            document.getElementById('setEditedDate').innerText  = data.modified_date || '-';
-
-            const statusLabel = document.getElementById('setStatusLabel');
-            statusLabel.innerText   = data.aktif == 1 ? 'Active' : 'Inactive';
-            statusLabel.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
-            document.getElementById('setAktifStatus').value = data.aktif;
+            // Pemanggilan setLogSection dan statusLabel telah dihapus
 
             loadGameOptionsForSet(data.id_game);
             setModal.style.display = 'flex';
@@ -100,7 +87,6 @@ setForm.onsubmit = function(e) {
         isValid = false;
     } else clearError(kode);
 
-
     if (!isValid) return;
 
     const formData = new FormData(setForm);
@@ -110,15 +96,13 @@ setForm.onsubmit = function(e) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') {
-                alert("Data berhasil disimpan");
-                location.reload(); // REFRESH AGAR LOGIKA PHP MENAMPILKAN DATA TERBARU
+                location.reload(); 
             } else {
                 alert("Peringatan: " + res.message);
             }
         })
         .catch(err => alert("Terjadi kesalahan sistem saat menyimpan."));
 };
-
 
 function confirmDeleteSet(id) {
     if (confirm("Nonaktifkan set ini? (Soft Delete)")) {
