@@ -1,6 +1,5 @@
 const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
-
 const URL_GAME = '/cardhaven/interface/super-admin-page/controller_game.php';
 const getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
@@ -21,103 +20,90 @@ function openEditModal(id) {
     fetch(`${URL_GAME}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
-            if(data.error) {
-                alert("Error: " + JSON.stringify(data.error));
-                return;
-            }
+            if(data.error) return cardhavenAlert('error', 'Error', data.error);
 
             clearAllErrors('gameForm');
             document.getElementById('modalTitle').innerHTML = '<span class="blue-text">EDIT</span> GAME';
             document.getElementById('displayID').innerText = 'GAM-' + id;
             document.getElementById('formAction').value = 'edit';
             document.getElementById('formID').value = id;
-            
             document.getElementById('nama_game').value = data.nama_game;
             document.getElementById('developer').value = data.developer;
-
-            // Pemanggilan logSection dan statusLabel telah dihapus
 
             modal.style.display = 'flex';
         })
         .catch(err => {
-            console.error("Fetch error:", err);
-            alert("Gagal mengambil data. Periksa console.");
+            console.error(err);
+            cardhavenAlert('error', 'System Error', 'Gagal mengambil data dari server.');
         });
 }
 
 gameForm.onsubmit = function(e) {
     e.preventDefault(); 
-
     const inputNama = document.getElementById('nama_game');
     const inputDev = document.getElementById('developer');
-
     let isValid = true;
 
     if (!inputNama.value.trim()) {
         showError(inputNama, "Nama game wajib diisi!");
         isValid = false;
-    } else {
-        clearError(inputNama);
-    }
+    } else clearError(inputNama);
 
     if (!inputDev.value.trim()) {
         showError(inputDev, "Developer wajib diisi!");
         isValid = false;
-    } else {
-        clearError(inputDev);
-    }
+    } else clearError(inputDev);
 
-    if (isValid) {
-        const formData = new FormData(gameForm);
-        formData.append('id_pengguna_js', getEmpId());
+    if (!isValid) return;
 
-        fetch(URL_GAME, { 
-            method: 'POST', 
-            body: formData 
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status === 'success') {
-                location.reload();
-            } else {
-                alert(res.message);
-            }
-        })
-        .catch(err => {
-            console.error("Error:", err);
-            alert("Terjadi kesalahan sistem.");
-        });
-    }
+    const formData = new FormData(gameForm);
+    formData.append('id_pengguna_js', getEmpId());
+
+    fetch(URL_GAME, { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            cardhavenAlert('success', 'Success', 'Data game berhasil disimpan.', () => location.reload());
+        } else {
+            cardhavenAlert('error', 'Failed', res.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
+    });
 };
 
 function confirmDelete(id) {
-    if (confirm("Nonaktifkan game ini?")) {
+    cardhavenConfirm("Nonaktifkan Game?", "Game ini akan dinonaktifkan.", "Nonaktifkan", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_game', id);
         fd.append('id_pengguna_js', getEmpId());
+        
         fetch(URL_GAME, { method: 'POST', body: fd })
-        .then(res => res.json()).then(res => location.reload());
-    }
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === 'success') location.reload();
+            else cardhavenAlert('error', 'Gagal', res.message);
+        });
+    });
 }
 
 function confirmRestore(id) {
-    if (confirm("Aktifkan kembali game ini?")) {
+    cardhavenConfirm("Aktifkan Game?", "Game ini akan kembali diaktifkan.", "Aktifkan", () => {
         const fd = new FormData();
         fd.append('action', 'restore'); 
         fd.append('id_game', id);
         fd.append('id_pengguna_js', getEmpId());
         
-        fetch(URL_GAME, { 
-            method: 'POST', 
-            body: fd 
-        })
+        fetch(URL_GAME, { method: 'POST', body: fd })
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else alert(res.message);
+            else cardhavenAlert('error', 'Gagal', res.message);
         });
-    }
+    });
 }
 
 window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }

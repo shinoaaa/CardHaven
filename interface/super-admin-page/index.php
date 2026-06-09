@@ -21,6 +21,7 @@ require_once 'components/fetch_dashboard.php';
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/cardhaven/interface/global_alert.js"></script>
 </head>
 <body>
     <div class="container" style="justify-content: flex-start; align-items: flex-start;">

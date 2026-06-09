@@ -777,3 +777,120 @@ input::placeholder {
     font-weight: 600;
     color: #E74C3C;
 }
+
+/* =========================
+   CARDHAVEN SWEETALERT
+========================= */
+
+.cardhaven-popup {
+    width: 420px !important;
+    border-radius: 28px !important;
+    background: #FFFFFF !important;
+    padding: 30px !important;
+
+    box-shadow:
+        0 15px 40px rgba(13, 71, 161, 0.18),
+        0 5px 15px rgba(0,0,0,0.08);
+
+    border: 3px solid #0D47A1;
+}
+
+/* ICON */
+.swal2-icon.swal2-warning {
+    border-color: #0D47A1 !important;
+    color: #0D47A1 !important;
+}
+
+.swal2-icon.swal2-warning .swal2-icon-content {
+    color: #0D47A1 !important;
+}
+
+/* TITLE */
+.cardhaven-title {
+    font-size: 34px !important;
+    font-weight: 700;
+    color: #0D47A1 !important;
+    margin-top: 5px !important;
+    margin-bottom: 10px !important;
+}
+
+/* TEXT */
+.cardhaven-text {
+    font-size: 18px !important;
+    color: #555 !important;
+    line-height: 1.5;
+}
+
+/* BUTTON CONTAINER */
+.swal2-actions {
+    gap: 12px;
+    margin-top: 25px !important;
+}
+
+/* CONFIRM BUTTON */
+.btn-confirm {
+    background: #0D6EFD !important;
+    color: white !important;
+
+    border: none !important;
+
+    padding: 12px 28px !important;
+
+    font-size: 17px !important;
+    font-weight: 600;
+
+    border-radius: 14px !important;
+
+    transition: .2s;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    background: #0B5ED7 !important;
+}
+
+/* CANCEL BUTTON */
+.btn-cancel-outline {
+    background: transparent !important;
+
+    color: #0D47A1 !important;
+
+    border: 2px solid #0D47A1 !important;
+
+    padding: 12px 28px !important;
+
+    font-size: 17px !important;
+    font-weight: 600;
+
+    border-radius: 14px !important;
+
+    transition: .2s;
+}
+
+.btn-cancel-outline:hover {
+    background: rgba(13,71,161,.08) !important;
+}
+
+/* SUCCESS */
+.swal2-icon.swal2-success {
+    border-color: #0D47A1 !important;
+}
+
+.swal2-success-ring {
+    border-color: rgba(13,71,161,.3) !important;
+}
+
+.swal2-success-line-tip,
+.swal2-success-line-long {
+    background-color: #0D47A1 !important;
+}
+
+/* ERROR */
+.swal2-icon.swal2-error {
+    border-color: #E74C3C !important;
+}
+
+.swal2-x-mark-line-left,
+.swal2-x-mark-line-right {
+    background-color: #E74C3C !important;
+}

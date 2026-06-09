@@ -1,6 +1,5 @@
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
-
 const SET_API_URL_PATH = '/CardHaven/interface/super-admin-page/controller_set.php'; 
 
 let setGamesLoaded = false;
@@ -16,8 +15,7 @@ function loadGameOptionsForSet(selectedId) {
             const select = document.getElementById('setGameId');
             select.innerHTML = '<option value="">-- Pilih Game --</option>';
             res.data.forEach(g => {
-                const opt = new Option(g.nama_game, g.id_game);
-                select.appendChild(opt);
+                select.appendChild(new Option(g.nama_game, g.id_game));
             });
             setGamesLoaded = true;
             if (selectedId) select.value = selectedId;
@@ -30,7 +28,6 @@ function openAddSetModal() {
     document.getElementById('setDisplayID').innerText = '';
     document.getElementById('setFormAction').value = 'add';
     setForm.reset();
-
     document.getElementById('setTanggal').value = ''; 
     loadGameOptionsForSet(null);
     setModal.style.display = 'flex';
@@ -40,7 +37,7 @@ function openEditSetModal(id) {
     fetch(`${SET_API_URL_PATH}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
-            if(!data || data.error) return alert("Gagal mengambil data detail");
+            if(!data || data.error) return cardhavenAlert('error', 'Error', 'Gagal mengambil data detail');
 
             clearAllErrors('setForm');
             document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">EDIT</span> SET';
@@ -50,42 +47,26 @@ function openEditSetModal(id) {
             document.getElementById('setNama').value      = data.nama_set;
             document.getElementById('setKode').value      = data.kode_set;
             
-            // Format tanggal untuk input type="date" (Y-m-d)
             if(data.tanggal_rilis) {
                 document.getElementById('setTanggal').value = data.tanggal_rilis;
             }
 
-            // Pemanggilan setLogSection dan statusLabel telah dihapus
-
             loadGameOptionsForSet(data.id_game);
             setModal.style.display = 'flex';
         })
-        .catch(err => console.error("Error Edit Modal:", err));
+        .catch(err => console.error(err));
 }
 
 setForm.onsubmit = function(e) {
     e.preventDefault();
-
     let isValid = true;
-
     const game = document.getElementById('setGameId');
     const nama = document.getElementById('setNama');
     const kode = document.getElementById('setKode');
 
-    if (!game.value) {
-        showError(game, "Pilih game dari list");
-        isValid = false;
-    } else clearError(game);
-
-    if (!nama.value.trim()) {
-        showError(nama, "Nama set wajib diisi!");
-        isValid = false;
-    } else clearError(nama);
-
-    if (!kode.value.trim()) {
-        showError(kode, "Kode set wajib diisi!");
-        isValid = false;
-    } else clearError(kode);
+    if (!game.value) { showError(game, "Pilih game dari list"); isValid = false; } else clearError(game);
+    if (!nama.value.trim()) { showError(nama, "Nama set wajib diisi!"); isValid = false; } else clearError(nama);
+    if (!kode.value.trim()) { showError(kode, "Kode set wajib diisi!"); isValid = false; } else clearError(kode);
 
     if (!isValid) return;
 
@@ -96,46 +77,44 @@ setForm.onsubmit = function(e) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') {
-                location.reload(); 
+                cardhavenAlert('success', 'Success', 'Data set berhasil disimpan.', () => location.reload());
             } else {
-                alert("Peringatan: " + res.message);
+                cardhavenAlert('error', 'Failed', res.message);
             }
         })
-        .catch(err => alert("Terjadi kesalahan sistem saat menyimpan."));
+        .catch(err => cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.'));
 };
 
 function confirmDeleteSet(id) {
-    if (confirm("Nonaktifkan set ini? (Soft Delete)")) {
+    cardhavenConfirm("Nonaktifkan Set?", "Set ini akan dinonaktifkan.", "Nonaktifkan", () => {
         const formData = new FormData();
-        formData.append('action',         'delete');
-        formData.append('id_set',         id);
+        formData.append('action', 'delete');
+        formData.append('id_set', id);
         formData.append('id_pengguna_js', getEmpId());
 
         fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'success') location.reload();
-                else alert("Gagal menghapus: " + res.message);
+                else cardhavenAlert('error', 'Gagal', res.message);
             });
-    }
+    });
 }
 
 function confirmRestoreSet(id) {
-    if (confirm("Aktifkan kembali set ini?")) {
+    cardhavenConfirm("Aktifkan Set?", "Set ini akan kembali diaktifkan.", "Aktifkan", () => {
         const formData = new FormData();
-        formData.append('action',         'restore');
-        formData.append('id_set',         id);
+        formData.append('action', 'restore');
+        formData.append('id_set', id);
         formData.append('id_pengguna_js', getEmpId());
 
         fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'success') location.reload();
-                else alert("Gagal mengembalikan: " + res.message);
+                else cardhavenAlert('error', 'Gagal', res.message);
             });
-    }
+    });
 }
 
-window.addEventListener('click', function(e) {
-    if (e.target === setModal) setModal.style.display = 'none';
-});
+window.addEventListener('click', function(e) { if (e.target === setModal) setModal.style.display = 'none'; });
