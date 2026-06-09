@@ -16,6 +16,17 @@ function openAddModal() {
     modal.style.display = 'flex';
 }
 
+openDetailModal = (id) => {
+    fetch(`${URL_GAME}?get_detail=${id}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) return cardhavenAlert('error', 'Error', data.error);
+        })
+        .catch(err => {
+            console.error(err);
+            cardhavenAlert('error', 'System Error', 'Gagal mengambil data dari server.');
+        });
+};
 
 function openEditModal(id) {
     fetch(`${URL_GAME}?get_detail=${id}`)
@@ -37,6 +48,45 @@ function openEditModal(id) {
             console.error(err);
             cardhavenAlert('error', 'System Error', 'Gagal mengambil data dari server.');
         });
+}
+function toggleStatus(id, isActive, el) {
+    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    
+    const fd = new FormData();
+    fd.append('action', action);
+    fd.append('id_game', id);
+    fd.append('id_pengguna_js', getEmpId()); // Mengambil ID User
+
+    fetch(URL_GAME, { method: 'POST', body: fd })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            // Notifikasi Sukses Custom sesuai request kamu
+            Swal.fire({
+                icon: 'success',
+                iconColor: '#0088FF',
+                title: 'Berhasil!',
+                text: `Status game telah di${action}.`,
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#ffffff',
+                customClass: {
+                    title: 'coolveticaa' 
+                }
+            }).then(() => {
+                location.reload(); // Reload setelah notifikasi hilang
+            });
+        } else {
+            // Jika gagal di database, kembalikan posisi toggle
+            el.checked = !isActive;
+            Swal.fire('Gagal', res.message, 'error');
+        }
+    })
+    .catch(err => {
+        // Jika koneksi error, kembalikan posisi toggle
+        el.checked = !isActive;
+        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+    });
 }
 
 gameForm.onsubmit = function(e) {

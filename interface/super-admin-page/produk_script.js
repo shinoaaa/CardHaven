@@ -158,6 +158,47 @@ function openAddProductModal() {
     document.getElementById('productModal').style.display = 'flex';
 }
 
+
+function toggleProductStatus(id, isActive, el) {
+    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    
+    const fd = new FormData();
+    fd.append('action', action);
+    fd.append('id_produk', id);
+    fd.append('id_pengguna_js', getEmpId()); // Pastikan fungsi ini ada
+
+    fetch(URL_PRODUK, { method: 'POST', body: fd })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            // Munculkan notifikasi sesuai request kamu
+            Swal.fire({
+                icon: 'success',
+                iconColor: '#0088FF',
+                title: 'Berhasil!',
+                text: `produk telah di${action}.`,
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#ffffff',
+                customClass: {
+                    title: 'coolveticaa' // Sesuai request class kamu
+                }
+            }).then(() => {
+                location.reload(); // Reload halaman setelah timer selesai
+            });
+        } else {
+            // Jika gagal, kembalikan posisi toggle dan beri peringatan
+            el.checked = !isActive;
+            Swal.fire('Gagal', res.message, 'error');
+        }
+    })
+    .catch(err => {
+        // Jika koneksi mati, kembalikan posisi toggle
+        el.checked = !isActive;
+        console.error(err);
+        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+    });
+}
 function openEditProductModal(id) {
     fetch(`${URL_PRODUK}?get_detail=${id}`)
     .then(res => res.json()).then(data => {

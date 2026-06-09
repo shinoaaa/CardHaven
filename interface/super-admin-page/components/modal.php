@@ -4,7 +4,6 @@
             <h2 id="pTitle">ADD <span class="blue-text">PRODUCT</span></h2>
             <span id="pDisplayID" class="game-id"></span>
         </div>
-//namok
         <form id="productForm">
             <input type="hidden" name="action" id="pAction" value="add">
             <input type="hidden" name="id_produk" id="pID">
