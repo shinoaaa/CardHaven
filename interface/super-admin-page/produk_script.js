@@ -1,22 +1,20 @@
 const URL_PRODUK = '/CardHaven/interface/super-admin-page/controller_produk.php'; 
 // --- UTILITY: VALIDASI VISUAL ---
 function showError(el, msg) {
-    el.style.border = "2px solid #E74C3C"; // Border jadi merah
+    el.style.border = "2px solid #E74C3C"; 
     
     const err = el.closest('.modal-form-group').querySelector('.error-message');
     
     if (err) {
         err.innerText = msg;
-        err.style.display = "block"; // Pastikan muncul
-        err.style.color = "#E74C3C"; // Pastikan warna teks merah
+        err.style.display = "block"; 
+        err.style.color = "#E74C3C"; 
     }
 }
 
-
 function clearError(el) {
-    el.style.border = "1.5px solid #888"; // Border balik normal
+    el.style.border = "1.5px solid #888"; 
     
-    // TAMBAHKAN TITIK (.) sebelum nama class
     const err = el.closest('.modal-form-group').querySelector('.error-message');
     
     if (err) {
@@ -134,7 +132,7 @@ document.getElementById('productForm').onsubmit = async function(e) {
         }
     });
 
-    // 2. Validasi Relasi (Game & Set) - WAJIB MEMILIH DARI LIST
+    // 2. Validasi Relasi (Game & Set)
     if (tipe.includes('Card') || tipe.includes('Booster')) {
         const gameID = document.getElementById('pIdGame').value;
         const gameSearch = document.getElementById('pGameSearch').value;
@@ -204,7 +202,10 @@ function openAddProductModal() {
     clearAllErrors('productForm');
     document.getElementById('productForm').reset();
     document.getElementById('pAction').value = 'add';
-    document.getElementById('pLogSection').style.display = 'none';
+    
+    // Baris ini dihapus karena id pLogSection sudah tidak ada di HTML
+    // document.getElementById('pLogSection').style.display = 'none';
+    
     toggleProdFields();
     document.getElementById('productModal').style.display = 'flex';
 }
@@ -229,12 +230,7 @@ function openEditProductModal(id) {
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
 
-        document.getElementById('pLogSection').style.display = 'block';
-        document.getElementById('pCreatedBy').innerText = data.creator || 'System'; 
-        document.getElementById('pCreatedDate').innerText = data.created_date; 
-        
-        document.getElementById('pEditedBy').innerText = data.modifier || '-';
-        document.getElementById('pEditedDate').innerText = (data.modifier) ? data.modified_date : ''; 
+        // Blok kode yang memanggil pLogSection, pCreatedBy, dan pEditedBy telah dihapus
 
         const statusLabel = document.getElementById('pStatusLabel');
         const statusVal = document.getElementById('pStatusValue');
