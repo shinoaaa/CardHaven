@@ -56,11 +56,11 @@ document.addEventListener("DOMContentLoaded", () => {
         let isValid = true;
 
         if (!email) {
-            showError(emailInput, errorEmail, "Email tidak boleh kosong");
+            showError(emailInput, errorEmail, "Please enter your email");
             isValid = false;
         }
         if (!password) {
-            showError(passwordInput, errorPass, "Password tidak boleh kosong");
+            showError(passwordInput, errorPass, "Please enter your password");
             isValid = false;
         }
         if (!isValid) return;
@@ -245,19 +245,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const confirmPassword = forgotConfirmPasswordInput.value.trim();
             let isValid = true;
 
-            if (!password) {
-                showError(forgotPasswordInput, forgotErrorPassword, "Password tidak boleh kosong");
+            if (!password.trim()) {
+                showError(forgotPasswordInput, forgotErrorPassword, "Password cannot be empty");
                 isValid = false;
-            } else if (password.length < 8) {
-                showError(forgotPasswordInput, forgotErrorPassword, "Password minimal 8 karakter");
+            } else if (password.length < 8 || password.length > 12) {
+                showError(forgotPasswordInput, forgotErrorPassword, "Password must be 8 - 12 characters long");
+                isValid = false;
+            } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                showError(forgotPasswordInput, forgotErrorPassword, "Password must contain a special character");
                 isValid = false;
             }
 
             if (!confirmPassword) {
-                showError(forgotConfirmPasswordInput, forgotErrorConfirmPassword, "Konfirmasi password tidak boleh kosong");
+                showError(forgotConfirmPasswordInput, forgotErrorConfirmPassword, "Confirm password cannot be empty");
                 isValid = false;
             } else if (password !== confirmPassword) {
-                showError(forgotConfirmPasswordInput, forgotErrorConfirmPassword, "Konfirmasi password tidak cocok");
+                showError(forgotConfirmPasswordInput, forgotErrorConfirmPassword, "Confirm password does not match");
                 isValid = false;
             }
 
@@ -283,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.status === "success") {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Berhasil!',
+                            title: 'Success!',
                             text: data.message,
                             confirmButtonColor: '#0088FF',
                             customClass: { title: 'coolveticaa' }
@@ -308,13 +311,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     forgotSubmit.textContent = "Update Password";
                     forgotSubmit.disabled = false;
                     console.error("Server Error Response:", responseText);
-                    Swal.fire({ icon: 'error', title: 'System Error', text: 'Terjadi kesalahan pada server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                    Swal.fire({ icon: 'error', title: 'System Error', text: 'An error occurred on the server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
                 }
             } catch (error) {
                 forgotSubmit.textContent = "Update Password";
                 forgotSubmit.disabled = false;
                 console.error("Fetch Error:", error);
-                Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Tidak dapat terhubung ke server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to connect to the server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
             }
         });
     }
