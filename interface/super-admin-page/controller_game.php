@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 2. Validasi Duplikat Nama
     if ($action == 'add' || $action == 'edit') {
-        $sql_cek = "SELECT COUNT(*) as total FROM dbo.game WHERE nama_game = ?";
+        $sql_cek = "SELECT COUNT(*) as total FROM dbo.game WHERE nama_game = ? AND is_deleted = 0";
         $params_cek = [$nama];
         if ($action == 'edit') { $sql_cek .= " AND id_game <> ?"; $params_cek[] = $id_game; }
         
@@ -38,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE(), aktif=? WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $aktif, $id_game]);
     } else if ($action === 'delete') {
-        $sql = "UPDATE dbo.game SET aktif=0, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
+        $sql = "UPDATE dbo.game SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     }else if ($action === 'restore') {
-        $sql = "UPDATE dbo.game SET aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
+        $sql = "UPDATE dbo.game SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Action tidak valid!']);
