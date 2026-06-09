@@ -74,7 +74,14 @@ require_once 'components/fetch_dashboard.php';
                             </td>
                             <td>
                                 <div class="btn-action-group">
+                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
                                     <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
+                                    <label class="switch">
+                                        <input type="checkbox" 
+                                            <?= ($row['status'] == 1) ? 'checked' : '' ?> 
+                                            onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
+                                        <span class="slider"></span>
+                                    </label>
                                     <?php if ($row['status'] == 1): ?>
                                         <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)">🗑️</button>
                                     <?php else: ?>

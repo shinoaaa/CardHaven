@@ -37,7 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $aktif = $_POST['aktif'];
         $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE(), aktif=? WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $aktif, $id_game]);
-    } else if ($action === 'delete') {
+    }else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
+        $aktif = $action === 'aktifkan' ? 1 : 0;
+        $sql = "UPDATE dbo.game SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
+        $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_game]);
+    }
+    else if ($action === 'delete') {
         $sql = "UPDATE dbo.game SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     }else if ($action === 'restore') {

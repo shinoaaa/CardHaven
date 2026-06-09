@@ -54,6 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql = "UPDATE dbo.produk SET id_game=?, tipe_produk=?, nama_produk=?, harga_jual=?, harga_beli=?, stok=?, deskripsi=?, id_rarity=?, id_set=?, kondisi=?, modified_by=?, modified_date=GETDATE(), status=? WHERE id_produk=?";
                 $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $status, $id_produk];
             }
+        }
+        else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
+            $status = ($action === 'aktifkan') ? 1 : 0;
+            $sql = "UPDATE dbo.produk SET status=?, modified_by=?, modified_date=GETDATE() WHERE id_produk=?";
+            $params = [$status, $id_user, $id_produk];
+            $stmt = sqlsrv_query($conn, $sql, $params);
         } 
         else if ($action === 'delete' || $action === 'restore') {
             $status = ($action === 'delete') ? 1 : 0;

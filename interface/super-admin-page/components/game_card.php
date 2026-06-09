@@ -31,8 +31,15 @@
                 </td>
                 <td>
                     <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openDetailModal(<?= $row['id_game'] ?>)">...</button>
                         <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
-                        <?php if ($row['aktif'] == 1): ?>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                <?= $row['aktif'] == 1 ? 'checked' : '' ?> 
+                                onclick="toggleStatus(<?= $row['id_game'] ?>, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
+                        <?php if ($row['is_deleted'] == 0): ?>
                             <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
                         <?php else: ?>
                             <button class="btn-restore-icon"
