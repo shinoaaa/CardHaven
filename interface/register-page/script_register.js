@@ -21,27 +21,33 @@ document.getElementById('signupForm').addEventListener('submit', async function(
 
     // 1. Validasi Kosong
     if (!username.value.trim()) {
-        showError(username, usernameError, "Username tidak boleh kosong");
+        showError(username, usernameError, "Please enter your username");
         isValid = false;
     }
 
     if (!email.value.trim()) {
-        showError(email, emailError, "Email tidak boleh kosong");
+        showError(email, emailError, "Please enter your email");
         isValid = false;
     }
 
     // 2. Validasi Panjang Password (8-12 karakter)
     if (password.value.length < 8 || password.value.length > 12) {
-        showError(password, passwordError, "Password harus 8 - 12 karakter");
+        showError(password, passwordError, "Password must be 8 - 12 characters long");
+        isValid = false;
+    }else if (!password.value.trim()) {
+        showError(password, passwordError, "Password must be filled");
+        isValid = false;
+    }else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password.value)) {
+        showError(password, passwordError, "Password must contain a special character");
         isValid = false;
     }
 
     // 3. Validasi Konfirmasi Password
     if (password.value !== confirmPassword.value) {
-        showError(confirmPassword, confirmPasswordError, "Konfirmasi password tidak cocok!");
+        showError(confirmPassword, confirmPasswordError, "Confirm password does not match!");
         isValid = false;
     } else if (!confirmPassword.value) {
-        showError(confirmPassword, confirmPasswordError, "Konfirmasi password harus diisi");
+        showError(confirmPassword, confirmPasswordError, "Please confirm your password");
         isValid = false;
     }
 
@@ -64,20 +70,20 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             const data = JSON.parse(responseText);
             
             if (data.status === 'success') {
-                alert('Registrasi berhasil! Silahkan login.');
+                alert('Registration successful! Please login.');
                 window.location.href = 'home'; 
             } else {
-                alert('Gagal: ' + data.message);
+                alert('Failed: ' + data.message);
             }
         } catch (jsonError) {
             // Jika gagal parse JSON, berarti PHP mengirim error HTML
             console.error("Server Error Response:", responseText);
-            alert("Terjadi kesalahan pada server (PHP Error). Cek console log (F12) untuk melihat detailnya.");
+            alert("An error occurred on the server (PHP Error). Check the console log (F12) for details.");
         }
 
     } catch (error) {
         console.error('Fetch Error:', error);
-        alert('Tidak dapat terhubung ke server.');
+        alert('Unable to connect to the server.');
     }
 });
 
