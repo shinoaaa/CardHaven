@@ -25,7 +25,7 @@ require_once 'components/fetch_dashboard.php';
 <body>
     <div class="container" style="justify-content: flex-start; align-items: flex-start;">
         <div class="sideBar">
-            <?php include 'components/sideBar.php'; ?>
+            <?php include '../CardHaven/interface/global-component/sideBar.php'; ?>
         </div>
 
         <div class="main-content">
