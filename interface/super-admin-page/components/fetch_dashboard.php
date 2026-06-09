@@ -10,6 +10,7 @@ $offset_produk = ($page_produk - 1) * $limit_produk;
 $page_game = isset($_GET['pg']) ? (int)$_GET['pg'] : 1;
 $page_set = isset($_GET['ps']) ? (int)$_GET['ps'] : 1;
 $page_rarity = isset($_GET['pr']) ? (int)$_GET['pr'] : 1;
+$page_metode = isset($_GET['pm']) ? (int)$_GET['pm'] : 1;
 
 // 1. Hitung Total Baris Produk
 $sql_count_produk = "SELECT COUNT(*) as total FROM dbo.produk";
@@ -89,4 +90,25 @@ $sql_rarity = "SELECT r.id_rarity, r.nama_rarity, r.kode_rarity, r.aktif, g.nama
                OFFSET $offset_rarity ROWS FETCH NEXT $limit_rarity ROWS ONLY";
 $stmt_rarity = sqlsrv_query($conn, $sql_rarity);
 if ($stmt_rarity === false) die(print_r(sqlsrv_errors(), true));
+
+// ==========================================
+// 4. LOGIKA PAGINASI & KUERI METODE PEMBAYARAN
+// ==========================================
+$limit_metode = 3;
+$page_metode  = isset($_GET['pm']) ? max(1, (int)$_GET['pm']) : 1;
+$offset_metode = ($page_metode - 1) * $limit_metode;
+
+$sql_count_metode = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE is_deleted = 0";
+$stmt_count_metode = sqlsrv_query($conn, $sql_count_metode);
+if ($stmt_count_metode === false) die(print_r(sqlsrv_errors(), true));
+$total_rows_metode  = sqlsrv_fetch_array($stmt_count_metode, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
+$total_pages_metode = max(1, ceil($total_rows_metode / $limit_metode));
+
+$sql_metode = "SELECT id_metode, nama_metode, provider, biaya_admin, aktif
+               FROM dbo.metode_pembayaran
+               WHERE is_deleted = 0
+               ORDER BY aktif DESC, id_metode ASC
+               OFFSET $offset_metode ROWS FETCH NEXT $limit_metode ROWS ONLY";
+$stmt_metode = sqlsrv_query($conn, $sql_metode);
+if ($stmt_metode === false) die(print_r(sqlsrv_errors(), true));
 ?>
