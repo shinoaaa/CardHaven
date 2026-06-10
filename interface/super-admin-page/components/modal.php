@@ -351,3 +351,63 @@
         </form>
     </div>
 </div>
+
+<!-- ==================== MODAL DETAIL PAYMENT METHOD (READ ONLY) ==================== -->
+<div id="metodeDetailModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>PAYMENT METHOD <span class="blue-text">DETAIL</span></h2>
+            <span id="metodeDetailDisplayID" class="game-id"></span>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Method Name</label>
+            <div class="detail-field" id="detailMetodeNama">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Provider</label>
+            <div class="detail-field" id="detailMetodeProvider">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Account Number</label>
+            <div class="detail-field" id="detailMetodeNoRek">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Account Name</label>
+            <div class="detail-field" id="detailMetodeAtasNama">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Admin Fee</label>
+            <div class="detail-field" id="detailMetodeBiaya">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Status</label>
+            <div class="detail-field" id="detailMetodeStatus">-</div>
+        </div>
+
+        <hr style="border: none; border-top: 1.5px solid #e0e0e0; margin: 15px 0;">
+
+        <div class="modal-form-group">
+            <label>Created By</label>
+            <div class="log-display">
+                <span id="detailMetodeCreatedBy">-</span>
+                <span id="detailMetodeCreatedDate">-</span>
+            </div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Last Modified By</label>
+            <div class="log-display">
+                <span id="detailMetodeModifiedBy">-</span>
+                <span id="detailMetodeModifiedDate">-</span>
+            </div>
+        </div>
+
+        <button class="btn-confirm" onclick="document.getElementById('metodeDetailModal').style.display='none'">Close</button>
+    </div>
+</div>

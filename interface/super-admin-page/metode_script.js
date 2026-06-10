@@ -165,8 +165,44 @@ function confirmDeleteMetode(id) {
 // DETAIL (READ ONLY) — hanya tombol dulu
 // ==========================================
 function openDetailMetode(id) {
-    // placeholder — modal detail belum dibuat
-    cardhavenAlert('info', 'Coming Soon', 'Detail view will be available soon.');
+    fetch(`${METODE_API}?get_detail=${id}`)
+        .then(async res => JSON.parse(await res.text()))
+        .then(data => {
+            if (!data || data.error) {
+                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch data.');
+                return;
+            }
+
+            document.getElementById('metodeDetailDisplayID').innerText = 'MTD-' + String(id).padStart(3, '0');
+
+            document.getElementById('detailMetodeNama').innerText     = data.nama_metode  || '-';
+            document.getElementById('detailMetodeProvider').innerText = data.provider     || '-';
+            document.getElementById('detailMetodeNoRek').innerText    = data.no_rekening  || '-';
+            document.getElementById('detailMetodeAtasNama').innerText = data.atas_nama    || '-';
+            document.getElementById('detailMetodeBiaya').innerText    = 'Rp. ' + parseFloat(data.biaya_admin || 0).toLocaleString('id-ID');
+
+            const statusEl = document.getElementById('detailMetodeStatus');
+            if (data.aktif == 1) {
+                statusEl.innerText   = 'Active';
+                statusEl.style.color = '#27AE60';
+                statusEl.style.fontWeight = '700';
+            } else {
+                statusEl.innerText   = 'Inactive';
+                statusEl.style.color = '#E74C3C';
+                statusEl.style.fontWeight = '700';
+            }
+
+            document.getElementById('detailMetodeCreatedBy').innerText    = data.creator       || 'System';
+            document.getElementById('detailMetodeCreatedDate').innerText  = data.created_date  || '-';
+            document.getElementById('detailMetodeModifiedBy').innerText   = data.modifier      || '-';
+            document.getElementById('detailMetodeModifiedDate').innerText = data.modified_date || '-';
+
+            document.getElementById('metodeDetailModal').style.display = 'flex';
+        })
+        .catch(err => {
+            console.error('openDetailMetode error:', err);
+            cardhavenAlert('error', 'System Error', 'Failed to connect to server.');
+        });
 }
 
 // ==========================================
@@ -174,4 +210,7 @@ function openDetailMetode(id) {
 // ==========================================
 window.addEventListener('click', function(e) {
     if (e.target === metodeModal) metodeModal.style.display = 'none';
+    if (e.target === document.getElementById('metodeDetailModal')) {
+        document.getElementById('metodeDetailModal').style.display = 'none';
+    }
 });
