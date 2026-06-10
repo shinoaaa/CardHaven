@@ -15,7 +15,6 @@ if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
     $id_user = $raw_id_js;
 }
 
-
 $id_user = (int)$id_user; 
 
 if (isset($_GET['check_duplicate'])) {
@@ -34,7 +33,7 @@ if (isset($_GET['check_duplicate'])) {
 }
 
 // ==========================================
-// BLOK AKSI (ADD, EDIT, DELETE)
+// BLOK AKSI (ADD, EDIT, DELETE, TOGGLE)
 // ==========================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -52,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $check_sql = "SELECT nama_rarity, kode_rarity FROM dbo.rarity 
                     WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?) AND is_deleted = 0";
         $params = [$id_game, $nama, $kode];
-
 
         if ($action === 'edit') {
             $check_sql .= " AND id_rarity <> ?";
@@ -92,12 +90,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE dbo.rarity SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
-    //proses restore
+    // Proses Restore
     else if($action === 'restore'){
         $sql = "UPDATE dbo.rarity SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
-
+    // Proses Aktifkan / Nonaktifkan (TOGGLE) -> INI YANG BARU DITAMBAHKAN
+    else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
+        $aktif = $action === 'aktifkan' ? 1 : 0;
+        $sql = "UPDATE dbo.rarity SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
+        $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_rarity]);
+    }
 
     if ($stmt) {
         echo json_encode(['status' => 'success', 'message' => '']);

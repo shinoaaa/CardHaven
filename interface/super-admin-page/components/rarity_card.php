@@ -31,18 +31,19 @@
                     <?php else: ?>
                         <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
                     <?php endif; ?>
-                <td>
-                    <div class="btn-action-group">
-                        <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
-                        <?php if ($rowRarity['aktif'] == 1): ?>
+                    <td>
+                        <div class="btn-action-group">
+                            <button class="btn-view-icon" onclick="openDetailRarity(<?= $rowRarity['id_rarity'] ?>)">...</button>
+                            <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>
+                            <label class="switch">
+                                <input type="checkbox" 
+                                    <?= $rowRarity['aktif'] == 1 ? 'checked' : '' ?> 
+                                    onchange="toggleRarityStatus(<?= $rowRarity['id_rarity'] ?>, this.checked, this)">
+                                <span class="slider"></span>
+                            </label>
                             <button class="btn-delete-icon" onclick="confirmDeleteRarity(<?= $rowRarity['id_rarity'] ?>)">🗑️</button>
-                        <?php else: ?>
-                            <button class="btn-restore-icon"
-                                    style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                    onclick="confirmRestoreRarity(<?= $rowRarity['id_rarity'] ?>)">🔄</button>
-                        <?php endif; ?>
-                    </div>
-                </td>
+                        </div>
+                    </td>
             </tr>
             <?php endwhile; endif; ?>
         </tbody>

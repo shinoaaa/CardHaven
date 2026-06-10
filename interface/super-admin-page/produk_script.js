@@ -47,7 +47,7 @@ function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
         let url = `${URL_PRODUK}?${param}=${this.value}`;
         if (dependId) {
             const depVal = document.getElementById(dependId).value;
-            if (!depVal) { showError(input, "Pilih Game dulu!"); return; }
+            if (!depVal) { showError(input, "Please select a Game first!"); return; }
             url += `&id_game=${depVal}`;
         }
 
@@ -137,13 +137,16 @@ document.getElementById('productForm').onsubmit = async function(e) {
         const res = JSON.parse(await response.text());
 
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Data produk berhasil disimpan.', () => location.reload());
+            cardhavenAlert('success', 'Success', 'Product data saved successfully.', () => {
+                document.getElementById('productModal').style.display = 'none'; // Auto-close modal
+                setTimeout(() => { location.reload(); }, 300);
+            });
         } else {
             cardhavenAlert('error', 'Failed', res.message);
         }
     } catch (err) {
         console.error(err);
-        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan koneksi.');
+        cardhavenAlert('error', 'System Error', 'Connection error occurred.');
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "SAVE PRODUCT";
@@ -158,47 +161,41 @@ function openAddProductModal() {
     document.getElementById('productModal').style.display = 'flex';
 }
 
-
 function toggleProductStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const label = isActive ? 'activated' : 'deactivated';
     
     const fd = new FormData();
     fd.append('action', action);
     fd.append('id_produk', id);
-    fd.append('id_pengguna_js', getEmpId()); // Pastikan fungsi ini ada
+    fd.append('id_pengguna_js', getEmpId()); 
 
     fetch(URL_PRODUK, { method: 'POST', body: fd })
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            // Munculkan notifikasi sesuai request kamu
             Swal.fire({
                 icon: 'success',
                 iconColor: '#0088FF',
-                title: 'Berhasil!',
-                text: `produk telah di${action}.`,
+                title: 'Success!',
+                text: `Product has been ${label}.`,
                 showConfirmButton: false,
                 timer: 1500,
                 background: '#ffffff',
-                customClass: {
-                    title: 'coolveticaa' // Sesuai request class kamu
-                }
-            }).then(() => {
-                location.reload(); // Reload halaman setelah timer selesai
-            });
+                customClass: { title: 'coolveticaa' }
+            }).then(() => location.reload());
         } else {
-            // Jika gagal, kembalikan posisi toggle dan beri peringatan
             el.checked = !isActive;
-            Swal.fire('Gagal', res.message, 'error');
+            Swal.fire('Failed', res.message, 'error');
         }
     })
     .catch(err => {
-        // Jika koneksi mati, kembalikan posisi toggle
         el.checked = !isActive;
         console.error(err);
-        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+        Swal.fire('Error', 'Connection error occurred.', 'error');
     });
 }
+
 function openEditProductModal(id) {
     fetch(`${URL_PRODUK}?get_detail=${id}`)
     .then(res => res.json()).then(data => {
@@ -223,7 +220,7 @@ function openEditProductModal(id) {
 }
 
 function confirmDeleteProduct(id) {
-    cardhavenConfirm("Nonaktifkan Produk?", "Produk ini akan dinonaktifkan.", "Nonaktifkan", () => {
+    cardhavenConfirm("Delete Product?", "This product will be deleted.", "Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_produk', id);
@@ -233,13 +230,13 @@ function confirmDeleteProduct(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }
 
 function confirmRestoreProduct(id) {
-    cardhavenConfirm("Aktifkan Produk?", "Produk ini akan kembali diaktifkan.", "Aktifkan", () => {
+    cardhavenConfirm("Restore Product?", "This product will be restored.", "Restore", () => {
         const fd = new FormData();
         fd.append('action', 'restore');
         fd.append('id_produk', id);
@@ -249,9 +246,10 @@ function confirmRestoreProduct(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }
 
 window.addEventListener('click', function(e) { if (e.target === productModal) productModal.style.display = 'none'; });
+
