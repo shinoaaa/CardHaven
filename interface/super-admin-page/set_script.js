@@ -56,7 +56,44 @@ function openEditSetModal(id) {
         })
         .catch(err => console.error(err));
 }
+function toggleSetStatus(id, isActive, el) {
+    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    
+    const fd = new FormData();
+    fd.append('action', action);
+    fd.append('id_set', id);
+    fd.append('id_pengguna_js', getEmpId());
 
+    fetch(SET_API_URL_PATH, { method: 'POST', body: fd })
+    .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+    })
+    .then(res => {
+        if (res.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                iconColor: '#0088FF',
+                title: 'Berhasil!',
+                text: `Set telah di${action}.`,
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#ffffff',
+                customClass: { title: 'coolveticaa' }
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            el.checked = !isActive;
+            Swal.fire('Gagal', res.message, 'error');
+        }
+    })
+    .catch(err => {
+        el.checked = !isActive;
+        console.error(err);
+        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+    });
+}
 setForm.onsubmit = function(e) {
     e.preventDefault();
     let isValid = true;

@@ -31,7 +31,14 @@
                 </td>
                 <td>
                     <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openDetailSetModal(<?= $row['id_game'] ?>)">...</button>
                         <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                <?= $rowSet['aktif'] == 1 ? 'checked' : '' ?> 
+                                onchange="toggleSetStatus(<?= $rowSet['id_set'] ?>, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
                         <?php if ($rowSet['aktif'] == 1): ?>
                             <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)">🗑️</button>
                         <?php else: ?>
