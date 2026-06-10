@@ -32,17 +32,18 @@
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="btn-action-group">
-                        <button class="btn-edit-icon" onclick="openEditMetode(<?= $rowMetode['id_metode'] ?>)">✏️</button>
-                        <?php if ($rowMetode['aktif'] == 1): ?>
-                            <button class="btn-delete-icon" onclick="confirmDeleteMetode(<?= $rowMetode['id_metode'] ?>)">🗑️</button>
-                        <?php else: ?>
-                            <button class="btn-restore-icon"
-                                    style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                    onclick="confirmRestoreMetode(<?= $rowMetode['id_metode'] ?>)">🔄</button>
-                        <?php endif; ?>
-                    </div>
-                </td>
+    <div class="btn-action-group">
+        <button class="btn-view-icon" onclick="openDetailMetode(<?= $rowMetode['id_metode'] ?>)">...</button>
+        <button class="btn-edit-icon" onclick="openEditMetode(<?= $rowMetode['id_metode'] ?>)">✏️</button>
+        <label class="switch">
+            <input type="checkbox"
+                <?= $rowMetode['aktif'] == 1 ? 'checked' : '' ?>
+                onchange="toggleMetode(<?= $rowMetode['id_metode'] ?>, this.checked, this)">
+            <span class="slider"></span>
+        </label>
+        <button class="btn-delete-icon" onclick="confirmDeleteMetode(<?= $rowMetode['id_metode'] ?>)">🗑️</button>
+    </div>
+</td>
             </tr>
             <?php endwhile; endif; ?>
         </tbody>

@@ -315,6 +315,7 @@
         <form id="metodeForm">
             <input type="hidden" name="action"    id="metodeFormAction" value="add">
             <input type="hidden" name="id_metode" id="metodeIdInput">
+            <input type="hidden" name="aktif"     id="metodeAktifStatus" value="1">
 
             <div class="modal-form-group">
                 <label>Method Name <span style="color:#E74C3C;">*</span></label>
@@ -323,51 +324,30 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Provider</label>
+                <label>Provider <span style="color:#E74C3C;">*</span></label>
                 <input type="text" name="provider" id="metodeProvider" class="modal-input" placeholder="e.g. GoPay, Bank BCA">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Account Number</label>
+                <label>Account Number <span style="color:#E74C3C;">*</span></label>
                 <input type="text" name="no_rekening" id="metodeNoRek" class="modal-input" placeholder="e.g. 081234567890">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Account Name</label>
+                <label>Account Name <span style="color:#E74C3C;">*</span></label>
                 <input type="text" name="atas_nama" id="metodeAtasNama" class="modal-input" placeholder="e.g. CardHaven Store">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Admin Fee (Rp)</label>
+                <label>Admin Fee (Rp) <span style="color:#E74C3C;">*</span></label>
                 <input type="number" name="biaya_admin" id="metodeBiaya" class="modal-input" placeholder="e.g. 2000" min="0" value="0">
                 <div class="error-message"></div>
             </div>
 
-            <div id="metodeLogSection" style="display:none;">
-                <div class="modal-form-group">
-                    <label>Created By</label>
-                    <div class="log-display">
-                        <span id="metodeCreatedBy"></span>
-                        <span id="metodeCreatedDate"></span>
-                    </div>
-                </div>
-                <div class="modal-form-group">
-                    <label>Edited By</label>
-                    <div class="log-display">
-                        <span id="metodeEditedBy"></span>
-                        <span id="metodeEditedDate"></span>
-                    </div>
-                </div>
-                <div class="status-text">
-                    Status: <span id="metodeStatusLabel"></span>
-                    <input type="hidden" name="aktif" id="metodeAktifStatus">
-                </div>
-            </div>
-
-            <button type="submit" class="btn-confirm">Confirm</button>
+            <button type="submit" class="btn-confirm">SAVE</button>
         </form>
     </div>
 </div>
