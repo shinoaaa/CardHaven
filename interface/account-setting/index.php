@@ -59,6 +59,6 @@
     </main>
 </div>
 
-<script src="./account-setting.js?v=<?= time() ?>"></script>
+<script src="/cardhaven/interface/account-setting/account-setting.js?v=<?= time() ?>"></script>
 </body>
 </html>
