@@ -16,17 +16,59 @@ function openAddModal() {
     modal.style.display = 'flex';
 }
 
-openDetailModal = (id) => {
+function openDetailModal(id) {
+    Swal.fire({
+        title: 'Loading Data...',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        background: "transparent",
+        backdrop: "rgba(13,71,161,.25)",
+        customClass: { popup: "cardhaven-popup", title: "coolveticaa cardhaven-title" },
+        didOpen: () => { Swal.showLoading(); }
+    });
+
     fetch(`${URL_GAME}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
             if(data.error) return cardhavenAlert('error', 'Error', data.error);
+
+            const detailHTML = `
+                <div style="text-align: left; margin-top: 1rem; padding: 1rem; background: white; border-radius: 12px; border: 1px solid #E2E8F0;">
+                    <div style="margin-bottom: 10px;">
+                        <small style="color: #A0AEC0; font-weight: bold;">ID / NAME</small>
+                        <div style="color: #2D3748; font-weight: bold; font-size: 1.1rem;">GAM-${id} / ${data.nama_game}</div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <small style="color: #A0AEC0; font-weight: bold;">DEVELOPER</small>
+                        <div style="color: #2D3748;">${data.developer || '-'}</div>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0;">
+                    <div style="margin-bottom: 10px;">
+                        <small style="color: #A0AEC0; font-weight: bold;">CURRENT STATUS</small>
+                        <div style="margin-top: 4px;">
+                            ${data.aktif == 1 
+                                ? '<span style="background: #E6F4EA; color: #1E8E3E; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">ACTIVE</span>' 
+                                : '<span style="background: #FCE8E6; color: #D93025; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">INACTIVE</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            Swal.fire({
+                title: "Game Detail",
+                html: detailHTML,
+                showConfirmButton: false, 
+                showCloseButton: true,    
+                background: "transparent",
+                backdrop: "rgba(13,71,161,.25)",
+                customClass: { popup: "cardhaven-popup", title: "coolveticaa cardhaven-title" }
+            });
         })
         .catch(err => {
             console.error(err);
-            cardhavenAlert('error', 'System Error', 'Gagal mengambil data dari server.');
+            cardhavenAlert('error', 'System Error', 'Failed to fetch data from server.');
         });
-};
+}
 
 function openEditModal(id) {
     fetch(`${URL_GAME}?get_detail=${id}`)
@@ -46,46 +88,41 @@ function openEditModal(id) {
         })
         .catch(err => {
             console.error(err);
-            cardhavenAlert('error', 'System Error', 'Gagal mengambil data dari server.');
+            cardhavenAlert('error', 'System Error', 'Failed to fetch data from server.');
         });
 }
+
 function toggleStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const label = isActive ? 'activated' : 'deactivated';
     
     const fd = new FormData();
     fd.append('action', action);
     fd.append('id_game', id);
-    fd.append('id_pengguna_js', getEmpId()); // Mengambil ID User
+    fd.append('id_pengguna_js', getEmpId()); 
 
     fetch(URL_GAME, { method: 'POST', body: fd })
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            // Notifikasi Sukses Custom sesuai request kamu
             Swal.fire({
                 icon: 'success',
                 iconColor: '#0088FF',
-                title: 'Berhasil!',
-                text: `Status game telah di${action}.`,
+                title: 'Success!',
+                text: `Game has been ${label}.`,
                 showConfirmButton: false,
                 timer: 1500,
                 background: '#ffffff',
-                customClass: {
-                    title: 'coolveticaa' 
-                }
-            }).then(() => {
-                location.reload(); // Reload setelah notifikasi hilang
-            });
+                customClass: { title: 'coolveticaa' }
+            }).then(() => location.reload());
         } else {
-            // Jika gagal di database, kembalikan posisi toggle
             el.checked = !isActive;
-            Swal.fire('Gagal', res.message, 'error');
+            Swal.fire('Failed', res.message, 'error');
         }
     })
     .catch(err => {
-        // Jika koneksi error, kembalikan posisi toggle
         el.checked = !isActive;
-        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+        Swal.fire('Error', 'Connection error occurred.', 'error');
     });
 }
 
@@ -96,12 +133,12 @@ gameForm.onsubmit = function(e) {
     let isValid = true;
 
     if (!inputNama.value.trim()) {
-        showError(inputNama, "Nama game wajib diisi!");
+        showError(inputNama, "Game name is required!");
         isValid = false;
     } else clearError(inputNama);
 
     if (!inputDev.value.trim()) {
-        showError(inputDev, "Developer wajib diisi!");
+        showError(inputDev, "Developer is required!");
         isValid = false;
     } else clearError(inputDev);
 
@@ -114,19 +151,22 @@ gameForm.onsubmit = function(e) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Data game berhasil disimpan.', () => location.reload());
+            cardhavenAlert('success', 'Success', 'Game data saved successfully.', () => {
+                modal.style.display = 'none'; // Auto-close modal
+                setTimeout(() => { location.reload(); }, 300);
+            });
         } else {
             cardhavenAlert('error', 'Failed', res.message);
         }
     })
     .catch(err => {
         console.error(err);
-        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
+        cardhavenAlert('error', 'System Error', 'A system error occurred.');
     });
 };
 
 function confirmDelete(id) {
-    cardhavenConfirm("Hapus Game?", "Game ini akan Hapus.", "Hapus", () => {
+    cardhavenConfirm("Delete Game?", "This game will be deleted.", "Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_game', id);
@@ -136,13 +176,13 @@ function confirmDelete(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }
 
 function confirmRestore(id) {
-    cardhavenConfirm("Aktifkan Game?", "Game ini akan kembali diaktifkan.", "Aktifkan", () => {
+    cardhavenConfirm("Restore Game?", "This game will be restored.", "Restore", () => {
         const fd = new FormData();
         fd.append('action', 'restore'); 
         fd.append('id_game', id);
@@ -152,7 +192,7 @@ function confirmRestore(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }

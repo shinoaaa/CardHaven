@@ -787,158 +787,101 @@ input::placeholder {
     color: #E74C3C;
 }
 
-/* =========================
-   CARDHAVEN SWEETALERT
-========================= */
+/* =========================================
+   CARDHAVEN SWEETALERT GLOBAL
+========================================= */
+
+/* MEMAKSA Z-INDEX SWEETALERT SELALU PALING ATAS */
+.swal2-container {
+    z-index: 999999 !important;
+}
 
 .cardhaven-popup {
     width: 420px !important;
     border-radius: 28px !important;
     background: #FFFFFF !important;
     padding: 30px !important;
-
-    box-shadow:
-        0 15px 40px rgba(13, 71, 161, 0.18),
-        0 5px 15px rgba(0,0,0,0.08);
-
+    box-shadow: 0 15px 40px rgba(13, 71, 161, 0.18), 0 5px 15px rgba(0,0,0,0.08);
     border: 3px solid #0D47A1;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    justify-content: center !important;
 }
 
 /* ICON */
-.swal2-icon.swal2-warning {
-    border-color: #0D47A1 !important;
-    color: #0D47A1 !important;
-}
+.swal2-icon.swal2-warning { border-color: #0D47A1 !important; color: #0D47A1 !important; }
+.swal2-icon.swal2-warning .swal2-icon-content { color: #0D47A1 !important; }
+.swal2-icon.swal2-success { border-color: #0D47A1 !important; }
+.swal2-success-ring { border-color: rgba(13,71,161,.3) !important; }
+.swal2-success-line-tip, .swal2-success-line-long { background-color: #0D47A1 !important; }
+.swal2-icon.swal2-error { border-color: #E74C3C !important; }
+.swal2-x-mark-line-left, .swal2-x-mark-line-right { background-color: #E74C3C !important; }
 
-.swal2-icon.swal2-warning .swal2-icon-content {
-    color: #0D47A1 !important;
-}
-
-/* TITLE */
+/* TITLE & TEXT */
 .cardhaven-title {
-    font-size: 34px !important;
-    font-weight: 700;
-    color: #0D47A1 !important;
-    margin-top: 5px !important;
-    margin-bottom: 10px !important;
+    font-size: 34px !important; font-weight: 700; color: #0D47A1 !important;
+    margin-top: 5px !important; margin-bottom: 10px !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+.cardhaven-text { 
+    font-size: 18px !important; 
+    color: #555 !important; 
+    line-height: 1.5; 
+    width: 100% !important; 
+    text-align: center !important; 
 }
 
-/* TEXT */
-.cardhaven-text {
-    font-size: 18px !important;
-    color: #555 !important;
-    line-height: 1.5;
-}
-
-/* BUTTON CONTAINER */
+/* TOMBOL SWEETALERT SEJAJAR PRESISI (FLEXBOX) */
 .swal2-actions {
-    gap: 12px;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 16px !important;
     margin-top: 25px !important;
+    width: 100% !important;
 }
 
-/* CONFIRM BUTTON */
-.btn-confirm {
-    background: #0D6EFD !important;
-    color: white !important;
-
-    border: none !important;
-
-    padding: 12px 28px !important;
-
+.btn-confirm, .btn-cancel-outline {
+    width: 170px !important; /* Diubah dari flex: 1 menjadi fixed width agar bisa ke tengah saat sendiri */
+    margin: 0 auto !important; /* Menjaga tombol tetap di tengah */
+    height: 48px !important; 
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     font-size: 17px !important;
-    font-weight: 600;
-
+    font-weight: 600 !important;
     border-radius: 14px !important;
-
-    transition: .2s;
+    transition: .2s !important;
+    box-sizing: border-box !important;
 }
 
-.btn-confirm:hover {
-    transform: translateY(-2px);
-    background: #0B5ED7 !important;
-}
+/* WARNA TOMBOL */
+.btn-confirm { background: #0D6EFD !important; color: white !important; border: none !important; }
+.btn-confirm:hover { transform: translateY(-2px) !important; background: #0B5ED7 !important; }
 
-/* CANCEL BUTTON */
-.btn-cancel-outline {
-    background: transparent !important;
+.btn-cancel-outline { background: transparent !important; color: #0D47A1 !important; border: 2px solid #0D47A1 !important; cursor: pointer !important; }
+.btn-cancel-outline:hover { background: rgba(13,71,161,.08) !important; transform: translateY(-2px) !important; }
+.btn-cancel-outline:active { transform: scale(.97) !important; }
 
-    color: #0D47A1 !important;
-
-    border: 2px solid #0D47A1 !important;
-
-    padding: 12px 28px !important;
-
-    font-size: 17px !important;
-    font-weight: 600;
-
-    border-radius: 14px !important;
-
-    transition: .2s;
-}
-
-.btn-cancel-outline:hover {
-    background: rgba(13,71,161,.08) !important;
-}
-
-/* SUCCESS */
-.swal2-icon.swal2-success {
-    border-color: #0D47A1 !important;
-}
-
-.swal2-success-ring {
-    border-color: rgba(13,71,161,.3) !important;
-}
-
-.swal2-success-line-tip,
-.swal2-success-line-long {
-    background-color: #0D47A1 !important;
-}
-
-/* ERROR */
-.swal2-icon.swal2-error {
-    border-color: #E74C3C !important;
-}
-
-.swal2-x-mark-line-left,
-.swal2-x-mark-line-right {
-    background-color: #E74C3C !important;
-}
-
-
+/* =========================================
+   TOGGLE SWITCH (ACTIVE/INACTIVE)
+========================================= */
 .switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 25px;
+    position: relative; display: inline-block; width: 50px; height: 25px;
 }
 .switch input { opacity: 0; width: 0; height: 0; }
-
 .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #E5E5E5; /* DEFAULT: Abu-abu (0) */
-    transition: .4s;
-    border-radius: 25px;
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #E5E5E5; transition: .4s; border-radius: 25px;
 }
-
-/* JIKA CHECKED (1): Warna Biru */
-input:checked + .slider {
-    background-color: #003894; 
-}
-
+input:checked + .slider { background-color: #003894; }
 .slider:before {
-    position: absolute;
-    content: "";
-    height: 19px;
-    width: 19px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+    position: absolute; content: ""; height: 19px; width: 19px; left: 3px; bottom: 3px;
+    background-color: white; transition: .4s; border-radius: 50%;
 }
-
-input:checked + .slider:before {
-    transform: translateX(25px);
-}
+input:checked + .slider:before { transform: translateX(25px); }
+input:disabled + .slider { opacity: 0.6; cursor: not-allowed; }

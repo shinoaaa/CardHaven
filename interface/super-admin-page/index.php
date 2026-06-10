@@ -72,25 +72,19 @@ require_once 'components/fetch_dashboard.php';
                                     <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
                                 <?php endif; ?>
                             </td>
-                            <td>
-                                <div class="btn-action-group">
-                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
-                                    <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
-                                    <label class="switch">
-                                        <input type="checkbox" 
-                                            <?= ($row['status'] == 1) ? 'checked' : '' ?> 
-                                            onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <?php if ($row['status'] == 1): ?>
+                                <td>
+                                    <div class="btn-action-group">
+                                        <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
+                                        <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
+                                        <label class="switch">
+                                            <input type="checkbox" 
+                                                <?= ($row['status'] == 1) ? 'checked' : '' ?> 
+                                                onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
+                                            <span class="slider"></span>
+                                        </label>
                                         <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)">🗑️</button>
-                                    <?php else: ?>
-                                        <button class="btn-restore-icon" 
-                                                style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;" 
-                                                onclick="confirmRestoreProduct(<?= $row['id_produk'] ?>)">🔄</button>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
+                                    </div>
+                                </td>
                         </tr>
                         <?php endwhile; ?>
                     <?php else: ?>

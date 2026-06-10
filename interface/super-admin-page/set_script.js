@@ -4,9 +4,6 @@ const SET_API  = '/CardHaven/interface/super-admin-page/controller_set.php';
 
 let setGamesLoaded = false;
 
-// ==========================================
-// LOAD DROPDOWN GAME
-// ==========================================
 function loadGameOptionsForSet(selectedId) {
     if (setGamesLoaded && selectedId) {
         document.getElementById('setGameId').value = selectedId;
@@ -30,9 +27,6 @@ function loadGameOptionsForSet(selectedId) {
         });
 }
 
-// ==========================================
-// BUKA MODAL ADD
-// ==========================================
 function openAddSetModal() {
     clearAllErrors('setForm');
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';
@@ -44,9 +38,6 @@ function openAddSetModal() {
     setModal.style.display = 'flex';
 }
 
-// ==========================================
-// BUKA MODAL EDIT
-// ==========================================
 function openEditSetModal(id) {
     fetch(`${SET_API}?get_detail=${id}`)
         .then(async res => JSON.parse(await res.text()))
@@ -77,9 +68,6 @@ function openEditSetModal(id) {
         });
 }
 
-// ==========================================
-// SUBMIT FORM (ADD / EDIT)
-// ==========================================
 setForm.onsubmit = async function(e) {
     e.preventDefault();
     let isValid = true;
@@ -106,7 +94,10 @@ setForm.onsubmit = async function(e) {
         const result = JSON.parse(await res.text());
 
         if (result.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Set data saved successfully.', () => location.reload());
+            cardhavenAlert('success', 'Success', 'Set data saved successfully.', () => {
+                setModal.style.display = 'none'; // Auto-close modal
+                setTimeout(() => { location.reload(); }, 300);
+            });
         } else {
             cardhavenAlert('error', 'Failed', result.message);
             submitBtn.disabled  = false;
@@ -120,9 +111,6 @@ setForm.onsubmit = async function(e) {
     }
 };
 
-// ==========================================
-// TOGGLE AKTIF / NONAKTIF
-// ==========================================
 function toggleSetStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
     const label  = isActive ? 'activated' : 'deactivated';
@@ -158,9 +146,6 @@ function toggleSetStatus(id, isActive, el) {
         });
 }
 
-// ==========================================
-// DELETE (soft delete)
-// ==========================================
 function confirmDeleteSet(id) {
     cardhavenConfirm('Delete Set?', 'This set will be permanently removed.', 'Delete', () => {
         const fd = new FormData();
@@ -177,9 +162,6 @@ function confirmDeleteSet(id) {
     });
 }
 
-// ==========================================
-// DETAIL (READ ONLY)
-// ==========================================
 function openDetailSetModal(id) {
     fetch(`${SET_API}?get_detail=${id}`)
         .then(async res => JSON.parse(await res.text()))
@@ -210,9 +192,6 @@ function openDetailSetModal(id) {
         });
 }
 
-// ==========================================
-// TUTUP MODAL KLIK DI LUAR
-// ==========================================
 window.addEventListener('click', function(e) {
     if (e.target === setModal) setModal.style.display = 'none';
     if (e.target === document.getElementById('setDetailModal')) {
