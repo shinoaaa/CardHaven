@@ -3,7 +3,6 @@ session_start();
 require_once '../../connection.php';
 header('Content-Type: application/json');
 
-
 $id_user = $_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -34,18 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif) VALUES (?, ?, ?, GETDATE(), 1)";
         $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user]);
     } else if ($action === 'edit') {
-        $aktif = $_POST['aktif'];
-        $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE(), aktif=? WHERE id_game=?";
-        $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $aktif, $id_game]);
-    }else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
+        // PERBAIKAN: Kolom aktif tidak lagi disentuh saat edit
+        $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
+        $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $id_game]);
+    } else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
         $aktif = $action === 'aktifkan' ? 1 : 0;
         $sql = "UPDATE dbo.game SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_game]);
-    }
-    else if ($action === 'delete') {
+    } else if ($action === 'delete') {
         $sql = "UPDATE dbo.game SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
-    }else if ($action === 'restore') {
+    } else if ($action === 'restore') {
         $sql = "UPDATE dbo.game SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     } else {
@@ -61,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($_GET['get_detail'])) {
     $id = $_GET['get_detail'];
     
-
     $sql = "SELECT g.*, u1.username as creator_name, u2.username as modifier_name 
         FROM dbo.game g 
         LEFT JOIN dbo.pengguna u1 ON g.created_by = u1.id_pengguna 
@@ -76,13 +73,10 @@ if (isset($_GET['get_detail'])) {
     $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
 
     if ($data) {
-
         $data['created_date'] = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
         $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
-        
         $data['creator'] = $data['creator_name'] ?? '-';
         $data['modifier'] = $data['modifier_name'] ?? '-';
-
         echo json_encode($data);
     } else {
         echo json_encode(['error' => 'Data tidak ditemukan']);

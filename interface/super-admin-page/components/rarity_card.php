@@ -27,11 +27,12 @@
                 <td><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
                 <td>
                     <?php if ($rowRarity['aktif'] == 1): ?>
-                        <span style="color: #27AE60; font-weight: bold;">Active</span>
+                        <span ...>Active</span>
                     <?php else: ?>
-                        <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
+                        <span ...>Inactive</span>
                     <?php endif; ?>
-                    <td>
+                </td> 
+                      <td> 
                         <div class="btn-action-group">
                             <button class="btn-view-icon" onclick="openDetailRarity(<?= $rowRarity['id_rarity'] ?>)">...</button>
                             <button class="btn-edit-icon" onclick="openEditRarity(<?= $rowRarity['id_rarity'] ?>)">✏️</button>

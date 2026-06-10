@@ -88,25 +88,6 @@
                 </div>
             </div>
             <div class="modal-form-group">
-                <label>Product Photo</label>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <!-- Preview Box -->
-                    <div id="imagePreviewContainer" style="width: 100px; height: 100px; border: 1.5px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; background-color: #fcfcfc; flex-shrink: 0;">
-                        <img id="pPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                        <span id="pPlaceholder" style="font-size: 11px; color: #aaa; text-align: center; font-family: 'Inter', sans-serif;">No Photo</span>
-                    </div>
-                    
-                    <!-- Custom File Input -->
-                    <div style="flex: 1;">
-                        <input type="file" name="foto_produk" id="pFoto" class="modal-input file-input-custom" accept=".jpg,.jpeg,.png,.webp,.svg" onchange="previewImage(this)">
-                        <small style="color: #888; font-size: 11px; margin-top: 5px; display: block; margin-left: 15px;">
-                            Format: JPG, PNG, WEBP, SVG. Max: 5MB
-                        </small>
-                    </div>
-                </div>
-                <div class="error-message" id="error-foto"></div>
-            </div>
-            <div class="modal-form-group">
                 <label>Description (Optional)</label>
                 <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional details..."></textarea>
                 <div class="error-message"></div>
@@ -130,7 +111,15 @@
                 <div class="status-text">Current Status: <span id="pStatusLabel"></span></div>
                 <input type="hidden" name="status" id="pStatusValue">
             </div>
-
+            <div class="modal-form-group">
+            <label>Product Image <span style="color:#888; font-size:0.85em;"></span></label>
+            <div style="text-align: center; margin-bottom: 8px;">
+                <img id="pPreview" src="" style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:contain;">
+                <div id="pPlaceholder" style="color:#aaa; padding: 20px; border: 2px dashed #ccc; border-radius:8px; font-size:0.9rem;">No image selected</div>
+            </div>
+            <input type="file" name="foto_produk" id="pFoto" class="modal-input" accept="image/jpeg,image/png,image/webp,image/svg+xml" onchange="previewImage(this)">
+            <span id="error-foto" class="error-message"></span>
+        </div>
             <button type="submit" class="btn-confirm">Confirm Product</button>
         </form>
     </div>
@@ -159,29 +148,34 @@
                 <div class="error-message"></div>
             </div>
 
-            <div id="logSection" style="display:none;">
-                <div class="modal-form-group">
-                    <label>Created By</label>
-                    <div class="log-display">
-                        <span id="createdBy"></span>
-                        <span id="createdDate"></span>
-                    </div>
-                </div>
-                <div class="modal-form-group">
-                    <label>Edited By</label>
-                    <div class="log-display">
-                        <span id="editedBy"></span>
-                        <span id="editedDate"></span>
-                    </div>
-                </div>
-                <div class="status-text">
-                    This game status is currently <span id="statusLabel"></span>
-                    <input type="hidden" name="aktif" id="aktifStatus">
-                </div>
-            </div>
-
             <button type="submit" class="btn-confirm">Confirm</button>
         </form>
+    </div>
+</div>
+
+<div id="gameDetailModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>GAME <span class="blue-text">DETAIL</span></h2>
+            <span id="gameDetailDisplayID" class="game-id"></span>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Game Name</label>
+            <div class="detail-field" id="detailGameNama">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Developer</label>
+            <div class="detail-field" id="detailGameDev">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Status</label>
+            <div class="detail-field" id="detailGameStatus">-</div>
+        </div>
+
+        <button class="btn-confirm" onclick="document.getElementById('gameDetailModal').style.display='none'">Close</button>
     </div>
 </div>
 
@@ -195,6 +189,7 @@
         <form id="rarityForm">
             <input type="hidden" name="action" id="formActionRarity">
             <input type="hidden" name="id_rarity" id="inputIdRarity">
+            <input type="hidden" name="aktif" id="inputAktifRarity" value="1">
 
             <div class="modal-form-group">
                 <label>Game <span style="color: #E74C3C;">*</span></label>
@@ -225,29 +220,39 @@
                 <div class="error-message"></div>
             </div>
 
-            <div id="logSectionRarity" style="display:none;">
-                <div class="modal-form-group">
-                    <label>Created By</label>
-                    <div class="log-display">
-                        <span id="createdByRarity"></span>
-                        <span id="createdDateRarity"></span>
-                    </div>
-                </div>
-                <div class="modal-form-group">
-                    <label>Edited By</label>
-                    <div class="log-display">
-                        <span id="editedByRarity"></span>
-                        <span id="editedDateRarity"></span>
-                    </div>
-                </div>
-                <div class="status-text">
-                    Status: <span id="statusLabelRarity"></span>
-                    <input type="hidden" name="aktif" id="aktifStatusRarity">
-                </div>
-            </div>
-
             <button type="submit" class="btn-confirm">Confirm</button>
         </form>
+    </div>
+</div>
+
+<div id="rarityDetailModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>RARITY <span class="blue-text">DETAIL</span></h2>
+            <span id="rarityDetailDisplayID" class="game-id"></span>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Game</label>
+            <div class="detail-field" id="detailRarityGame">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Rarity Name</label>
+            <div class="detail-field" id="detailRarityNama">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Rarity Code</label>
+            <div class="detail-field" id="detailRarityKode">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Status</label>
+            <div class="detail-field" id="detailRarityStatus">-</div>
+        </div>
+
+        <button class="btn-confirm" onclick="document.getElementById('rarityDetailModal').style.display='none'">Close</button>
     </div>
 </div>
 
@@ -293,7 +298,6 @@
     </div>
 </div>
 
-<!-- ==================== MODAL DETAIL SET (READ ONLY) ==================== -->
 <div id="setDetailModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -330,7 +334,6 @@
     </div>
 </div>
 
-<!-- ==================== MODAL PAYMENT METHOD ==================== -->
 <div id="metodeModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -378,7 +381,6 @@
     </div>
 </div>
 
-<!-- ==================== MODAL DETAIL PAYMENT METHOD (READ ONLY) ==================== -->
 <div id="metodeDetailModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -415,8 +417,6 @@
             <label>Status</label>
             <div class="detail-field" id="detailMetodeStatus">-</div>
         </div>
-
-        <hr style="border: none; border-top: 1.5px solid #e0e0e0; margin: 15px 0;">
 
         <button class="btn-confirm" onclick="document.getElementById('metodeDetailModal').style.display='none'">Close</button>
     </div>

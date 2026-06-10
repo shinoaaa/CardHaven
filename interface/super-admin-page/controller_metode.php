@@ -13,9 +13,6 @@ if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
 }
 $id_user = (int)$id_user;
 
-// ==========================================
-// BLOK AKSI (ADD, EDIT, DELETE, RESTORE)
-// ==========================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action     = $_POST['action'] ?? '';
     $nama       = trim($_POST['nama_metode']  ?? '');
@@ -25,13 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $biaya      = (float)($_POST['biaya_admin'] ?? 0);
     $id_metode  = isset($_POST['id_metode']) ? (int)$_POST['id_metode'] : null;
 
-    // Validasi wajib
     if (($action === 'add' || $action === 'edit') && $nama === '') {
         echo json_encode(['status' => 'error', 'message' => 'Method name is required!']);
         exit;
     }
 
-    // Cek duplikat nama_metode (global, tidak boleh sama)
     if ($action === 'add' || $action === 'edit') {
         $check_sql    = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE nama_metode = ? AND is_deleted = 0";
         $params_check = [$nama];
@@ -56,12 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user]);
     }
     else if ($action === 'edit') {
-        $aktif = isset($_POST['aktif']) ? (int)$_POST['aktif'] : 1;
+        // PERBAIKAN: Kolom aktif tidak lagi disentuh saat edit
         $sql   = "UPDATE dbo.metode_pembayaran 
                   SET nama_metode=?, provider=?, no_rekening=?, atas_nama=?, biaya_admin=?, 
-                      modified_by=?, modified_date=GETDATE(), aktif=? 
+                      modified_by=?, modified_date=GETDATE() 
                   WHERE id_metode=?";
-        $stmt  = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user, $aktif, $id_metode]);
+        $stmt  = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user, $id_metode]);
     }
     else if ($action === 'delete') {
         $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_metode=?";
@@ -87,9 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// ==========================================
-// BLOK GET DETAIL
-// ==========================================
 if (isset($_GET['get_detail'])) {
     $sql  = "SELECT 
                 m.id_metode, m.nama_metode, m.provider, m.no_rekening, 

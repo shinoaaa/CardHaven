@@ -193,7 +193,25 @@ function openDetailSetModal(id) {
 }
 
 window.addEventListener('click', function(e) {
-    if (e.target === setModal) setModal.style.display = 'none';
+    // Validasi Form Add/Edit Set
+    if (e.target === setModal) {
+        const game = document.getElementById('setGameId').value;
+        const nama = document.getElementById('setNama').value.trim();
+        const kode = document.getElementById('setKode').value.trim();
+
+        if (game !== '' || nama !== '' || kode !== '') {
+            cardhavenConfirm(
+                "Tutup Form?", 
+                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
+                "Ya, Tutup", 
+                () => { setModal.style.display = 'none'; }
+            );
+        } else {
+            setModal.style.display = 'none';
+        }
+    }
+
+    // Tutup Modal Detail Set
     if (e.target === document.getElementById('setDetailModal')) {
         document.getElementById('setDetailModal').style.display = 'none';
     }

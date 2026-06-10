@@ -200,11 +200,26 @@ function openDetailMetode(id) {
         });
 }
 
-// ==========================================
-// TUTUP MODAL KLIK DI LUAR
-// ==========================================
 window.addEventListener('click', function(e) {
-    if (e.target === metodeModal) metodeModal.style.display = 'none';
+    // Validasi Form Add/Edit Metode Pembayaran
+    if (e.target === metodeModal) {
+        const nama = document.getElementById('metodeNama').value.trim();
+        const provider = document.getElementById('metodeProvider').value.trim();
+        const norek = document.getElementById('metodeNoRek').value.trim();
+
+        if (nama !== '' || provider !== '' || norek !== '') {
+            cardhavenConfirm(
+                "Tutup Form?", 
+                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
+                "Ya, Tutup", 
+                () => { metodeModal.style.display = 'none'; }
+            );
+        } else {
+            metodeModal.style.display = 'none';
+        }
+    }
+
+    // Tutup Modal Detail Metode
     if (e.target === document.getElementById('metodeDetailModal')) {
         document.getElementById('metodeDetailModal').style.display = 'none';
     }
