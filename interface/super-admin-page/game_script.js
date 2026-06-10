@@ -126,7 +126,7 @@ gameForm.onsubmit = function(e) {
 };
 
 function confirmDelete(id) {
-    cardhavenConfirm("Nonaktifkan Game?", "Game ini akan dinonaktifkan.", "Nonaktifkan", () => {
+    cardhavenConfirm("Hapus Game?", "Game ini akan Hapus.", "Hapus", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_game', id);

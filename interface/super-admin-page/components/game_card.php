@@ -36,7 +36,7 @@
                         <label class="switch">
                             <input type="checkbox" 
                                 <?= $row['aktif'] == 1 ? 'checked' : '' ?> 
-                                onclick="toggleStatus(<?= $row['id_game'] ?>, this.checked, this)">
+                                onchange="toggleStatus(<?= $row['id_game'] ?>, this.checked, this)">
                             <span class="slider"></span>
                         </label>
                         <?php if ($row['is_deleted'] == 0): ?>

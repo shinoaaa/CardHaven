@@ -158,6 +158,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'aktifkan' || $action === 'nonaktifkan') {
+        $status = ($action === 'aktifkan') ? 1 : 0;
+        $sql = "UPDATE dbo.set_kartu SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_set=?";
+        
+        $params = [$status, $id_user, $id_set]; 
+        
+        $stmt = sqlsrv_query($conn, $sql, $params);
+        
+        if ($stmt) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal update ke database']);
+        }
+    }
+
     // --- DELETE (soft delete) ---
     if ($action === 'delete') {
         $id_set = (int)$_POST['id_set'];
