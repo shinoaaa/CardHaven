@@ -25,7 +25,7 @@ if (isset($_GET['check_duplicate'])) {
     $id_rarity = (int)($_GET['exclude_id'] ?? 0);
 
     $sql = "SELECT COUNT(*) as total FROM dbo.rarity 
-            WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?) AND id_rarity <> ?";
+            WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?) AND id_rarity <> ? AND is_deleted = 0";
     $stmt = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $id_rarity]);
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add' || $action === 'edit') {
 
         $check_sql = "SELECT nama_rarity, kode_rarity FROM dbo.rarity 
-                    WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?)";
+                    WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?) AND is_deleted = 0";
         $params = [$id_game, $nama, $kode];
 
 
@@ -89,12 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } 
     // Proses Hapus (Nonaktifkan)
     else if ($action === 'delete') {
-        $sql = "UPDATE dbo.rarity SET aktif=0, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
+        $sql = "UPDATE dbo.rarity SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
     //proses restore
     else if($action === 'restore'){
-        $sql = "UPDATE dbo.rarity SET aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
+        $sql = "UPDATE dbo.rarity SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
 
@@ -126,7 +126,7 @@ if (isset($_GET['get_detail'])) {
             FROM dbo.rarity r 
             LEFT JOIN dbo.pengguna k1 ON r.created_by = k1.id_pengguna
             LEFT JOIN dbo.pengguna k2 ON r.modified_by = k2.id_pengguna 
-            WHERE r.id_rarity = ?";
+            WHERE r.id_rarity = ? AND r.is_deleted = 0";
             
     $stmt = sqlsrv_query($conn, $sql, [(int)$_GET['get_detail']]);
 

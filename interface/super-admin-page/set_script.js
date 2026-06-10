@@ -1,157 +1,221 @@
-
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
-
-
-const SET_API_URL_PATH = '/CardHaven/interface/super-admin-page/controller_set.php'; 
+const SET_API  = '/CardHaven/interface/super-admin-page/controller_set.php';
 
 let setGamesLoaded = false;
+
+// ==========================================
+// LOAD DROPDOWN GAME
+// ==========================================
 function loadGameOptionsForSet(selectedId) {
     if (setGamesLoaded && selectedId) {
         document.getElementById('setGameId').value = selectedId;
         return;
     }
 
-    fetch(`${SET_API_URL_PATH}?get_games=1`)
-        .then(res => res.json())
+    fetch(`${SET_API}?get_games=1`)
+        .then(async res => JSON.parse(await res.text()))
         .then(res => {
             const select = document.getElementById('setGameId');
-            select.innerHTML = '<option value="">-- Pilih Game --</option>';
+            select.innerHTML = '<option value="">-- Select Game --</option>';
             res.data.forEach(g => {
-                const opt = new Option(g.nama_game, g.id_game);
-                select.appendChild(opt);
+                select.appendChild(new Option(g.nama_game, g.id_game));
             });
             setGamesLoaded = true;
             if (selectedId) select.value = selectedId;
+        })
+        .catch(err => {
+            console.error('loadGameOptionsForSet error:', err);
+            cardhavenAlert('error', 'System Error', 'Failed to load game list.');
         });
 }
 
+// ==========================================
+// BUKA MODAL ADD
+// ==========================================
 function openAddSetModal() {
     clearAllErrors('setForm');
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';
-    document.getElementById('setDisplayID').innerText = '';
-    document.getElementById('setFormAction').value = 'add';
-    document.getElementById('setLogSection').style.display = 'none';
+    document.getElementById('setDisplayID').innerText  = '';
+    document.getElementById('setFormAction').value     = 'add';
     setForm.reset();
-
-    document.getElementById('setTanggal').value = ''; 
+    document.getElementById('setTanggal').value = '';
     loadGameOptionsForSet(null);
     setModal.style.display = 'flex';
 }
 
-
+// ==========================================
+// BUKA MODAL EDIT
+// ==========================================
 function openEditSetModal(id) {
-    fetch(`${SET_API_URL_PATH}?get_detail=${id}`)
-        .then(res => res.json())
+    fetch(`${SET_API}?get_detail=${id}`)
+        .then(async res => JSON.parse(await res.text()))
         .then(data => {
-            if(!data || data.error) return alert("Gagal mengambil data detail");
-
-            clearAllErrors('setForm');
-            document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">SET</span> DETAIL';
-            document.getElementById('setDisplayID').innerText = 'SET-' + String(id).padStart(3, '0');
-            document.getElementById('setFormAction').value = 'edit';
-            document.getElementById('setIdInput').value   = id;
-            document.getElementById('setNama').value      = data.nama_set;
-            document.getElementById('setKode').value      = data.kode_set;
-            
-            // Format tanggal untuk input type="date" (Y-m-d)
-            if(data.tanggal_rilis) {
-                document.getElementById('setTanggal').value = data.tanggal_rilis;
+            if (!data || data.error) {
+                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
+                return;
             }
 
-            document.getElementById('setLogSection').style.display = 'block';
-            document.getElementById('setCreatedBy').innerText   = data.creator  || 'System';
-            document.getElementById('setCreatedDate').innerText = data.created_date || '-';
-            document.getElementById('setEditedBy').innerText    = data.modifier  || '-';
-            document.getElementById('setEditedDate').innerText  = data.modified_date || '-';
+            clearAllErrors('setForm');
+            document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">EDIT</span> SET';
+            document.getElementById('setDisplayID').innerText  = 'SET-' + String(id).padStart(3, '0');
+            document.getElementById('setFormAction').value     = 'edit';
+            document.getElementById('setIdInput').value        = id;
+            document.getElementById('setNama').value           = data.nama_set  || '';
+            document.getElementById('setKode').value           = data.kode_set  || '';
 
-            const statusLabel = document.getElementById('setStatusLabel');
-            statusLabel.innerText   = data.aktif == 1 ? 'Active' : 'Inactive';
-            statusLabel.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
-            document.getElementById('setAktifStatus').value = data.aktif;
+            if (data.tanggal_rilis) {
+                document.getElementById('setTanggal').value = data.tanggal_rilis;
+            }
 
             loadGameOptionsForSet(data.id_game);
             setModal.style.display = 'flex';
         })
-        .catch(err => console.error("Error Edit Modal:", err));
+        .catch(err => {
+            console.error('openEditSetModal error:', err);
+            cardhavenAlert('error', 'System Error', 'Failed to connect to server.');
+        });
 }
 
-setForm.onsubmit = function(e) {
+// ==========================================
+// SUBMIT FORM (ADD / EDIT)
+// ==========================================
+setForm.onsubmit = async function(e) {
     e.preventDefault();
-
     let isValid = true;
 
     const game = document.getElementById('setGameId');
     const nama = document.getElementById('setNama');
     const kode = document.getElementById('setKode');
 
-    if (!game.value) {
-        showError(game, "Pilih game dari list");
-        isValid = false;
-    } else clearError(game);
-
-    if (!nama.value.trim()) {
-        showError(nama, "Nama set wajib diisi!");
-        isValid = false;
-    } else clearError(nama);
-
-    if (!kode.value.trim()) {
-        showError(kode, "Kode set wajib diisi!");
-        isValid = false;
-    } else clearError(kode);
-
+    if (!game.value)        { showError(game, 'Please select a game!');    isValid = false; } else clearError(game);
+    if (!nama.value.trim()) { showError(nama, 'Set name is required!');    isValid = false; } else clearError(nama);
+    if (!kode.value.trim()) { showError(kode, 'Set code is required!');    isValid = false; } else clearError(kode);
 
     if (!isValid) return;
 
-    const formData = new FormData(setForm);
-    formData.append('id_pengguna_js', getEmpId());
+    const submitBtn = setForm.querySelector('button[type="submit"]');
+    submitBtn.disabled  = true;
+    submitBtn.innerText = 'Saving...';
 
-    fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status === 'success') {
-                alert("Data berhasil disimpan");
-                location.reload(); // REFRESH AGAR LOGIKA PHP MENAMPILKAN DATA TERBARU
-            } else {
-                alert("Peringatan: " + res.message);
-            }
-        })
-        .catch(err => alert("Terjadi kesalahan sistem saat menyimpan."));
+    try {
+        const formData = new FormData(setForm);
+        formData.append('id_pengguna_js', getEmpId());
+
+        const res    = await fetch(SET_API, { method: 'POST', body: formData });
+        const result = JSON.parse(await res.text());
+
+        if (result.status === 'success') {
+            cardhavenAlert('success', 'Success', 'Set data saved successfully.', () => location.reload());
+        } else {
+            cardhavenAlert('error', 'Failed', result.message);
+            submitBtn.disabled  = false;
+            submitBtn.innerText = 'SAVE';
+        }
+    } catch (err) {
+        console.error('setForm submit error:', err);
+        cardhavenAlert('error', 'System Error', 'Connection error. Please try again.');
+        submitBtn.disabled  = false;
+        submitBtn.innerText = 'SAVE';
+    }
 };
 
+// ==========================================
+// TOGGLE AKTIF / NONAKTIF
+// ==========================================
+function toggleSetStatus(id, isActive, el) {
+    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const label  = isActive ? 'activated' : 'deactivated';
 
+    const fd = new FormData();
+    fd.append('action',        action);
+    fd.append('id_set',        id);
+    fd.append('id_pengguna_js', getEmpId());
+
+    fetch(SET_API, { method: 'POST', body: fd })
+        .then(async res => JSON.parse(await res.text()))
+        .then(res => {
+            if (res.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    iconColor: '#0088FF',
+                    title: 'Success!',
+                    text: `Set has been ${label}.`,
+                    showConfirmButton: false,
+                    timer: 1500,
+                    background: '#ffffff',
+                    customClass: { title: 'coolveticaa' }
+                }).then(() => location.reload());
+            } else {
+                el.checked = !isActive;
+                cardhavenAlert('error', 'Failed', res.message);
+            }
+        })
+        .catch(err => {
+            console.error('toggleSetStatus error:', err);
+            el.checked = !isActive;
+            cardhavenAlert('error', 'System Error', 'Connection error.');
+        });
+}
+
+// ==========================================
+// DELETE (soft delete)
+// ==========================================
 function confirmDeleteSet(id) {
-    if (confirm("Nonaktifkan set ini? (Soft Delete)")) {
-        const formData = new FormData();
-        formData.append('action',         'delete');
-        formData.append('id_set',         id);
-        formData.append('id_pengguna_js', getEmpId());
+    cardhavenConfirm('Delete Set?', 'This set will be permanently removed.', 'Delete', () => {
+        const fd = new FormData();
+        fd.append('action',        'delete');
+        fd.append('id_set',        id);
+        fd.append('id_pengguna_js', getEmpId());
 
-        fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
-            .then(res => res.json())
+        fetch(SET_API, { method: 'POST', body: fd })
+            .then(async res => JSON.parse(await res.text()))
             .then(res => {
                 if (res.status === 'success') location.reload();
-                else alert("Gagal menghapus: " + res.message);
+                else cardhavenAlert('error', 'Failed', res.message);
             });
-    }
+    });
 }
 
-function confirmRestoreSet(id) {
-    if (confirm("Aktifkan kembali set ini?")) {
-        const formData = new FormData();
-        formData.append('action',         'restore');
-        formData.append('id_set',         id);
-        formData.append('id_pengguna_js', getEmpId());
+// ==========================================
+// DETAIL (READ ONLY)
+// ==========================================
+function openDetailSetModal(id) {
+    fetch(`${SET_API}?get_detail=${id}`)
+        .then(async res => JSON.parse(await res.text()))
+        .then(data => {
+            if (!data || data.error) {
+                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
+                return;
+            }
 
-        fetch(SET_API_URL_PATH, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === 'success') location.reload();
-                else alert("Gagal mengembalikan: " + res.message);
-            });
-    }
+            document.getElementById('setDetailDisplayID').innerText  = 'SET-' + String(id).padStart(3, '0');
+            document.getElementById('detailSetNama').innerText        = data.nama_set    || '-';
+            document.getElementById('detailSetKode').innerText        = data.kode_set    || '-';
+            document.getElementById('detailSetGame').innerText        = data.nama_game   || '-';
+            document.getElementById('detailSetTanggal').innerText     = data.tanggal_rilis
+                ? new Date(data.tanggal_rilis).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+                : '-';
+
+            const statusEl = document.getElementById('detailSetStatus');
+            statusEl.innerText    = data.aktif == 1 ? 'Active' : 'Inactive';
+            statusEl.style.color  = data.aktif == 1 ? '#27AE60' : '#E74C3C';
+            statusEl.style.fontWeight = '700';
+
+            document.getElementById('setDetailModal').style.display = 'flex';
+        })
+        .catch(err => {
+            console.error('openDetailSetModal error:', err);
+            cardhavenAlert('error', 'System Error', 'Failed to connect to server.');
+        });
 }
 
+// ==========================================
+// TUTUP MODAL KLIK DI LUAR
+// ==========================================
 window.addEventListener('click', function(e) {
     if (e.target === setModal) setModal.style.display = 'none';
+    if (e.target === document.getElementById('setDetailModal')) {
+        document.getElementById('setDetailModal').style.display = 'none';
+    }
 });

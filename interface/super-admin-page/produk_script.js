@@ -1,44 +1,26 @@
 const URL_PRODUK = '/CardHaven/interface/super-admin-page/controller_produk.php'; 
-// --- UTILITY: VALIDASI VISUAL ---
+
 function showError(el, msg) {
-    el.style.border = "2px solid #E74C3C"; // Border jadi merah
-    
+    el.style.border = "2px solid #E74C3C"; 
     const err = el.closest('.modal-form-group').querySelector('.error-message');
-    
-    if (err) {
-        err.innerText = msg;
-        err.style.display = "block"; // Pastikan muncul
-        err.style.color = "#E74C3C"; // Pastikan warna teks merah
-    }
+    if (err) { err.innerText = msg; err.style.display = "block"; err.style.color = "#E74C3C"; }
 }
 
-
 function clearError(el) {
-    el.style.border = "1.5px solid #888"; // Border balik normal
-    
-    // TAMBAHKAN TITIK (.) sebelum nama class
+    el.style.border = "1.5px solid #888"; 
     const err = el.closest('.modal-form-group').querySelector('.error-message');
-    
-    if (err) {
-        err.innerText = "";
-    }
+    if (err) err.innerText = "";
 }
 
 document.querySelectorAll('.modal-input').forEach(input => {
-    input.addEventListener('input', function() {
-        clearError(this);
-    });
-    input.addEventListener('change', function() {
-        clearError(this);
-    });
-})
+    input.addEventListener('input', function() { clearError(this); });
+    input.addEventListener('change', function() { clearError(this); });
+});
 
 function clearAllErrors(formId) {
-    const form = document.getElementById(formId);
-    form.querySelectorAll('.modal-input').forEach(input => clearError(input));
+    document.getElementById(formId).querySelectorAll('.modal-input').forEach(input => clearError(input));
 }
 
-// --- FUNGSI LOAD RARITY (DROPDOWN) ---
 function loadRarities(gameId, selectedId = null) {
     const sel = document.getElementById('pIdRarity');
     sel.innerHTML = '<option value="">Loading...</option>';
@@ -55,7 +37,6 @@ function loadRarities(gameId, selectedId = null) {
     });
 }
 
-// --- FUNGSI SUGGESTION (GAME & SET) ---
 function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
     const input = document.getElementById(inputId);
     const hidden = document.getElementById(hiddenId);
@@ -98,7 +79,6 @@ function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
 setupSuggest('pGameSearch', 'pIdGame', 'pGameSuggest', 'search_game');
 setupSuggest('pSetSearch', 'pIdSet', 'pSetSuggest', 'search_set', 'pIdGame');
 
-// --- TOGGLE FIELD BERDASARKAN TIPE ---
 function toggleProdFields() {
     const tipe = document.getElementById('pTipe').value;
     document.getElementById('pSetGroup').style.display = (tipe.includes('Card') || tipe.includes('Booster')) ? 'block' : 'none';
@@ -106,15 +86,14 @@ function toggleProdFields() {
     document.getElementById('pKondisiGroup').style.display = (tipe === 'Single Card') ? 'block' : 'none';
 }
 
-// --- SUBMIT FORM DENGAN VALIDASI ---
 document.getElementById('productForm').onsubmit = async function(e) {
     e.preventDefault();
     clearAllErrors('productForm');
     
     let isValid = true;
     const tipe = document.getElementById('pTipe').value;
+    if (!tipe) { showError(document.getElementById('pTipe'), "Product Type must be selected"); isValid = false; }
 
-    // 1. Validasi Input Dasar
     const requiredFields = [
         { id: 'pNama', label: "Product Name" },
         { id: 'pStok', label: "Stock", isNum: true },
@@ -129,43 +108,23 @@ document.getElementById('productForm').onsubmit = async function(e) {
             showError(el, `${f.label} must be filled in`);
             isValid = false;
         } else if (f.isNum && (isNaN(val) || parseFloat(val) < (f.id === 'pStok' ? 1 : 0))) {
-    showError(el, `${f.label} must be at least ${f.id === 'pStok' ? 1 : 0}`);
+            showError(el, `${f.label} must be at least ${f.id === 'pStok' ? 1 : 0}`);
             isValid = false;
         }
     });
 
-    // 2. Validasi Relasi (Game & Set) - WAJIB MEMILIH DARI LIST
     if (tipe.includes('Card') || tipe.includes('Booster')) {
-        const gameID = document.getElementById('pIdGame').value;
-        const gameSearch = document.getElementById('pGameSearch').value;
-        const setID = document.getElementById('pIdSet').value;
-        const setSearch = document.getElementById('pSetSearch').value;
-
-        if (!gameID || !gameSearch) {
-            showError(document.getElementById('pGameSearch'), "Please select a Game from the available list");
-            isValid = false;
-        }
-        if (!setID || !setSearch) {
-            showError(document.getElementById('pSetSearch'), "Please select a Set from the available list");
-            isValid = false;
-        }
+        if (!document.getElementById('pIdGame').value) { showError(document.getElementById('pGameSearch'), "Select Game"); isValid = false; }
+        if (!document.getElementById('pIdSet').value) { showError(document.getElementById('pSetSearch'), "Select Set"); isValid = false; }
     }
 
-    // 3. Validasi Khusus Single Card
     if (tipe === 'Single Card') {
-        if (!document.getElementById('pIdRarity').value) {
-            showError(document.getElementById('pIdRarity'), "Rarity must be selected");
-            isValid = false;
-        }
-        if (!document.getElementById('pKondisi').value) {
-            showError(document.getElementById('pKondisi'), "Condition must be selected");
-            isValid = false;
-        }
+        if (!document.getElementById('pIdRarity').value) { showError(document.getElementById('pIdRarity'), "Select Rarity"); isValid = false; }
+        if (!document.getElementById('pKondisi').value) { showError(document.getElementById('pKondisi'), "Select Condition"); isValid = false; }
     }
 
     if (!isValid) return;
 
-    // 4. Proses Kirim (POST)
     const submitBtn = this.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.innerText = "Saving...";
@@ -175,40 +134,114 @@ document.getElementById('productForm').onsubmit = async function(e) {
 
     try {
         const response = await fetch(URL_PRODUK, { method: 'POST', body: fd });
-        const rawText = await response.text();
-        let res;
-        
-        try {
-            res = JSON.parse(rawText);
-        } catch (e) {
-            alert("CRASH PELADEN:\n" + rawText);
-            return;
-        }
+        const res = JSON.parse(await response.text());
 
         if (res.status === 'success') {
-            location.reload();
+            cardhavenAlert('success', 'Success', 'Data produk berhasil disimpan.', () => location.reload());
         } else {
-            alert("GAGAL: " + res.message);
+            cardhavenAlert('error', 'Failed', res.message);
         }
     } catch (err) {
         console.error(err);
-        alert("Terjadi kesalahan koneksi.");
+        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan koneksi.');
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "SAVE PRODUCT";
     }
 };
 
-// --- OPEN MODAL (ADD/EDIT) ---
 function openAddProductModal() {
     clearAllErrors('productForm');
     document.getElementById('productForm').reset();
     document.getElementById('pAction').value = 'add';
-    document.getElementById('pLogSection').style.display = 'none';
+    
+    // Reset Preview Foto
+    document.getElementById('pPreview').style.display = 'none';
+    document.getElementById('pPlaceholder').style.display = 'block';
+    
     toggleProdFields();
     document.getElementById('productModal').style.display = 'flex';
 }
 
+function previewImage(input) {
+    const preview = document.getElementById('pPreview');
+    const placeholder = document.getElementById('pPlaceholder');
+    const errorEl = document.getElementById('error-foto');
+    const file = input.files[0];
+    
+    // Reset status
+    errorEl.innerText = "";
+    input.style.border = "1.5px solid #d1d9e6";
+
+    if (file) {
+        // Validasi Ukuran (5MB = 5 * 1024 * 1024 bytes)
+        if (file.size > 5 * 1024 * 1024) {
+            showError(input, "File terlalu besar! Maksimal 5MB.");
+            input.value = ""; // Reset input
+            return;
+        }
+
+        // Validasi Ekstensi
+        const allowedExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
+        if (!allowedExtensions.includes(file.type)) {
+            showError(input, "Format tidak didukung! Gunakan JPG, PNG, WEBP, atau SVG.");
+            input.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+        placeholder.style.display = 'block';
+    }
+}
+
+function toggleProductStatus(id, isActive, el) {
+    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    
+    const fd = new FormData();
+    fd.append('action', action);
+    fd.append('id_produk', id);
+    fd.append('id_pengguna_js', getEmpId()); // Pastikan fungsi ini ada
+
+    fetch(URL_PRODUK, { method: 'POST', body: fd })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            // Munculkan notifikasi sesuai request kamu
+            Swal.fire({
+                icon: 'success',
+                iconColor: '#0088FF',
+                title: 'Berhasil!',
+                text: `produk telah di${action}.`,
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#ffffff',
+                customClass: {
+                    title: 'coolveticaa' // Sesuai request class kamu
+                }
+            }).then(() => {
+                location.reload(); // Reload halaman setelah timer selesai
+            });
+        } else {
+            // Jika gagal, kembalikan posisi toggle dan beri peringatan
+            el.checked = !isActive;
+            Swal.fire('Gagal', res.message, 'error');
+        }
+    })
+    .catch(err => {
+        // Jika koneksi mati, kembalikan posisi toggle
+        el.checked = !isActive;
+        console.error(err);
+        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+    });
+}
 function openEditProductModal(id) {
     fetch(`${URL_PRODUK}?get_detail=${id}`)
     .then(res => res.json()).then(data => {
@@ -226,35 +259,28 @@ function openEditProductModal(id) {
         document.getElementById('pJual').value = data.harga_jual;
         document.getElementById('pKondisi').value = data.kondisi;
         document.getElementById('pDeskripsi').value = data.deskripsi || ''; 
+        
+        // Handle Tampilan Foto
+        const preview = document.getElementById('pPreview');
+        const placeholder = document.getElementById('pPlaceholder');
+        if (data.foto_produk) {
+            // Path dari DB (misal: image-profile/nama.jpg) diarahkan ke root
+            preview.src = '/CardHaven/' + data.foto_produk; 
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
-
-        document.getElementById('pLogSection').style.display = 'block';
-        document.getElementById('pCreatedBy').innerText = data.creator || 'System'; 
-        document.getElementById('pCreatedDate').innerText = data.created_date; 
-        
-        document.getElementById('pEditedBy').innerText = data.modifier || '-';
-        document.getElementById('pEditedDate').innerText = (data.modifier) ? data.modified_date : ''; 
-
-        const statusLabel = document.getElementById('pStatusLabel');
-        const statusVal = document.getElementById('pStatusValue');
-        statusVal.value = data.status;
-
-        if (data.status == 1) {
-            statusLabel.innerText = "Active";
-            statusLabel.style.color = "#27AE60"; // Hijau
-            statusLabel.style.fontWeight = "bold";
-        } else {
-            statusLabel.innerText = "Inactive";
-            statusLabel.style.color = "#E74C3C"; // Merah
-            statusLabel.style.fontWeight = "bold";
-        }
         document.getElementById('productModal').style.display = 'flex';
     });
 }
 
 function confirmDeleteProduct(id) {
-    if (confirm("Nonaktifkan produk ini?")) {
+    cardhavenConfirm("Nonaktifkan Produk?", "Produk ini akan dinonaktifkan.", "Nonaktifkan", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_produk', id);
@@ -264,14 +290,13 @@ function confirmDeleteProduct(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else alert(res.message);
-        })
-        .catch(err => alert("Gagal menghapus data."));
-    }
+            else cardhavenAlert('error', 'Gagal', res.message);
+        });
+    });
 }
 
 function confirmRestoreProduct(id) {
-    if (confirm("Aktifkan kembali produk ini?")) {
+    cardhavenConfirm("Aktifkan Produk?", "Produk ini akan kembali diaktifkan.", "Aktifkan", () => {
         const fd = new FormData();
         fd.append('action', 'restore');
         fd.append('id_produk', id);
@@ -281,12 +306,9 @@ function confirmRestoreProduct(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else alert(res.message);
-        })
-        .catch(err => alert("Gagal mengaktifkan data."));
-    }
+            else cardhavenAlert('error', 'Gagal', res.message);
+        });
+    });
 }
 
-window.addEventListener('click', function(e) {
-    if (e.target === productModal) productModal.style.display = 'none';
-});
+window.addEventListener('click', function(e) { if (e.target === productModal) productModal.style.display = 'none'; });

@@ -21,6 +21,7 @@ require_once 'components/fetch_dashboard.php';
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/cardhaven/interface/global_alert.js"></script>
 </head>
 <body>
     <div class="container" style="justify-content: flex-start; align-items: flex-start;">
@@ -73,7 +74,14 @@ require_once 'components/fetch_dashboard.php';
                             </td>
                             <td>
                                 <div class="btn-action-group">
+                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
                                     <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
+                                    <label class="switch">
+                                        <input type="checkbox" 
+                                            <?= ($row['status'] == 1) ? 'checked' : '' ?> 
+                                            onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
+                                        <span class="slider"></span>
+                                    </label>
                                     <?php if ($row['status'] == 1): ?>
                                         <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)">🗑️</button>
                                     <?php else: ?>
@@ -145,6 +153,10 @@ require_once 'components/fetch_dashboard.php';
                 <div class="master-table-card">
                     <?php include 'components/rarity_card.php'; ?>
                 </div>
+
+                <div class="master-table-card">
+                    <?php include 'components/metode_card.php'; ?>
+                    </div>
             </div>
         </div>
     </div>
@@ -155,5 +167,6 @@ require_once 'components/fetch_dashboard.php';
     <script src="/cardhaven/interface/super-admin-page/set_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/rarity_script.js"></script>
     <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
+    <script src="/cardhaven/interface/super-admin-page/metode_script.js"></script>
 </body>
 </html>
