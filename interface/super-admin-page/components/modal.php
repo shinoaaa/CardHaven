@@ -392,22 +392,6 @@
 
         <hr style="border: none; border-top: 1.5px solid #e0e0e0; margin: 15px 0;">
 
-        <div class="modal-form-group">
-            <label>Created By</label>
-            <div class="log-display">
-                <span id="detailMetodeCreatedBy">-</span>
-                <span id="detailMetodeCreatedDate">-</span>
-            </div>
-        </div>
-
-        <div class="modal-form-group">
-            <label>Last Modified By</label>
-            <div class="log-display">
-                <span id="detailMetodeModifiedBy">-</span>
-                <span id="detailMetodeModifiedDate">-</span>
-            </div>
-        </div>
-
         <button class="btn-confirm" onclick="document.getElementById('metodeDetailModal').style.display='none'">Close</button>
     </div>
 </div>

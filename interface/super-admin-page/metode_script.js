@@ -192,11 +192,6 @@ function openDetailMetode(id) {
                 statusEl.style.fontWeight = '700';
             }
 
-            document.getElementById('detailMetodeCreatedBy').innerText    = data.creator       || 'System';
-            document.getElementById('detailMetodeCreatedDate').innerText  = data.created_date  || '-';
-            document.getElementById('detailMetodeModifiedBy').innerText   = data.modifier      || '-';
-            document.getElementById('detailMetodeModifiedDate').innerText = data.modified_date || '-';
-
             document.getElementById('metodeDetailModal').style.display = 'flex';
         })
         .catch(err => {
