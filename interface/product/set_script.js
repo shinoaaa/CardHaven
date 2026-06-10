@@ -1,6 +1,6 @@
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
-const SET_API  = '/CardHaven/interface/super-admin-page/controller_set.php';
+const SET_API  = '/CardHaven/interface/product/controller_set.php';
 var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 let setGamesLoaded = false;

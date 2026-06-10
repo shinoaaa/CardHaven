@@ -10,25 +10,12 @@ require_once 'components/fetch_dashboard.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management - Super Admin</title>
-    <link rel="stylesheet" href="/cardhaven/interface/global.css">
-    <script>
-        (function() {
-            const token = localStorage.getItem("id_pengguna") || sessionStorage.getItem("id_pengguna");
-            const role = localStorage.getItem("role") || sessionStorage.getItem("role");
-            if (!token || role !== "2") {
-                window.location.replace("/CardHaven");
-            }
-        })();
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Tambahkan versi time() untuk mencegah cache -->
-    <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
 </head>
 <body>
-    <div class="container" style="justify-content: flex-start; align-items: flex-start;">
-        <div class="sideBar">
-            <?php include '../CardHaven/interface/global-component/sideBar.php'; ?>
-        </div>
+    <!-- <div class="container" style="justify-content: flex-start; align-items: flex-start;"> -->
+        <!-- <div class="sideBar">
+            </* ?php  include '../CardHaven/interface/dashboard/sideBar.php';  ? */> 
+        </div> -->
 
         <div class="main-content">
             <div class="content-card">
@@ -154,15 +141,15 @@ require_once 'components/fetch_dashboard.php';
                     </div>
             </div>
         </div>
-    </div>
+    <!-- </div> -->
 
     <?php include 'components/modal.php'; ?>
 
     <!-- PENGGUNAAN TRIK CACHE BUSTING (?v=waktu_saat_ini) -->
-    <script src="/cardhaven/interface/super-admin-page/produk_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/super-admin-page/set_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/super-admin-page/rarity_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/super-admin-page/game_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/super-admin-page/metode_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/produk_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/set_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/rarity_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/game_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/metode_script.js?v=<?= time() ?>"></script>
 </body>
 </html>

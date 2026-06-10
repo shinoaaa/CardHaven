@@ -144,8 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ADD
     if ($action === 'add') {
-        $sql    = "INSERT INTO dbo.set_kartu (id_game, nama_set, kode_set, tanggal_rilis, created_by, created_date, aktif)
-                   VALUES (?, ?, ?, ?, ?, GETDATE(), 1)";
+        $sql    = "INSERT INTO dbo.set_kartu (id_game, nama_set, kode_set, tanggal_rilis, created_by, created_date, aktif,is_deleted)
+                   VALUES (?, ?, ?, ?, ?, GETDATE(), 1,0)";
         $stmt   = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $tanggal, $id_user]);
 
         if ($stmt) echo json_encode(['status' => 'success']);

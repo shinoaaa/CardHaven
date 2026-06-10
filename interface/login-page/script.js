@@ -103,8 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         background: '#ffffff',
                         customClass: { title: 'coolveticaa' }
                     }).then(() => {
-                        if (data.role == 2) {
-                            window.location.replace("/CardHaven/superadmin");
+                        if (data.role == 2 || data.role == 3 || data.role == 1) {
+                            window.location.replace("/CardHaven/dashboard/activity");
                         } else {
                             window.location.replace("/CardHaven/home");
                         }
@@ -142,9 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ==========================================
-    // LOGIKA NAVIGASI FORGOT PASSWORD
-    // ==========================================
     if (forgotButton) {
         forgotButton.addEventListener("click", () => {
             loginWrap.style.display = "none";

@@ -1,6 +1,6 @@
 const metodeModal = document.getElementById('metodeModal');
 const metodeForm  = document.getElementById('metodeForm');
-const METODE_API  = '/CardHaven/interface/super-admin-page/controller_metode.php';
+const METODE_API  = '/CardHaven/interface/product/controller_metode.php';
 var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 // ==========================================

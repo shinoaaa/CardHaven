@@ -8,7 +8,7 @@
             <img src="https://i.pinimg.com/736x/e8/2b/43/e82b43056d04e86c577a443485049d9b.jpg" style="object-fit: cover; width: 100%; height: 100%;">
         </div>
         <div class="userTag">
-            <h2 class="coolveticaa" style="color: white; font-size: .65rem;">Super Admin</h2>
+            <h2 class="coolveticaa" style="color: white; font-size: .65rem;" id="admin-role"></h2>
         </div>
         <div style="margin-top: 1rem;">
             <h2 id="userName" class="coolveticaa" style="font-size: 1rem; color: var(--primary-color);"></h2>
@@ -28,37 +28,43 @@
         <h2 class="coolveticaa" style="font-size: 1rem; color: var(--primary-color); margin-bottom: 0.5rem;">Menu</h2>
 
         <div class="menuOption unselected" id="nav-dashboard">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="activity" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/analytics.svg">
-                <h2 class="coolveticaa" style="color: var(--highlight)">Dashboard</h2>
+                <h2 class="coolveticaa" style="color: var(--highlight)">Activity</h2>
+            </a>
+        </div>
+        <div class="menuOption unselected" id="nav-purchase">
+            <a href="purchase" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+                <img src="/cardhaven/assets/image/purchase.svg">
+                <h2 class="coolveticaa" style="color: var(--highlight)">Purchase</h2>
             </a>
         </div>
         <div class="menuOption unselected" id="nav-transaction">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="transaction" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/transaction.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Transaction</h2>
             </a>
         </div>
         <div class="menuOption unselected" id="nav-product">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="product" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/product.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Product</h2>
             </a>
         </div>
         <div class="menuOption unselected" id="nav-event">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="event" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/event.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Event</h2>
             </a>
         </div>
         <div class="menuOption unselected" id="nav-sales">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="sales" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/sales-report.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Sales Report</h2>
             </a>
         </div>
         <div class="menuOption unselected" id="nav-user">
-            <a href="superadmin/user" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="user" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/user.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">User</h2>
             </a>
@@ -78,11 +84,13 @@
 document.addEventListener("DOMContentLoaded", () => {
     const navDashboard = document.getElementById('nav-dashboard');
     const navTransaction = document.getElementById('nav-transaction');
+    const navPurchase = document.getElementById('nav-purchase');
     const navProduct = document.getElementById('nav-product');
     const navEvent = document.getElementById('nav-event');
     const navSales = document.getElementById('nav-sales');
     const navUser = document.getElementById('nav-user');
     const navSetting = document.getElementById('nav-setting');
+    const adminRole = document.getElementById('admin-role');
 
     document.getElementById("userName").textContent =
         sessionStorage.getItem("username") || localStorage.getItem("username");
@@ -101,15 +109,54 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if(role === 1){
             navEvent.style.display = 'none';
+            navPurchase.style.display = 'none';
         }
 
-        switch (key) {
-            case value:
+        if(role === 1){
+            adminRole.textContent = 'Admin';
+        } else if (role === 2){
+            adminRole.textContent = 'Super Admin'
+        } else{
+            adminRole.textContent = 'Owner'
+        }
+
+        const request = window.location.pathname;
+
+        const url = request.replace('/CardHaven', '');
+
+        const segments = url.replace(/^\/|\/$/g, '').split('/');
+        const page = segments[1]?.toString();
+
+        switch (page) {
+            case "activity":
+                navDashboard.classList.add('selectedOption');
+                break;
+            case "transaction":
+                navTransaction.classList.add('selectedOption');
+                break;
+            case "product":
+                navProduct.classList.add('selectedOption');
+                break;
+            case "purchase":
+                navPurchase.classList.add('selectedOption');
+                break;
+            case "event":
+                navEvent.classList.add('selectedOption');
+                break;
+            case "sales":
+                navSales.classList.add('selectedOption');
+                break;
+            case "user":
+                navUser.classList.add('selectedOption');
+                break;
+            case "settingaccount":
+                navSetting.classList.add('selectedOption');
                 break;
         
             default:
                 break;
         }
+        
 });
 
 </script>
