@@ -11,7 +11,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="modal-form-group">
                     <label>Product Name <span style="color: #E74C3C;">*</span></label>
-                    <input type="text" name="nama_produk" id="pNama" class="modal-input" placeholder="Rayquaza V...">
+                    <input type="text" name="nama_produk" id="pNama" class="modal-input" placeholder="e.g. Rayquaza V...">
                     <span class="error-message"></span>
                 </div>
                 <div class="modal-form-group">
@@ -73,23 +73,24 @@
                 </div>
                 <div class="modal-form-group">
                     <label>Stock <span style="color: #E74C3C;">*</span></label>
-                    <input type="number" min="1" name="stok" id="pStok" class="modal-input">
+                    <input type="number" min="1" name="stok" id="pStok" class="modal-input" placeholder="0">
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group">
-                    <label>Buy (Rp) <span style="color: #E74C3C;">*</span></label>
-                    <input type="number" min="0" name="harga_beli" id="pBeli" class="modal-input">
+                    <label>Buy Price (Rp) <span style="color: #E74C3C;">*</span></label>
+                    <input type="number" min="0" name="harga_beli" id="pBeli" class="modal-input" placeholder="0">
                     <div class="error-message"></div>
                 </div>
                 <div class="modal-form-group">
-                    <label>Sell (Rp) <span style="color: #E74C3C;">*</span></label>
-                    <input type="number" min="0" name="harga_jual" id="pJual" class="modal-input">
+                    <label>Sell Price (Rp) <span style="color: #E74C3C;">*</span></label>
+                    <input type="number" min="0" name="harga_jual" id="pJual" class="modal-input" placeholder="0">
                     <div class="error-message"></div>
                 </div>
             </div>
+            
             <div class="modal-form-group">
                 <label>Description (Optional)</label>
-                <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional details..."></textarea>
+                <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional product details..."></textarea>
                 <div class="error-message"></div>
             </div>
 
@@ -111,16 +112,18 @@
                 <div class="status-text">Current Status: <span id="pStatusLabel"></span></div>
                 <input type="hidden" name="status" id="pStatusValue">
             </div>
+            
             <div class="modal-form-group">
-            <label>Product Image <span style="color:#888; font-size:0.85em;"></span></label>
-            <div style="text-align: center; margin-bottom: 8px;">
-                <img id="pPreview" src="" style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:contain;">
-                <div id="pPlaceholder" style="color:#aaa; padding: 20px; border: 2px dashed #ccc; border-radius:8px; font-size:0.9rem;">No image selected</div>
+                <label>Product Image <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
+                <div style="text-align: center; margin-bottom: 8px;">
+                    <img id="pPreview" src="" style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:contain;">
+                    <div id="pPlaceholder" style="color:#aaa; padding: 20px; border: 2px dashed #ccc; border-radius:8px; font-size:0.9rem;">No image selected</div>
+                </div>
+                <input type="file" name="foto_produk" id="pFoto" class="modal-input" accept="image/jpeg,image/png,image/webp,image/svg+xml" onchange="previewImage(this)">
+                <span id="error-foto" class="error-message"></span>
             </div>
-            <input type="file" name="foto_produk" id="pFoto" class="modal-input" accept="image/jpeg,image/png,image/webp,image/svg+xml" onchange="previewImage(this)">
-            <span id="error-foto" class="error-message"></span>
-        </div>
-            <button type="submit" class="btn-confirm">Confirm Product</button>
+            
+            <button type="submit" class="btn-confirm">Save Product</button>
         </form>
     </div>
 </div>
@@ -148,7 +151,7 @@
                 <div class="error-message"></div>
             </div>
 
-            <button type="submit" class="btn-confirm">Confirm</button>
+            <button type="submit" class="btn-confirm">Save Game</button>
         </form>
     </div>
 </div>
@@ -216,11 +219,11 @@
 
             <div class="modal-form-group">
                 <label>Rarity Code <span style="color: #E74C3C;">*</span></label>
-                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input">
+                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC">
                 <div class="error-message"></div>
             </div>
 
-            <button type="submit" class="btn-confirm">Confirm</button>
+            <button type="submit" class="btn-confirm">Save Rarity</button>
         </form>
     </div>
 </div>
@@ -293,7 +296,7 @@
                 <div class="error-message"></div>
             </div>
 
-            <button type="submit" class="btn-confirm">SAVE</button>
+            <button type="submit" class="btn-confirm">Save Set</button>
         </form>
     </div>
 </div>
@@ -376,7 +379,7 @@
                 <div class="error-message"></div>
             </div>
 
-            <button type="submit" class="btn-confirm">SAVE</button>
+            <button type="submit" class="btn-confirm">Save Method</button>
         </form>
     </div>
 </div>
@@ -409,7 +412,7 @@
         </div>
 
         <div class="modal-form-group">
-            <label>Admin Fee</label>
+            <label>Admin Fee (Rp)</label>
             <div class="detail-field" id="detailMetodeBiaya">-</div>
         </div>
 

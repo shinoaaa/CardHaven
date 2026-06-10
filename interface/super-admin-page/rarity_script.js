@@ -1,6 +1,7 @@
 const modalRarity = document.getElementById('rarityModal');
 const rarityForm = document.getElementById('rarityForm');
 const API_URL = '/CardHaven/interface/super-admin-page/controller_rarity.php';
+var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 async function isDuplicate(idGame, nama, kode, excludeId) {
     const resp = await fetch(`${API_URL}?check_duplicate=1&id_game=${idGame}&nama_rarity=${encodeURIComponent(nama)}&kode_rarity=${encodeURIComponent(kode)}&exclude_id=${excludeId}`);
@@ -106,7 +107,7 @@ rarityForm.onsubmit = async function(e) {
         if (duplicate) {
             showError(nama, "Rarity name or code already exists in this game!");
             submitBtn.disabled = false;
-            submitBtn.innerText = "SAVE";
+            submitBtn.innerText = "Save Rarity";
             return; 
         }
 
@@ -124,18 +125,19 @@ rarityForm.onsubmit = async function(e) {
         } else {
             cardhavenAlert('error', 'Failed', result.message);
             submitBtn.disabled = false;
-            submitBtn.innerText = "SAVE";
+            submitBtn.innerText = "Save Rarity";
         }
     } catch (err) {
         console.error(err);
         cardhavenAlert('error', 'System Error', 'Connection error occurred.');
         submitBtn.disabled = false;
-        submitBtn.innerText = "SAVE";
+        submitBtn.innerText = "Save Rarity";
     }
 };
 
 function toggleRarityStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const label = isActive ? 'activated' : 'deactivated';
     
     const fd = new FormData();
     fd.append('action', action);
@@ -150,7 +152,7 @@ function toggleRarityStatus(id, isActive, el) {
                 icon: 'success',
                 iconColor: '#0088FF',
                 title: 'Success!',
-                text: `Rarity has been ${action}.`,
+                text: `Rarity status has been ${label}.`,
                 showConfirmButton: false,
                 timer: 1500,
                 background: '#ffffff',
@@ -168,7 +170,7 @@ function toggleRarityStatus(id, isActive, el) {
 }
 
 function confirmDeleteRarity(id) {
-    cardhavenConfirm("Nonaktifkan Rarity?", "Rarity ini akan dinonaktifkan.", "Nonaktifkan", () => {
+    cardhavenConfirm("Delete Rarity?", "This rarity will be permanently deleted. Are you sure?", "Yes, Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_rarity', id);
@@ -178,13 +180,13 @@ function confirmDeleteRarity(id) {
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'success') location.reload();
-                else cardhavenAlert('error', 'Gagal', res.message);
+                else cardhavenAlert('error', 'Failed', res.message);
             });
     });
 }
 
 function confirmRestoreRarity(id) {
-    cardhavenConfirm("Aktifkan Rarity?", "Rarity ini akan kembali diaktifkan.", "Aktifkan", () => {
+    cardhavenConfirm("Activate Rarity?", "This rarity will be activated again. Are you sure?", "Yes, Activate", () => {
         const fd = new FormData();
         fd.append('action', 'restore');
         fd.append('id_rarity', id);
@@ -194,13 +196,12 @@ function confirmRestoreRarity(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }
 
 window.addEventListener('click', (e) => { 
-    // Validasi Form Add/Edit Rarity
     if (e.target == modalRarity) {
         const game = document.getElementById('inputGameRarity').value;
         const nama = document.getElementById('inputNamaRarity').value.trim();
@@ -208,9 +209,9 @@ window.addEventListener('click', (e) => {
 
         if (game !== '' || nama !== '' || kode !== '') {
             cardhavenConfirm(
-                "Tutup Form?", 
-                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
-                "Ya, Tutup", 
+                "Close Form?", 
+                "Unsaved data will be lost. Are you sure you want to cancel?", 
+                "Yes, Close", 
                 () => { modalRarity.style.display = 'none'; }
             );
         } else {
@@ -218,7 +219,6 @@ window.addEventListener('click', (e) => {
         }
     }
 
-    // Tutup Modal Detail Rarity (Jika ada)
     const detailModal = document.getElementById('rarityDetailModal');
     if (detailModal && e.target === detailModal) {
         detailModal.style.display = 'none';
