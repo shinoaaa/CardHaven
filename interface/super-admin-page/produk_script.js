@@ -298,74 +298,35 @@ function confirmDeleteProduct(id) {
     });
 }
 
+// === BAGIAN INI SUDAH DIUBAH KE HTML MURNI ===
 function openDetailProductModal(id) {
-    Swal.fire({
-        title: 'Loading Data...',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        background: "transparent",
-        backdrop: "rgba(13,71,161,.25)",
-        customClass: { popup: "cardhaven-popup", title: "coolveticaa cardhaven-title" },
-        didOpen: () => { Swal.showLoading(); }
-    });
-
     fetch(`${URL_PRODUK}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
-            Swal.close();
             if(data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            const detailHTML = `
-                <div style="text-align: left; padding: 20px; border: 1.5px solid #E2E8F0; border-radius: 12px; margin-top: 10px; background: white;">
-                    <div style="margin-bottom: 12px;">
-                        <div style="color: #A0AEC0; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 4px;">ID / NAME</div>
-                        <div style="color: #1A202C; font-weight: 700; font-size: 1.1rem;">PRD-${String(id).padStart(4, '0')} / ${data.nama_produk}</div>
-                    </div>
-                    <div style="border-top: 1px solid #E2E8F0; margin: 12px 0;"></div>
-                    <div style="display: flex; gap: 15px;">
-                        <div style="flex: 1; margin-bottom: 12px;">
-                            <div style="color: #A0AEC0; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 4px;">TYPE</div>
-                            <div style="color: #1A202C; font-weight: 600; font-size: 1.05rem;">${data.tipe_produk || '-'}</div>
-                        </div>
-                        <div style="flex: 1; margin-bottom: 12px;">
-                            <div style="color: #A0AEC0; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 4px;">GAME</div>
-                            <div style="color: #1A202C; font-weight: 600; font-size: 1.05rem;">${data.nama_game || '-'}</div>
-                        </div>
-                    </div>
-                    <div style="border-top: 1px solid #E2E8F0; margin: 12px 0;"></div>
-                    <div style="display: flex; gap: 15px;">
-                        <div style="flex: 1; margin-bottom: 12px;">
-                            <div style="color: #A0AEC0; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 4px;">STOCK</div>
-                            <div style="color: #1A202C; font-weight: 600; font-size: 1.05rem;">${data.stok || '0'}</div>
-                        </div>
-                        <div style="flex: 1; margin-bottom: 12px;">
-                            <div style="color: #A0AEC0; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 4px;">PRICE</div>
-                            <div style="color: #1A202C; font-weight: 600; font-size: 1.05rem;">Rp${parseFloat(data.harga_jual).toLocaleString('id-ID')}</div>
-                        </div>
-                    </div>
-                    <div style="border-top: 1px solid #E2E8F0; margin: 12px 0;"></div>
-                    <div>
-                        <div style="color: #A0AEC0; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 8px;">CURRENT STATUS</div>
-                        ${data.status == 1 
-                            ? '<span style="background: #E6F4EA; color: #1E8E3E; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">ACTIVE</span>' 
-                            : '<span style="background: #FCE8E6; color: #E74C3C; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">INACTIVE</span>'}
-                    </div>
-                </div>
-            `;
+            // Masukkan data ke dalam element HTML yang baru kita buat
+            document.getElementById('detProdID').innerText = 'PRD-' + String(id).padStart(4, '0');
+            document.getElementById('detProdNama').innerText = data.nama_produk || '-';
+            document.getElementById('detProdTipe').innerText = data.tipe_produk || '-';
+            document.getElementById('detProdGame').innerText = data.nama_game || '-';
+            document.getElementById('detProdStok').innerText = data.stok || '0';
+            document.getElementById('detProdHarga').innerText = 'Rp ' + parseFloat(data.harga_jual).toLocaleString('id-ID');
+            
+            const statusEl = document.getElementById('detProdStatus');
+            if (data.status == 1) {
+                statusEl.innerHTML = '<span style="color: #27AE60; font-weight: bold;">Active</span>';
+            } else {
+                statusEl.innerHTML = '<span style="color: #E74C3C; font-weight: bold;">Inactive</span>';
+            }
 
-            Swal.fire({
-                title: "Product Detail",
-                html: detailHTML,
-                showConfirmButton: false, 
-                showCloseButton: true,    
-                background: "transparent",
-                backdrop: "rgba(13,71,161,.25)",
-                customClass: { popup: "cardhaven-popup", title: "coolveticaa cardhaven-title" }
-            });
+            // Tampilkan modal
+            document.getElementById('productDetailModal').style.display = 'flex';
         })
         .catch(err => {
             console.error(err);
-            cardhavenAlert('error', 'System Error', 'Failed to fetch data from server.');
+            // Kalau masih error, tampilkan kode error aslinya agar gampang dilacak!
+            cardhavenAlert('error', 'System Error', 'Detail Error: ' + err.message);
         });
 }
 
@@ -390,6 +351,6 @@ window.addEventListener('click', function(e) {
     } 
 
     // Tutup Modal Detail Product
-    const mdDetail = document.getElementById('productDetailModal'); // Sesuaikan jika ada
+    const mdDetail = document.getElementById('productDetailModal'); 
     if (mdDetail && e.target === mdDetail) mdDetail.style.display = 'none';
 });

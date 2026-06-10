@@ -421,3 +421,45 @@
         <button class="btn-confirm" onclick="document.getElementById('metodeDetailModal').style.display='none'">Close</button>
     </div>
 </div>
+
+<div id="productDetailModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>PRODUCT <span class="blue-text">DETAIL</span></h2>
+            <span id="detProdID" class="game-id"></span>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Product Name</label>
+            <div class="detail-field" id="detProdNama">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Type</label>
+            <div class="detail-field" id="detProdTipe">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Game</label>
+            <div class="detail-field" id="detProdGame">-</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="modal-form-group">
+                <label>Stock</label>
+                <div class="detail-field" id="detProdStok">0</div>
+            </div>
+            <div class="modal-form-group">
+                <label>Price</label>
+                <div class="detail-field" id="detProdHarga">Rp 0</div>
+            </div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Status</label>
+            <div class="detail-field" id="detProdStatus">-</div>
+        </div>
+
+        <button class="btn-confirm" onclick="document.getElementById('productDetailModal').style.display='none'">Close</button>
+    </div>
+</div>
