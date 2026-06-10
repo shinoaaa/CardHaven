@@ -244,63 +244,70 @@
             <input type="hidden" name="id_set" id="setIdInput">
 
             <div class="modal-form-group">
-                <label>Game <span style="color: #E74C3C;">*</span></label>
+                <label>Game <span style="color:#E74C3C;">*</span></label>
                 <select name="id_game" id="setGameId" class="modal-input">
-                    <option value="">-- Pilih Game --</option>
-                    <?php
-                    $sql_dropdown_s = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
-                    $stmt_dropdown_s = sqlsrv_query($conn, $sql_dropdown_s);
-                    if ($stmt_dropdown_s) {
-                        while ($g = sqlsrv_fetch_array($stmt_dropdown_s, SQLSRV_FETCH_ASSOC)) {
-                            echo "<option value='" . htmlspecialchars($g['id_game']) . "'>" . htmlspecialchars($g['nama_game']) . "</option>";
-                        }
-                    }
-                    ?>
+                    <option value="">-- Select Game --</option>
                 </select>
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Set Name <span style="color: #E74C3C;">*</span></label>
+                <label>Set Name <span style="color:#E74C3C;">*</span></label>
                 <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name...">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
-                <label>Set Code <span style="color: #E74C3C;">*</span></label>
-                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-01">
+                <label>Set Code <span style="color:#E74C3C;">*</span></label>
+                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-001">
                 <div class="error-message"></div>
             </div>
-            
+
             <div class="modal-form-group">
-                <label>Release Date (Optional)</label>
+                <label>Release Date <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
             </div>
 
-            <div id="setLogSection" style="display:none;">
-                <div class="modal-form-group">
-                    <label>Created By</label>
-                    <div class="log-display">
-                        <span id="setCreatedBy"></span>
-                        <span id="setCreatedDate"></span>
-                    </div>
-                </div>
-                <div class="modal-form-group">
-                    <label>Edited By</label>
-                    <div class="log-display">
-                        <span id="setEditedBy"></span>
-                        <span id="setEditedDate"></span>
-                    </div>
-                </div>
-                <div class="status-text">
-                    Status: <span id="setStatusLabel"></span>
-                    <input type="hidden" name="aktif" id="setAktifStatus">
-                </div>
-            </div>
-
-            <button type="submit" class="btn-confirm">Confirm</button>
+            <button type="submit" class="btn-confirm">SAVE</button>
         </form>
+    </div>
+</div>
+
+<!-- ==================== MODAL DETAIL SET (READ ONLY) ==================== -->
+<div id="setDetailModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>SET <span class="blue-text">DETAIL</span></h2>
+            <span id="setDetailDisplayID" class="game-id"></span>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Set Name</label>
+            <div class="detail-field" id="detailSetNama">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Set Code</label>
+            <div class="detail-field" id="detailSetKode">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Game</label>
+            <div class="detail-field" id="detailSetGame">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Release Date</label>
+            <div class="detail-field" id="detailSetTanggal">-</div>
+        </div>
+
+        <div class="modal-form-group">
+            <label>Status</label>
+            <div class="detail-field" id="detailSetStatus">-</div>
+        </div>
+
+        <button class="btn-confirm" onclick="document.getElementById('setDetailModal').style.display='none'">Close</button>
     </div>
 </div>
 

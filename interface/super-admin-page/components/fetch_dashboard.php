@@ -56,7 +56,7 @@ $limit_set = 3;
 $page_set = isset($_GET['ps']) ? max(1, (int)$_GET['ps']) : 1;
 $offset_set = ($page_set - 1) * $limit_set;
 
-$sql_count_set = "SELECT COUNT(*) as total FROM dbo.set_kartu";
+$sql_count_set = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE is_deleted = 0";
 $stmt_count_set = sqlsrv_query($conn, $sql_count_set);
 if ($stmt_count_set === false) die(print_r(sqlsrv_errors(), true));
 $total_rows_set = sqlsrv_fetch_array($stmt_count_set, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
