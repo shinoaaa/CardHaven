@@ -1,5 +1,5 @@
 <?php
-require_once '../../connection.php';
+require __DIR__ . '/../../connection.php';
 
 function jsonResponse(array $arr): void
 {
