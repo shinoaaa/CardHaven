@@ -863,25 +863,111 @@ input::placeholder {
 .btn-confirm { background: #0D6EFD !important; color: white !important; border: none !important; }
 .btn-confirm:hover { transform: translateY(-2px) !important; background: #0B5ED7 !important; }
 
-.btn-cancel-outline { background: transparent !important; color: #0D47A1 !important; border: 2px solid #0D47A1 !important; cursor: pointer !important; }
-.btn-cancel-outline:hover { background: rgba(13,71,161,.08) !important; transform: translateY(-2px) !important; }
-.btn-cancel-outline:active { transform: scale(.97) !important; }
+/* CANCEL BUTTON */
+.btn-cancel-outline {
+    background: transparent !important;
 
-/* =========================================
-   TOGGLE SWITCH (ACTIVE/INACTIVE)
-========================================= */
+    color: #0D47A1 !important;
+
+    border: 2px solid #0D47A1 !important;
+
+    padding: 12px 28px !important;
+
+    font-size: 17px !important;
+    font-weight: 600;
+
+    border-radius: 14px !important;
+
+    transition: .2s;
+}
+
+.btn-cancel-outline:hover {
+    background: rgba(13,71,161,.08) !important;
+}
+
+/* SUCCESS */
+.swal2-icon.swal2-success {
+    border-color: #0D47A1 !important;
+}
+
+.swal2-success-ring {
+    border-color: rgba(13,71,161,.3) !important;
+}
+
+.swal2-success-line-tip,
+.swal2-success-line-long {
+    background-color: #0D47A1 !important;
+}
+
+/* ERROR */
+.swal2-icon.swal2-error {
+    border-color: #E74C3C !important;
+}
+
+.swal2-x-mark-line-left,
+.swal2-x-mark-line-right {
+    background-color: #E74C3C !important;
+}
+
+
 .switch {
-    position: relative; display: inline-block; width: 50px; height: 25px;
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
 }
 .switch input { opacity: 0; width: 0; height: 0; }
+
 .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #E5E5E5; transition: .4s; border-radius: 25px;
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #E5E5E5; /* DEFAULT: Abu-abu (0) */
+    transition: .4s;
+    border-radius: 25px;
 }
-input:checked + .slider { background-color: #003894; }
+
+/* JIKA CHECKED (1): Warna Biru */
+input:checked + .slider {
+    background-color: #003894; 
+}
+
 .slider:before {
-    position: absolute; content: ""; height: 19px; width: 19px; left: 3px; bottom: 3px;
-    background-color: white; transition: .4s; border-radius: 50%;
+    position: absolute;
+    content: "";
+    height: 19px;
+    width: 19px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
 }
-input:checked + .slider:before { transform: translateX(25px); }
-input:disabled + .slider { opacity: 0.6; cursor: not-allowed; }
+
+input:checked + .slider:before {
+    transform: translateX(25px);
+}
+
+.file-input-custom {
+    padding: 8px 15px !important;
+    border-radius: 50px !important; /* Membuat bentuk pill/lonjong */
+    background-color: #f8faff; /* Warna background agak biru pucat sesuai gambar */
+    border: 1.5px solid #d1d9e6 !important;
+    cursor: pointer;
+    width: 100%;
+}
+
+.file-input-custom::-webkit-file-upload-button {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 5px 15px;
+    margin-right: 10px;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.file-input-custom::-webkit-file-upload-button:hover {
+    background: #f0f0f0;
+}

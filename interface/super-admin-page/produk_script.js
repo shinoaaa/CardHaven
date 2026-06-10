@@ -157,8 +157,52 @@ function openAddProductModal() {
     clearAllErrors('productForm');
     document.getElementById('productForm').reset();
     document.getElementById('pAction').value = 'add';
+    
+    // Reset Preview Foto
+    document.getElementById('pPreview').style.display = 'none';
+    document.getElementById('pPlaceholder').style.display = 'block';
+    
     toggleProdFields();
     document.getElementById('productModal').style.display = 'flex';
+}
+
+function previewImage(input) {
+    const preview = document.getElementById('pPreview');
+    const placeholder = document.getElementById('pPlaceholder');
+    const errorEl = document.getElementById('error-foto');
+    const file = input.files[0];
+    
+    // Reset status
+    errorEl.innerText = "";
+    input.style.border = "1.5px solid #d1d9e6";
+
+    if (file) {
+        // Validasi Ukuran (5MB = 5 * 1024 * 1024 bytes)
+        if (file.size > 5 * 1024 * 1024) {
+            showError(input, "File terlalu besar! Maksimal 5MB.");
+            input.value = ""; // Reset input
+            return;
+        }
+
+        // Validasi Ekstensi
+        const allowedExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
+        if (!allowedExtensions.includes(file.type)) {
+            showError(input, "Format tidak didukung! Gunakan JPG, PNG, WEBP, atau SVG.");
+            input.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+        placeholder.style.display = 'block';
+    }
 }
 
 function toggleProductStatus(id, isActive, el) {
@@ -213,6 +257,20 @@ function openEditProductModal(id) {
         document.getElementById('pJual').value = data.harga_jual;
         document.getElementById('pKondisi').value = data.kondisi;
         document.getElementById('pDeskripsi').value = data.deskripsi || ''; 
+        
+        // Handle Tampilan Foto
+        const preview = document.getElementById('pPreview');
+        const placeholder = document.getElementById('pPlaceholder');
+        if (data.foto_produk) {
+            // Path dari DB (misal: image-profile/nama.jpg) diarahkan ke root
+            preview.src = '/CardHaven/' + data.foto_produk; 
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
         document.getElementById('productModal').style.display = 'flex';
