@@ -28,7 +28,7 @@
         <h2 class="coolveticaa" style="font-size: 1rem; color: var(--primary-color); margin-bottom: 0.5rem;">Menu</h2>
 
         <div class="menuOption unselected">
-            <a href="#" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
+            <a href="superadmin/jogja" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/analytics.svg">
                 <h2 class="coolveticaa" style="color: var(--highlight)">Dashboard</h2>
             </a>
