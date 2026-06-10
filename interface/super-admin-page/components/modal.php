@@ -88,6 +88,25 @@
                 </div>
             </div>
             <div class="modal-form-group">
+                <label>Product Photo</label>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <!-- Preview Box -->
+                    <div id="imagePreviewContainer" style="width: 100px; height: 100px; border: 1.5px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; background-color: #fcfcfc; flex-shrink: 0;">
+                        <img id="pPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <span id="pPlaceholder" style="font-size: 11px; color: #aaa; text-align: center; font-family: 'Inter', sans-serif;">No Photo</span>
+                    </div>
+                    
+                    <!-- Custom File Input -->
+                    <div style="flex: 1;">
+                        <input type="file" name="foto_produk" id="pFoto" class="modal-input file-input-custom" accept=".jpg,.jpeg,.png,.webp,.svg" onchange="previewImage(this)">
+                        <small style="color: #888; font-size: 11px; margin-top: 5px; display: block; margin-left: 15px;">
+                            Format: JPG, PNG, WEBP, SVG. Max: 5MB
+                        </small>
+                    </div>
+                </div>
+                <div class="error-message" id="error-foto"></div>
+            </div>
+            <div class="modal-form-group">
                 <label>Description (Optional)</label>
                 <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional details..."></textarea>
                 <div class="error-message"></div>
