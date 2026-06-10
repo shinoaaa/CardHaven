@@ -1,6 +1,6 @@
 const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
-const URL_GAME = '/cardhaven/interface/super-admin-page/controller_game.php';
+const URL_GAME = '/cardhaven/interface/product/controller_game.php';
 var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 document.querySelectorAll('#gameForm .modal-input').forEach(input => {

@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = false;
     
     if ($action === 'add') {
-        $sql = "INSERT INTO dbo.rarity (id_game, nama_rarity, kode_rarity, created_by, created_date, aktif) VALUES (?, ?, ?, ?, GETDATE(), 1)";
+        $sql = "INSERT INTO dbo.rarity (id_game, nama_rarity, kode_rarity, created_by, created_date, aktif,is_deleted) VALUES (?, ?, ?, ?, GETDATE(), 1,0)";
         $stmt = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $id_user]);
     } 
     else if ($action === 'edit') {

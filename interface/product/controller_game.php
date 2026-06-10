@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 3. Eksekusi Action
     if ($action === 'add') {
-        $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif) VALUES (?, ?, ?, GETDATE(), 1)";
+        $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif,is_deleted) VALUES (?, ?, ?, GETDATE(), 1,0)";
         $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user]);
     } else if ($action === 'edit') {
         $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";

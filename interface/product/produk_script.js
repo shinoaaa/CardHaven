@@ -1,4 +1,4 @@
-const URL_PRODUK = '/cardhaven/interface/super-admin-page/controller_produk.php'; 
+const URL_PRODUK = '/cardhaven/interface/product/controller_produk.php'; 
 var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 function showError(el, msg) {

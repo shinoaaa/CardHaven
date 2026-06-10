@@ -11,11 +11,8 @@ if ($segments[0] === '' || $segments[0] === 'home') {
 else if ($segments[0] === 'register') {
     include '../CardHaven/interface/register-page/index.php';
 } 
-else if ($segments[0] === 'superadmin') {
-    include '../CardHaven/interface/super-admin-page/index.php';
-} 
-else if ($segments[0] === 'admin') {
-    include '../CardHaven/interface/admin-page/index.php';
+else if ($segments[0] === 'dashboard') {
+    include '../CardHaven/interface/dashboard/index.php';
 } 
 else if ($segments[0] === 'settingaccount') {
     include '../CardHaven/interface/super-admin-page/account-setting.php';
