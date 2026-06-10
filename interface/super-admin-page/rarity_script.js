@@ -32,42 +32,22 @@ function openDetailRarity(id) {
     fetch(`${API_URL}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
-            if(data.error) return cardhavenAlert('error', 'Error', data.error);
+            Swal.close();
+            if (data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            const detailHTML = `
-                <div style="text-align: left; margin-top: 1rem; padding: 1rem; background: white; border-radius: 12px; border: 1px solid #E2E8F0;">
-                    <div style="margin-bottom: 10px;">
-                        <small style="color: #A0AEC0; font-weight: bold;">ID / NAME</small>
-                        <div style="color: #2D3748; font-weight: bold; font-size: 1.1rem;">RAR-${String(id).padStart(3, '0')} / ${data.nama_rarity}</div>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <small style="color: #A0AEC0; font-weight: bold;">RARITY CODE</small>
-                        <div style="color: #2D3748;">${data.kode_rarity || '-'}</div>
-                    </div>
-                    <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0;">
-                    <div style="margin-bottom: 10px;">
-                        <small style="color: #A0AEC0; font-weight: bold;">CURRENT STATUS</small>
-                        <div style="margin-top: 4px;">
-                            ${data.aktif == 1 
-                                ? '<span style="background: #E6F4EA; color: #1E8E3E; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">ACTIVE</span>' 
-                                : '<span style="background: #FCE8E6; color: #D93025; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">INACTIVE</span>'}
-                        </div>
-                    </div>
-                </div>
-            `;
+            document.getElementById('rarityDetailDisplayID').innerText = 'RAR-' + String(id).padStart(3, '0');
+            document.getElementById('detailRarityGame').innerText = data.nama_game ?? '-';
+            document.getElementById('detailRarityNama').innerText = data.nama_rarity ?? '-';
+            document.getElementById('detailRarityKode').innerText = data.kode_rarity || '-';
+            document.getElementById('detailRarityStatus').innerHTML = data.aktif == 1
+                ? '<span style="color: #27AE60; font-weight: bold;">Active</span>'
+                : '<span style="color: #E74C3C; font-weight: bold;">Inactive</span>';
 
-            Swal.fire({
-                title: "Rarity Detail",
-                html: detailHTML,
-                showConfirmButton: false, 
-                showCloseButton: true,    
-                background: "transparent",
-                backdrop: "rgba(13,71,161,.25)",
-                customClass: { popup: "cardhaven-popup", title: "coolveticaa cardhaven-title" }
-            });
+            document.getElementById('rarityDetailModal').style.display = 'flex';
         })
         .catch(err => {
             console.error(err);
+            Swal.close();
             cardhavenAlert('error', 'System Error', 'Failed to fetch data from server.');
         });
 }
@@ -83,9 +63,18 @@ function openEditRarity(id) {
             document.getElementById('displayIDRarity').innerText = 'RAR-' + String(id).padStart(3, '0');
             document.getElementById('formActionRarity').value = 'edit';
             document.getElementById('inputIdRarity').value = id;
-            document.getElementById('inputGameRarity').value = data.id_game;
+            const selectGame = document.getElementById('inputGameRarity');
+                selectGame.value = data.id_game;
+                if (!selectGame.value) {
+                    const opt = document.createElement('option');
+                    opt.value = data.id_game;
+                    opt.text = data.nama_game ?? 'Unknown Game';
+                    selectGame.appendChild(opt);
+                    selectGame.value = data.id_game;
+                }
             document.getElementById('inputNamaRarity').value = data.nama_rarity;
             document.getElementById('inputKodeRarity').value = data.kode_rarity;
+            document.getElementById('inputAktifRarity').value = data.aktif;
             
             modalRarity.style.display = 'flex';
         })
@@ -129,7 +118,7 @@ rarityForm.onsubmit = async function(e) {
 
         if (result.status === 'success') {
             cardhavenAlert('success', 'Success', 'Rarity data saved successfully.', () => {
-                modalRarity.style.display = 'none'; // Auto-close modal
+                modalRarity.style.display = 'none'; 
                 setTimeout(() => { location.reload(); }, 300);
             });
         } else {
@@ -147,7 +136,6 @@ rarityForm.onsubmit = async function(e) {
 
 function toggleRarityStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
-    const label = isActive ? 'activated' : 'deactivated';
     
     const fd = new FormData();
     fd.append('action', action);
@@ -162,7 +150,7 @@ function toggleRarityStatus(id, isActive, el) {
                 icon: 'success',
                 iconColor: '#0088FF',
                 title: 'Success!',
-                text: `Rarity has been ${label}.`,
+                text: `Rarity has been ${action}.`,
                 showConfirmButton: false,
                 timer: 1500,
                 background: '#ffffff',
@@ -180,7 +168,7 @@ function toggleRarityStatus(id, isActive, el) {
 }
 
 function confirmDeleteRarity(id) {
-    cardhavenConfirm("Delete Rarity?", "This rarity will be deleted.", "Delete", () => {
+    cardhavenConfirm("Nonaktifkan Rarity?", "Rarity ini akan dinonaktifkan.", "Nonaktifkan", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_rarity', id);
@@ -190,13 +178,13 @@ function confirmDeleteRarity(id) {
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'success') location.reload();
-                else cardhavenAlert('error', 'Failed', res.message);
+                else cardhavenAlert('error', 'Gagal', res.message);
             });
     });
 }
 
 function confirmRestoreRarity(id) {
-    cardhavenConfirm("Restore Rarity?", "This rarity will be restored.", "Restore", () => {
+    cardhavenConfirm("Aktifkan Rarity?", "Rarity ini akan kembali diaktifkan.", "Aktifkan", () => {
         const fd = new FormData();
         fd.append('action', 'restore');
         fd.append('id_rarity', id);
@@ -206,9 +194,33 @@ function confirmRestoreRarity(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Failed', res.message);
+            else cardhavenAlert('error', 'Gagal', res.message);
         });
     });
 }
 
-window.addEventListener('click', (e) => { if (e.target == modalRarity) modalRarity.style.display = "none"; });
+window.addEventListener('click', (e) => { 
+    // Validasi Form Add/Edit Rarity
+    if (e.target == modalRarity) {
+        const game = document.getElementById('inputGameRarity').value;
+        const nama = document.getElementById('inputNamaRarity').value.trim();
+        const kode = document.getElementById('inputKodeRarity').value.trim();
+
+        if (game !== '' || nama !== '' || kode !== '') {
+            cardhavenConfirm(
+                "Tutup Form?", 
+                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
+                "Ya, Tutup", 
+                () => { modalRarity.style.display = 'none'; }
+            );
+        } else {
+            modalRarity.style.display = 'none';
+        }
+    }
+
+    // Tutup Modal Detail Rarity (Jika ada)
+    const detailModal = document.getElementById('rarityDetailModal');
+    if (detailModal && e.target === detailModal) {
+        detailModal.style.display = 'none';
+    }
+});

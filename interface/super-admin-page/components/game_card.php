@@ -29,19 +29,25 @@
                         <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
                     <?php endif; ?>
                 </td>
-                    <td>
-                        <div class="btn-action-group">
-                            <button class="btn-view-icon" onclick="openDetailModal(<?= $row['id_game'] ?>)">...</button>
-                            <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
-                            <label class="switch">
-                                <input type="checkbox" 
-                                    <?= $row['aktif'] == 1 ? 'checked' : '' ?> 
-                                    onchange="toggleStatus(<?= $row['id_game'] ?>, this.checked, this)">
-                                <span class="slider"></span>
-                            </label>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openDetailModal(<?= $row['id_game'] ?>)">...</button>
+                        <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                <?= $row['aktif'] == 1 ? 'checked' : '' ?> 
+                                onchange="toggleStatus(<?= $row['id_game'] ?>, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
+                        <?php if ($row['is_deleted'] == 0): ?>
                             <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
-                        </div>
-                    </td>
+                        <?php else: ?>
+                            <button class="btn-restore-icon"
+                                    style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
+                                    onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                        <?php endif; ?>
+                    </div>
+                </td>
             </tr>
             <?php endwhile; ?>
         </tbody>
@@ -73,7 +79,6 @@
         echo '<a href="?pp='.$page_produk.'&pg='.$total_pages_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_game.'</a>';
     }
     ?>
-
 
     <?php if ($page_game < $total_pages_game): ?>
         <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game+1 ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&gt;</a>

@@ -21,7 +21,8 @@ require_once 'components/fetch_dashboard.php';
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/cardhaven/interface/global_alert.js"></script>
+    <!-- Tambahkan versi time() untuk mencegah cache -->
+    <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
 </head>
 <body>
     <div class="container" style="justify-content: flex-start; align-items: flex-start;">
@@ -157,10 +158,11 @@ require_once 'components/fetch_dashboard.php';
 
     <?php include 'components/modal.php'; ?>
 
-    <script src="/cardhaven/interface/super-admin-page/produk_script.js"></script>
-    <script src="/cardhaven/interface/super-admin-page/set_script.js"></script>
-    <script src="/cardhaven/interface/super-admin-page/rarity_script.js"></script>
-    <script src="/cardhaven/interface/super-admin-page/game_script.js"></script>
-    <script src="/cardhaven/interface/super-admin-page/metode_script.js"></script>
+    <!-- PENGGUNAAN TRIK CACHE BUSTING (?v=waktu_saat_ini) -->
+    <script src="/cardhaven/interface/super-admin-page/produk_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/super-admin-page/set_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/super-admin-page/rarity_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/super-admin-page/game_script.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/super-admin-page/metode_script.js?v=<?= time() ?>"></script>
 </body>
 </html>
