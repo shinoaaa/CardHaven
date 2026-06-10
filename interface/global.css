@@ -607,6 +607,14 @@ input::placeholder {
     font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;
 }
 
+.detail-field {
+    width: 100%; padding: 12px 20px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 25px; font-size: 0.9rem;
+    background: #f5f7fa; color: #333;
+    font-weight: 500;
+}
+
 .status-text { text-align: center; margin: 15px 0; font-weight: 700; font-size: 0.9rem; }
 .btn-confirm {
     width: 60%; display: block; margin: 10px auto 0;
