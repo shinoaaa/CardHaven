@@ -25,20 +25,20 @@ try {
             $harga_beli = (float)($_POST['harga_beli'] ?? 0);
             $stok = (int)($_POST['stok'] ?? 0);
             
-            if ($stok < 1) throw new Exception("Stok minimal 1!");
+            if ($stok < 1) throw new Exception("Stock must be at least 1!");
             $deskripsi = $_POST['deskripsi'] ?? '';
             
-            if (!$nama || !$id_game || !$tipe) throw new Exception("Field Nama, Game, dan Tipe wajib diisi!");
+            if (!$nama || !$id_game || !$tipe) throw new Exception("Name, Game, and Type fields are required!");
 
             // 1. PENGAMANAN CHECK DUPLICATE
             $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ? AND is_deleted = 0";
             $check_stmt = sqlsrv_query($conn, $check_sql, [$nama, $id_game, ($id_set ?? 0), $id_produk]);
             if ($check_stmt === false) {
                 $err = sqlsrv_errors();
-                throw new Exception("Query Check Duplikat Gagal: " . ($err[0]['message'] ?? 'Unknown Error'));
+                throw new Exception("Duplicate Check Query Failed: " . ($err[0]['message'] ?? 'Unknown Error'));
             }
             if (sqlsrv_has_rows($check_stmt)) {
-                throw new Exception("Produk '$nama' sudah ada dalam Game dan Set ini!");
+                throw new Exception("Product '$nama' already exists in this Game and Set!");
             }
 
             // --- BAGIAN PENARIKAN FOTO LAMA DAN UPLOAD FOTO DIHAPUS SEMENTARA ---
@@ -66,7 +66,7 @@ try {
             $sql = "UPDATE dbo.produk SET is_deleted=?, deleted_by=?, deleted_date=GETDATE() WHERE id_produk=?";
             $params = [$status, $id_user, $id_produk];
         } else {
-            throw new Exception("Aksi '$action' tidak dikenal oleh sistem.");
+            throw new Exception("Action '$action' is not recognized by the system.");
         }
 
         // 5. PENGAMANAN EKSEKUSI KUERI UTAMA
@@ -74,7 +74,7 @@ try {
         if ($stmt === false) {
             $errors = sqlsrv_errors();
             $msg = $errors ? $errors[0]['message'] : "Unknown SQL error";
-            throw new Exception("Eksekusi Kueri Gagal: " . $msg);
+            throw new Exception("Query Execution Failed: " . $msg);
         }
 
         echo json_encode(['status' => 'success']);
@@ -95,7 +95,7 @@ try {
                 WHERE p.id_produk = ? AND p.is_deleted = 0";
         $stmt = sqlsrv_query($conn, $sql, [$id]);
         
-        if ($stmt === false) throw new Exception("Gagal menarik detail data produk.");
+        if ($stmt === false) throw new Exception("Failed to fetch product details.");
         
         $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
         if ($data) {
@@ -103,7 +103,7 @@ try {
             $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d M Y, H:i') : '-';
             echo json_encode($data);
         } else {
-            throw new Exception("Data produk tidak ditemukan.");
+            throw new Exception("Product data not found.");
         }
         exit;
     }

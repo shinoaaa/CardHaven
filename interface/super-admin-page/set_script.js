@@ -1,6 +1,7 @@
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
 const SET_API  = '/CardHaven/interface/super-admin-page/controller_set.php';
+var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 let setGamesLoaded = false;
 
@@ -95,19 +96,19 @@ setForm.onsubmit = async function(e) {
 
         if (result.status === 'success') {
             cardhavenAlert('success', 'Success', 'Set data saved successfully.', () => {
-                setModal.style.display = 'none'; // Auto-close modal
+                setModal.style.display = 'none'; 
                 setTimeout(() => { location.reload(); }, 300);
             });
         } else {
             cardhavenAlert('error', 'Failed', result.message);
             submitBtn.disabled  = false;
-            submitBtn.innerText = 'SAVE';
+            submitBtn.innerText = 'Save Set';
         }
     } catch (err) {
         console.error('setForm submit error:', err);
         cardhavenAlert('error', 'System Error', 'Connection error. Please try again.');
         submitBtn.disabled  = false;
-        submitBtn.innerText = 'SAVE';
+        submitBtn.innerText = 'Save Set';
     }
 };
 
@@ -128,7 +129,7 @@ function toggleSetStatus(id, isActive, el) {
                     icon: 'success',
                     iconColor: '#0088FF',
                     title: 'Success!',
-                    text: `Set has been ${label}.`,
+                    text: `Set status has been ${label}.`,
                     showConfirmButton: false,
                     timer: 1500,
                     background: '#ffffff',
@@ -147,7 +148,7 @@ function toggleSetStatus(id, isActive, el) {
 }
 
 function confirmDeleteSet(id) {
-    cardhavenConfirm('Delete Set?', 'This set will be permanently removed.', 'Delete', () => {
+    cardhavenConfirm('Delete Set?', 'This set will be permanently deleted. Are you sure?', 'Yes, Delete', () => {
         const fd = new FormData();
         fd.append('action',        'delete');
         fd.append('id_set',        id);
@@ -193,7 +194,6 @@ function openDetailSetModal(id) {
 }
 
 window.addEventListener('click', function(e) {
-    // Validasi Form Add/Edit Set
     if (e.target === setModal) {
         const game = document.getElementById('setGameId').value;
         const nama = document.getElementById('setNama').value.trim();
@@ -201,9 +201,9 @@ window.addEventListener('click', function(e) {
 
         if (game !== '' || nama !== '' || kode !== '') {
             cardhavenConfirm(
-                "Tutup Form?", 
-                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
-                "Ya, Tutup", 
+                "Close Form?", 
+                "Unsaved data will be lost. Are you sure you want to cancel?", 
+                "Yes, Close", 
                 () => { setModal.style.display = 'none'; }
             );
         } else {
@@ -211,7 +211,6 @@ window.addEventListener('click', function(e) {
         }
     }
 
-    // Tutup Modal Detail Set
     if (e.target === document.getElementById('setDetailModal')) {
         document.getElementById('setDetailModal').style.display = 'none';
     }

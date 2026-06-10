@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_rarity = isset($_POST['id_rarity']) ? (int)$_POST['id_rarity'] : null;
 
     if (($action == 'add' || $action == 'edit') && ($nama == "" || empty($id_game))) {
-        echo json_encode(['status' => 'error', 'message' => 'Game dan Nama Rarity wajib diisi!']); 
+        echo json_encode(['status' => 'error', 'message' => 'Game and Rarity Name are required!']); 
         exit;
     }
     if ($action === 'add' || $action === 'edit') {
@@ -57,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($duplicate) {
             $pesan = "";
             if (strcasecmp($duplicate['nama_rarity'], $nama) == 0) {
-                $pesan = "Nama Rarity '$nama' sudah terdaftar di game ini!";
+                $pesan = "Rarity Name '$nama' is already registered in this game!";
             } else {
-                $pesan = "Kode Rarity '$kode' sudah terdaftar di game ini!";
+                $pesan = "Rarity Code '$kode' is already registered in this game!";
             }
             echo json_encode(['status' => 'error', 'message' => $pesan]);
             exit;
@@ -73,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $id_user]);
     } 
     else if ($action === 'edit') {
-        // PERBAIKAN: Kolom aktif tidak lagi disentuh saat edit
         $sql = "UPDATE dbo.rarity SET id_game=?, nama_rarity=?, kode_rarity=?, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $id_user, $id_rarity]);
     } 
@@ -95,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'success', 'message' => '']);
     } else {
         $errors = sqlsrv_errors();
-        $error_msg = $errors != null ? $errors[0]['message'] : 'Gagal mengeksekusi kueri pangkalan data.';
-        echo json_encode(['status' => 'error', 'message' => 'KESALAHAN SQL: ' . $error_msg]);
+        $error_msg = $errors != null ? $errors[0]['message'] : 'Failed to execute database query.';
+        echo json_encode(['status' => 'error', 'message' => 'SQL ERROR: ' . $error_msg]);
     }
     exit;
 }
@@ -117,8 +116,8 @@ $sql = "SELECT
 
     if ($stmt === false) {
         $errors = sqlsrv_errors();
-        $error_msg = $errors != null ? $errors[0]['message'] : 'Gagal menarik data detail.';
-        echo json_encode(['error' => 'KESALAHAN SQL: ' . $error_msg]);
+        $error_msg = $errors != null ? $errors[0]['message'] : 'Failed to fetch detail data.';
+        echo json_encode(['error' => 'SQL ERROR: ' . $error_msg]);
         exit;
     }
 
@@ -128,7 +127,7 @@ $sql = "SELECT
         $data['modified_date'] = (isset($data['modified_date']) && is_a($data['modified_date'], 'DateTime')) ? $data['modified_date']->format('d-M-Y H:i') : '-';
         echo json_encode($data); 
     } else {
-        echo json_encode(['error' => 'ID Rarity tidak ditemukan di pangkalan data.']);
+        echo json_encode(['error' => 'Rarity ID not found in the database.']);
     }
     exit;
 }

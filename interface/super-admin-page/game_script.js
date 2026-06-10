@@ -65,6 +65,7 @@ function openEditModal(id) {
 
 function toggleStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const label = isActive ? 'activated' : 'deactivated';
     
     const fd = new FormData();
     fd.append('action', action);
@@ -78,8 +79,8 @@ function toggleStatus(id, isActive, el) {
             Swal.fire({
                 icon: 'success',
                 iconColor: '#0088FF',
-                title: 'Berhasil!',
-                text: `Status game telah di${action}.`,
+                title: 'Success!',
+                text: `Game status has been ${label}.`,
                 showConfirmButton: false,
                 timer: 1500,
                 background: '#ffffff',
@@ -87,12 +88,12 @@ function toggleStatus(id, isActive, el) {
             }).then(() => location.reload());
         } else {
             el.checked = !isActive;
-            Swal.fire('Gagal', res.message, 'error');
+            Swal.fire('Failed', res.message, 'error');
         }
     })
     .catch(err => {
         el.checked = !isActive;
-        Swal.fire('Error', 'Terjadi kesalahan koneksi ke server.', 'error');
+        Swal.fire('Error', 'Connection error occurred.', 'error');
     });
 }
 
@@ -103,12 +104,12 @@ gameForm.onsubmit = function(e) {
     let isValid = true;
 
     if (!inputNama.value.trim()) {
-        showError(inputNama, "Nama game wajib diisi!");
+        showError(inputNama, "Game name is required!");
         isValid = false;
     } else clearError(inputNama);
 
     if (!inputDev.value.trim()) {
-        showError(inputDev, "Developer wajib diisi!");
+        showError(inputDev, "Developer name is required!");
         isValid = false;
     } else clearError(inputDev);
 
@@ -121,7 +122,7 @@ gameForm.onsubmit = function(e) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Data game berhasil disimpan.', () => {
+            cardhavenAlert('success', 'Success', 'Game data saved successfully.', () => {
                 modal.style.display = 'none';
                 setTimeout(() => { location.reload(); }, 300);
             });
@@ -131,12 +132,12 @@ gameForm.onsubmit = function(e) {
     })
     .catch(err => {
         console.error(err);
-        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
+        cardhavenAlert('error', 'System Error', 'A system error occurred.');
     });
 };
 
 function confirmDelete(id) {
-    cardhavenConfirm("Hapus Game?", "Game ini akan Hapus.", "Hapus", () => {
+    cardhavenConfirm("Delete Game?", "This game will be permanently deleted. Are you sure?", "Yes, Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_game', id);
@@ -146,13 +147,13 @@ function confirmDelete(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }
 
 function confirmRestore(id) {
-    cardhavenConfirm("Aktifkan Game?", "Game ini akan kembali diaktifkan.", "Aktifkan", () => {
+    cardhavenConfirm("Activate Game?", "This game will be activated again. Are you sure?", "Yes, Activate", () => {
         const fd = new FormData();
         fd.append('action', 'restore'); 
         fd.append('id_game', id);
@@ -162,34 +163,30 @@ function confirmRestore(id) {
         .then(res => res.json())
         .then(res => {
             if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Gagal', res.message);
+            else cardhavenAlert('error', 'Failed', res.message);
         });
     });
 }
 
 window.addEventListener('click', function(e) {
-    // 1. Validasi saat menutup Form Add / Edit Game
     if (e.target == modal) {
         const inputNama = document.getElementById('nama_game').value.trim();
         const inputDev = document.getElementById('developer').value.trim();
 
-        // Jika ada salah satu input yang sudah diketik
         if (inputNama !== '' || inputDev !== '') {
             cardhavenConfirm(
-                "Tutup Form?", 
-                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
-                "Ya, Tutup", 
+                "Close Form?", 
+                "Unsaved data will be lost. Are you sure you want to cancel?", 
+                "Yes, Close", 
                 () => {
-                    modal.style.display = "none"; // Tutup form jika user klik "Ya, Tutup"
+                    modal.style.display = "none";
                 }
             );
         } else {
-            // Jika inputan masih kosong, langsung tutup saja
             modal.style.display = "none";
         }
     }
     
-    // 2. Untuk Modal Detail (hanya untuk baca), boleh langsung tutup
     if (e.target == document.getElementById('gameDetailModal')) {
         document.getElementById('gameDetailModal').style.display = "none";
     }

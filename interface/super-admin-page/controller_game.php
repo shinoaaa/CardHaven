@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 1. Validasi Kosong
     if (($action == 'add' || $action == 'edit') && ($nama == "" || $dev == "")) {
-        echo json_encode(['status' => 'error', 'message' => 'Semua field wajib diisi!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'All fields are required!']); exit;
     }
 
     // 2. Validasi Duplikat Nama
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $stmt_cek = sqlsrv_query($conn, $sql_cek, $params_cek);
         if (sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC)['total'] > 0) {
-            echo json_encode(['status' => 'error', 'message' => 'Nama game sudah terdaftar!']); exit;
+            echo json_encode(['status' => 'error', 'message' => 'Game name is already registered!']); exit;
         }
     }
 
@@ -33,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif) VALUES (?, ?, ?, GETDATE(), 1)";
         $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user]);
     } else if ($action === 'edit') {
-        // PERBAIKAN: Kolom aktif tidak lagi disentuh saat edit
         $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $id_game]);
     } else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE dbo.game SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Action tidak valid!']);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid action!']);
         exit;
     }
 
@@ -79,7 +78,8 @@ if (isset($_GET['get_detail'])) {
         $data['modifier'] = $data['modifier_name'] ?? '-';
         echo json_encode($data);
     } else {
-        echo json_encode(['error' => 'Data tidak ditemukan']);
+        echo json_encode(['error' => 'Data not found']);
     }
     exit;
 }
+?>

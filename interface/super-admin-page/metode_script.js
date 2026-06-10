@@ -1,6 +1,7 @@
 const metodeModal = document.getElementById('metodeModal');
 const metodeForm  = document.getElementById('metodeForm');
 const METODE_API  = '/CardHaven/interface/super-admin-page/controller_metode.php';
+var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 // ==========================================
 // BUKA MODAL TAMBAH
@@ -94,13 +95,13 @@ metodeForm.onsubmit = async function(e) {
         } else {
             cardhavenAlert('error', 'Failed', result.message);
             submitBtn.disabled  = false;
-            submitBtn.innerText = 'SAVE';
+            submitBtn.innerText = 'Save Method';
         }
     } catch (err) {
         console.error(err);
         cardhavenAlert('error', 'System Error', 'Connection error. Please try again.');
         submitBtn.disabled  = false;
-        submitBtn.innerText = 'SAVE';
+        submitBtn.innerText = 'Save Method';
     }
 };
 
@@ -109,7 +110,7 @@ metodeForm.onsubmit = async function(e) {
 // ==========================================
 function toggleMetode(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
-    const label  = isActive ? 'activate' : 'deactivate';
+    const label  = isActive ? 'activated' : 'deactivated';
 
     const fd = new FormData();
     fd.append('action',        action);
@@ -124,7 +125,7 @@ function toggleMetode(id, isActive, el) {
                     icon: 'success',
                     iconColor: '#0088FF',
                     title: 'Success!',
-                    text: `Payment method has been ${label}d.`,
+                    text: `Payment method has been ${label}.`,
                     showConfirmButton: false,
                     timer: 1500,
                     background: '#ffffff',
@@ -146,7 +147,7 @@ function toggleMetode(id, isActive, el) {
 // DELETE (HARD DELETE / is_deleted)
 // ==========================================
 function confirmDeleteMetode(id) {
-    cardhavenConfirm('Delete Payment Method?', 'This payment method will be permanently removed.', 'Delete', () => {
+    cardhavenConfirm('Delete Payment Method?', 'This payment method will be permanently deleted. Are you sure?', 'Yes, Delete', () => {
         const fd = new FormData();
         fd.append('action',        'delete');
         fd.append('id_metode',     id);
@@ -200,6 +201,9 @@ function openDetailMetode(id) {
         });
 }
 
+// ==========================================
+// TUTUP MODAL KLIK DI LUAR
+// ==========================================
 window.addEventListener('click', function(e) {
     // Validasi Form Add/Edit Metode Pembayaran
     if (e.target === metodeModal) {
@@ -209,9 +213,9 @@ window.addEventListener('click', function(e) {
 
         if (nama !== '' || provider !== '' || norek !== '') {
             cardhavenConfirm(
-                "Tutup Form?", 
-                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
-                "Ya, Tutup", 
+                "Close Form?", 
+                "Unsaved data will be lost. Are you sure you want to cancel?", 
+                "Yes, Close", 
                 () => { metodeModal.style.display = 'none'; }
             );
         } else {

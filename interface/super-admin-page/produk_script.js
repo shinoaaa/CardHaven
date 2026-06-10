@@ -99,13 +99,13 @@ function previewImage(input) {
 
     if (file) {
         if (file.size > 5 * 1024 * 1024) {
-            showError(input, "File terlalu besar! Maksimal 5MB.");
+            showError(input, "File is too large! Maximum size is 5MB.");
             input.value = ""; 
             return;
         }
         const allowedExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
         if (!allowedExtensions.includes(file.type)) {
-            showError(input, "Format tidak didukung! (Hanya JPG/PNG/WEBP/SVG).");
+            showError(input, "Unsupported format! (Only JPG/PNG/WEBP/SVG).");
             input.value = "";
             return;
         }
@@ -186,7 +186,7 @@ document.getElementById('productForm').onsubmit = async function(e) {
         cardhavenAlert('error', 'System Error', 'Connection error occurred. Server failed to process request.');
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerText = "SAVE PRODUCT";
+        submitBtn.innerText = "Save Product";
     }
 };
 
@@ -283,7 +283,7 @@ function openEditProductModal(id) {
 }
 
 function confirmDeleteProduct(id) {
-    cardhavenConfirm("Delete Product?", "This product will be deleted.", "Delete", () => {
+    cardhavenConfirm("Delete Product?", "This product will be permanently deleted. Are you sure?", "Yes, Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_produk', id);
@@ -298,14 +298,13 @@ function confirmDeleteProduct(id) {
     });
 }
 
-// === BAGIAN INI SUDAH DIUBAH KE HTML MURNI ===
 function openDetailProductModal(id) {
     fetch(`${URL_PRODUK}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
             if(data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            // Masukkan data ke dalam element HTML yang baru kita buat
+            // Masukkan data ke dalam element HTML
             document.getElementById('detProdID').innerText = 'PRD-' + String(id).padStart(4, '0');
             document.getElementById('detProdNama').innerText = data.nama_produk || '-';
             document.getElementById('detProdTipe').innerText = data.tipe_produk || '-';
@@ -325,7 +324,6 @@ function openDetailProductModal(id) {
         })
         .catch(err => {
             console.error(err);
-            // Kalau masih error, tampilkan kode error aslinya agar gampang dilacak!
             cardhavenAlert('error', 'System Error', 'Detail Error: ' + err.message);
         });
 }
@@ -340,9 +338,9 @@ window.addEventListener('click', function(e) {
         
         if (nama !== '' || stok !== '') {
             cardhavenConfirm(
-                "Tutup Form?", 
-                "Data yang sudah Anda ketik belum disimpan dan akan hilang. Yakin ingin membatalkan?", 
-                "Ya, Tutup", 
+                "Close Form?", 
+                "Unsaved data will be lost. Are you sure you want to cancel?", 
+                "Yes, Close", 
                 () => { md.style.display = 'none'; }
             );
         } else {
