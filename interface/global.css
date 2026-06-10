@@ -412,7 +412,7 @@ input::placeholder {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 330px; 
+    height: 400px; 
     overflow-y: hidden; 
 }
 
@@ -457,7 +457,7 @@ input::placeholder {
     gap: 8px;
 }
 
-.btn-edit-icon, .btn-delete-icon {
+.btn-edit-icon, .btn-delete-icon, .btn-view-icon {
     border: none;
     width: 30px;
     height: 30px;
@@ -473,9 +473,10 @@ input::placeholder {
 
 .btn-edit-icon { background-color: #F39C12; }
 .btn-delete-icon { background-color: #E74C3C; }
-
+.btn-view-icon { background-color: var(--primary-light); }
 .btn-edit-icon:hover { transform: scale(1.1); background-color: #e67e22; }
 .btn-delete-icon:hover { transform: scale(1.1); background-color: #c0392b; }
+.btn-view-icon:hover { transform: scale(1.1); background-color: var(--primary-color); }
 
 .btn-add-green {
     background-color: #27AE60;
@@ -604,6 +605,14 @@ input::placeholder {
     background: #0088FF; color: white; padding: 10px 18px;
     border-radius: 25px; display: flex; justify-content: space-between;
     font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;
+}
+
+.detail-field {
+    width: 100%; padding: 12px 20px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 25px; font-size: 0.9rem;
+    background: #f5f7fa; color: #333;
+    font-weight: 500;
 }
 
 .status-text { text-align: center; margin: 15px 0; font-weight: 700; font-size: 0.9rem; }
@@ -776,4 +785,184 @@ input::placeholder {
     margin-top: 3px;
     font-weight: 600;
     color: #E74C3C;
+}
+
+/* =========================
+   CARDHAVEN SWEETALERT
+========================= */
+
+.cardhaven-popup {
+    width: 420px !important;
+    border-radius: 28px !important;
+    background: #FFFFFF !important;
+    padding: 30px !important;
+
+    box-shadow:
+        0 15px 40px rgba(13, 71, 161, 0.18),
+        0 5px 15px rgba(0,0,0,0.08);
+
+    border: 3px solid #0D47A1;
+}
+
+/* ICON */
+.swal2-icon.swal2-warning {
+    border-color: #0D47A1 !important;
+    color: #0D47A1 !important;
+}
+
+.swal2-icon.swal2-warning .swal2-icon-content {
+    color: #0D47A1 !important;
+}
+
+/* TITLE */
+.cardhaven-title {
+    font-size: 34px !important;
+    font-weight: 700;
+    color: #0D47A1 !important;
+    margin-top: 5px !important;
+    margin-bottom: 10px !important;
+}
+
+/* TEXT */
+.cardhaven-text {
+    font-size: 18px !important;
+    color: #555 !important;
+    line-height: 1.5;
+}
+
+/* BUTTON CONTAINER */
+.swal2-actions {
+    gap: 12px;
+    margin-top: 25px !important;
+}
+
+/* CONFIRM BUTTON */
+.btn-confirm {
+    background: #0D6EFD !important;
+    color: white !important;
+
+    border: none !important;
+
+    padding: 12px 28px !important;
+
+    font-size: 17px !important;
+    font-weight: 600;
+
+    border-radius: 14px !important;
+
+    transition: .2s;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    background: #0B5ED7 !important;
+}
+
+/* CANCEL BUTTON */
+.btn-cancel-outline {
+    background: transparent !important;
+
+    color: #0D47A1 !important;
+
+    border: 2px solid #0D47A1 !important;
+
+    padding: 12px 28px !important;
+
+    font-size: 17px !important;
+    font-weight: 600;
+
+    border-radius: 14px !important;
+
+    transition: .2s;
+}
+
+.btn-cancel-outline:hover {
+    background: rgba(13,71,161,.08) !important;
+}
+
+/* SUCCESS */
+.swal2-icon.swal2-success {
+    border-color: #0D47A1 !important;
+}
+
+.swal2-success-ring {
+    border-color: rgba(13,71,161,.3) !important;
+}
+
+.swal2-success-line-tip,
+.swal2-success-line-long {
+    background-color: #0D47A1 !important;
+}
+
+/* ERROR */
+.swal2-icon.swal2-error {
+    border-color: #E74C3C !important;
+}
+
+.swal2-x-mark-line-left,
+.swal2-x-mark-line-right {
+    background-color: #E74C3C !important;
+}
+
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #E5E5E5; /* DEFAULT: Abu-abu (0) */
+    transition: .4s;
+    border-radius: 25px;
+}
+
+/* JIKA CHECKED (1): Warna Biru */
+input:checked + .slider {
+    background-color: #003894; 
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 19px;
+    width: 19px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider:before {
+    transform: translateX(25px);
+}
+
+.file-input-custom {
+    padding: 8px 15px !important;
+    border-radius: 50px !important; /* Membuat bentuk pill/lonjong */
+    background-color: #f8faff; /* Warna background agak biru pucat sesuai gambar */
+    border: 1.5px solid #d1d9e6 !important;
+    cursor: pointer;
+    width: 100%;
+}
+
+.file-input-custom::-webkit-file-upload-button {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 5px 15px;
+    margin-right: 10px;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.file-input-custom::-webkit-file-upload-button:hover {
+    background: #f0f0f0;
 }

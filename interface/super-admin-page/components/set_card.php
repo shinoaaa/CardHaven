@@ -30,17 +30,18 @@
                     <?php endif; ?>
                 </td>
                 <td>
-                    <div class="btn-action-group">
-                        <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>
-                        <?php if ($rowSet['aktif'] == 1): ?>
-                            <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)">🗑️</button>
-                        <?php else: ?>
-                            <button class="btn-restore-icon"
-                                    style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                    onclick="confirmRestoreSet(<?= $rowSet['id_set'] ?>)">🔄</button>
-                        <?php endif; ?>
-                    </div>
-                </td>
+    <div class="btn-action-group">
+        <button class="btn-view-icon" onclick="openDetailSetModal(<?= $rowSet['id_set'] ?>)">...</button>
+        <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>
+        <label class="switch">
+            <input type="checkbox"
+                <?= $rowSet['aktif'] == 1 ? 'checked' : '' ?>
+                onchange="toggleSetStatus(<?= $rowSet['id_set'] ?>, this.checked, this)">
+            <span class="slider"></span>
+        </label>
+        <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)">🗑️</button>
+    </div>
+</td>
             </tr>
             <?php endwhile; endif; ?>
         </tbody>

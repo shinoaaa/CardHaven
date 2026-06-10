@@ -20,11 +20,11 @@ try {
         $remember = isset($_POST['remember']) && $_POST['remember'] === 'true';
 
         if (empty($email)) {
-            echo json_encode(["status" => "error", "target" => "email", "message" => "Email harus diisi"]);
+            echo json_encode(["status" => "error", "target" => "email", "message" => "Please enter your email"]);
             exit;
         }
         if (empty($password)) {
-            echo json_encode(["status" => "error", "target" => "password", "message" => "Password harus diisi"]);
+            echo json_encode(["status" => "error", "target" => "password", "message" => "Please enter your password"]);
             exit;
         }
 
@@ -47,19 +47,13 @@ try {
 
         $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
 
-        if (!$user) {
-            echo json_encode(["status" => "error", "target" => "email", "message" => "Email tidak terdaftar"]);
+        if (!$user || !password_verify($password, $user['password'])) {
+            echo json_encode(["status" => "error", "target" => "email", "message" => "Email or password is incorrect"]);
             sqlsrv_free_stmt($stmt);
             exit;
         }
 
-        if (!password_verify($password, $user['password'])) {
-            echo json_encode(["status" => "error", "target" => "password", "message" => "Password yang dimasukkan salah"]);
-            sqlsrv_free_stmt($stmt);
-            exit;
-        }
 
-        // Sinkronisasi umur session di server dengan JS Storage
         if ($remember) {
             ini_set('session.cookie_lifetime', 604800);
             ini_set('session.gc_maxlifetime', 604800);
@@ -73,7 +67,7 @@ try {
 
         echo json_encode([
                             "status" => "success", 
-                            "message" => "Login sukses", 
+                            "message" => "Login successful", 
                             "role" => $user['role'], 
                             "id_pengguna" => $user['id_pengguna'],
                             "username" => $user['username']
@@ -81,7 +75,7 @@ try {
         sqlsrv_free_stmt($stmt);
 
     } else {
-        echo json_encode(["status" => "error", "target" => "general", "message" => "Metode request tidak diizinkan"]);
+        echo json_encode(["status" => "error", "target" => "general", "message" => "Invalid request method"]);
     }
     sqlsrv_close($conn);
 

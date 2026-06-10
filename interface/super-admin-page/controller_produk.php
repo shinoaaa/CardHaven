@@ -17,12 +17,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_set = !empty($_POST['id_set']) ? (int)$_POST['id_set'] : null;
             $id_rarity = !empty($_POST['id_rarity']) ? (int)$_POST['id_rarity'] : null;
             $kondisi = !empty($_POST['kondisi']) ? $_POST['kondisi'] : null;
-            
+            $foto_path = null;
+
             $harga_jual = (float)($_POST['harga_jual'] ?? 0);
             $harga_beli = (float)($_POST['harga_beli'] ?? 0);
             $stok = (int)($_POST['stok'] ?? 0);
             if ($stok < 1) throw new Exception("Stok minimal 1!");
             $deskripsi = $_POST['deskripsi'] ?? '';
+            if ($action === 'edit') {
+                $sql_old = "SELECT foto_produk FROM dbo.produk WHERE id_produk = ?";
+                $stmt_old = sqlsrv_query($conn, $sql_old, [$id_produk]);
+                $row_old = sqlsrv_fetch_array($stmt_old, SQLSRV_FETCH_ASSOC);
+                $foto_path = $row_old['foto_produk'];
+            }
+
+            if (isset($_FILES['foto_produk']) && $_FILES['foto_produk']['error'] === UPLOAD_ERR_OK) {
+                $fileTmpPath = $_FILES['foto_produk']['tmp_name'];
+                $fileName = $_FILES['foto_produk']['name'];
+                $fileSize = $_FILES['foto_produk']['size']; // Ambil ukuran file
+                
+                $fileNameCmps = explode(".", $fileName);
+                $fileExtension = strtolower(end($fileNameCmps));
+
+                // 1. Validasi Ukuran Server-Side (5MB)
+                $maxSize = 5 * 1024 * 1024; 
+                if ($fileSize > $maxSize) {
+                    throw new Exception("Ukuran file terlalu besar! Maksimal 5MB.");
+                }
+
+                // 2. Tambahkan 'svg' ke dalam array allowed
+                $allowedfileExtensions = array('jpg', 'jpeg', 'png', 'webp', 'svg');
+
+                if (in_array($fileExtension, $allowedfileExtensions)) {
+                    $newFileName = 'PROD_' . time() . '_' . md5($fileName) . '.' . $fileExtension;
+                    $uploadFileDir = '../../image-profile/';
+                    $dest_path = $uploadFileDir . $newFileName;
+
+                    if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                        // Hapus file lama jika edit
+                        if ($action === 'edit' && !empty($row_old['foto_produk'])) {
+                            $oldFilePhysical = '../../' . $row_old['foto_produk'];
+                            if (file_exists($oldFilePhysical)) {
+                                unlink($oldFilePhysical); 
+                            }
+                        }
+                        $foto_path = 'image-profile/' . $newFileName;
+                    } else {
+                        throw new Exception("Gagal mengupload gambar ke server.");
+                    }
+                } else {
+                    throw new Exception("Format file tidak diizinkan! (Hanya JPG, PNG, WEBP, SVG).");
+                }
+            }
 
             // --- VALIDASI SERVER-SIDE ---
             if (!$nama || !$id_game || !$tipe) {
@@ -30,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // --- VALIDASI DUPLIKAT (Mencegah Nama yang sama di Game & Set yang sama) ---
-            $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ?";
+            $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ? AND is_deleted = 0";
             $check_stmt = sqlsrv_query($conn, $check_sql, [$nama, $id_game, ($id_set ?? 0), ($id_produk ?? 0)]);
             if (sqlsrv_has_rows($check_stmt)) {
                 throw new Exception("Produk '$nama' sudah ada dalam Game dan Set ini!");
@@ -46,18 +92,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($action === 'add') {
-                $sql = "INSERT INTO dbo.produk (id_game, tipe_produk, nama_produk, harga_jual, harga_beli, stok, deskripsi, id_rarity, id_set, kondisi, created_by, created_date, status) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), 1)";
-                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user];
+                $sql = "INSERT INTO dbo.produk (id_game, tipe_produk, nama_produk, harga_jual, harga_beli, stok, deskripsi, id_rarity, id_set, kondisi, created_by, created_date, status, foto_produk) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), 1, ?)";
+                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $foto_path];
             } else {
                 $status = $_POST['status'] ?? 1;
-                $sql = "UPDATE dbo.produk SET id_game=?, tipe_produk=?, nama_produk=?, harga_jual=?, harga_beli=?, stok=?, deskripsi=?, id_rarity=?, id_set=?, kondisi=?, modified_by=?, modified_date=GETDATE(), status=? WHERE id_produk=?";
-                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $status, $id_produk];
+                $sql = "UPDATE dbo.produk SET id_game=?, tipe_produk=?, nama_produk=?, harga_jual=?, harga_beli=?, stok=?, deskripsi=?, id_rarity=?, id_set=?, kondisi=?, modified_by=?, modified_date=GETDATE(), status=?, foto_produk=? WHERE id_produk=?";
+                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $status, $foto_path, $id_produk];
             }
+        }
+        else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
+            $status = ($action === 'aktifkan') ? 1 : 0;
+            $sql = "UPDATE dbo.produk SET status=?, modified_by=?, modified_date=GETDATE() WHERE id_produk=?";
+            $params = [$status, $id_user, $id_produk];
+            $stmt = sqlsrv_query($conn, $sql, $params);
         } 
         else if ($action === 'delete' || $action === 'restore') {
-            $status = ($action === 'delete') ? 0 : 1;
-            $sql = "UPDATE dbo.produk SET status=?, modified_by=?, modified_date=GETDATE() WHERE id_produk=?";
+            $status = ($action === 'delete') ? 1 : 0;
+            $sql = "UPDATE dbo.produk SET is_deleted=?, deleted_by=?, deleted_date=GETDATE() WHERE id_produk=?";
             $params = [$status, $id_user, $id_produk];
         }
 
@@ -85,7 +137,7 @@ if (isset($_GET['get_detail'])) {
             LEFT JOIN dbo.set_kartu s ON p.id_set = s.id_set
             LEFT JOIN dbo.pengguna u1 ON p.created_by = u1.id_pengguna
             LEFT JOIN dbo.pengguna u2 ON p.modified_by = u2.id_pengguna
-            WHERE p.id_produk = ?";
+            WHERE p.id_produk = ? AND p.is_deleted = 0";
     $stmt = sqlsrv_query($conn, $sql, [$id]);
     $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     if ($data) {
@@ -102,7 +154,7 @@ if (isset($_GET['get_detail'])) {
 // 2. Suggestion Game
 if (isset($_GET['search_game'])) {
     $key = "%" . $_GET['search_game'] . "%";
-    $sql = "SELECT id_game, nama_game FROM dbo.game WHERE nama_game LIKE ? AND aktif = 1";
+    $sql = "SELECT id_game, nama_game FROM dbo.game WHERE nama_game LIKE ? AND aktif = 1 AND is_deleted = 0 ORDER BY nama_game ASC";
     $stmt = sqlsrv_query($conn, $sql, [$key]);
     $res = [];
     while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) { $res[] = $row; }
@@ -114,7 +166,7 @@ if (isset($_GET['search_game'])) {
 if (isset($_GET['search_set'])) {
     $key = "%" . $_GET['search_set'] . "%";
     $id_game = $_GET['id_game'];
-    $sql = "SELECT id_set, nama_set FROM dbo.set_kartu WHERE nama_set LIKE ? AND id_game = ? AND aktif = 1";
+    $sql = "SELECT id_set, nama_set FROM dbo.set_kartu WHERE nama_set LIKE ? AND id_game = ? AND aktif = 1 AND is_deleted = 0 ORDER BY nama_set ASC";
     $stmt = sqlsrv_query($conn, $sql, [$key, $id_game]);
     $res = [];
     while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) { $res[] = $row; }
@@ -125,7 +177,7 @@ if (isset($_GET['search_set'])) {
 // 4. List Rarity (Dropdown - Berdasarkan Game terpilih)
 if (isset($_GET['get_rarity_list'])) {
     $id_game = $_GET['id_game'];
-    $sql = "SELECT id_rarity, nama_rarity, kode_rarity FROM dbo.rarity WHERE id_game = ? AND aktif = 1";
+    $sql = "SELECT id_rarity, nama_rarity, kode_rarity FROM dbo.rarity WHERE id_game = ? AND aktif = 1 AND is_deleted = 0";
     $stmt = sqlsrv_query($conn, $sql, [$id_game]);
     $res = [];
     while($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) { $res[] = $row; }

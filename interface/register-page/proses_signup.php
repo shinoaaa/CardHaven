@@ -10,12 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'] ?? '';
 
     if (empty($username) || empty($email) || empty($password)) {
-        echo json_encode(['status' => 'error', 'message' => 'Semua field wajib diisi!']);
+        echo json_encode(['status' => 'error', 'message' => 'All fields are required!']);
         exit;
     }
 
     if (strlen($password) < 8 || strlen($password) > 12) {
-        echo json_encode(['status' => 'error', 'message' => 'Password harus 8-12 karakter!']);
+        echo json_encode(['status' => 'error', 'message' => 'Password must be between 8 and 12 characters!']);
         exit;
     }
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (sqlsrv_has_rows($stmtCheck)) {
-            echo json_encode(['status' => 'error', 'message' => 'Username atau Email sudah terdaftar!']);
+            echo json_encode(['status' => 'error', 'message' => 'Username or Email already registered!']);
             exit;
         }
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtInsert = sqlsrv_query($conn, $sqlInsert, $paramsInsert);
 
         if ($stmtInsert) {
-            echo json_encode(['status' => 'success', 'message' => 'Registrasi berhasil']);
+            echo json_encode(['status' => 'success', 'message' => 'Registration successful']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan data ke database']);
         }
