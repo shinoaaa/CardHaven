@@ -105,7 +105,7 @@ class ForgotPasswordController
             ]);
         }
 
-        if (strlen($password) < 8 || strlen($password) > 12) {
+        if (strlen($password) < 8 || strlen($password)) {
             $this->respond([
                 "status" => "error",
                 "target" => "password",
