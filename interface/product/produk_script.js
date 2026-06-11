@@ -234,6 +234,7 @@ function openEditProductModal(id) {
     .then(res => res.json()).then(data => {
         if(data.error) return cardhavenAlert('error', 'Error', data.error);
         clearAllErrors('productForm');
+        document.getElementById('pTitle').innerHTML = '<span class="blue-text">EDIT</span> PRODUCT';
         document.getElementById('pAction').value = 'edit';
         document.getElementById('pID').value = id;
         document.getElementById('pNama').value = data.nama_produk;
