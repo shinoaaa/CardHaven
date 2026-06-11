@@ -94,6 +94,11 @@
                 <div class="error-message"></div>
             </div>
 
+            <div class="modal-form-group">
+                <label>Status</label>
+                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
+            </div>
+
             <div id="pLogSection" style="display:none; margin-top:15px;">
                 <div class="modal-form-group">
                     <label>Created By</label>
@@ -233,6 +238,11 @@
                 <div class="error-message"></div>
             </div>
 
+            <div class="modal-form-group">
+                <label>Status</label>
+                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
+            </div>
+
             <button type="submit" class="btn-confirm">Save Game</button>
         </form>
     </div>
@@ -303,6 +313,11 @@
                 <label>Rarity Code <span style="color: #E74C3C;">*</span></label>
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC">
                 <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Status</label>
+                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
 
             <button type="submit" class="btn-confirm">Save Rarity</button>
@@ -376,6 +391,11 @@
                 <label>Release Date <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Status</label>
+                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
 
             <button type="submit" class="btn-confirm">Save Set</button>
@@ -459,6 +479,11 @@
                 <label>Admin Fee (Rp) <span style="color:#E74C3C;">*</span></label>
                 <input type="number" name="biaya_admin" id="metodeBiaya" class="modal-input" placeholder="e.g. 2000" min="0" value="0">
                 <div class="error-message"></div>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Status</label>
+                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
 
             <button type="submit" class="btn-confirm">Save Method</button>

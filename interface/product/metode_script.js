@@ -3,9 +3,6 @@ const metodeForm  = document.getElementById('metodeForm');
 const METODE_API  = '/CardHaven/interface/product/controller_metode.php';
 var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
-// ==========================================
-// BUKA MODAL TAMBAH
-// ==========================================
 function openAddMetode() {
     clearAllErrors('metodeForm');
     document.getElementById('metodeModalTitle').innerHTML = 'ADD <span class="blue-text">PAYMENT METHOD</span>';
@@ -15,17 +12,11 @@ function openAddMetode() {
     metodeModal.style.display = 'flex';
 }
 
-// ==========================================
-// BUKA MODAL EDIT
-// ==========================================
 function openEditMetode(id) {
     fetch(`${METODE_API}?get_detail=${id}`)
         .then(async res => JSON.parse(await res.text()))
         .then(data => {
-            if (!data || data.error) {
-                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch data.');
-                return;
-            }
+            if (!data || data.error) return cardhavenAlert('error', 'Error', data.error || 'Failed to fetch data.');
 
             clearAllErrors('metodeForm');
             document.getElementById('metodeModalTitle').innerHTML = '<span class="blue-text">EDIT</span> PAYMENT METHOD';
@@ -38,9 +29,7 @@ function openEditMetode(id) {
             document.getElementById('metodeNoRek').value    = data.no_rekening  || '';
             document.getElementById('metodeAtasNama').value = data.atas_nama    || '';
             document.getElementById('metodeBiaya').value    = data.biaya_admin  || 0;
-
-            // hidden aktif untuk dikirim saat edit
-            document.getElementById('metodeAktifStatus').value = data.aktif;
+            if(document.getElementById('metodeAktifStatus')) document.getElementById('metodeAktifStatus').value = data.aktif;
 
             metodeModal.style.display = 'flex';
         })
@@ -50,9 +39,6 @@ function openEditMetode(id) {
         });
 }
 
-// ==========================================
-// SUBMIT FORM (ADD / EDIT)
-// ==========================================
 metodeForm.onsubmit = async function(e) {
     e.preventDefault();
     let isValid = true;
@@ -68,11 +54,9 @@ metodeForm.onsubmit = async function(e) {
     if (!noRek.value.trim())    { showError(noRek,    'Account number is required!'); isValid = false; } else clearError(noRek);
     if (!atasNama.value.trim()) { showError(atasNama, 'Account name is required!');   isValid = false; } else clearError(atasNama);
     if (biaya.value === '' || biaya.value === null) {
-        showError(biaya, 'Admin fee is required!');
-        isValid = false;
+        showError(biaya, 'Admin fee is required!'); isValid = false;
     } else if (parseFloat(biaya.value) < 0) {
-        showError(biaya, 'Admin fee cannot be negative!');
-        isValid = false;
+        showError(biaya, 'Admin fee cannot be negative!'); isValid = false;
     } else {
         clearError(biaya);
     }
@@ -105,32 +89,20 @@ metodeForm.onsubmit = async function(e) {
     }
 };
 
-// ==========================================
-// TOGGLE AKTIF / NONAKTIF
-// ==========================================
 function toggleMetode(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
     const label  = isActive ? 'activated' : 'deactivated';
 
     const fd = new FormData();
-    fd.append('action',        action);
-    fd.append('id_metode',     id);
+    fd.append('action', action);
+    fd.append('id_metode', id);
     fd.append('id_pengguna_js', getEmpId());
 
     fetch(METODE_API, { method: 'POST', body: fd })
         .then(async res => JSON.parse(await res.text()))
         .then(res => {
             if (res.status === 'success') {
-                Swal.fire({
-                    icon: 'success',
-                    iconColor: '#0088FF',
-                    title: 'Success!',
-                    text: `Payment method has been ${label}.`,
-                    showConfirmButton: false,
-                    timer: 1500,
-                    background: '#ffffff',
-                    customClass: { title: 'coolveticaa' }
-                }).then(() => location.reload());
+                Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Payment method has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
             } else {
                 el.checked = !isActive;
                 cardhavenAlert('error', 'Failed', res.message);
@@ -143,14 +115,11 @@ function toggleMetode(id, isActive, el) {
         });
 }
 
-// ==========================================
-// DELETE (HARD DELETE / is_deleted)
-// ==========================================
 function confirmDeleteMetode(id) {
     cardhavenConfirm('Delete Payment Method?', 'This payment method will be permanently deleted. Are you sure?', 'Yes, Delete', () => {
         const fd = new FormData();
-        fd.append('action',        'delete');
-        fd.append('id_metode',     id);
+        fd.append('action', 'delete');
+        fd.append('id_metode', id);
         fd.append('id_pengguna_js', getEmpId());
 
         fetch(METODE_API, { method: 'POST', body: fd })
@@ -162,20 +131,13 @@ function confirmDeleteMetode(id) {
     });
 }
 
-// ==========================================
-// DETAIL (READ ONLY) — hanya tombol dulu
-// ==========================================
 function openDetailMetode(id) {
     fetch(`${METODE_API}?get_detail=${id}`)
         .then(async res => JSON.parse(await res.text()))
         .then(data => {
-            if (!data || data.error) {
-                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch data.');
-                return;
-            }
+            if (!data || data.error) return cardhavenAlert('error', 'Error', data.error || 'Failed to fetch data.');
 
             document.getElementById('metodeDetailDisplayID').innerText = 'MTD-' + String(id).padStart(3, '0');
-
             document.getElementById('detailMetodeNama').innerText     = data.nama_metode  || '-';
             document.getElementById('detailMetodeProvider').innerText = data.provider     || '-';
             document.getElementById('detailMetodeNoRek').innerText    = data.no_rekening  || '-';
@@ -201,29 +163,15 @@ function openDetailMetode(id) {
         });
 }
 
-// ==========================================
-// TUTUP MODAL KLIK DI LUAR
-// ==========================================
 window.addEventListener('click', function(e) {
-    // Validasi Form Add/Edit Metode Pembayaran
     if (e.target === metodeModal) {
         const nama = document.getElementById('metodeNama').value.trim();
-        const provider = document.getElementById('metodeProvider').value.trim();
-        const norek = document.getElementById('metodeNoRek').value.trim();
-
-        if (nama !== '' || provider !== '' || norek !== '') {
-            cardhavenConfirm(
-                "Close Form?", 
-                "Unsaved data will be lost. Are you sure you want to cancel?", 
-                "Yes, Close", 
-                () => { metodeModal.style.display = 'none'; }
-            );
+        if (nama !== '') {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { metodeModal.style.display = 'none'; });
         } else {
             metodeModal.style.display = 'none';
         }
     }
-
-    // Tutup Modal Detail Metode
     if (e.target === document.getElementById('metodeDetailModal')) {
         document.getElementById('metodeDetailModal').style.display = 'none';
     }

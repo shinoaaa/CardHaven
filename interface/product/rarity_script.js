@@ -1,6 +1,6 @@
 const modalRarity = document.getElementById('rarityModal');
 const rarityForm = document.getElementById('rarityForm');
-const API_URL = '/CardHaven/interface/product/controller_rarity.php';
+const API_URL = '/CardHaven/interface/product/controller_rarity.php'; // Pastikan path sesuai dengan foldermu
 var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 async function isDuplicate(idGame, nama, kode, excludeId) {
@@ -23,7 +23,6 @@ function openDetailRarity(id) {
     fetch(`${API_URL}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
-            Swal.close();
             if (data.error) return cardhavenAlert('error', 'Error', data.error);
 
             document.getElementById('rarityDetailDisplayID').innerText = 'RAR-' + String(id).padStart(3, '0');
@@ -38,7 +37,6 @@ function openDetailRarity(id) {
         })
         .catch(err => {
             console.error(err);
-            Swal.close();
             cardhavenAlert('error', 'System Error', 'Failed to fetch data from server.');
         });
 }
@@ -55,17 +53,17 @@ function openEditRarity(id) {
             document.getElementById('formActionRarity').value = 'edit';
             document.getElementById('inputIdRarity').value = id;
             const selectGame = document.getElementById('inputGameRarity');
+            selectGame.value = data.id_game;
+            if (!selectGame.value) {
+                const opt = document.createElement('option');
+                opt.value = data.id_game;
+                opt.text = data.nama_game ?? 'Unknown Game';
+                selectGame.appendChild(opt);
                 selectGame.value = data.id_game;
-                if (!selectGame.value) {
-                    const opt = document.createElement('option');
-                    opt.value = data.id_game;
-                    opt.text = data.nama_game ?? 'Unknown Game';
-                    selectGame.appendChild(opt);
-                    selectGame.value = data.id_game;
-                }
+            }
             document.getElementById('inputNamaRarity').value = data.nama_rarity;
             document.getElementById('inputKodeRarity').value = data.kode_rarity;
-            document.getElementById('inputAktifRarity').value = data.aktif;
+            if(document.getElementById('inputAktifRarity')) document.getElementById('inputAktifRarity').value = data.aktif;
             
             modalRarity.style.display = 'flex';
         })
@@ -127,7 +125,6 @@ rarityForm.onsubmit = async function(e) {
 
 function toggleRarityStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
-    const label = isActive ? 'activated' : 'deactivated';
     
     const fd = new FormData();
     fd.append('action', action);
@@ -138,16 +135,7 @@ function toggleRarityStatus(id, isActive, el) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                iconColor: '#0088FF',
-                title: 'Success!',
-                text: `Rarity status has been ${label}.`,
-                showConfirmButton: false,
-                timer: 1500,
-                background: '#ffffff',
-                customClass: { title: 'coolveticaa' }
-            }).then(() => location.reload());
+            Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Rarity has been ${action}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
         } else {
             el.checked = !isActive;
             Swal.fire('Failed', res.message, 'error');
@@ -160,7 +148,7 @@ function toggleRarityStatus(id, isActive, el) {
 }
 
 function confirmDeleteRarity(id) {
-    cardhavenConfirm("Delete Rarity?", "This rarity will be permanently deleted. Are you sure?", "Yes, Delete", () => {
+    cardhavenConfirm("Delete Rarity?", "This rarity will be permanently deleted.", "Yes, Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_rarity', id);
@@ -175,42 +163,14 @@ function confirmDeleteRarity(id) {
     });
 }
 
-function confirmRestoreRarity(id) {
-    cardhavenConfirm("Activate Rarity?", "This rarity will be activated again. Are you sure?", "Yes, Activate", () => {
-        const fd = new FormData();
-        fd.append('action', 'restore');
-        fd.append('id_rarity', id);
-        fd.append('id_pengguna_js', getEmpId()); 
-        
-        fetch(API_URL,  { method: 'POST', body: fd })
-        .then(res => res.json())
-        .then(res => {
-            if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Failed', res.message);
-        });
-    });
-}
-
 window.addEventListener('click', (e) => { 
     if (e.target == modalRarity) {
-        const game = document.getElementById('inputGameRarity').value;
         const nama = document.getElementById('inputNamaRarity').value.trim();
-        const kode = document.getElementById('inputKodeRarity').value.trim();
-
-        if (game !== '' || nama !== '' || kode !== '') {
-            cardhavenConfirm(
-                "Close Form?", 
-                "Unsaved data will be lost. Are you sure you want to cancel?", 
-                "Yes, Close", 
-                () => { modalRarity.style.display = 'none'; }
-            );
+        if (nama !== '') {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { modalRarity.style.display = 'none'; });
         } else {
             modalRarity.style.display = 'none';
         }
     }
-
-    const detailModal = document.getElementById('rarityDetailModal');
-    if (detailModal && e.target === detailModal) {
-        detailModal.style.display = 'none';
-    }
+    if (e.target == document.getElementById('rarityDetailModal')) document.getElementById('rarityDetailModal').style.display = "none"; 
 });

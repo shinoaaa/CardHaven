@@ -76,16 +76,7 @@ function toggleStatus(id, isActive, el) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                iconColor: '#0088FF',
-                title: 'Success!',
-                text: `Game status has been ${label}.`,
-                showConfirmButton: false,
-                timer: 1500,
-                background: '#ffffff',
-                customClass: { title: 'coolveticaa' }
-            }).then(() => location.reload());
+            Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Game status has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
         } else {
             el.checked = !isActive;
             Swal.fire('Failed', res.message, 'error');
@@ -103,15 +94,8 @@ gameForm.onsubmit = function(e) {
     const inputDev = document.getElementById('developer');
     let isValid = true;
 
-    if (!inputNama.value.trim()) {
-        showError(inputNama, "Game name is required!");
-        isValid = false;
-    } else clearError(inputNama);
-
-    if (!inputDev.value.trim()) {
-        showError(inputDev, "Developer name is required!");
-        isValid = false;
-    } else clearError(inputDev);
+    if (!inputNama.value.trim()) { showError(inputNama, "Game name is required!"); isValid = false; } else clearError(inputNama);
+    if (!inputDev.value.trim()) { showError(inputDev, "Developer name is required!"); isValid = false; } else clearError(inputDev);
 
     if (!isValid) return;
 
@@ -171,22 +155,12 @@ function confirmRestore(id) {
 window.addEventListener('click', function(e) {
     if (e.target == modal) {
         const inputNama = document.getElementById('nama_game').value.trim();
-        const inputDev = document.getElementById('developer').value.trim();
-
-        if (inputNama !== '' || inputDev !== '') {
-            cardhavenConfirm(
-                "Close Form?", 
-                "Unsaved data will be lost. Are you sure you want to cancel?", 
-                "Yes, Close", 
-                () => {
-                    modal.style.display = "none";
-                }
-            );
+        if (inputNama !== '') {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { modal.style.display = "none"; });
         } else {
             modal.style.display = "none";
         }
     }
-    
     if (e.target == document.getElementById('gameDetailModal')) {
         document.getElementById('gameDetailModal').style.display = "none";
     }
