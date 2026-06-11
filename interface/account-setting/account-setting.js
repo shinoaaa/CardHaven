@@ -19,15 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setText("userName", sessionStorage.getItem("username") || sessionStorage.getItem("nama") || "Guest");
     setText("userEmail", sessionStorage.getItem("userEmail") || "-");
 
-    const btnLogout = document.getElementById("btnLogout");
-    if (btnLogout) {
-        btnLogout.addEventListener("click", () => {
-            sessionStorage.clear();
-            localStorage.clear();
-            window.location.href = "../../login-page/";
-        });
-    }
-
     loadData();
 
     const form = document.getElementById("accountForm");
@@ -143,7 +134,7 @@ async function handleDeactivate() {
             sessionStorage.clear();
             localStorage.clear();
             alert(data.message || "Akun dinonaktifkan");
-            window.location.href = "../../login-page/";
+            window.location.href = "home";
         } else {
             alert(data.message || "Gagal menonaktifkan akun");
         }

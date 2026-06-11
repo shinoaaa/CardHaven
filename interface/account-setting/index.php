@@ -51,7 +51,7 @@
 
                 <div class="btn-row">
                     <button type="submit" class="btn btn-save">Save Changes</button>
-                    <button type="button" id="btnDeactivate" class="btn btn-off">Deactivate</button>
+                    <!-- <button type="button" id="btnDeactivate" class="btn btn-off">Deactivate</button> -->
                     <button type="button" id="btnDelete" class="btn btn-delete">Delete Account</button>
                 </div>
             </form>
