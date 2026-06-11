@@ -127,7 +127,10 @@
                 <input type="file" name="foto_produk" id="pFoto" class="modal-input" accept="image/jpeg,image/png,image/webp,image/svg+xml" onchange="previewImage(this)">
                 <span id="error-foto" class="error-message"></span>
             </div>
-            
+            <div class="modal-form-group">
+                <label>Product Status</label>
+                <input type="text" id="productStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+            </div>
             <button type="submit" class="btn-confirm">Save Product</button>
         </form>
     </div>
@@ -314,12 +317,19 @@
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC">
                 <div class="error-message"></div>
             </div>
+<<<<<<< Updated upstream
 
             <div class="modal-form-group">
                 <label>Status</label>
                 <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
 
+=======
+            <div class="modal-form-group">
+                <label>Rarity Status</label>
+                <input type="text" id="rarityStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+            </div>
+>>>>>>> Stashed changes
             <button type="submit" class="btn-confirm">Save Rarity</button>
         </form>
     </div>
@@ -392,12 +402,19 @@
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
             </div>
+<<<<<<< Updated upstream
 
             <div class="modal-form-group">
                 <label>Status</label>
                 <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
 
+=======
+                <div class="modal-form-group">
+                    <label>Set Status</label>
+                    <input type="text" id="setStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+                </div>
+>>>>>>> Stashed changes
             <button type="submit" class="btn-confirm">Save Set</button>
         </form>
     </div>
