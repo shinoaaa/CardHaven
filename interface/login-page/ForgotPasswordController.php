@@ -24,7 +24,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "email",
-                "message" => "Email harus diisi"
+                "message" => "Please enter your email"
             ]);
         }
 
@@ -32,7 +32,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "created_date",
-                "message" => "Created date harus diisi"
+                "message" => "Please enter your password"
             ]);
         }
 
@@ -60,7 +60,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "general",
-                "message" => "Eksekusi Query Gagal: " . ($errors[0]['message'] ?? 'Unknown error')
+                "message" => "Querry Execution Failed: " . ($errors[0]['message'] ?? 'Unknown error')
             ]);
         }
 
@@ -71,7 +71,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "email",
-                "message" => "Email atau created date tidak cocok"
+                "message" => "Email or create date is incorrect"
             ]);
         }
 
@@ -80,7 +80,7 @@ class ForgotPasswordController
 
         $this->respond([
             "status" => "success",
-            "message" => "Data cocok. Silakan masukkan password baru."
+            "message" => "The information matches. Please enter your new password."
         ]);
     }
 
@@ -93,7 +93,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "general",
-                "message" => "Silakan verifikasi data terlebih dahulu."
+                "message" => "Please verify the information first."
             ]);
         }
 
@@ -101,15 +101,15 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "password",
-                "message" => "Password harus diisi"
+                "message" => "Please enter your password"
             ]);
         }
 
-        if (strlen($password) < 8) {
+        if (strlen($password) < 8 || strlen($password)) {
             $this->respond([
                 "status" => "error",
                 "target" => "password",
-                "message" => "Password minimal 8 karakter"
+                "message" => "Password must be 8 - 12 characters long"
             ]);
         }
 
@@ -117,7 +117,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "confirm_password",
-                "message" => "Konfirmasi password harus diisi"
+                "message" => "Confirm password cannot be empty"
             ]);
         }
 
@@ -125,7 +125,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "confirm_password",
-                "message" => "Konfirmasi password tidak cocok"
+                "message" => "Confirm password does not match"
             ]);
         }
 
@@ -151,7 +151,7 @@ class ForgotPasswordController
             $this->respond([
                 "status" => "error",
                 "target" => "general",
-                "message" => "Gagal update password: " . ($errors[0]['message'] ?? 'Unknown error')
+                "message" => "Password update failed: " . ($errors[0]['message'] ?? 'Unknown error')
             ]);
         }
 
@@ -162,7 +162,7 @@ class ForgotPasswordController
 
         $this->respond([
             "status" => "success",
-            "message" => "Password berhasil diubah. Silakan login kembali."
+            "message" => "Your password has been successfully changed. Please log in again."
         ]);
     }
 }
