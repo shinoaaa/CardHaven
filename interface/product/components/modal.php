@@ -497,12 +497,10 @@
                 <input type="number" name="biaya_admin" id="metodeBiaya" class="modal-input" placeholder="e.g. 2000" min="0" value="0">
                 <div class="error-message"></div>
             </div>
-
-            <div class="modal-form-group">
-                <label>Status</label>
-                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
-            </div>
-
+                <div class="modal-form-group">
+                    <label>Method Status</label>
+                    <input type="text" id="metodeStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+                </div>
             <button type="submit" class="btn-confirm">Save Method</button>
         </form>
     </div>
