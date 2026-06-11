@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -31,27 +32,33 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     }
 
     // 2. Validasi Panjang Password (8-12 karakter)
-    if (password.value.length < 8 || password.value.length > 12) {
-        showError(password, passwordError, "Password must be 8 - 12 characters long");
-        isValid = false;
-    }else if (!password.value.trim()) {
-        showError(password, passwordError, "Password must be filled");
-        isValid = false;
-    }else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password.value)) {
-        showError(password, passwordError, "Password must contain a special character");
-        isValid = false;
-    }
+if (!password.value.trim()) {
+    showError(password, passwordError, "Password must be filled");
+    isValid = false;
+} else if (password.value.length < 8 || password.value.length > 12) {
+    showError(password, passwordError, "Password must be 8 - 12 characters long");
+    isValid = false;
+} else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password.value)) {
+    showError(password, passwordError, "Password must contain a special character");
+    isValid = false;
+}
 
     // 3. Validasi Konfirmasi Password
-    if (password.value !== confirmPassword.value) {
-        showError(confirmPassword, confirmPasswordError, "Confirm password does not match!");
-        isValid = false;
-    } else if (!confirmPassword.value) {
-        showError(confirmPassword, confirmPasswordError, "Please confirm your password");
-        isValid = false;
-    }
+if (!confirmPassword.value) {
+    showError(confirmPassword, confirmPasswordError, "Please confirm your password");
+    isValid = false;
+} else if (password.value !== confirmPassword.value) {
+    showError(confirmPassword, confirmPasswordError, "Confirm password does not match!");
+    isValid = false;
+}
 
     if (!isValid) return;
+
+    // Loading state
+const btnSubmit    = this.querySelector('button[type="submit"]');
+    const originalText = btnSubmit.innerText;
+    btnSubmit.innerText = "Processing...";
+    btnSubmit.disabled  = true;
 
     // Jika valid, kirim data ke PHP
     const formData = new FormData(this);
@@ -70,23 +77,80 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             const data = JSON.parse(responseText);
             
             if (data.status === 'success') {
-                alert('Registration successful! Please login.');
-                window.location.href = 'home'; 
+    Swal.fire({
+        icon:             'success',
+        iconColor:        '#0088FF',
+        title:            'Registration Successful!',
+        text:             'Your account has been created. Please login.',
+        showConfirmButton: false,
+        timer:            1800,
+        background:       '#ffffff',
+        customClass: { title: 'coolveticaa' }
+    }).then(() => {
+        window.location.href = 'home';
+    });
             } else {
-                alert('Failed: ' + data.message);
+    btnSubmit.innerText = originalText;
+    btnSubmit.disabled  = false;
+
+    if (data.message.toLowerCase().includes('username')) {
+        showError(username, usernameError, data.message);
+    } else if (data.message.toLowerCase().includes('email')) {
+        showError(email, emailError, data.message);
+    } else if (data.message.toLowerCase().includes('password')) {
+        showError(password, passwordError, data.message);
+    } else {
+        Swal.fire({
+            icon:              'error',
+            title:             'Registration Failed',
+            text:              data.message,
+            confirmButtonText: 'OK',
+            buttonsStyling:    false,
+            customClass: {
+                popup:         'cardhaven-popup',
+                title:         'coolveticaa cardhaven-title',
+                confirmButton: 'btn-confirm'
             }
+        });
+    }
+}
         } catch (jsonError) {
-            // Jika gagal parse JSON, berarti PHP mengirim error HTML
-            console.error("Server Error Response:", responseText);
-            alert("An error occurred on the server (PHP Error). Check the console log (F12) for details.");
+    btnSubmit.innerText = originalText;
+    btnSubmit.disabled  = false;
+    console.error("Server Error Response:", responseText);
+    Swal.fire({
+        icon:              'error',
+        title:             'System Error',
+        text:              'An error occurred on the server.',
+        confirmButtonText: 'OK',
+        buttonsStyling:    false,
+        customClass: {
+            popup:         'cardhaven-popup',
+            title:         'coolveticaa cardhaven-title',
+            confirmButton: 'btn-confirm'
         }
+    });
+}
 
     } catch (error) {
-        console.error('Fetch Error:', error);
-        alert('Unable to connect to the server.');
-    }
+    btnSubmit.innerText = originalText;
+    btnSubmit.disabled  = false;
+    console.error('Fetch Error:', error);
+    Swal.fire({
+        icon:              'error',
+        title:             'Connection Error',
+        text:              'Unable to connect to the server.',
+        confirmButtonText: 'OK',
+        buttonsStyling:    false,
+        customClass: {
+            popup:         'cardhaven-popup',
+            title:         'coolveticaa cardhaven-title',
+            confirmButton: 'btn-confirm'
+        }
+    });
+}
 });
-
+});
 function showError(inputElement, errorElement, message) {
     inputElement.style.borderColor = "red";
     errorElement.innerText = message;
@@ -95,9 +159,12 @@ function showError(inputElement, errorElement, message) {
 
 function resetErrors(inputs, errors) {
     inputs.forEach(input => {
-        input.style.borderColor = "#0F3891";
+        if (input) input.style.borderColor = "#0F3891";
     });
     errors.forEach(error => {
-        error.style.display = "none";
+        if (error) {
+            error.style.display = "none";
+            error.innerText     = "";
+        }
     });
 }
