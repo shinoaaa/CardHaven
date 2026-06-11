@@ -11,6 +11,22 @@ function openAddMetode() {
     metodeForm.reset();
     metodeModal.style.display = 'flex';
 }
+function loadMetodePage(page) {
+    const container = document.getElementById('container-metode');
+    container.style.opacity = '0.5';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('pm', page);
+
+    fetch(`${window.location.pathname}?${urlParams.toString()}`)
+        .then(res => res.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            container.innerHTML = doc.getElementById('container-metode').innerHTML;
+            container.style.opacity = '1';
+            window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+        });
+}
 
 function openEditMetode(id) {
     fetch(`${METODE_API}?get_detail=${id}`)

@@ -1,4 +1,4 @@
-<div style="flex: 1;">
+<div style="flex: 1;"id="container-rarity">
     <div class="card-title-row">
         <h2 class="coolveticaa" style="font-size: 1.2rem;">Rarity</h2>
         <button class="btn-add-green" onclick="openModalRarity()">+ Add Rarity</button>
@@ -27,9 +27,9 @@
                 <td><?= htmlspecialchars($rowRarity['nama_game'] ?? 'N/A') ?></td>
                 <td>
                     <?php if ($rowRarity['aktif'] == 1): ?>
-                        <span ...>Active</span>
+                        <span style="color: #27AE60; font-weight: bold;">Active</span>
                     <?php else: ?>
-                        <span ...>Inactive</span>
+                        <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
                     <?php endif; ?>
                 </td> 
                       <td> 
@@ -52,33 +52,40 @@
 </div>
 
 <div class="pagination-container">
+    <!-- Arrow Back -->
     <?php if ($page_rarity > 1): ?>
-        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity-1 ?>" class="page-link">&lt;</a>
+        <a href="javascript:void(0)" onclick="loadRarityPage(<?= $page_rarity - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
         <span class="page-link disabled">&lt;</span>
     <?php endif; ?>
 
     <?php
     $range = 3;
+    
+    // Halaman Pertama & Dots
     if ($page_rarity > ($range + 2)) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr=1" class="page-link">1</a><span class="dots">...</span>';
+        echo '<a href="javascript:void(0)" onclick="loadRarityPage(1)" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_rarity > $range + 1) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr=1" class="page-link">1</a>';
+        echo '<a href="javascript:void(0)" onclick="loadRarityPage(1)" class="page-link">1</a>';
     }
 
+    // Loop Angka Halaman
     for ($i = max(1, $page_rarity - $range); $i <= min($total_pages_rarity, $page_rarity + $range); $i++) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$i.'" class="page-link '.($i == $page_rarity ? 'active' : '').'">'.$i.'</a>';
+        $activeClass = ($i == $page_rarity) ? 'active' : '';
+        echo '<a href="javascript:void(0)" onclick="loadRarityPage('.$i.')" class="page-link '.$activeClass.'">'.$i.'</a>';
     }
 
+    // Dots & Halaman Terakhir
     if ($page_rarity < ($total_pages_rarity - $range - 1)) {
-        echo '<span class="dots">...</span><a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$total_pages_rarity.'" class="page-link">'.$total_pages_rarity.'</a>';
+        echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadRarityPage('.$total_pages_rarity.')" class="page-link">'.$total_pages_rarity.'</a>';
     } elseif ($page_rarity < $total_pages_rarity - $range) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$total_pages_rarity.'" class="page-link">'.$total_pages_rarity.'</a>';
+        echo '<a href="javascript:void(0)" onclick="loadRarityPage('.$total_pages_rarity.')" class="page-link">'.$total_pages_rarity.'</a>';
     }
     ?>
 
+    <!-- Arrow Next -->
     <?php if ($page_rarity < $total_pages_rarity): ?>
-        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity+1 ?>" class="page-link">&gt;</a>
+        <a href="javascript:void(0)" onclick="loadRarityPage(<?= $page_rarity + 1 ?>)" class="page-link">&gt;</a>
     <?php else: ?>
         <span class="page-link disabled">&gt;</span>
     <?php endif; ?>

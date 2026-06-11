@@ -49,35 +49,41 @@
         </tbody>
     </table>
 </div>
-
 <div class="pagination-container">
+    <!-- Arrow Back -->
     <?php if ($page_metode > 1): ?>
-        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>&pm=<?= $page_metode-1 ?>" class="page-link">&lt;</a>
+        <a href="javascript:void(0)" onclick="loadMetodePage(<?= $page_metode - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
         <span class="page-link disabled">&lt;</span>
     <?php endif; ?>
 
     <?php
     $range = 3;
+    
+    // Halaman Pertama & Dots
     if ($page_metode > ($range + 2)) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'&pm=1" class="page-link">1</a><span class="dots">...</span>';
+        echo '<a href="javascript:void(0)" onclick="loadMetodePage(1)" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_metode > $range + 1) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'&pm=1" class="page-link">1</a>';
+        echo '<a href="javascript:void(0)" onclick="loadMetodePage(1)" class="page-link">1</a>';
     }
 
+    // Loop Angka Halaman
     for ($i = max(1, $page_metode - $range); $i <= min($total_pages_metode, $page_metode + $range); $i++) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'&pm='.$i.'" class="page-link '.($i == $page_metode ? 'active' : '').'">'.$i.'</a>';
+        $activeClass = ($i == $page_metode) ? 'active' : '';
+        echo '<a href="javascript:void(0)" onclick="loadMetodePage('.$i.')" class="page-link '.$activeClass.'">'.$i.'</a>';
     }
 
+    // Dots & Halaman Terakhir
     if ($page_metode < ($total_pages_metode - $range - 1)) {
-        echo '<span class="dots">...</span><a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'&pm='.$total_pages_metode.'" class="page-link">'.$total_pages_metode.'</a>';
+        echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadMetodePage('.$total_pages_metode.')" class="page-link">'.$total_pages_metode.'</a>';
     } elseif ($page_metode < $total_pages_metode - $range) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'&pm='.$total_pages_metode.'" class="page-link">'.$total_pages_metode.'</a>';
+        echo '<a href="javascript:void(0)" onclick="loadMetodePage('.$total_pages_metode.')" class="page-link">'.$total_pages_metode.'</a>';
     }
     ?>
 
+    <!-- Arrow Next -->
     <?php if ($page_metode < $total_pages_metode): ?>
-        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>&pm=<?= $page_metode+1 ?>" class="page-link">&gt;</a>
+        <a href="javascript:void(0)" onclick="loadMetodePage(<?= $page_metode + 1 ?>)" class="page-link">&gt;</a>
     <?php else: ?>
         <span class="page-link disabled">&gt;</span>
     <?php endif; ?>

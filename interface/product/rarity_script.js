@@ -19,6 +19,23 @@ function openModalRarity() {
     modalRarity.style.display = 'flex';
 }
 
+function loadRarityPage(page) {
+    const container = document.getElementById('container-rarity');
+    container.style.opacity = '0.5';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('pr', page);
+
+    fetch(`${window.location.pathname}?${urlParams.toString()}`)
+        .then(res => res.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            container.innerHTML = doc.getElementById('container-rarity').innerHTML;
+            container.style.opacity = '1';
+            window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+        });
+}
+
 function openDetailRarity(id) {
     fetch(`${API_URL}?get_detail=${id}`)
         .then(res => res.json())

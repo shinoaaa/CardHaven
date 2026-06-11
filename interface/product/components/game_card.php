@@ -55,33 +55,40 @@
 </div>
 
 <div class="pagination-container">
+    <!-- Arrow Back -->
     <?php if ($page_game > 1): ?>
-        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game-1 ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&lt;</a>
+        <a href="javascript:void(0)" onclick="loadGamePage(<?= $page_game - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
         <span class="page-link disabled">&lt;</span>
     <?php endif; ?>
 
     <?php
     $range = 3;
+    
+    // Halaman Pertama & Dots
     if ($page_game > ($range + 2)) {
-        echo '<a href="?pp='.$page_produk.'&pg=1&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">1</a><span class="dots">...</span>';
+        echo '<a href="javascript:void(0)" onclick="loadGamePage(1)" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_game > $range + 1) {
-        echo '<a href="?pp='.$page_produk.'&pg=1&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">1</a>';
+        echo '<a href="javascript:void(0)" onclick="loadGamePage(1)" class="page-link">1</a>';
     }
 
+    // Loop Angka Halaman
     for ($i = max(1, $page_game - $range); $i <= min($total_pages_game, $page_game + $range); $i++) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$i.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link '.($i == $page_game ? 'active' : '').'">'.$i.'</a>';
+        $activeClass = ($i == $page_game) ? 'active' : '';
+        echo '<a href="javascript:void(0)" onclick="loadGamePage('.$i.')" class="page-link '.$activeClass.'">'.$i.'</a>';
     }
 
+    // Dots & Halaman Terakhir
     if ($page_game < ($total_pages_game - $range - 1)) {
-        echo '<span class="dots">...</span><a href="?pp='.$page_produk.'&pg='.$total_pages_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_game.'</a>';
+        echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadGamePage('.$total_pages_game.')" class="page-link">'.$total_pages_game.'</a>';
     } elseif ($page_game < $total_pages_game - $range) {
-        echo '<a href="?pp='.$page_produk.'&pg='.$total_pages_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_game.'</a>';
+        echo '<a href="javascript:void(0)" onclick="loadGamePage('.$total_pages_game.')" class="page-link">'.$total_pages_game.'</a>';
     }
     ?>
 
+    <!-- Arrow Next -->
     <?php if ($page_game < $total_pages_game): ?>
-        <a href="?pp=<?= $page_produk ?>&pg=<?= $page_game+1 ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&gt;</a>
+        <a href="javascript:void(0)" onclick="loadGamePage(<?= $page_game + 1 ?>)" class="page-link">&gt;</a>
     <?php else: ?>
         <span class="page-link disabled">&gt;</span>
     <?php endif; ?>

@@ -7,6 +7,23 @@ document.querySelectorAll('#gameForm .modal-input').forEach(input => {
     input.addEventListener('input', function() { clearError(this); });
 });
 
+function loadGamePage(page) {
+    const container = document.getElementById('container-game'); // Pastikan div di game_card.php punya ID ini
+    container.style.opacity = '0.5';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('pg', page);
+
+    fetch(`${window.location.pathname}?${urlParams.toString()}`)
+        .then(res => res.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            container.innerHTML = doc.getElementById('container-game').innerHTML;
+            container.style.opacity = '1';
+            window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+        });
+}
+
 function openAddModal() {
     clearAllErrors('gameForm');
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
