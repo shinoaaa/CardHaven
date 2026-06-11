@@ -26,6 +26,23 @@ function loadGameOptionsForSet(selectedId) {
         });
 }
 
+function loadSetPage(page) {
+    const container = document.getElementById('container-set'); 
+    container.style.opacity = '0.5';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('ps', page);
+
+    fetch(`${window.location.pathname}?${urlParams.toString()}`)
+        .then(res => res.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            container.innerHTML = doc.getElementById('container-set').innerHTML;
+            container.style.opacity = '1';
+            window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+        });
+}
+
 function openAddSetModal() {
     clearAllErrors('setForm');
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';

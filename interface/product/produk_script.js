@@ -190,6 +190,23 @@ document.getElementById('productForm').onsubmit = async function(e) {
     }
 };
 
+function loadProductPage(page) {
+    const container = document.getElementById('container-produk');
+    container.style.opacity = '0.5';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('pp', page);
+
+    fetch(`${window.location.pathname}?${urlParams.toString()}`)
+        .then(res => res.text())
+        .then(html => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            container.innerHTML = doc.getElementById('container-produk').innerHTML;
+            container.style.opacity = '1';
+            window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+        });
+}
+
 function openAddProductModal() {
     clearAllErrors('productForm');
     document.getElementById('productForm').reset();
