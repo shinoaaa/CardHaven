@@ -448,9 +448,6 @@ input::placeholder {
     background-color: #dee8fc; /* Kode warna biru muda pastel */
 }
 
-
-
-
 .btn-action-group {
     display: flex;
     justify-content: center;
@@ -630,7 +627,7 @@ input::placeholder {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-top: auto; /* Dorong pagination ke bawah kartu */
+    margin-top: auto;
     padding-top: 15px;
     width: 100%;
 }
