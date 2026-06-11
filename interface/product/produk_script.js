@@ -304,19 +304,63 @@ function openDetailProductModal(id) {
         .then(data => {
             if(data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            // Masukkan data ke dalam element HTML
+            // 1. Data Dasar
             document.getElementById('detProdID').innerText = 'PRD-' + String(id).padStart(4, '0');
             document.getElementById('detProdNama').innerText = data.nama_produk || '-';
             document.getElementById('detProdTipe').innerText = data.tipe_produk || '-';
             document.getElementById('detProdGame').innerText = data.nama_game || '-';
-            document.getElementById('detProdStok').innerText = data.stok || '0';
+            document.getElementById('detProdStok').innerText = (data.stok || '0') + ' pcs';
             document.getElementById('detProdHarga').innerText = 'Rp ' + parseFloat(data.harga_jual).toLocaleString('id-ID');
+            document.getElementById('detProdDeskripsi').innerText = data.deskripsi || 'No description available.';
             
+            // 2. Logika Status
             const statusEl = document.getElementById('detProdStatus');
-            if (data.status == 1) {
-                statusEl.innerHTML = '<span style="color: #27AE60; font-weight: bold;">Active</span>';
+            statusEl.innerHTML = data.status == 1 
+                ? '<span style="color: #27AE60; font-weight: bold;"><i class="fas fa-check-circle"></i> Active</span>' 
+                : '<span style="color: #E74C3C; font-weight: bold;"><i class="fas fa-times-circle"></i> Inactive</span>';
+
+            // 3. Logika Gambar
+            const imgEl = document.getElementById('detProdImg');
+            const placeholderEl = document.getElementById('detProdImgPlaceholder');
+            if (data.foto_produk) {
+                imgEl.src = '/CardHaven/' + data.foto_produk; 
+                imgEl.style.display = 'block';
+                placeholderEl.style.display = 'none';
             } else {
-                statusEl.innerHTML = '<span style="color: #E74C3C; font-weight: bold;">Inactive</span>';
+                imgEl.style.display = 'none';
+                placeholderEl.style.display = 'block';
+            }
+
+            // 4. Logika Kondisional Field (Set, Rarity, Kondisi)
+            const tipe = data.tipe_produk;
+            const rowSet = document.getElementById('detRowSet');
+            const rowRarity = document.getElementById('detRowRarity');
+            const rowKondisi = document.getElementById('detRowKondisi');
+
+            // Default sembunyikan semua yang opsional
+            rowSet.style.display = 'none';
+            rowRarity.style.display = 'none';
+            rowKondisi.style.display = 'none';
+
+            // Jika tipe mengandung 'Card' atau 'Booster', tampilkan Set
+            if (tipe.includes('Card') || tipe.includes('Booster')) {
+                rowSet.style.display = 'table-row';
+                document.getElementById('detProdSet').innerText = data.nama_set || '-';
+            }
+
+            // Jika spesifik 'Single Card', tampilkan Rarity dan Kondisi
+            if (tipe === 'Single Card') {
+                rowRarity.style.display = 'table-row';
+                rowKondisi.style.display = 'table-row';
+                
+                if (data.nama_rarity) {
+                    document.getElementById('detProdRarity').innerText = `${data.nama_rarity} (${data.kode_rarity})`;
+                } else {
+                    document.getElementById('detProdRarity').innerText = '-';
+                }
+                
+                const mapKondisi = { 'M': 'Mint', 'NM': 'Near Mint', 'LP': 'Lightly Played', 'MP': 'Moderately Played', 'HP': 'Heavily Played', 'DMG': 'Damaged' };
+                document.getElementById('detProdKondisi').innerText = mapKondisi[data.kondisi] || data.kondisi || '-';
             }
 
             // Tampilkan modal

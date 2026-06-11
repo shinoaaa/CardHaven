@@ -20,16 +20,6 @@ function openModalRarity() {
 }
 
 function openDetailRarity(id) {
-    Swal.fire({
-        title: 'Loading Data...',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        background: "transparent",
-        backdrop: "rgba(13,71,161,.25)",
-        customClass: { popup: "cardhaven-popup", title: "coolveticaa cardhaven-title" },
-        didOpen: () => { Swal.showLoading(); }
-    });
-
     fetch(`${API_URL}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {

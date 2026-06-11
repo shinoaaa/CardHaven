@@ -128,6 +128,88 @@
     </div>
 </div>
 
+<div id="productDetailModal" class="modal-overlay">
+    <div class="modal-box" style="width: 800px; max-width: 95%;">
+        <div class="modal-header">
+            <h2>PRODUCT <span class="blue-text">DETAILS</span></h2>
+            <span id="detProdID" class="game-id" style="padding: 4px 10px; border-radius: 5px; font-size: 0.9rem;"></span>
+        </div>
+        
+        <div class="detail-container" style="display: flex; gap: 30px; margin-top: 20px; align-items: flex-start;">
+            
+            <!-- SISI KIRI: Foto Produk -->
+            <div class="detail-left" style="flex: 1; text-align: center;">
+                <div style="border: 1.5px solid #eee; border-radius: 12px; padding: 15px; background: #fdfdfd; min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <img id="detProdImg" src="" style="max-width: 100%; max-height: 350px; border-radius: 8px; object-fit: contain; display: none;">
+                    <div id="detProdImgPlaceholder" style="color: #aaa;">
+                        <i class="fas fa-image" style="font-size: 3rem; display: block; margin-bottom: 10px;"></i>
+                        No Image Available
+                    </div>
+                </div>
+            </div>
+
+            <!-- SISI KANAN: Informasi Detail -->
+            <div class="detail-right" style="flex: 1.5;">
+                <table class="detail-table" style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #888; width: 120px;">Product Name</td>
+                        <td style="padding: 8px 0; font-weight: bold; font-size: 1.1rem;" id="detProdNama"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #888;">Type</td>
+                        <td style="padding: 8px 0;"><span id="detProdTipe" class="badge-tipe" style="background: #0088FF; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;"></span></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #888;">Game</td>
+                        <td style="padding: 8px 0;" id="detProdGame"></td>
+                    </tr>
+                    
+                    <!-- Kondisional: Muncul jika Single Card, Booster Pack, Booster Box -->
+                    <tr id="detRowSet" style="display: none;">
+                        <td style="padding: 8px 0; color: #888;">Card Set</td>
+                        <td style="padding: 8px 0;" id="detProdSet"></td>
+                    </tr>
+
+                    <!-- Kondisional: Muncul HANYA jika Single Card -->
+                    <tr id="detRowRarity" style="display: none;">
+                        <td style="padding: 8px 0; color: #888;">Rarity</td>
+                        <td style="padding: 8px 0;" id="detProdRarity"></td>
+                    </tr>
+                    <tr id="detRowKondisi" style="display: none;">
+                        <td style="padding: 8px 0; color: #888;">Condition</td>
+                        <td style="padding: 8px 0;" id="detProdKondisi"></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2"><hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #888;">Stock</td>
+                        <td style="padding: 8px 0; font-weight: bold;" id="detProdStok"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #888;">Price</td>
+                        <td style="padding: 8px 0; font-weight: bold; color: #27AE60; font-size: 1.2rem;" id="detProdHarga"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #888;">Status</td>
+                        <td style="padding: 8px 0;" id="detProdStatus"></td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 15px;">
+                    <label style="color: #888; font-size: 0.9rem; display: block; margin-bottom: 5px;">Description:</label>
+                    <div id="detProdDeskripsi" style="background: #fff; padding: 10px; border-radius: 6px; font-size: 0.9rem; color: #555; min-height: 60px; border: 1px solid #eee;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: right; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button type="button" class="btn-confirm" onclick="document.getElementById('productDetailModal').style.display='none'" style="width: 120px;">Close</button>
+        </div>
+    </div>
+</div>
+
 <div id="gameModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
