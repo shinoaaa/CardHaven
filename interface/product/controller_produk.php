@@ -86,10 +86,11 @@ try {
     // ==========================================
     if (isset($_GET['get_detail'])) {
         $id = $_GET['get_detail'];
-        $sql = "SELECT p.*, g.nama_game, s.nama_set, u1.username as creator, u2.username as modifier 
+        $sql = "SELECT p.*, g.nama_game, s.nama_set,r.nama_rarity, r.kode_rarity, u1.username as creator, u2.username as modifier 
                 FROM dbo.produk p 
                 LEFT JOIN dbo.game g ON p.id_game = g.id_game
                 LEFT JOIN dbo.set_kartu s ON p.id_set = s.id_set
+                LEFT JOIN dbo.rarity r ON p.id_rarity = r.id_rarity
                 LEFT JOIN dbo.pengguna u1 ON p.created_by = u1.id_pengguna
                 LEFT JOIN dbo.pengguna u2 ON p.modified_by = u2.id_pengguna
                 WHERE p.id_produk = ? AND p.is_deleted = 0";
