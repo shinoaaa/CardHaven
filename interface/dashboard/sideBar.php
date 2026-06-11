@@ -113,11 +113,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if(role === 1){
-            adminRole.textContent = 'Admin';
+            adminRole.textContent = 'Karyawan';
         } else if (role === 2){
-            adminRole.textContent = 'Super Admin'
+            adminRole.textContent = 'Karyawan'
         } else{
-            adminRole.textContent = 'Owner'
+            adminRole.textContent = 'Super Admin'
         }
 
         const request = window.location.pathname;

@@ -37,7 +37,7 @@
         }else if ($segments[1] == 'product'){
             echo 'Welcome to ', $segments[1] ;
         }else if ($segments[1] == 'event'){
-            echo 'Welcome to ', $segments[1] ;
+            include '../CardHaven/interface/event/index.php';
         }else if ($segments[1] == 'sales'){
             echo 'Welcome to ', $segments[1] ;
         }else if ($segments[1] == 'user'){
