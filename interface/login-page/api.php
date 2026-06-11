@@ -12,7 +12,7 @@ try {
         echo json_encode([
             "status" => "error",
             "target" => "general",
-            "message" => "Koneksi database gagal."
+            "message" => "The database connection failed."
         ]);
         exit;
     }
@@ -21,7 +21,7 @@ try {
         echo json_encode([
             "status" => "error",
             "target" => "general",
-            "message" => "Metode request tidak diizinkan"
+            "message" => "The request method is not allowed"
         ]);
         exit;
     }
@@ -43,7 +43,7 @@ try {
         echo json_encode([
             "status" => "error",
             "target" => "general",
-            "message" => "Action tidak valid"
+            "message" => "Action invalid"
         ]);
         exit;
     }

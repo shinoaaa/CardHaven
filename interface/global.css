@@ -58,7 +58,7 @@ a{
     --main-font: 'Inter', sans-serif;
 }
 
-h2, h3 {
+h1,h2, h3 {
     font-family: var(--main-font);
     font-weight: 400; /* 400 itu artinya Regular */
 }
@@ -124,7 +124,7 @@ body {
 h1 {
     font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 20px;
+
 }
 
 .social-login {
