@@ -1,114 +1,171 @@
+<?php require 'apifetch.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Event List</title>
 </head>
 <body>
     <div class="main-content">
         <div class="content-card">
-        <div class="card-title-row">
-            <h2 class="coolveticaa">Products</h2>
-            <button class="btn-add-green" onclick="openAddProductModal()">+ Add Product</button>
-        </div>
-
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Product Name</th>
-                    <th>Game</th>
-                    <th>Product Type</th>
-                    <th>Stock</th>
-                    <th>Price</th>
-                    <th>status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (sqlsrv_has_rows($stmt_produk)): ?>
-                    <?php 
-                        $no = $offset_produk + 1;
-                        while ($row = sqlsrv_fetch_array($stmt_produk, SQLSRV_FETCH_ASSOC)): ?>
+            <div class="card-title-row">
+                <h2 class="coolveticaa">Events</h2>
+                <button class="btn-add-green" onclick="openAddEventModal()">+ Add Event</button>
+            </div>
+            <table class="styled-table">
+                <thead>
                     <tr>
-                        <td><?= $no++ ?></td>
-                        <td style="font-weight: 600; text-align: left;">
-                            <?= htmlspecialchars($row['nama_produk']) ?>
-                        </td>
-                        <td><?= htmlspecialchars($row['nama_game'] ?? '-') ?></td>
-                        <td><?= htmlspecialchars($row['tipe_produk'] ?? '-') ?></td>
-                        <td style="text-align: right;"><?= (int)$row['stok'] ?></td>
-                        <td style="font-weight: bold; text-align: right;">
-                            Rp<?= number_format($row['harga_jual'], 2, ',', '.') ?>
-                        </td>
-                        <td>
-                            <?php if ($row['status'] == 1): ?>
-                                <span style="color: #27AE60; font-weight: bold;">Active</span>
-                            <?php else: ?>
-                                <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
-                            <?php endif; ?>
-                        </td>
-                            <td>
-                                <div class="btn-action-group">
-                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
-                                    <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
-                                    <label class="switch">
-                                        <input type="checkbox" 
-                                            <?= ($row['status'] == 1) ? 'checked' : '' ?> 
-                                            onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)">🗑️</button>
-                                </div>
-                            </td>
+                        <th>No</th>
+                        <th>Event Name</th>
+                        <th>Event Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Discount</th>
+                        <th style="max-width: 80px;">Featured Product</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
-                    <?php endwhile; ?>
+                </thead>
+                <tbody>
+                    <?php if (!empty($stmt_event)): ?>
+                        <?php $no = 1; ?>
+                        <?php foreach ($stmt_event as $row): ?>
+                            <tr>
+                                <td><?= $no++ ?></td>
+
+                                <td style="font-weight: 600; text-align: left;">
+                                    <?= htmlspecialchars($row['nama_event'] ?? '-') ?>
+                                </td>
+
+                                <td>
+                                    <?= htmlspecialchars($row['tipe_event'] ?? '-') ?>
+                                </td>
+
+                                <td>
+                                    <?= isset($row['tanggal_mulai']) && $row['tanggal_mulai'] instanceof DateTime
+                                        ? $row['tanggal_mulai']->format('d-m-Y')
+                                        : '-' ?>
+                                </td>
+
+                                <td>
+                                    <?= isset($row['tanggal_berakhir']) && $row['tanggal_berakhir'] instanceof DateTime
+                                        ? $row['tanggal_berakhir']->format('d-m-Y')
+                                        : '-' ?>
+                                </td>
+
+                                <td style="font-weight: bold; text-align: right;">
+                                    <?= number_format((float)($row['persen_diskon'] ?? 0), 0, ',', '.') ?>%
+                                </td>
+
+                                <td style="text-align: center;">
+                                    <?= (int)($row['total_item'] ?? 0) ?>
+                                </td>
+
+                                <td>
+                                    <?php if (($row['status_event'] ?? 0) == 1): ?>
+                                        <span style="color: #27AE60; font-weight: bold;">Active</span>
+                                    <?php else: ?>
+                                        <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <div class="btn-action-group">
+                                        <button class="btn-view-icon"
+                                            onclick="openDetailEventModal(<?= (int)$row['id_event'] ?>)">
+                                            ...
+                                        </button>
+
+                                        <button class="btn-edit-icon"
+                                            onclick="openEditEventModal(<?= (int)$row['id_event'] ?>)">
+                                            ✏️
+                                        </button>
+
+                                        <label class="switch">
+                                            <input
+                                                type="checkbox"
+                                                <?= (($row['status_event'] ?? 0) == 1) ? 'checked' : '' ?>
+                                                onchange="toggleEventStatus(
+                                                    <?= (int)$row['id_event'] ?>,
+                                                    this.checked,
+                                                    this
+                                                )">
+                                            <span class="slider"></span>
+                                        </label>
+
+                                        <button class="btn-delete-icon"
+                                            onclick="confirmDeleteEvent(<?= (int)$row['id_event'] ?>)">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="9">No events found.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+            <div class="pagination-container">
+
+                <!-- Previous -->
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?= $page - 1 ?>" class="page-link">&lt;</a>
                 <?php else: ?>
-                    <tr><td colspan="8">No products found.</td></tr>
+                    <span class="page-link disabled">&lt;</span>
                 <?php endif; ?>
-            </tbody>
-        </table>
 
-        <!-- PAGINATION PRODUK -->
-        <div class="pagination-container">
-            <!-- Arrow Back -->
-            <?php if ($page_produk > 1): ?>
-                <a href="?pp=<?= $page_produk-1 ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&lt;</a>
-            <?php else: ?>
-                <span class="page-link disabled">&lt;</span>
-            <?php endif; ?>
+                <?php
+                $start = max(1, $page - 1);
+                $end = min($total_pages, $page + 1);
 
-            <?php
-            $range = 2; // Jumlah angka di kiri & kanan halaman aktif
-            
-            // Halaman Pertama & Dots
-            if ($page_produk > ($range + 2)) {
-                echo '<a href="?pp=1&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">1</a><span class="dots">...</span>';
-            } elseif ($page_produk > $range + 1) {
-                echo '<a href="?pp=1&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">1</a>';
-            }
+                // halaman pertama
+                if ($start > 1):
+                ?>
+                    <a href="?page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
 
-            // Loop Angka Halaman
-            for ($i = max(1, $page_produk - $range); $i <= min($total_pages_produk, $page_produk + $range); $i++) {
-                $active = ($i == $page_produk) ? 'active' : '';
-                echo '<a href="?pp='.$i.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link '.$active.'">'.$i.'</a>';
-            }
+                    <?php if ($start > 2): ?>
+                        <span class="dots">...</span>
+                    <?php endif; ?>
+                <?php endif; ?>
 
-            // Dots & Halaman Terakhir
-            if ($page_produk < ($total_pages_produk - $range - 1)) {
-                echo '<span class="dots">...</span><a href="?pp='.$total_pages_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_produk.'</a>';
-            } elseif ($page_produk < $total_pages_produk - $range) {
-                echo '<a href="?pp='.$total_pages_produk.'&pg='.$page_game.'&ps='.$page_set.'&pr='.$page_rarity.'" class="page-link">'.$total_pages_produk.'</a>';
-            }
-            ?>
+                <!-- halaman sekitar current -->
+                <?php for ($i = $start; $i <= $end; $i++): ?>
+                    <a
+                        href="?page=<?= $i ?>"
+                        class="page-link <?= $i == $page ? 'active' : '' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
 
-            <!-- Arrow Next -->
-            <?php if ($page_produk < $total_pages_produk): ?>
-                <a href="?pp=<?= $page_produk+1 ?>&pg=<?= $page_game ?>&ps=<?= $page_set ?>&pr=<?= $page_rarity ?>" class="page-link">&gt;</a>
-            <?php else: ?>
-                <span class="page-link disabled">&gt;</span>
-            <?php endif; ?>
+                <!-- halaman terakhir -->
+                <?php if ($end < $total_pages): ?>
+
+                    <?php if ($end < $total_pages - 1): ?>
+                        <span class="dots">...</span>
+                    <?php endif; ?>
+
+                    <a
+                        href="?page=<?= $total_pages ?>"
+                        class="page-link <?= $page == $total_pages ? 'active' : '' ?>">
+                        <?= $total_pages ?>
+                    </a>
+
+                <?php endif; ?>
+
+                <!-- Next -->
+                <?php if ($page < $total_pages): ?>
+                    <a href="?page=<?= $page + 1 ?>" class="page-link">&gt;</a>
+                <?php else: ?>
+                    <span class="page-link disabled">&gt;</span>
+                <?php endif; ?>
+
+            </div>
         </div>
     </div>
 </body>
