@@ -94,10 +94,7 @@
                 <div class="error-message"></div>
             </div>
 
-            <div class="modal-form-group">
-                <label>Status</label>
-                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
-            </div>
+
 
             <div id="pLogSection" style="display:none; margin-top:15px;">
                 <div class="modal-form-group">
@@ -317,24 +314,14 @@
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC">
                 <div class="error-message"></div>
             </div>
-<<<<<<< Updated upstream
-
-            <div class="modal-form-group">
-                <label>Status</label>
-                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
-            </div>
-
-=======
-            <div class="modal-form-group">
-                <label>Rarity Status</label>
-                <input type="text" id="rarityStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
-            </div>
->>>>>>> Stashed changes
+                <div class="modal-form-group">
+                    <label>Rarity Status</label>
+                    <input type="text" id="rarityStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+                </div>
             <button type="submit" class="btn-confirm">Save Rarity</button>
-        </form>
+        </form> 
     </div>
 </div>
-
 <div id="rarityDetailModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -402,19 +389,10 @@
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
             </div>
-<<<<<<< Updated upstream
-
-            <div class="modal-form-group">
-                <label>Status</label>
-                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
-            </div>
-
-=======
                 <div class="modal-form-group">
                     <label>Set Status</label>
-                    <input type="text" id="setStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+                    <input type="text" id="setStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
                 </div>
->>>>>>> Stashed changes
             <button type="submit" class="btn-confirm">Save Set</button>
         </form>
     </div>
@@ -499,7 +477,7 @@
             </div>
                 <div class="modal-form-group">
                     <label>Method Status</label>
-                    <input type="text" id="metodeStatusDisplay" class="modal-input" disabled style="background-color: #f1f5f9; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+                    <input type="text" id="metodeStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
                 </div>
             <button type="submit" class="btn-confirm">Save Method</button>
         </form>
