@@ -1,15 +1,9 @@
-﻿<?php
-session_start();
-require_once '../cardhaven/connection.php';
-require_once 'components/fetch_dashboard.php'; 
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Management - Super Admin</title>
+    <title>Document</title>
 </head>
 <body>
     <div class="main-content">
@@ -117,33 +111,5 @@ require_once 'components/fetch_dashboard.php';
             <?php endif; ?>
         </div>
     </div>
-
-        <div class="master-data-wrapper">
-            <div class="master-table-card">
-                <?php include 'components/game_card.php'; ?>
-            </div>
-
-            <div class="master-table-card">
-                <?php include 'components/set_card.php'; ?>
-            </div>
-
-            <div class="master-table-card">
-                <?php include 'components/rarity_card.php'; ?>
-            </div>
-
-            <div class="master-table-card">
-                <?php include 'components/metode_card.php'; ?>
-                </div>
-        </div>
-    </div>
-
-    <?php include 'components/modal.php'; ?>
-
-    <!-- PENGGUNAAN TRIK CACHE BUSTING (?v=waktu_saat_ini) -->
-    <script src="/cardhaven/interface/product/produk_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/product/set_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/product/rarity_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/product/game_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/product/metode_script.js?v=<?= time() ?>"></script>
 </body>
 </html>
