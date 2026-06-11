@@ -195,12 +195,10 @@ function openAddProductModal() {
     document.getElementById('productForm').reset();
     document.getElementById('pAction').value = 'add';
     
-    const preview = document.getElementById('pPreview');
-    const placeholder = document.getElementById('pPlaceholder');
-    if (preview && placeholder) {
-        preview.style.display = 'none';
-        placeholder.style.display = 'block';
-    }
+    // Kunci status default
+    const statDisp = document.getElementById('productStatusDisplay');
+    statDisp.value = 'ACTIVE (Default)';
+    statDisp.style.color = '#27AE60';
     
     toggleProdFields();
     document.getElementById('productModal').style.display = 'flex';
@@ -235,7 +233,6 @@ function openEditProductModal(id) {
     fetch(`${URL_PRODUK}?get_detail=${id}`)
     .then(res => res.json()).then(data => {
         if(data.error) return cardhavenAlert('error', 'Error', data.error);
-
         clearAllErrors('productForm');
         document.getElementById('pAction').value = 'edit';
         document.getElementById('pID').value = id;
@@ -251,18 +248,10 @@ function openEditProductModal(id) {
         document.getElementById('pKondisi').value = data.kondisi || '';
         document.getElementById('pDeskripsi').value = data.deskripsi || ''; 
         
-        const preview = document.getElementById('pPreview');
-        const placeholder = document.getElementById('pPlaceholder');
-        if (preview && placeholder) {
-            if (data.foto_produk) {
-                preview.src = '/CardHaven/' + data.foto_produk; 
-                preview.style.display = 'block';
-                placeholder.style.display = 'none';
-            } else {
-                preview.style.display = 'none';
-                placeholder.style.display = 'block';
-            }
-        }
+        // Tampilkan status terkini (Read-Only)
+        const statDisp = document.getElementById('productStatusDisplay');
+        statDisp.value = data.status == 1 ? 'ACTIVE' : 'INACTIVE';
+        statDisp.style.color = data.status == 1 ? '#27AE60' : '#E74C3C';
 
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
