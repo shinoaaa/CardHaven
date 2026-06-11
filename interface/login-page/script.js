@@ -96,8 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     Swal.fire({
                         icon: 'success',
                         iconColor: '#0088FF',
-                        title: 'Login Berhasil!',
-                        text: 'Selamat datang kembali di CardHaven.',
+                        title: 'Login successful!',
+                        text: 'Welcome back to CardHaven.',
                         showConfirmButton: false,
                         timer: 1500,
                         background: '#ffffff',
@@ -132,13 +132,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnSubmit.innerText = originalText;
                 btnSubmit.disabled = false;
                 console.error("Server Error Response:", responseText);
-                Swal.fire({ icon: 'error', title: 'System Error', text: 'Terjadi kesalahan pada server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                Swal.fire({ icon: 'error', title: 'System Error', text: 'An error occurred on the server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
             }
         } catch (error) {
             btnSubmit.innerText = originalText;
             btnSubmit.disabled = false;
             console.error("Fetch Error:", error);
-            Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Tidak dapat terhubung ke server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+            Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to connect to the server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
         }
     });
 
@@ -178,11 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 let isValid = true;
 
                 if (!email) {
-                    showError(forgotEmailInput, forgotErrorEmail, "Email tidak boleh kosong");
+                    showError(forgotEmailInput, forgotErrorEmail, "Please enter your email address");
                     isValid = false;
                 }
                 if (!createdDate) {
-                    showError(forgotCreatedDateInput, forgotErrorCreatedDate, "Created date tidak boleh kosong");
+                    showError(forgotCreatedDateInput, forgotErrorCreatedDate, "Please enter the account creation date");
                     isValid = false;
                 }
                 if (!isValid) return;
@@ -219,20 +219,20 @@ document.addEventListener("DOMContentLoaded", () => {
                             } else if (data.target === "created_date") {
                                 showError(forgotCreatedDateInput, forgotErrorCreatedDate, data.message);
                             } else {
-                                Swal.fire({ icon: 'error', title: 'Verifikasi Gagal', text: data.message, confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                                Swal.fire({ icon: 'error', title: 'Verification Failed', text: data.message, confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
                             }
                         }
                     } catch (jsonError) {
                         forgotSubmit.textContent = "Verify";
                         forgotSubmit.disabled = false;
                         console.error("Server Error Response:", responseText);
-                        Swal.fire({ icon: 'error', title: 'System Error', text: 'Terjadi kesalahan pada server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                        Swal.fire({ icon: 'error', title: 'System Error', text: 'An error occurred on the server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
                     }
                 } catch (error) {
                     forgotSubmit.textContent = "Verify";
                     forgotSubmit.disabled = false;
                     console.error("Fetch Error:", error);
-                    Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Tidak dapat terhubung ke server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                    Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to connect to the server.', confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
                 }
                 return;
             }

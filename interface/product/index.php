@@ -13,6 +13,7 @@ require_once 'components/fetch_dashboard.php';
 </head>
 <body>
     <div class="main-content">
+        <h1 class="coolveticaa" style="color: var(--primary-color);font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
         <div class="content-card">
         <div class="card-title-row">
             <h2 class="coolveticaa">Products</h2>
