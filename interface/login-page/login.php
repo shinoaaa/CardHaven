@@ -9,7 +9,7 @@ try {
         echo json_encode([
             "status" => "error",
             "target" => "general",
-            "message" => "Koneksi database gagal."
+            "message" => "The database connection failed."
         ]);
         exit;
     }
