@@ -16,9 +16,7 @@ function loadGameOptionsForSet(selectedId) {
         .then(res => {
             const select = document.getElementById('setGameId');
             select.innerHTML = '<option value="">-- Select Game --</option>';
-            res.data.forEach(g => {
-                select.appendChild(new Option(g.nama_game, g.id_game));
-            });
+            res.data.forEach(g => { select.appendChild(new Option(g.nama_game, g.id_game)); });
             setGamesLoaded = true;
             if (selectedId) select.value = selectedId;
         })
@@ -43,10 +41,7 @@ function openEditSetModal(id) {
     fetch(`${SET_API}?get_detail=${id}`)
         .then(async res => JSON.parse(await res.text()))
         .then(data => {
-            if (!data || data.error) {
-                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
-                return;
-            }
+            if (!data || data.error) return cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
 
             clearAllErrors('setForm');
             document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">EDIT</span> SET';
@@ -56,9 +51,7 @@ function openEditSetModal(id) {
             document.getElementById('setNama').value           = data.nama_set  || '';
             document.getElementById('setKode').value           = data.kode_set  || '';
 
-            if (data.tanggal_rilis) {
-                document.getElementById('setTanggal').value = data.tanggal_rilis;
-            }
+            if (data.tanggal_rilis) document.getElementById('setTanggal').value = data.tanggal_rilis;
 
             loadGameOptionsForSet(data.id_game);
             setModal.style.display = 'flex';
@@ -117,24 +110,15 @@ function toggleSetStatus(id, isActive, el) {
     const label  = isActive ? 'activated' : 'deactivated';
 
     const fd = new FormData();
-    fd.append('action',        action);
-    fd.append('id_set',        id);
+    fd.append('action', action);
+    fd.append('id_set', id);
     fd.append('id_pengguna_js', getEmpId());
 
     fetch(SET_API, { method: 'POST', body: fd })
         .then(async res => JSON.parse(await res.text()))
         .then(res => {
             if (res.status === 'success') {
-                Swal.fire({
-                    icon: 'success',
-                    iconColor: '#0088FF',
-                    title: 'Success!',
-                    text: `Set status has been ${label}.`,
-                    showConfirmButton: false,
-                    timer: 1500,
-                    background: '#ffffff',
-                    customClass: { title: 'coolveticaa' }
-                }).then(() => location.reload());
+                Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Set status has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
             } else {
                 el.checked = !isActive;
                 cardhavenAlert('error', 'Failed', res.message);
@@ -150,8 +134,8 @@ function toggleSetStatus(id, isActive, el) {
 function confirmDeleteSet(id) {
     cardhavenConfirm('Delete Set?', 'This set will be permanently deleted. Are you sure?', 'Yes, Delete', () => {
         const fd = new FormData();
-        fd.append('action',        'delete');
-        fd.append('id_set',        id);
+        fd.append('action', 'delete');
+        fd.append('id_set', id);
         fd.append('id_pengguna_js', getEmpId());
 
         fetch(SET_API, { method: 'POST', body: fd })
@@ -167,23 +151,25 @@ function openDetailSetModal(id) {
     fetch(`${SET_API}?get_detail=${id}`)
         .then(async res => JSON.parse(await res.text()))
         .then(data => {
-            if (!data || data.error) {
-                cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
-                return;
-            }
+            if (!data || data.error) return cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
 
             document.getElementById('setDetailDisplayID').innerText  = 'SET-' + String(id).padStart(3, '0');
             document.getElementById('detailSetNama').innerText        = data.nama_set    || '-';
             document.getElementById('detailSetKode').innerText        = data.kode_set    || '-';
             document.getElementById('detailSetGame').innerText        = data.nama_game   || '-';
             document.getElementById('detailSetTanggal').innerText     = data.tanggal_rilis
-                ? new Date(data.tanggal_rilis).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
-                : '-';
+                ? new Date(data.tanggal_rilis).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '-';
 
             const statusEl = document.getElementById('detailSetStatus');
-            statusEl.innerText    = data.aktif == 1 ? 'Active' : 'Inactive';
-            statusEl.style.color  = data.aktif == 1 ? '#27AE60' : '#E74C3C';
-            statusEl.style.fontWeight = '700';
+            if (data.aktif == 1) {
+                statusEl.innerText   = 'Active';
+                statusEl.style.color = '#27AE60';
+                statusEl.style.fontWeight = '700';
+            } else {
+                statusEl.innerText   = 'Inactive';
+                statusEl.style.color = '#E74C3C';
+                statusEl.style.fontWeight = '700';
+            }
 
             document.getElementById('setDetailModal').style.display = 'flex';
         })
@@ -195,23 +181,12 @@ function openDetailSetModal(id) {
 
 window.addEventListener('click', function(e) {
     if (e.target === setModal) {
-        const game = document.getElementById('setGameId').value;
         const nama = document.getElementById('setNama').value.trim();
-        const kode = document.getElementById('setKode').value.trim();
-
-        if (game !== '' || nama !== '' || kode !== '') {
-            cardhavenConfirm(
-                "Close Form?", 
-                "Unsaved data will be lost. Are you sure you want to cancel?", 
-                "Yes, Close", 
-                () => { setModal.style.display = 'none'; }
-            );
+        if (nama !== '') {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { setModal.style.display = 'none'; });
         } else {
             setModal.style.display = 'none';
         }
     }
-
-    if (e.target === document.getElementById('setDetailModal')) {
-        document.getElementById('setDetailModal').style.display = 'none';
-    }
+    if (e.target === document.getElementById('setDetailModal')) document.getElementById('setDetailModal').style.display = 'none';
 });

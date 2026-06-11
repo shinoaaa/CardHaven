@@ -218,16 +218,7 @@ function toggleProductStatus(id, isActive, el) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                iconColor: '#0088FF',
-                title: 'Success!',
-                text: `Product status changed.`,
-                showConfirmButton: false,
-                timer: 1500,
-                background: '#ffffff',
-                customClass: { title: 'coolveticaa' }
-            }).then(() => location.reload());
+            Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Product status changed.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
         } else {
             el.checked = !isActive;
             Swal.fire('Failed', res.message, 'error');
@@ -304,7 +295,6 @@ function openDetailProductModal(id) {
         .then(data => {
             if(data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            // 1. Data Dasar
             document.getElementById('detProdID').innerText = 'PRD-' + String(id).padStart(4, '0');
             document.getElementById('detProdNama').innerText = data.nama_produk || '-';
             document.getElementById('detProdTipe').innerText = data.tipe_produk || '-';
@@ -313,45 +303,41 @@ function openDetailProductModal(id) {
             document.getElementById('detProdHarga').innerText = 'Rp ' + parseFloat(data.harga_jual).toLocaleString('id-ID');
             document.getElementById('detProdDeskripsi').innerText = data.deskripsi || 'No description available.';
             
-            // 2. Logika Status
             const statusEl = document.getElementById('detProdStatus');
             statusEl.innerHTML = data.status == 1 
                 ? '<span style="color: #27AE60; font-weight: bold;"><i class="fas fa-check-circle"></i> Active</span>' 
                 : '<span style="color: #E74C3C; font-weight: bold;"><i class="fas fa-times-circle"></i> Inactive</span>';
 
-            // 3. Logika Gambar
             const imgEl = document.getElementById('detProdImg');
             const placeholderEl = document.getElementById('detProdImgPlaceholder');
-            if (data.foto_produk) {
-                imgEl.src = '/CardHaven/' + data.foto_produk; 
-                imgEl.style.display = 'block';
-                placeholderEl.style.display = 'none';
-            } else {
-                imgEl.style.display = 'none';
-                placeholderEl.style.display = 'block';
+            if (imgEl && placeholderEl) {
+                if (data.foto_produk) {
+                    imgEl.src = '/CardHaven/' + data.foto_produk; 
+                    imgEl.style.display = 'block';
+                    placeholderEl.style.display = 'none';
+                } else {
+                    imgEl.style.display = 'none';
+                    placeholderEl.style.display = 'block';
+                }
             }
 
-            // 4. Logika Kondisional Field (Set, Rarity, Kondisi)
             const tipe = data.tipe_produk;
             const rowSet = document.getElementById('detRowSet');
             const rowRarity = document.getElementById('detRowRarity');
             const rowKondisi = document.getElementById('detRowKondisi');
 
-            // Default sembunyikan semua yang opsional
-            rowSet.style.display = 'none';
-            rowRarity.style.display = 'none';
-            rowKondisi.style.display = 'none';
+            if(rowSet) rowSet.style.display = 'none';
+            if(rowRarity) rowRarity.style.display = 'none';
+            if(rowKondisi) rowKondisi.style.display = 'none';
 
-            // Jika tipe mengandung 'Card' atau 'Booster', tampilkan Set
-            if (tipe.includes('Card') || tipe.includes('Booster')) {
+            if (rowSet && (tipe.includes('Card') || tipe.includes('Booster'))) {
                 rowSet.style.display = 'table-row';
                 document.getElementById('detProdSet').innerText = data.nama_set || '-';
             }
 
-            // Jika spesifik 'Single Card', tampilkan Rarity dan Kondisi
             if (tipe === 'Single Card') {
-                rowRarity.style.display = 'table-row';
-                rowKondisi.style.display = 'table-row';
+                if(rowRarity) rowRarity.style.display = 'table-row';
+                if(rowKondisi) rowKondisi.style.display = 'table-row';
                 
                 if (data.nama_rarity) {
                     document.getElementById('detProdRarity').innerText = `${data.nama_rarity} (${data.kode_rarity})`;
@@ -363,7 +349,6 @@ function openDetailProductModal(id) {
                 document.getElementById('detProdKondisi').innerText = mapKondisi[data.kondisi] || data.kondisi || '-';
             }
 
-            // Tampilkan modal
             document.getElementById('productDetailModal').style.display = 'flex';
         })
         .catch(err => {
@@ -374,25 +359,14 @@ function openDetailProductModal(id) {
 
 window.addEventListener('click', function(e) { 
     const md = document.getElementById('productModal');
-    
-    // Validasi Form Add/Edit Product
     if (md && e.target === md) {
         const nama = document.getElementById('pNama').value.trim();
-        const stok = document.getElementById('pStok').value.trim();
-        
-        if (nama !== '' || stok !== '') {
-            cardhavenConfirm(
-                "Close Form?", 
-                "Unsaved data will be lost. Are you sure you want to cancel?", 
-                "Yes, Close", 
-                () => { md.style.display = 'none'; }
-            );
+        if (nama !== '') {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { md.style.display = 'none'; });
         } else {
             md.style.display = 'none';
         }
     } 
-
-    // Tutup Modal Detail Product
     const mdDetail = document.getElementById('productDetailModal'); 
     if (mdDetail && e.target === mdDetail) mdDetail.style.display = 'none';
 });
