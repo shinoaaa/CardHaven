@@ -45,7 +45,12 @@ function openEditMetode(id) {
             document.getElementById('metodeNoRek').value    = data.no_rekening  || '';
             document.getElementById('metodeAtasNama').value = data.atas_nama    || '';
             document.getElementById('metodeBiaya').value    = data.biaya_admin  || 0;
-            if(document.getElementById('metodeAktifStatus')) document.getElementById('metodeAktifStatus').value = data.aktif;
+            if (document.getElementById('metodeAktifStatus')) document.getElementById('metodeAktifStatus').value = data.aktif;
+            const statusDisplay = document.getElementById('metodeStatusDisplay');
+            if (statusDisplay) {
+            statusDisplay.value      = data.aktif == 1 ? 'Active' : 'Inactive';
+            statusDisplay.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
+}
 
             metodeModal.style.display = 'flex';
         })
@@ -65,17 +70,45 @@ metodeForm.onsubmit = async function(e) {
     const atasNama  = document.getElementById('metodeAtasNama');
     const biaya     = document.getElementById('metodeBiaya');
 
-    if (!nama.value.trim())     { showError(nama,     'Method name is required!');    isValid = false; } else clearError(nama);
-    if (!provider.value.trim()) { showError(provider, 'Provider is required!');       isValid = false; } else clearError(provider);
-    if (!noRek.value.trim())    { showError(noRek,    'Account number is required!'); isValid = false; } else clearError(noRek);
-    if (!atasNama.value.trim()) { showError(atasNama, 'Account name is required!');   isValid = false; } else clearError(atasNama);
-    if (biaya.value === '' || biaya.value === null) {
-        showError(biaya, 'Admin fee is required!'); isValid = false;
-    } else if (parseFloat(biaya.value) < 0) {
-        showError(biaya, 'Admin fee cannot be negative!'); isValid = false;
-    } else {
-        clearError(biaya);
-    }
+if (!nama.value.trim()) {
+    showError(nama, 'Method name is required!');
+    isValid = false;
+} else {
+    clearError(nama);
+}
+if (!provider.value.trim()) {
+    showError(provider, 'Provider is required!');
+    isValid = false;
+} else {
+    clearError(provider);
+}
+if (!noRek.value.trim()) {
+    showError(noRek, 'Account number is required!');
+    isValid = false;
+} else if (!/^\d+$/.test(noRek.value.trim())) {
+    showError(noRek, 'Account number must contain numbers only!');
+    isValid = false;
+} else if (noRek.value.trim().length < 5) {
+    showError(noRek, 'Account number must be at least 5 digits!');
+    isValid = false;
+} else if (noRek.value.trim().length > 20) {
+    showError(noRek, 'Account number must not exceed 20 digits!');
+    isValid = false;
+} else {
+    clearError(noRek);
+}
+if (!atasNama.value.trim()) {
+    showError(atasNama, 'Account name is required!');
+    isValid = false;
+} else {
+    clearError(atasNama);
+}
+if (biaya.value !== '' && parseFloat(biaya.value) < 0) {
+    showError(biaya, 'Admin fee cannot be negative!');
+    isValid = false;
+} else {
+    clearError(biaya);
+}
 
     if (!isValid) return;
 
@@ -181,9 +214,17 @@ function openDetailMetode(id) {
 
 window.addEventListener('click', function(e) {
     if (e.target === metodeModal) {
-        const nama = document.getElementById('metodeNama').value.trim();
-        if (nama !== '') {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { metodeModal.style.display = 'none'; });
+        const nama     = document.getElementById('metodeNama').value.trim();
+        const provider = document.getElementById('metodeProvider').value.trim();
+        const noRek    = document.getElementById('metodeNoRek').value.trim();
+        const atasNama = document.getElementById('metodeAtasNama').value.trim();
+        const biaya    = document.getElementById('metodeBiaya').value;
+        const anyFilled = nama !== '' || provider !== '' || noRek !== '' || atasNama !== '' || (biaya !== '' && biaya !== '0');
+
+        if (anyFilled) {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => {
+                metodeModal.style.display = 'none';
+            });
         } else {
             metodeModal.style.display = 'none';
         }

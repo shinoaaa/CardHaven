@@ -448,25 +448,35 @@
 
             <div class="modal-form-group">
                 <label>Method Name <span style="color:#E74C3C;">*</span></label>
-                <input type="text" name="nama_metode" id="metodeNama" class="modal-input" placeholder="e.g. GoPay, QRIS, BCA Transfer">
+                <input type="text" name="nama_metode" id="metodeNama" class="modal-input"
+                 placeholder="e.g. GoPay, QRIS, BCA Transfer"
+                 maxlength="50">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Provider <span style="color:#E74C3C;">*</span></label>
-                <input type="text" name="provider" id="metodeProvider" class="modal-input" placeholder="e.g. GoPay, Bank BCA">
+               <input type="text" name="provider" id="metodeProvider" class="modal-input"
+                placeholder="e.g. GoPay, Bank BCA"
+                maxlength="50">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Account Number <span style="color:#E74C3C;">*</span></label>
-                <input type="text" name="no_rekening" id="metodeNoRek" class="modal-input" placeholder="e.g. 081234567890">
+                <input type="text" name="no_rekening" id="metodeNoRek" class="modal-input"
+                 placeholder="e.g. 081234567890"
+                 inputmode="numeric"
+                 maxlength="20"
+                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Account Name <span style="color:#E74C3C;">*</span></label>
-                <input type="text" name="atas_nama" id="metodeAtasNama" class="modal-input" placeholder="e.g. CardHaven Store">
+                <input type="text" name="atas_nama" id="metodeAtasNama" class="modal-input"
+                placeholder="e.g. CardHaven Store"
+                maxlength="50">
                 <div class="error-message"></div>
             </div>
 
