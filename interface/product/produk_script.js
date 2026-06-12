@@ -212,6 +212,9 @@ function openAddProductModal() {
     document.getElementById('productForm').reset();
     document.getElementById('pAction').value = 'add';
     
+
+    document.getElementById('pPreview').style.display = 'none';
+    document.getElementById('pPlaceholder').style.display = 'block';
     // Kunci status default
     const statDisp = document.getElementById('productStatusDisplay');
     statDisp.value = 'ACTIVE (Default)';
@@ -271,6 +274,17 @@ function openEditProductModal(id) {
         statDisp.value = data.status == 1 ? 'ACTIVE' : 'INACTIVE';
         statDisp.style.color = data.status == 1 ? '#27AE60' : '#E74C3C';
 
+        const preview = document.getElementById('pPreview');
+        const placeholder = document.getElementById('pPlaceholder');
+        if (data.foto) {
+            preview.src = '/CardHaven/' + data.foto; 
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+        
         loadRarities(data.id_game, data.id_rarity);
         toggleProdFields();
         document.getElementById('productModal').style.display = 'flex';
@@ -318,8 +332,8 @@ function openDetailProductModal(id) {
             const imgEl = document.getElementById('detProdImg');
             const placeholderEl = document.getElementById('detProdImgPlaceholder');
             if (imgEl && placeholderEl) {
-                if (data.foto_produk) {
-                    imgEl.src = '/CardHaven/' + data.foto_produk; 
+                if (data.foto) {
+                    imgEl.src = '/CardHaven/' + data.foto; 
                     imgEl.style.display = 'block';
                     placeholderEl.style.display = 'none';
                 } else {
