@@ -37,10 +37,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kode = trim($_POST['kode_rarity'] ?? '');
     $id_rarity = isset($_POST['id_rarity']) ? (int)$_POST['id_rarity'] : null;
 
-    if (($action == 'add' || $action == 'edit') && ($nama == "" || empty($id_game))) {
-        echo json_encode(['status' => 'error', 'message' => 'Game and Rarity Name are required!']); 
-        exit;
+    if ($action === 'add' || $action === 'edit') {
+    if (empty($id_game)) {
+        echo json_encode(['status' => 'error', 'message' => 'Game is required!']); exit;
     }
+    if ($nama === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Rarity name is required!']); exit;
+    }
+    if (strlen($nama) > 20) {
+        echo json_encode(['status' => 'error', 'message' => 'Rarity name must not exceed 20 characters!']); exit;
+    }
+    if ($kode === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Rarity code is required!']); exit;
+    }
+    if (strlen($kode) > 20) {
+        echo json_encode(['status' => 'error', 'message' => 'Rarity code must not exceed 20 characters!']); exit;
+    }
+}
     if ($action === 'add' || $action === 'edit') {
         $check_sql = "SELECT nama_rarity, kode_rarity FROM dbo.rarity 
                     WHERE id_game = ? AND (nama_rarity = ? OR kode_rarity = ?) AND is_deleted = 0";
