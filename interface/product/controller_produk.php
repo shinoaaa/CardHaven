@@ -43,17 +43,55 @@ try {
 
             // --- BAGIAN PENARIKAN FOTO LAMA DAN UPLOAD FOTO DIHAPUS SEMENTARA ---
 
+            $path_foto_simpan = null;
+            if (isset($_FILES['foto_produk']) && $_FILES['foto_produk']['error'] === UPLOAD_ERR_OK) {
+                $file_tmp = $_FILES['foto_produk']['tmp_name'];
+                $file_name = $_FILES['foto_produk']['name'];
+                $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+                
+                // Buat nama file unik: PROD_Waktu_Random.ext
+                $new_file_name = "PROD_" . time() . "_" . uniqid() . "." . $file_ext;
+                $target_dir = "../../image-profile/"; // Path folder tujuan
+                
+                // Buat folder jika belum ada
+                if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+
+                if (move_uploaded_file($file_tmp, $target_dir . $new_file_name)) {
+                    $path_foto_simpan = "image-profile/" . $new_file_name;
+
+                    // Jika sedang EDIT, hapus file foto lama dari folder image-profile
+                    if ($action === 'edit') {
+                        $sql_old = "SELECT foto FROM dbo.produk WHERE id_produk = ?";
+                        $stmt_old = sqlsrv_query($conn, $sql_old, [$id_produk]);
+                        $row_old = sqlsrv_fetch_array($stmt_old, SQLSRV_FETCH_ASSOC);
+                        if ($row_old && $row_old['foto_produk']) {
+                            $old_file_path = "../../" . $row_old['foto_produk'];
+                            if (file_exists($old_file_path)) unlink($old_file_path);
+                        }
+                    }
+                }
+            }
+
             if (!in_array($tipe, ['Single Card', 'Booster Pack', 'Booster Box'])) $id_set = null;
             if ($tipe !== 'Single Card') { $id_rarity = null; $kondisi = null; }
 
             // 4. PENENTUAN KUERI UTAMA (Tanpa kolom foto_produk)
             if ($action === 'add') {
-                $sql = "INSERT INTO dbo.produk (id_game, tipe_produk, nama_produk, harga_jual, harga_beli, stok, deskripsi, id_rarity, id_set, kondisi, created_by, created_date, status) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), 1)";
-                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user];
+                $sql = "INSERT INTO dbo.produk (id_game, tipe_produk, nama_produk, harga_jual, harga_beli, stok, deskripsi, id_rarity, id_set, kondisi, created_by, created_date, status, foto, is_deleted) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), 1, ?, 0)";
+                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $path_foto_simpan];
             } else if ($action === 'edit') {
-                $sql = "UPDATE dbo.produk SET id_game=?, tipe_produk=?, nama_produk=?, harga_jual=?, harga_beli=?, stok=?, deskripsi=?, id_rarity=?, id_set=?, kondisi=?, modified_by=?, modified_date=GETDATE() WHERE id_produk=?";
-                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user, $id_produk];
+                $sql = "UPDATE dbo.produk SET id_game=?, tipe_produk=?, nama_produk=?, harga_jual=?, harga_beli=?, stok=?, deskripsi=?, id_rarity=?, id_set=?, kondisi=?, modified_by=?, modified_date=GETDATE()";
+                $params = [$id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $id_user];
+                
+    
+                if ($path_foto_simpan) {
+                    $sql .= ", foto = ?";
+                    $params[] = $path_foto_simpan;
+                }
+                
+                $sql .= " WHERE id_produk = ?";
+                $params[] = $id_produk;
             }
         }
         else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
