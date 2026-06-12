@@ -22,10 +22,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $biaya      = (float)($_POST['biaya_admin'] ?? 0);
     $id_metode  = isset($_POST['id_metode']) ? (int)$_POST['id_metode'] : null;
 
-    if (($action === 'add' || $action === 'edit') && $nama === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Method name is required!']);
-        exit;
+    if ($action === 'add' || $action === 'edit') {
+    if ($nama === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Method name is required!']); exit;
     }
+    if ($provider === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Provider is required!']); exit;
+    }
+    if ($no_rek === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Account number is required!']); exit;
+    }
+    if (!ctype_digit($no_rek)) {
+        echo json_encode(['status' => 'error', 'message' => 'Account number must contain numbers only!']); exit;
+    }
+    if (strlen($no_rek) < 5) {
+        echo json_encode(['status' => 'error', 'message' => 'Account number must be at least 5 digits!']); exit;
+    }
+    if (strlen($no_rek) > 20) {
+        echo json_encode(['status' => 'error', 'message' => 'Account number must not exceed 20 digits!']); exit;
+    }
+    if ($atas_nama === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Account name is required!']); exit;
+    }
+    if ($biaya < 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Admin fee cannot be negative!']); exit;
+    }
+}
 
     if ($action === 'add' || $action === 'edit') {
         $check_sql    = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE nama_metode = ? AND is_deleted = 0";
