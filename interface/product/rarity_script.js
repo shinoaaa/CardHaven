@@ -80,7 +80,12 @@ function openEditRarity(id) {
             }
             document.getElementById('inputNamaRarity').value = data.nama_rarity;
             document.getElementById('inputKodeRarity').value = data.kode_rarity;
-            if(document.getElementById('inputAktifRarity')) document.getElementById('inputAktifRarity').value = data.aktif;
+            if (document.getElementById('inputAktifRarity')) document.getElementById('inputAktifRarity').value = data.aktif;
+            const rarityStatusDisplay = document.getElementById('rarityStatusDisplay');
+            if (rarityStatusDisplay) {
+            rarityStatusDisplay.value      = data.aktif == 1 ? 'Active' : 'Inactive';
+            rarityStatusDisplay.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
+            }
             
             modalRarity.style.display = 'flex';
         })
@@ -97,10 +102,31 @@ rarityForm.onsubmit = async function(e) {
     const nama = document.getElementById('inputNamaRarity');
     const kode = document.getElementById('inputKodeRarity');
     const idRarity = document.getElementById('inputIdRarity').value; 
-
-    if (!game.value) { showError(game, "Please select a game!"); isValid = false; } else clearError(game);
-    if (!nama.value.trim()) { showError(nama, "Rarity name is required!"); isValid = false; } else clearError(nama);
-    if (!kode.value.trim()) { showError(kode, "Rarity code is required!"); isValid = false; } else clearError(kode);
+    
+    if (!game.value) {
+    showError(game, "Please select a game!");
+    isValid = false;
+} else {
+    clearError(game);
+}
+if (!nama.value.trim()) {
+    showError(nama, "Rarity name is required!");
+    isValid = false;
+} else if (nama.value.trim().length > 20) {
+    showError(nama, "Rarity name must not exceed 20 characters!");
+    isValid = false;
+} else {
+    clearError(nama);
+}
+if (!kode.value.trim()) {
+    showError(kode, "Rarity code is required!");
+    isValid = false;
+} else if (kode.value.trim().length > 20) {
+    showError(kode, "Rarity code must not exceed 20 characters!");
+    isValid = false;
+} else {
+    clearError(kode);
+}
     if (!isValid) return;
     
     const submitBtn = rarityForm.querySelector('button[type="submit"]');
@@ -180,14 +206,22 @@ function confirmDeleteRarity(id) {
     });
 }
 
-window.addEventListener('click', (e) => { 
+window.addEventListener('click', (e) => {
     if (e.target == modalRarity) {
+        const game = document.getElementById('inputGameRarity').value;
         const nama = document.getElementById('inputNamaRarity').value.trim();
-        if (nama !== '') {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { modalRarity.style.display = 'none'; });
+        const kode = document.getElementById('inputKodeRarity').value.trim();
+        const anyFilled = game !== '' || nama !== '' || kode !== '';
+
+        if (anyFilled) {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => {
+                rarityForm.reset();
+                clearAllErrors('rarityForm');
+                modalRarity.style.display = 'none';
+            });
         } else {
             modalRarity.style.display = 'none';
         }
     }
-    if (e.target == document.getElementById('rarityDetailModal')) document.getElementById('rarityDetailModal').style.display = "none"; 
+    if (e.target == document.getElementById('rarityDetailModal')) document.getElementById('rarityDetailModal').style.display = "none";
 });

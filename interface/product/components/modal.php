@@ -305,13 +305,13 @@
 
             <div class="modal-form-group">
                 <label>Rarity Name <span style="color: #E74C3C;">*</span></label>
-                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" placeholder="Enter Rarity Name...">
+                <input type="text" id="inputNamaRarity" name="nama_rarity" class="modal-input" placeholder="Enter Rarity Name..." maxlength="20">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Rarity Code <span style="color: #E74C3C;">*</span></label>
-                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC">
+                <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC" maxlength="20">
                 <div class="error-message"></div>
             </div>
                 <div class="modal-form-group">
