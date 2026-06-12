@@ -71,6 +71,12 @@ function openEditSetModal(id) {
             if (data.tanggal_rilis) document.getElementById('setTanggal').value = data.tanggal_rilis;
 
             loadGameOptionsForSet(data.id_game);
+            const setStatusDisplay = document.getElementById('setStatusDisplay');
+            if (setStatusDisplay) {
+            setStatusDisplay.value      = data.aktif == 1 ? 'Active' : 'Inactive';
+            setStatusDisplay.style.color = data.aktif == 1 ? '#27AE60' : '#E74C3C';
+            }
+
             setModal.style.display = 'flex';
         })
         .catch(err => {
@@ -87,9 +93,30 @@ setForm.onsubmit = async function(e) {
     const nama = document.getElementById('setNama');
     const kode = document.getElementById('setKode');
 
-    if (!game.value)        { showError(game, 'Please select a game!');    isValid = false; } else clearError(game);
-    if (!nama.value.trim()) { showError(nama, 'Set name is required!');    isValid = false; } else clearError(nama);
-    if (!kode.value.trim()) { showError(kode, 'Set code is required!');    isValid = false; } else clearError(kode);
+    if (!game.value) {
+    showError(game, 'Please select a game!');
+    isValid = false;
+} else {
+    clearError(game);
+}
+if (!nama.value.trim()) {
+    showError(nama, 'Set name is required!');
+    isValid = false;
+} else if (nama.value.trim().length > 50) {
+    showError(nama, 'Set name must not exceed 50 characters!');
+    isValid = false;
+} else {
+    clearError(nama);
+}
+if (!kode.value.trim()) {
+    showError(kode, 'Set code is required!');
+    isValid = false;
+} else if (kode.value.trim().length > 20) {
+    showError(kode, 'Set code must not exceed 20 characters!');
+    isValid = false;
+} else {
+    clearError(kode);
+}
 
     if (!isValid) return;
 
@@ -198,9 +225,18 @@ function openDetailSetModal(id) {
 
 window.addEventListener('click', function(e) {
     if (e.target === setModal) {
-        const nama = document.getElementById('setNama').value.trim();
-        if (nama !== '') {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { setModal.style.display = 'none'; });
+        const game    = document.getElementById('setGameId').value;
+        const nama    = document.getElementById('setNama').value.trim();
+        const kode    = document.getElementById('setKode').value.trim();
+        const tanggal = document.getElementById('setTanggal').value;
+        const anyFilled = game !== '' || nama !== '' || kode !== '' || tanggal !== '';
+
+        if (anyFilled) {
+            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => {
+                setForm.reset();
+                clearAllErrors('setForm');
+                setModal.style.display = 'none';
+            });
         } else {
             setModal.style.display = 'none';
         }

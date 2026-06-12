@@ -374,13 +374,13 @@
 
             <div class="modal-form-group">
                 <label>Set Name <span style="color:#E74C3C;">*</span></label>
-                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name...">
+                <input type="text" name="nama_set" id="setNama" class="modal-input" placeholder="Enter Set Name..." maxlength="50">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label>Set Code <span style="color:#E74C3C;">*</span></label>
-                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-001">
+                <input type="text" name="kode_set" id="setKode" class="modal-input" placeholder="e.g. SV-001" maxlength="20">
                 <div class="error-message"></div>
             </div>
 
