@@ -228,13 +228,13 @@
 
             <div class="modal-form-group">
                 <label>Game Name <span style="color: #E74C3C;">*</span></label>
-                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name...">
+                <input type="text" name="nama_game" id="nama_game" class="modal-input" placeholder="Enter Game Name..." maxlength="50">
                 <div class="error-message"></div>
             </div>
 
             <div class="modal-form-group">
                 <label id="labelDev">Developer Name <span style="color: #E74C3C;">*</span></label>
-                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name...">
+                <input type="text" name="developer" id="developer" class="modal-input" placeholder="Enter Developer Name..." maxlength="20">
                 <div class="error-message"></div>
             </div>
 

@@ -116,12 +116,19 @@ gameForm.onsubmit = function(e) {
 
     if (!isValid) return;
 
+    const btnSubmit    = gameForm.querySelector('button[type="submit"]');
+    const originalText = btnSubmit.innerText;
+    btnSubmit.innerText = 'Processing...';
+    btnSubmit.disabled  = true;
+
     const formData = new FormData(gameForm);
     formData.append('id_pengguna_js', getEmpId());
 
     fetch(URL_GAME, { method: 'POST', body: formData })
     .then(res => res.json())
     .then(res => {
+        btnSubmit.innerText = originalText;
+        btnSubmit.disabled  = false;
         if (res.status === 'success') {
             cardhavenAlert('success', 'Success', 'Game data saved successfully.', () => {
                 modal.style.display = 'none';
@@ -132,6 +139,8 @@ gameForm.onsubmit = function(e) {
         }
     })
     .catch(err => {
+        btnSubmit.innerText = originalText;
+        btnSubmit.disabled  = false;
         console.error(err);
         cardhavenAlert('error', 'System Error', 'A system error occurred.');
     });
@@ -149,6 +158,10 @@ function confirmDelete(id) {
         .then(res => {
             if (res.status === 'success') location.reload();
             else cardhavenAlert('error', 'Failed', res.message);
+        })
+        .catch(err => {
+            console.error(err);
+            cardhavenAlert('error', 'Connection Error', 'Failed to connect to server.');
         });
     });
 }
@@ -165,6 +178,10 @@ function confirmRestore(id) {
         .then(res => {
             if (res.status === 'success') location.reload();
             else cardhavenAlert('error', 'Failed', res.message);
+        })
+        .catch(err => {
+            console.error(err);
+            cardhavenAlert('error', 'Connection Error', 'Failed to connect to server.');
         });
     });
 }
@@ -172,7 +189,8 @@ function confirmRestore(id) {
 window.addEventListener('click', function(e) {
     if (e.target == modal) {
         const inputNama = document.getElementById('nama_game').value.trim();
-        if (inputNama !== '') {
+        const inputDev  = document.getElementById('developer').value.trim();
+        if (inputNama !== '' || inputDev !== '') {
             cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { modal.style.display = "none"; });
         } else {
             modal.style.display = "none";
