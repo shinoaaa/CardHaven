@@ -115,10 +115,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $kode    = trim($_POST['kode_set']  ?? '');
         $id_game = (int)($_POST['id_game']  ?? 0);
 
-        if ($nama === '' || $kode === '' || $id_game <= 0) {
-            echo json_encode(['status' => 'error', 'message' => 'Set name, set code, and game are required!']);
-            exit;
-        }
+        if ($id_game <= 0) {
+    echo json_encode(['status' => 'error', 'message' => 'Game is required!']); exit;
+}
+if ($nama === '') {
+    echo json_encode(['status' => 'error', 'message' => 'Set name is required!']); exit;
+}
+if (strlen($nama) > 50) {
+    echo json_encode(['status' => 'error', 'message' => 'Set name must not exceed 50 characters!']); exit;
+}
+if ($kode === '') {
+    echo json_encode(['status' => 'error', 'message' => 'Set code is required!']); exit;
+}
+if (strlen($kode) > 20) {
+    echo json_encode(['status' => 'error', 'message' => 'Set code must not exceed 20 characters!']); exit;
+}
 
         // Cek duplikat kode_set
         $sql_check    = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE kode_set = ? AND is_deleted = 0";
