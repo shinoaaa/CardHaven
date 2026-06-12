@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE dbo.game SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_game]);
     } else if ($action === 'delete') {
-        $totalSet    = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.set WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
+        $totalSet    = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
         $totalRarity = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.rarity WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
         if ($totalSet > 0 || $totalRarity > 0) {
             echo json_encode(['status' => 'error', 'message' => "Cannot delete: this game is still used by {$totalSet} set(s) and {$totalRarity} rarity(s)."]);
