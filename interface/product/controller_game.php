@@ -40,14 +40,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE dbo.game SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_game]);
     } else if ($action === 'delete') {
-        $sql = "UPDATE dbo.game SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_game=?";
+        $totalSet    = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.set WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
+        $totalRarity = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.rarity WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
+        if ($totalSet > 0 || $totalRarity > 0) {
+            echo json_encode(['status' => 'error', 'message' => "Cannot delete: this game is still used by {$totalSet} set(s) and {$totalRarity} rarity(s)."]);
+            exit;
+        }
+        $sql = "UPDATE dbo.game SET is_deleted=1, aktif=0, deleted_by=?, deleted_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     } else if ($action === 'restore') {
-        $sql = "UPDATE dbo.game SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
+        $sql = "UPDATE dbo.game SET is_deleted=0, aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action!']);
-        exit;
+        exit;   
     }
 
     echo json_encode(['status' => $stmt ? 'success' : 'error', 'message' => $stmt ? '' : 'Database error']);
