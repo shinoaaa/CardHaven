@@ -24,28 +24,32 @@ if ($action === 'detail' || $action === 'edit') {
         exit;
     }
 
-    foreach (['tanggal_mulai', 'tanggal_berakhir'] as $field) {
+    $dateFormat = ($action === 'edit') ? 'Y-m-d' : 'd-M-Y';
+    foreach (['tanggal_mulai', 'tanggal_berakhir', 'tanggal_sampai'] as $field) {
         if (isset($row[$field]) && $row[$field] instanceof DateTime) {
-            $row[$field] = $row[$field]->format($action === 'detail' ? 'd-M-Y' : 'd-m-Y');
+            $row[$field] = $row[$field]->format($dateFormat);
         } else {
-            $row[$field] = '-';
+            $row[$field] = ($action === 'edit') ? '' : '-';
         }
     }
 
-    $row['persen_diskon'] = number_format((float)($row['persen_diskon'] ?? 0), 0, ',', '.');
-    $row['status_event']  = (int)($row['status_event'] ?? 0);
+    $row['persen_diskon']  = (float)($row['persen_diskon'] ?? 0);
+    $row['maks_pembelian'] = (int)($row['maks_pembelian'] ?? 0);
+    $row['status_event']   = (int)($row['status_event'] ?? 0);
 
     $payload = ['event' => $row];
-    
+
+    $detail = $controller->fetchDetail($id);
+
     if ($action === 'detail') {
-        $detail = $controller->fetchDetail($id);
         foreach ($detail as &$prod) {
             $prod['harga_event'] = number_format((float)($prod['harga_event'] ?? 0), 0, ',', '.');
-            $prod['stok_event']  = number_format((int)($prod['stok_event']  ?? 0), 0, ',', '.');
+            $prod['stok_event']  = number_format((int)($prod['stok_event'] ?? 0), 0, ',', '.');
         }
         unset($prod);
-        $payload['products'] = $detail;
     }
+
+    $payload['products'] = $detail;
 
     echo json_encode($payload);
     exit;

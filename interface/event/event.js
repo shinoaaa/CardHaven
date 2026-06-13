@@ -19,6 +19,18 @@ function showModal(html) {
     document.body.style.overflow = 'hidden';
 }
 
+async function eePost(action, payload) {
+    const res = await fetch(EDIT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action,
+            ...payload
+        })
+    });
+    return await res.json();
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // CLOSE — satu fungsi, aware semua mode
 // ════════════════════════════════════════════════════════════════════════════
@@ -77,13 +89,14 @@ document.addEventListener('keydown', function (e) {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// DETAIL & EDIT  (fetch → PHP component return HTML)
+// DETAIL & EDIT
 // ════════════════════════════════════════════════════════════════════════════
 
-const VIEW_URL = '/cardhaven/interface/event/components/detailEvent.php';
+const VIEW_URL     = '/cardhaven/interface/event/components/detailEvent.php';
 const ADD_VIEW_URL = '/cardhaven/interface/event/components/addEvent.php';
 const ADD_API_URL  = '/cardhaven/interface/event/controller/controllerAdd.php';
 const SEARCH_URL   = '/cardhaven/interface/event/apiFetch.php';
+const EDIT_URL     = '/cardhaven/interface/event/controller/controllerEdit.php';
 const FINISH_URL   = '/cardhaven/interface/event/controller/controller_complete_event.php';
 
 async function openEventModal(id) {
@@ -176,14 +189,11 @@ function aeOnStartDateChange() {
     }
 }
 
-// ── Search produk ─────────────────────────────────────────────────────────────
-
 function aeDebounceSearch() {
     clearTimeout(aeSearchTimeout);
     aeSearchTimeout = setTimeout(aeDoSearch, 280);
 }
 
-// ── FIX DROPDOWN DI SINI ──
 async function aeDoSearch() {
     const q   = document.getElementById('ae_search_produk').value.trim();
     const box = document.getElementById('ae_search_results');
@@ -232,7 +242,7 @@ function aeSelectProduct(id, nama, hargaJual, stok) {
     document.getElementById('ae_search_produk').value       = nama;
     document.getElementById('ae_stok_event').value          = '';
     
-    aeSelectedMaxStok = parseInt(stok); 
+    aeSelectedMaxStok = parseInt(stok, 10) || 0; 
     
     aeRecalcHarga();
     
@@ -240,7 +250,6 @@ function aeSelectProduct(id, nama, hargaJual, stok) {
     document.getElementById('ae_search_results').innerHTML  = '';
 }
 
-// Recalc harga event setiap kali diskon berubah
 document.addEventListener('input', function (e) {
     if (e.target && e.target.id === 'ae_persen_diskon') {
         aeRecalcHarga();
@@ -270,7 +279,6 @@ function aeRecalcHarga() {
     inputHarga.value = 'Rp ' + Math.round(hargaEvent).toLocaleString('id-ID');
 }
 
-// Tutup dropdown kalau klik di luar
 document.addEventListener('click', function (e) {
     const wrap = document.getElementById('ae_search_produk');
     const box  = document.getElementById('ae_search_results');
@@ -355,7 +363,7 @@ function aeRenderProductTable() {
     }
 
     wrap.style.display = '';
-    wrap.style.marginLeft = '3rem'
+    wrap.style.marginLeft = '3rem';
     
     tbody.innerHTML = aeProductList.map((p, i) => {
         const subtotal = Math.round(p.harga_event * p.stok_event);
@@ -371,7 +379,7 @@ function aeRenderProductTable() {
     }).join('');
 }
 
-// ── Validasi & Submit ─────────────────────────────────────────────────────────
+// ── Validasi & Submit Add ──────────────────────────────────────────────────────
 
 function aeClearErrors() {
     document.querySelectorAll('.ae-error').forEach(el => el.textContent = '');
@@ -398,14 +406,14 @@ async function aeSubmitEvent() {
     
     let valid = true;
 
-    if (!nama)                            { aeSetError('ae_nama_event',       'err_nama_event',       'Event name wajib diisi.'); valid = false; }
-    if (!tipe)                            { aeSetError('ae_tipe_event',       'err_tipe_event',       'Event type wajib dipilih.'); valid = false; }
-    if (!mulai)                           { aeSetError('ae_tanggal_mulai',    'err_tanggal_mulai',    'Start date wajib diisi.'); valid = false; }
-    if (!berakhir)                        { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date wajib diisi.'); valid = false; }
-    if (mulai && berakhir && berakhir < mulai) { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date tidak boleh sebelum start date.'); valid = false; }
-    if (diskon === '')                    { aeSetError('ae_persen_diskon',    'err_persen_diskon',    'Discount wajib diisi.'); valid = false; }
-    if (!maks || parseInt(maks) <= 0)     { aeSetError('ae_maks_pembelian',   'err_maks_pembelian',   'Max purchase harus lebih dari 0.'); valid = false; }
-    if (tipe === 'preorder' && !sampai)   { aeSetError('ae_tanggal_sampai',   'err_tanggal_sampai',   'Estimated arrival wajib diisi untuk Pre-Order.'); valid = false; }
+    if (!nama)                                  { aeSetError('ae_nama_event',       'err_nama_event',       'Event name wajib diisi.'); valid = false; }
+    if (!tipe)                                  { aeSetError('ae_tipe_event',       'err_tipe_event',       'Event type wajib dipilih.'); valid = false; }
+    if (!mulai)                                 { aeSetError('ae_tanggal_mulai',    'err_tanggal_mulai',    'Start date wajib diisi.'); valid = false; }
+    if (!berakhir)                              { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date wajib diisi.'); valid = false; }
+    if (mulai && berakhir && berakhir < mulai)   { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date tidak boleh sebelum start date.'); valid = false; }
+    if (diskon === '')                          { aeSetError('ae_persen_diskon',    'err_persen_diskon',    'Discount wajib diisi.'); valid = false; }
+    if (!maks || parseInt(maks) <= 0)           { aeSetError('ae_maks_pembelian',   'err_maks_pembelian',   'Max purchase harus lebih dari 0.'); valid = false; }
+    if (tipe === 'preorder' && !sampai)         { aeSetError('ae_tanggal_sampai',   'err_tanggal_sampai',   'Estimated arrival wajib diisi untuk Pre-Order.'); valid = false; }
     if (aeProductList.length === 0) {
         const el = document.getElementById('err_product_list');
         if (el) el.textContent = 'Minimal 1 produk harus ditambahkan.';
@@ -421,8 +429,8 @@ async function aeSubmitEvent() {
         tanggal_berakhir: berakhir,
         tanggal_sampai:   sampai || null,
         persen_diskon:    parseFloat(diskon),
-        maks_pembelian:   parseInt(maks),
-        id_karyawan: sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna'),
+        maks_pembelian:   parseInt(maks, 10),
+        id_karyawan:      sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna'),
         products: aeProductList.map(p => ({
             id_produk:   p.id_produk,
             harga_event: Math.round(((100 + parseFloat(diskon)) * p.harga_jual) / 100),
@@ -431,10 +439,10 @@ async function aeSubmitEvent() {
     };
     
     try {
-        const res  = await fetch(ADD_API_URL, {
-            method:  'POST',
+        const res = await fetch(ADD_API_URL, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify(payload)
+            body: JSON.stringify(payload)
         });
         const data = await res.json();
 
@@ -462,6 +470,338 @@ async function aeSubmitEvent() {
         console.error('[Submit Event]', err);
     }
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// EDIT EVENT
+// ════════════════════════════════════════════════════════════════════════════
+
+let eeSearchTimeout = null;
+let eeSelectedMaxStok = 0;
+
+function eeOnTypeChange() {
+    const type      = document.getElementById('ee_tipe_event').value;
+    const rowSampai = document.getElementById('ee_row_tanggal_sampai');
+    if (rowSampai) {
+        rowSampai.style.display = (type === 'preorder') ? '' : 'none';
+    }
+}
+
+function eeOnStartDateChange() {
+    const startVal = document.getElementById('ee_tanggal_mulai').value;
+    const endInput = document.getElementById('ee_tanggal_berakhir');
+
+    if (startVal && endInput) {
+        endInput.min = startVal;
+        if (endInput.value && endInput.value < startVal) {
+            endInput.value = '';
+        }
+    }
+}
+
+function eeDebounceSearch() {
+    clearTimeout(eeSearchTimeout);
+    eeSearchTimeout = setTimeout(eeDoSearch, 280);
+}
+
+async function eeDoSearch() {
+    const q   = document.getElementById('ee_search_produk').value.trim();
+    const box = document.getElementById('ee_search_results');
+
+    if (q.length < 1) {
+        box.classList.remove('open');
+        box.innerHTML = '';
+        return;
+    }
+
+    try {
+        const res  = await fetch(`${SEARCH_URL}?action=search_produk&q=${encodeURIComponent(q)}`);
+        const list = await res.json();
+
+        if (!Array.isArray(list) || list.length === 0) {
+            box.innerHTML = '<div class="ee-search-item" style="color:#aaa;">No products found</div>';
+            box.classList.add('open');
+            return;
+        }
+
+        box.innerHTML = list.map(p => {
+            const safeName = JSON.stringify(p.nama_produk).replace(/"/g, '&quot;');
+            return `
+                <div class="ee-search-item"
+                     onclick="eeSelectProduct(${p.id_produk}, ${safeName}, ${p.harga_jual}, ${p.stok})">
+                    <div>
+                        <div class="ee-search-item-name">${escHtml(p.nama_produk)}</div>
+                        <div class="ee-search-item-type">${escHtml(p.tipe_produk)}</div>
+                    </div>
+                    <div class="ee-search-item-price">Rp ${Number(p.harga_jual).toLocaleString('id-ID')}</div>
+                </div>
+            `;
+        }).join('');
+
+        box.classList.add('open');
+    } catch (err) {
+        console.error('[Edit Search Produk]', err);
+    }
+}
+
+function eeSelectProduct(id, nama, hargaJual, stok) {
+    document.getElementById('ee_selected_id_produk').value  = id;
+    document.getElementById('ee_selected_harga_jual').value = hargaJual;
+    document.getElementById('ee_search_produk').value       = nama;
+    document.getElementById('ee_stok_event').value          = '';
+    eeSelectedMaxStok = parseInt(stok, 10) || 0;
+    eeRecalcHarga();
+
+    const box = document.getElementById('ee_search_results');
+    box.classList.remove('open');
+    box.innerHTML = '';
+}
+
+function eeRecalcHarga() {
+    const hargaJual  = parseFloat(document.getElementById('ee_selected_harga_jual')?.value ?? '');
+    const diskon     = parseFloat(document.getElementById('ee_persen_diskon')?.value ?? '');
+    const inputHarga = document.getElementById('ee_harga_event');
+    if (!inputHarga) return;
+
+    if (isNaN(hargaJual) || isNaN(diskon)) {
+        inputHarga.value = '';
+        return;
+    }
+
+    const hargaEvent = ((100 + diskon) * hargaJual) / 100;
+    inputHarga.value = 'Rp ' + Math.round(hargaEvent).toLocaleString('id-ID');
+}
+
+function eeClearErrors() {
+    document.querySelectorAll('.ee-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.ee-input').forEach(el => el.classList.remove('ee-error-border'));
+}
+
+function eeSetError(fieldId, errId, msg) {
+    const input = document.getElementById(fieldId);
+    const err   = document.getElementById(errId);
+    if (input) input.classList.add('ee-error-border');
+    if (err)   err.textContent = msg;
+}
+
+document.addEventListener('click', function (e) {
+    const wrap = document.getElementById('ee_search_produk');
+    const box  = document.getElementById('ee_search_results');
+    if (box && wrap && !wrap.contains(e.target) && !box.contains(e.target)) {
+        box.classList.remove('open');
+    }
+});
+
+async function eeAddProductToList(idEvent) {
+    const tipe       = document.getElementById('ee_tipe_event')?.value           ?? '';
+    const idProduk   = document.getElementById('ee_selected_id_produk')?.value   ?? '';
+    const hargaJual  = parseFloat(document.getElementById('ee_selected_harga_jual')?.value ?? '');
+    const diskon     = parseFloat(document.getElementById('ee_persen_diskon')?.value ?? '');
+    const stok       = parseInt(document.getElementById('ee_stok_event')?.value ?? '');
+    const errProduk  = document.getElementById('ee_err_produk');
+
+    if (errProduk) errProduk.textContent = '';
+
+    if (isNaN(diskon)) {
+        if (errProduk) errProduk.textContent = 'Isi Discount (%) di form atas terlebih dahulu!';
+        return;
+    }
+    if (!idProduk) {
+        if (errProduk) errProduk.textContent = 'Pilih produk dari pencarian terlebih dahulu.';
+        return;
+    }
+    if (isNaN(stok) || stok < 1) {
+        if (errProduk) errProduk.textContent = 'Stock harus lebih dari 0.';
+        return;
+    }
+    if (stok > eeSelectedMaxStok) {
+        if (errProduk) errProduk.textContent = `Stock tidak boleh melebihi sisa di database (${eeSelectedMaxStok}).`;
+        return;
+    }
+    if (tipe === 'preorder') {
+        const rows = document.querySelectorAll('#ee_product_tbody tr');
+        if (rows.length >= 1) {
+            if (errProduk) errProduk.textContent = 'Event Pre-Order hanya boleh memiliki 1 produk.';
+            return;
+        }
+    }
+
+    const payload = {
+        id_event: idEvent,
+        id_produk: parseInt(idProduk, 10),
+        harga_event: Math.round(((100 + diskon) * hargaJual) / 100),
+        stok_event: stok
+    };
+
+    try {
+        const data = await eePost('add_product', payload);
+
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Completed",
+                text: "The product has been added to this event."
+            }).then(() => location.reload());
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: data.error || "Unable to add product."
+            });
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Unable to send data"
+        });
+        console.error('[EE Add Product]', err);
+    }
+}
+
+async function eeEditStock(idProdukEvent, currentStok) {
+    const { value: newStok } = await Swal.fire({
+        title: 'Edit Stock',
+        input: 'number',
+        inputValue: currentStok,
+        inputAttributes: { min: 1 },
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+            if (!value || parseInt(value) <= 0) return 'Stock harus lebih dari 0.';
+            return null;
+        }
+    });
+
+    if (!newStok) return;
+
+    try {
+        const data = await eePost('update_stock', {
+            id_produk_event: idProdukEvent,
+            stok_event: parseInt(newStok, 10)
+        });
+
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Completed",
+                text: "Stock has been updated."
+            }).then(() => location.reload());
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: data.error || "Unable to update stock."
+            });
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong while processing the request."
+        });
+    }
+}
+
+function eeRemoveProductFromEvent(idProdukEvent) {
+    cardhavenConfirm(
+        "Remove this product?",
+        "This product will be removed from this event.",
+        "Yes, remove it",
+        async () => {
+            try {
+                const data = await eePost('delete_product', {
+                    id_produk_event: idProdukEvent
+                });
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Completed",
+                        text: "The product has been removed from the event."
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: data.error || "Unable to remove product."
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong while processing the request."
+                });
+            }
+        }
+    );
+}
+
+async function eeSubmitEvent(idEvent) {
+    eeClearErrors();
+
+    const nama     = document.getElementById('ee_nama_event')?.value.trim()     ?? '';
+    const tipe     = document.getElementById('ee_tipe_event')?.value            ?? '';
+    const mulai    = document.getElementById('ee_tanggal_mulai')?.value         ?? '';
+    const berakhir = document.getElementById('ee_tanggal_berakhir')?.value      ?? '';
+    const sampai   = document.getElementById('ee_tanggal_sampai')?.value        ?? '';
+    const diskon   = document.getElementById('ee_persen_diskon')?.value.trim()  ?? '';
+    const maks     = document.getElementById('ee_maks_pembelian')?.value.trim() ?? '';
+
+    let valid = true;
+
+    if (!nama)                                { eeSetError('ee_nama_event',       'ee_err_nama_event',       'Event name wajib diisi.'); valid = false; }
+    if (!tipe)                                { eeSetError('ee_tipe_event',       'ee_err_tipe_event',       'Event type wajib dipilih.'); valid = false; }
+    if (!mulai)                               { eeSetError('ee_tanggal_mulai',    'ee_err_tanggal_mulai',    'Start date wajib diisi.'); valid = false; }
+    if (!berakhir)                            { eeSetError('ee_tanggal_berakhir', 'ee_err_tanggal_berakhir', 'End date wajib diisi.'); valid = false; }
+    if (mulai && berakhir && berakhir < mulai) { eeSetError('ee_tanggal_berakhir', 'ee_err_tanggal_berakhir', 'End date tidak boleh sebelum start date.'); valid = false; }
+    if (diskon === '')                        { eeSetError('ee_persen_diskon',    'ee_err_persen_diskon',    'Discount wajib diisi.'); valid = false; }
+    if (!maks || parseInt(maks) <= 0)         { eeSetError('ee_maks_pembelian',   'ee_err_maks_pembelian',   'Max purchase harus lebih dari 0.'); valid = false; }
+    if (tipe === 'preorder' && !sampai)       { eeSetError('ee_tanggal_sampai',   'ee_err_tanggal_sampai',   'Estimated arrival wajib diisi untuk Pre-Order.'); valid = false; }
+
+    if (!valid) return;
+
+    const payload = {
+        id_event: idEvent,
+        nama_event: nama,
+        tipe_event: tipe,
+        tanggal_mulai: mulai,
+        tanggal_berakhir: berakhir,
+        tanggal_sampai: sampai || null,
+        persen_diskon: parseFloat(diskon),
+        maks_pembelian: parseInt(maks, 10)
+    };
+
+    try {
+        const data = await eePost('save_event', payload);
+
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Completed",
+                text: "The event has been updated successfully."
+            }).then(() => location.reload());
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: data.error || "Unable to update the event."
+            });
+        }
+    } catch (err) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Unable to send data"
+        });
+        console.error('[EE Submit Event]', err);
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// COMPLETE EVENT
+// ════════════════════════════════════════════════════════════════════════════
 
 function completeEvent(idEvent) {
     cardhavenConfirm(

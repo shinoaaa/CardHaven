@@ -82,7 +82,9 @@ class controllerEvent
                 tipe_event,
                 tanggal_mulai,
                 tanggal_berakhir,
+                tanggal_sampai,
                 persen_diskon,
+                maks_pembelian,
                 status_event
             FROM event
             WHERE id_event = ? AND ISNULL(is_deleted, 0) = 0
@@ -101,6 +103,7 @@ class controllerEvent
     {
         $sql = "
             SELECT 
+                pe.id_produk_event,
                 pe.id_produk,
                 pe.harga_event,
                 pe.stok_event,
@@ -111,6 +114,9 @@ class controllerEvent
             LEFT JOIN produk p ON p.id_produk = pe.id_produk
             LEFT JOIN game g ON g.id_game = p.id_game
             WHERE pe.id_event = ?
+            AND ISNULL(pe.is_deleted, 0) = 0
+            AND ISNULL(pe.is_product_deleted, 0) = 0
+            ORDER BY pe.id_produk_event ASC
         ";
 
         $stmt = sqlsrv_query($this->conn, $sql, [$id_event]);
