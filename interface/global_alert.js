@@ -1,22 +1,48 @@
-function cardhavenConfirm(title, text, confirmText, callback) {
+// function cardhavenConfirm(title, text, confirmText, callback) {
+//     Swal.fire({
+//         title,
+//         text,
+//         icon: "warning",
+
+//         width: 420,
+
+//         iconColor: "#0D47A1",
+
+//         showCancelButton: true,
+
+//         confirmButtonText: confirmText,
+//         cancelButtonText: "Cancel",
+
+//         buttonsStyling: false,
+
+//         backdrop: "rgba(13,71,161,.25)",
+
+//         customClass: {
+//             popup: "cardhaven-popup",
+//             title: "coolveticaa cardhaven-title",
+//             htmlContainer: "cardhaven-text",
+//             confirmButton: "btn-confirm",
+//             cancelButton: "btn-cancel-outline"
+//         }
+//     }).then(result => {
+//         if (result.isConfirmed && callback) {
+//             callback();
+//         }
+//     });
+// }
+
+function cardhavenConfirm(title, text, confirmText, callback, cancelCallback) {
     Swal.fire({
         title,
         text,
         icon: "warning",
-
         width: 420,
-
         iconColor: "#0D47A1",
-
         showCancelButton: true,
-
         confirmButtonText: confirmText,
         cancelButtonText: "Cancel",
-
         buttonsStyling: false,
-
         backdrop: "rgba(13,71,161,.25)",
-
         customClass: {
             popup: "cardhaven-popup",
             title: "coolveticaa cardhaven-title",
@@ -26,7 +52,9 @@ function cardhavenConfirm(title, text, confirmText, callback) {
         }
     }).then(result => {
         if (result.isConfirmed && callback) {
-            callback();
+            callback(); // Jalan kalau di-ACC
+        } else if (result.isDismissed && cancelCallback) {
+            cancelCallback(); // Jalan kalau di-Cancel
         }
     });
 }

@@ -12,13 +12,9 @@ require_once 'components/fetch_dashboard.php';
     <title>Product Management - Super Admin</title>
 </head>
 <body>
-    <!-- <div class="container" style="justify-content: flex-start; align-items: flex-start;"> -->
-        <!-- <div class="sideBar">
-            </* ?php  include '../CardHaven/interface/dashboard/sideBar.php';  ? */> 
-        </div> -->
 
         <div class="main-content">
-            <h1 class="coolveticaa" style="color: var(--primary-color);font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
+            <h1 class="coolveticaa" style="color: #a0beff;font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
             <div class="content-card" id="container-produk">
             <div class="card-title-row">
                 <h2 class="coolveticaa">Products</h2>
@@ -144,7 +140,6 @@ require_once 'components/fetch_dashboard.php';
                     </div>
             </div>
         </div>
-    <!-- </div> -->
 
     <?php include 'components/modal.php'; ?>
 

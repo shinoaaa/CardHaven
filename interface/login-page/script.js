@@ -25,6 +25,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const forgotSubmit = document.getElementById("forgot-submit");
     const backToLogin = document.getElementById("back-to-login");
 
+    const idPenggunaa = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+
+    if(idPenggunaa){
+        window.location.replace("/CardHaven/dashboard/activity");
+    }
+
     let clicked = false;
     let forgotClicked = false;
     let verifyStepDone = false;
