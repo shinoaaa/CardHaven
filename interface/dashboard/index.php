@@ -41,7 +41,7 @@
         }else if ($segments[1] == 'sales'){
             echo 'Welcome to ', $segments[1] ;
         }else if ($segments[1] == 'user'){
-            echo 'Welcome to ', $segments[1] ;
+            include '../CardHaven/interface/user/indexSupplier.php';
         }else if ($segments[1] == 'settingaccount'){
             include '../CardHaven/interface/account-setting/index.php';
         }
