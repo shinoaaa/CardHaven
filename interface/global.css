@@ -560,7 +560,6 @@ input::placeholder {
     scrollbar-color: var(--primary-light) #f1f1f1; /* [Warna Thumb] [Warna Track] */
 }
 
-
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
