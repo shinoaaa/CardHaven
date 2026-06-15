@@ -2,7 +2,7 @@
 
 <div>
     <div class="card-title-row">
-        <h2 class="coolveticaa">Customer Management</h2>
+        <h2 class="coolveticaa"></h2>
         <button class="btn-add-green" onclick="openAddCustomerModal()">+ Add Customer</button>
     </div>
     <div class="userList">
