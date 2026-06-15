@@ -1146,3 +1146,39 @@ input:checked + .slider:before {
     text-align: center;
     color: white;
 }
+
+.list-user{
+    height: 2rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.unselectedRole{
+    list-style: none;
+    background-color: transparent;
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    border-radius: 9999px;
+    transition: transform 0.3s ease;
+    color: var(--primary-color);
+    border: 1.5px solid var(--primary-color);
+}
+
+.unselectedRole:hover{
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.selectedRole{
+    list-style: none;
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    border-radius: 9999px;
+    transition: transform 0.3s ease;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+}
