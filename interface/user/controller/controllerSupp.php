@@ -176,7 +176,7 @@ switch ($action) {
             SELECT *
             FROM supplier
             WHERE is_deleted = 0
-            ORDER BY id_supplier DESC
+            ORDER BY aktif DESC
             OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
         ";
         $stmt = sqlsrv_query($conn, $sql, [$offset, $limit]);
