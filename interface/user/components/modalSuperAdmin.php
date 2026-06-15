@@ -56,6 +56,11 @@
                 <span class="supp-err" id="err-add-password"></span>
             </div>
             <div class="supp-form-group">
+                <label class="supp-label" for="addConfirmPassword">Confirm Password <span class="supp-required">*</span></label>
+                <input type="password" id="addConfirmPassword" class="supp-input" placeholder="Re-enter password">
+                <span class="supp-err" id="err-add-confirm-password"></span>
+            </div>
+            <div class="supp-form-group">
                 <label class="supp-label" for="addFoto">Profile Photo</label>
                 <input type="file" id="addFoto" class="supp-input" accept="image/*">
                 <span class="supp-err" id="err-add-foto"></span>
