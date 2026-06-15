@@ -6,10 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     modalDetail = document.getElementById('modalAdminDetail');
     modalAdd    = document.getElementById('modalAdminAdd');
     modalEdit   = document.getElementById('modalAdminEdit');
+    
 
     attachLiveClear('addUsername', 'err-add-username');
     attachLiveClear('addEmail',    'err-add-email');
     attachLiveClear('addPassword', 'err-add-password');
+    attachLiveClear('addConfirmPassword', 'err-add-confirm-password');
+    attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
     attachLiveClear('editUsername', 'err-edit-username');
     attachLiveClear('editEmail',    'err-edit-email');
 });
@@ -38,6 +41,7 @@ function clearAllErrors(prefix) {
     clearErr(`${prefix}Username`, `err-${prefix}-username`);
     clearErr(`${prefix}Email`,    `err-${prefix}-email`);
     clearErr(`${prefix}Password`, `err-${prefix}-password`);
+    clearErr(`${prefix}ConfirmPassword`, `err-${prefix}-confirm-password`);
     if(document.getElementById(`${prefix}Foto`)) {
         clearErr(`${prefix}Foto`, `err-${prefix}-foto`);
     }
@@ -133,13 +137,20 @@ function submitAddAdmin() {
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
     const password = document.getElementById('addPassword').value;
+    const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
 
     if (!username) { showErr('addUsername', 'err-add-username', 'Username is required.'); valid = false; }
     if (!email) { showErr('addEmail', 'err-add-email', 'Email is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('addEmail', 'err-add-email', 'Invalid email format.'); valid = false; }
     if (!password) { showErr('addPassword', 'err-add-password', 'Password is required.'); valid = false; }
-
+    if (!confirmPassword) {
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password.');
+        valid = false;
+    } else if (password !== confirmPassword) {
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Passwords do not match.');
+        valid = false;
+    }
     if (!valid) return;
 
     const body = new FormData();
@@ -181,7 +192,7 @@ function openAdminEdit(id) {
             document.getElementById('editUsername').value     = d.username || '';
             document.getElementById('editEmail').value        = d.email || '';
             document.getElementById('editPassword').value     = ''; // Kosongkan password saat load
-            
+            document.getElementById('editConfirmPassword').value = '';
             const preview = document.getElementById('editFotoPreview');
             preview.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
 
@@ -221,12 +232,18 @@ function submitEditAdmin() {
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
     const password = document.getElementById('editPassword').value;
+    const confirmPassword = document.getElementById('editConfirmPassword').value;
     const foto     = document.getElementById('editFoto').files[0];
 
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }
     if (!email) { showErr('editEmail', 'err-edit-email', 'Email is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('editEmail', 'err-edit-email', 'Invalid email format.'); valid = false; }
-
+    if (password || confirmPassword) {
+        if (password !== confirmPassword) {
+            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Passwords do not match.');
+            valid = false;
+        }
+    }
     if (!valid) return;
 
     const body = new FormData();

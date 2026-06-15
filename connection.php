@@ -1,5 +1,5 @@
 <?php 
-    $serverName = '192.168.137.1';
+    $serverName = '100.113.106.47';
     $serverProp = [
         'database' => 'CardHaven',
         'UID' => 'sa',
