@@ -55,7 +55,7 @@ async function loadData() {
 
         const foto = document.getElementById("fotoProfil");
         if (foto && user.foto_profil) {
-            foto.src = `../../../image-profile/${user.foto_profil}`;
+            foto.src = `/cardhaven/image-profile/${user.foto_profil}`;
         }
     } catch (err) {
         alert("Gagal konek ke server");
@@ -172,3 +172,46 @@ async function handleDelete() {
         console.error(err);
     }
 }
+
+// === Card showcase interaction ===
+document.addEventListener("DOMContentLoaded", () => {
+    const showcase = document.querySelector('.card-showcase');
+    const cards = document.querySelectorAll('.card-float');
+
+    if (!showcase || cards.length === 0) return;
+
+    showcase.addEventListener('mousemove', (e) => {
+        const rect = showcase.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+        cards.forEach((card, index) => {
+            const depth = (index + 1) * 15;
+            const moveX = x * depth;
+            const moveY = y * depth;
+            const rotateX = y * -10;
+            const rotateY = x * 10;
+            const baseRotation = getComputedStyle(card).getPropertyValue('--rot') || '0deg';
+
+            card.style.transform = `
+                translate(${moveX}px, ${moveY}px)
+                rotateX(${rotateX}deg)
+                rotateY(${rotateY}deg)
+                rotate(${baseRotation})
+            `;
+        });
+    });
+
+    showcase.addEventListener('mouseleave', () => {
+        cards.forEach((card) => {
+            const baseRotation = getComputedStyle(card).getPropertyValue('--rot') || '0deg';
+            card.style.transform = `rotate(${baseRotation})`;
+        });
+    });
+
+    cards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform += ' scale(1.08) translateY(-10px)';
+        });
+    });
+});

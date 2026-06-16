@@ -32,14 +32,14 @@
                 <td>
     <div class="btn-action-group">
         <button class="btn-view-icon" onclick="openDetailSetModal(<?= $rowSet['id_set'] ?>)">...</button>
-        <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)">✏️</button>
+        <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+        <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
         <label class="switch">
             <input type="checkbox"
                 <?= $rowSet['aktif'] == 1 ? 'checked' : '' ?>
                 onchange="toggleSetStatus(<?= $rowSet['id_set'] ?>, this.checked, this)">
             <span class="slider"></span>
         </label>
-        <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)">🗑️</button>
     </div>
 </td>
             </tr>

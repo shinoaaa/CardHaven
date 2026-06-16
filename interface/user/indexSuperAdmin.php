@@ -16,6 +16,7 @@
                 <th>Foto</th>
                 <th>Username</th>
                 <th>Email</th>
+                <th>Phone Number</th>
                 <th>Created Date</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -38,10 +39,11 @@
                                 <img src="/cardhaven/assets/image/user.svg" alt="Default Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                             <?php endif; ?>
                         </td>
-                        <td style="font-weight: 600; text-align: left;">
+                        <td style="font-weight: 600; text-align: center;">
                             <?= htmlspecialchars($row['username'] ?? '-') ?>
                         </td>
                         <td><?= htmlspecialchars($row['email'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($row['no_telepon'] ?? '-') ?></td>
                         <td>
                             <?= isset($row['created_date']) && $row['created_date'] instanceof DateTime
                                 ? $row['created_date']->format('d-m-Y')
@@ -61,11 +63,11 @@
                                 </button>
 
                                 <button class="btn-edit-icon" onclick="openAdminEdit(<?= (int)$row['id_pengguna'] ?>)" title="Edit Super Admin">
-                                    ✏️
+                                    <img src="/cardhaven/assets/image/edit.svg" alt="">
                                 </button>
 
                                 <button class="btn-delete-icon" onclick="deleteAdmin(<?= (int)$row['id_pengguna'] ?>)" title="Delete Super Admin">
-                                    🗑️
+                                    <img src="/cardhaven/assets/image/delete.svg" alt="">
                                 </button>
 
                                 <label class="switch" title="Toggle Status">

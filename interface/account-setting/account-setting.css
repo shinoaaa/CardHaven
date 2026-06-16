@@ -30,17 +30,140 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #E6EEFF;
+    background: #F8FAFC;
+    position: relative;
+    overflow: hidden;
 }
 
+/* === Pattern background 2 layer + slow pan === */
+.content-wrap::before,
+.content-wrap::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: calc(100% + 100px);
+    height: calc(100% + 100px);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%237BB7FF' fill-opacity='0.15'%3E%3Crect x='20' y='10' width='40' height='56' rx='6' transform='rotate(-15 40 38)'/%3E%3Cpath d='M85 20l8 16h17l-14 11 5 17-16-10-16 10 5-17-14-11h17z'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* === Vignette di tepi === */
+.content-wrap > .particles::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    /* 3. Bersihkan bayangan tepi dari efek "kotor" menjadi bayangan biru premium */
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(15, 56, 145, 0.08) 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.content-wrap::before {
+    background-size: 120px 120px;
+    animation: panPattern 60s linear infinite;
+}
+
+.content-wrap::after {
+    background-size: 200px 200px;
+    opacity: 0.5;
+    animation: panPattern 90s linear infinite reverse;
+}
+
+@keyframes panPattern {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(-120px, -120px); }
+}
+
+/* === Vignette di tepi === */
+.content-wrap > .particles::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,30,0.25) 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* === Partikel melayang === */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    animation: floatParticle linear infinite, twinkle 2s ease-in-out infinite;
+}
+
+.particle.gold {
+    background: rgba(255, 215, 80, 0.9);
+    box-shadow: 0 0 10px rgba(255, 215, 80, 1);
+}
+
+.particle.pink {
+    background: rgba(255, 130, 200, 0.9);
+    box-shadow: 0 0 10px rgba(255, 130, 200, 1);
+}
+
+.p1 { width: 6px; height: 6px; left: 10%; top: 90%; animation-duration: 14s; animation-delay: 0s; }
+.p2 { width: 4px; height: 4px; left: 25%; top: 95%; animation-duration: 18s; animation-delay: 2s; }
+.p3 { width: 8px; height: 8px; left: 40%; top: 100%; animation-duration: 16s; animation-delay: 4s; }
+.p4 { width: 5px; height: 5px; left: 55%; top: 92%; animation-duration: 20s; animation-delay: 1s; }
+.p5 { width: 7px; height: 7px; left: 70%; top: 98%; animation-duration: 15s; animation-delay: 6s; }
+.p6 { width: 4px; height: 4px; left: 80%; top: 90%; animation-duration: 22s; animation-delay: 3s; }
+.p7 { width: 6px; height: 6px; left: 90%; top: 95%; animation-duration: 17s; animation-delay: 5s; }
+.p8 { width: 5px; height: 5px; left: 15%; top: 100%; animation-duration: 19s; animation-delay: 7s; }
+
+@keyframes floatParticle {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-110vh) translateX(20px); opacity: 0; }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.4; transform: scale(0.8); }
+    50%       { opacity: 1;   transform: scale(1.3); }
+}
+
+/* === Settings layout z-index === */
+.settings-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    width: 100%;
+    max-width: 1100px;
+    position: relative;
+    z-index: 3;
+}
+
+/* === Account card — glassmorphism === */
 .account-card {
     width: min(440px, 100%);
     min-height: calc(100vh - 4rem);
-    background: rgb(123, 183, 255);
+    background: rgba(123, 183, 255, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 24px;
     padding: 1.5rem;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
     color: #fff;
+    flex: 0 0 auto;
 }
 
 .account-title {
@@ -167,3 +290,118 @@ body {
         min-height: auto;
     }
 }
+/* =========================================
+   TCG SHOWCASE - BUG FIX (TWO-LAYER SYSTEM)
+   ========================================= */
+.card-showcase {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 350px;
+    perspective: 1000px;
+}
+
+.cards-wrapper {
+    position: relative;
+    width: 220px;
+    height: 310px;
+}
+
+/* 1. LAYER ANCHOR: Khusus Menangani Formasi Kipas & Animasi Goyang */
+.card-anchor {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform-origin: 50% 120%; /* Poros putaran genggaman di bawah */
+    /* Delay Z-Index agar kartu tidak langsung terpotong ke belakang saat turun */
+    transition: z-index 0s 0.4s;
+}
+
+.anchor-1 { z-index: 1; animation: swayLeft 4s ease-in-out infinite; }
+.anchor-2 { z-index: 3; animation: swayCenter 5s ease-in-out infinite; }
+.anchor-3 { z-index: 2; animation: swayRight 4.5s ease-in-out infinite; }
+
+@keyframes swayLeft {
+    0%, 100% { transform: rotate(-18deg) translateY(0); }
+    50%      { transform: rotate(-15deg) translateY(-5px); }
+}
+@keyframes swayCenter {
+    0%, 100% { transform: rotate(0deg) translateY(-10px); }
+    50%      { transform: rotate(3deg) translateY(-15px); }
+}
+@keyframes swayRight {
+    0%, 100% { transform: rotate(18deg) translateY(0); }
+    50%      { transform: rotate(15deg) translateY(-5px); }
+}
+
+/* Saat Anchor disorot mouse: Naikkan posisi Z-Index instan & hentikan goyangan */
+.card-anchor:hover {
+    z-index: 20 !important;
+    transition: z-index 0s 0s;
+    animation-play-state: paused; 
+}
+
+
+/* 2. LAYER FLOAT: Khusus Menangani Desain Fisik & Animasi Tarik Ke Depan */
+.card-float {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 14px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255,255,255,0.8);
+    cursor: pointer;
+    overflow: hidden;
+    /* Transisi mulus hanya dikendalikan di sini */
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s;
+}
+
+.card-float img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+
+/* Trik Konter Rotasi: Saat diangkat, kartu memutar balik sumbunya agar terlihat lurus sempurna */
+.anchor-1:hover .card-float {
+    transform: rotate(18deg) translateY(-40px) scale(1.15);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+.anchor-2:hover .card-float {
+    transform: rotate(0deg) translateY(-30px) scale(1.15);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+.anchor-3:hover .card-float {
+    transform: rotate(-18deg) translateY(-40px) scale(1.15);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+
+
+/* --- Holographic Shimmer Bawaan Tetap Dipertahankan --- */
+.card-float::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(255, 0, 150, 0.25) 35%,
+        rgba(0, 255, 255, 0.25) 45%,
+        rgba(255, 255, 0, 0.25) 55%,
+        transparent 70%
+    );
+    transform: rotate(0deg) translateX(-100%);
+    animation: holoShine 5s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+@keyframes holoShine {
+    0%   { transform: translateX(-100%) translateY(-100%) rotate(25deg); }
+    50%  { transform: translateX(100%)  translateY(100%)  rotate(25deg); }
+    100% { transform: translateX(-100%) translateY(-100%) rotate(25deg); }
+}
+
+.showcase-text {
+    display: none;
+}
+

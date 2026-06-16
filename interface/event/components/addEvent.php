@@ -327,7 +327,6 @@
     display: flex;
     justify-content: center;
     gap: 12px;
-    margin-top: 20px;
 }
 
 .ae-btn-cancel {

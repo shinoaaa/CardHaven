@@ -51,6 +51,7 @@ function clearAllErrors(prefix) {
 function showOverlay() { overlay.classList.add('active'); }
 function hideOverlay() { overlay.classList.remove('active'); }
 function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()); }
+function isValidPhone(phone) { return /^[0-9+\-\s]{7,20}$/.test(phone.trim()); }
 
 let addFormSnapshot  = null;
 let editFormSnapshot = null;
@@ -137,14 +138,18 @@ function submitAddAdmin() {
     
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
+    const no_telp  = document.getElementById('addNoTelp').value.trim();
     const password = document.getElementById('addPassword').value;
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
 
     if (!username) { showErr('addUsername', 'err-add-username', 'Username is required.'); valid = false; }
     if (!email) { showErr('addEmail', 'err-add-email', 'Email is required.'); valid = false; }
+    if (!no_telp) { showErr('addNoTelp', 'err-add-notelp', 'Phone Number is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('addEmail', 'err-add-email', 'Invalid email format.'); valid = false; }
     
+    if (no_telp && !isValidPhone(no_telp)) { showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false; }
+
     if (!password) { 
         showErr('addPassword', 'err-add-password', 'Password is required.'); 
         valid = false; 
@@ -163,6 +168,7 @@ function submitAddAdmin() {
     body.append('action', 'addAdmin');
     body.append('username', username);
     body.append('email', email);
+    body.append('no_telepon', no_telp);
     body.append('password', password);
     if (foto) body.append('foto_profil', foto);
 
@@ -234,6 +240,7 @@ function submitEditAdmin() {
     const id       = document.getElementById('editAdminId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.trim();
     const password = document.getElementById('editPassword').value;
     const confirmPassword = document.getElementById('editConfirmPassword').value;
     const foto     = document.getElementById('editFoto').files[0];
@@ -241,6 +248,8 @@ function submitEditAdmin() {
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }
     if (!email) { showErr('editEmail', 'err-edit-email', 'Email is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('editEmail', 'err-edit-email', 'Invalid email format.'); valid = false; }
+
+    if (no_telp && !isValidPhone(no_telp)) { showErr('editNoTelp', 'err-edit-notelp', 'Invalid phone number format.'); valid = false; }
 
     if (password || confirmPassword) {
         if (password !== confirmPassword) {
@@ -256,6 +265,7 @@ function submitEditAdmin() {
     body.append('id_pengguna', id);
     body.append('username', username);
     body.append('email', email);
+    body.append('no_telepon', no_telp);
     if (password) body.append('password', password);
     if (foto) body.append('foto_profil', foto);
 

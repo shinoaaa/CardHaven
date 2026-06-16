@@ -27,7 +27,7 @@ class controllerEvent
             FROM event e
             LEFT JOIN produk_event pe 
                 ON pe.id_event = e.id_event
-            WHERE ISNULL(e.is_deleted, 0) = 0
+            WHERE ISNULL(e.is_deleted, 0) = 0 AND ISNULL(pe.is_deleted, 0) = 0
             GROUP BY 
                 e.id_event,
                 e.nama_event,

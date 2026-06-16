@@ -40,13 +40,15 @@
                                 <img src="/cardhaven/assets/image/user.svg" alt="Default Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                             <?php endif; ?>
                         </td>
-                        <td style="font-weight: 600; text-align: left;">
+                        <td style="font-weight: 600; text-align: center;">
                             <?= htmlspecialchars($row['username'] ?? '-') ?>
                         </td>
                         <td><?= htmlspecialchars($row['email'] ?? '-') ?></td>
                         <td><?= !empty($row['no_telepon']) ? htmlspecialchars($row['no_telepon']) : '-' ?></td>
-                        <td><?= (int)($row['shopping_amount'] ?? 0) ?>x</td>
-                        <td style="font-weight: bold; color: #27AE60;">
+                        <td style="text-align: right;"">
+                            <?= (int)($row['shopping_amount'] ?? 0) ?>
+                        </td>
+                        <td style="font-weight: bold; color: #27AE60; text-align: right;">
                             Rp <?= number_format((float)($row['shopping_total'] ?? 0), 0, ',', '.') ?>
                         </td>
                         <td>
@@ -63,11 +65,11 @@
                                 </button>
 
                                 <button class="btn-edit-icon" onclick="openCustomerEdit(<?= (int)$row['id_pengguna'] ?>)" title="Edit Customer">
-                                    ✏️
+                                    <img src="/cardhaven/assets/image/edit.svg" alt="">
                                 </button>
 
                                 <button class="btn-delete-icon" onclick="deleteCustomer(<?= (int)$row['id_pengguna'] ?>)" title="Delete Customer">
-                                    🗑️
+                                    <img src="/cardhaven/assets/image/delete.svg" alt="">
                                 </button>
 
                                 <label class="switch" title="Toggle Status">
