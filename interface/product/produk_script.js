@@ -391,3 +391,32 @@ window.addEventListener('click', function(e) {
     const mdDetail = document.getElementById('productDetailModal'); 
     if (mdDetail && e.target === mdDetail) mdDetail.style.display = 'none';
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const scrollBtn = document.getElementById('scrollBottomBtn');
+    // Karena sistemmu menggunakan .content-wrap sebagai area scroll utama
+    const contentWrap = document.querySelector('.content-wrap'); 
+
+    if (scrollBtn && contentWrap) {
+        // Eksekusi scroll ke paling bawah
+        scrollBtn.addEventListener('click', () => {
+            contentWrap.scrollTo({
+                top: contentWrap.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+
+        // Logika menyembunyikan tombol jika sudah mentok bawah
+        contentWrap.addEventListener('scroll', () => {
+            const isBottom = contentWrap.scrollTop + contentWrap.clientHeight >= contentWrap.scrollHeight - 50;
+            
+            if (isBottom) {
+                scrollBtn.style.opacity = '0';
+                scrollBtn.style.pointerEvents = 'none';
+            } else {
+                scrollBtn.style.opacity = '1';
+                scrollBtn.style.pointerEvents = 'auto';
+            }
+        });
+    }
+});

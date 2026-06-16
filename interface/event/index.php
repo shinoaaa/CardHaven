@@ -41,7 +41,7 @@
                             <tr>
                                 <td><?= $no++ ?></td>
 
-                                <td style="font-weight: 600; text-align: left;">
+                                <td style="font-weight: 600; text-align: center;">
                                     <?= htmlspecialchars($row['nama_event'] ?? '-') ?>
                                 </td>
 
@@ -63,7 +63,7 @@
                                     <?= number_format((float)($row['persen_diskon'] ?? 0), 0, ',', '.') ?>%
                                 </td>
 
-                                <td style="text-align: center;">
+                                <td style="text-align: right;">
                                     <?= (int)($row['total_item'] ?? 0) ?>
                                 </td>
 

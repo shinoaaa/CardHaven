@@ -150,6 +150,7 @@ function submitAddCustomer() {
 
     if (!username) { showErr('addUsername', 'err-add-username', 'Name is required.'); valid = false; }
     if (!email) { showErr('addEmail', 'err-add-email', 'Email is required.'); valid = false; }
+    if (!no_telp) { showErr('addNoTelp', 'err-add-notelp', 'Phone Number is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('addEmail', 'err-add-email', 'Invalid email format.'); valid = false; }
     
     if (no_telp && !isValidPhone(no_telp)) { showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false; }

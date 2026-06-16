@@ -53,6 +53,7 @@ switch ($action) {
     case 'addAdmin':
         $username = trim($_POST['username'] ?? '');
         $email    = trim($_POST['email'] ?? '');
+        $notelp    = trim($_POST['noTelp'] ?? '');
         $password = $_POST['password'] ?? '';
         
         if (!$username || !$email || !$password) {
@@ -87,9 +88,9 @@ switch ($action) {
             }
         }
 
-        $sql  = "INSERT INTO pengguna (username, email, password, foto_profil, role, status_akun, is_deleted, created_date, created_by)
-                 VALUES (?, ?, ?, ?, 2, 1, 0, GETDATE(), 1)";
-        $params = [$username, $email, $hashedPassword, $filename];
+        $sql  = "INSERT INTO pengguna (username, email, password, foto_profil,no_telepon, role, status_akun, is_deleted, created_date, created_by)
+                 VALUES (?, ?, ?, ?, ?, 2, 1, 0, GETDATE(), 1)";
+        $params = [$username, $email, $hashedPassword, $filename,$notelp];
         $stmt = sqlsrv_query($conn, $sql, $params);
 
         if (!$stmt) {
@@ -106,6 +107,7 @@ switch ($action) {
         $id       = (int)($_POST['id_pengguna'] ?? 0);
         $username = trim($_POST['username'] ?? '');
         $email    = trim($_POST['email'] ?? '');
+        $notelp    = trim($_POST['no_telepon'] ?? '');
         $password = $_POST['password'] ?? '';
 
         if (!$id || !$username || !$email) {
@@ -149,9 +151,9 @@ switch ($action) {
         }
 
         $sql  = "UPDATE pengguna 
-                 SET username = ?, email = ?, password = ?, foto_profil = ?, modified_date = GETDATE()
+                 SET username = ?, email = ?, password = ?, foto_profil = ?, no_telepon = ?, modified_date = GETDATE()
                  WHERE id_pengguna = ? AND role = 2 AND is_deleted = 0";
-        $stmt = sqlsrv_query($conn, $sql, [$username, $email, $finalPassword, $filename, $id]);
+        $stmt = sqlsrv_query($conn, $sql, [$username, $email, $finalPassword, $filename, $notelp, $id]);
 
         if (!$stmt) {
             jsonOut(false, 'Failed to update database record.');

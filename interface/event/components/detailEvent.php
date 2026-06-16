@@ -194,7 +194,19 @@ function escHtml($str) {
 
             <div class="ee-field" id="ee_row_tanggal_sampai" style="<?= (($event['tipe_event'] ?? '') === 'preorder') ? '' : 'display:none;' ?>">
                 <label class="ee-label">Estimated Arrival Date <span class="ee-required">*</span></label>
-                <input id="ee_tanggal_sampai" type="date" class="ee-input" value="<?= escHtml($event['tanggal_sampai'] ?? '') ?>">
+                <?php 
+                    $tglSampai = '';
+                    if (!empty($event['tanggal_sampai'])) {
+                        // Cek apakah dia object DateTime
+                        if (is_object($event['tanggal_sampai'])) {
+                            $tglSampai = $event['tanggal_sampai']->format('Y-m-d');
+                        } else {
+                            // Kalau dia string, pastikan cuma ambil YYYY-MM-DD
+                            $tglSampai = date('Y-m-d', strtotime($event['tanggal_sampai']));
+                        }
+                    }
+                ?>
+                <input id="ee_tanggal_sampai" type="date" class="ee-input" value="<?= escHtml($tglSampai) ?>">
                 <span class="ee-error" id="ee_err_tanggal_sampai"></span>
             </div>
 

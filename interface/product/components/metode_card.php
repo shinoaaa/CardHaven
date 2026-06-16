@@ -34,14 +34,14 @@
                 <td>
     <div class="btn-action-group">
         <button class="btn-view-icon" onclick="openDetailMetode(<?= $rowMetode['id_metode'] ?>)">...</button>
-        <button class="btn-edit-icon" onclick="openEditMetode(<?= $rowMetode['id_metode'] ?>)">✏️</button>
+        <button class="btn-edit-icon" onclick="openEditMetode(<?= $rowMetode['id_metode'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+        <button class="btn-delete-icon" onclick="confirmDeleteMetode(<?= $rowMetode['id_metode'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
         <label class="switch">
             <input type="checkbox"
                 <?= $rowMetode['aktif'] == 1 ? 'checked' : '' ?>
                 onchange="toggleMetode(<?= $rowMetode['id_metode'] ?>, this.checked, this)">
             <span class="slider"></span>
         </label>
-        <button class="btn-delete-icon" onclick="confirmDeleteMetode(<?= $rowMetode['id_metode'] ?>)">🗑️</button>
     </div>
 </td>
             </tr>

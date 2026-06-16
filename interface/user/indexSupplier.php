@@ -33,7 +33,7 @@
                         <tr>
                             <td><?= $no++ ?></td>
 
-                            <td style="font-weight: 600; text-align: left;">
+                            <td style="font-weight: 600; text-align: center;">
                                 <?= htmlspecialchars($row['nama_suplier'] ?? '-') ?>
                             </td>
 
@@ -71,14 +71,14 @@
                                     <button class="btn-edit-icon"
                                         onclick="openSupplierEdit(<?= (int)$row['id_supplier'] ?>)"
                                         title="Edit Supplier">
-                                        ✏️
+                                        <img src="/cardhaven/assets/image/edit.svg" alt="">
                                     </button>
 
                                     <!-- Delete -->
                                     <button class="btn-delete-icon"
                                         onclick="deleteSupplier(<?= (int)$row['id_supplier'] ?>)"
                                         title="Delete Supplier">
-                                        🗑️
+                                        <img src="/cardhaven/assets/image/delete.svg" alt="">
                                     </button>
 
                                     <!-- Toggle Active / Inactive -->

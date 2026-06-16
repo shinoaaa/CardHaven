@@ -1,3 +1,5 @@
+
+
 <div style="width: 100%; height: 100%; display: flex; align-items: center; flex-direction: column;">
     <div class="logo-wrap">
         <img src="/cardhaven/assets/image/logo.svg">
@@ -5,7 +7,7 @@
 
     <div class="profile-employee">
         <div class="photo-Profile">
-            <img src="https://i.pinimg.com/736x/e8/2b/43/e82b43056d04e86c577a443485049d9b.jpg" style="object-fit: cover; width: 100%; height: 100%;">
+            <img id="profileImage" src="/cardhaven/image-profile/default.jpg" style="object-fit: cover; width: 100%; height: 100%;">
         </div>
         <div class="userTag">
             <h2 class="coolveticaa" style="color: white; font-size: .65rem;" id="admin-role"></h2>
@@ -91,72 +93,87 @@ document.addEventListener("DOMContentLoaded", () => {
     const navUser = document.getElementById('nav-user');
     const navSetting = document.getElementById('nav-setting');
     const adminRole = document.getElementById('admin-role');
+    const profileImageElement = document.getElementById('profileImage'); // Target elemen foto
 
-    document.getElementById("userName").textContent =
-        sessionStorage.getItem("username") || localStorage.getItem("username");
+    // Ambil Data User dari Storage
+    const userId = sessionStorage.getItem("id_pengguna") || localStorage.getItem("id_pengguna");
+    document.getElementById("userName").textContent = sessionStorage.getItem("username") || localStorage.getItem("username");
+    document.getElementById("userEmail").textContent = sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail");
+    
+    if (userId) {
+        fetch(`/CardHaven/interface/dashboard/controller.php?action=getProfileImage&id=${userId}`)
+            .then(response => response.text()) // UBAH JADI TEXT DULU BUAT DEBUG
+            .then(textData => {
+                try {
+                    const data = JSON.parse(textData); 
+                    if (data.status === 'success' && data.image) {
+                        profileImageElement.src = `/CardHaven/image-profile/${data.image}`;
+                        console.log("Berhasil load foto buat user:", userId);
+                    } else {
+                        console.error("Gagal dari server:", data.message);
+                    }
+                } catch (e) {
+                    console.error("Bukan JSON! Output dari PHP:", textData);
+                }
+            })
+            .catch(error => {
+                console.error("Fetch/Network error:", error);
+            });
+    }
+    // ---------------------------------------
 
-    document.getElementById("userEmail").textContent =
-        sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail");
-
-        const currentUrl = window.location.href
-        console.log(currentUrl);
+    const currentUrl = window.location.href;
+    const role = Number.parseInt(sessionStorage.getItem("role")) || Number.parseInt(localStorage.getItem("role"));
         
-        const role = Number.parseInt(sessionStorage.getItem("role")) || Number.parseInt(localStorage.getItem("role"));
-        
-        if(role === 2 || role === 1){
-            navUser.style.display = 'none'
-            navSales.style.display = 'none'
-        }
-        if(role === 1){
-            navEvent.style.display = 'none';
-            navPurchase.style.display = 'none';
-        }
+    if(role === 2 || role === 1){
+        navUser.style.display = 'none';
+        navSales.style.display = 'none';
+    }
+    if(role === 1){
+        navEvent.style.display = 'none';
+        navPurchase.style.display = 'none';
+    }
 
-        if(role === 1){
-            adminRole.textContent = 'Karyawan';
-        } else if (role === 2){
-            adminRole.textContent = 'Karyawan'
-        } else{
-            adminRole.textContent = 'Super Admin'
-        }
+    if(role === 1){
+        adminRole.textContent = 'Employee';
+    } else if (role === 2){
+        adminRole.textContent = 'Manager';
+    } else{
+        adminRole.textContent = 'Owner';
+    }
 
-        const request = window.location.pathname;
+    const request = window.location.pathname;
+    const url = request.replace('/CardHaven', '');
+    const segments = url.replace(/^\/|\/$/g, '').split('/');
+    const page = segments[1]?.toString();
 
-        const url = request.replace('/CardHaven', '');
-
-        const segments = url.replace(/^\/|\/$/g, '').split('/');
-        const page = segments[1]?.toString();
-
-        switch (page) {
-            case "activity":
-                navDashboard.classList.add('selectedOption');
-                break;
-            case "transaction":
-                navTransaction.classList.add('selectedOption');
-                break;
-            case "product":
-                navProduct.classList.add('selectedOption');
-                break;
-            case "purchase":
-                navPurchase.classList.add('selectedOption');
-                break;
-            case "event":
-                navEvent.classList.add('selectedOption');
-                break;
-            case "sales":
-                navSales.classList.add('selectedOption');
-                break;
-            case "user":
-                navUser.classList.add('selectedOption');
-                break;
-            case "settingaccount":
-                navSetting.classList.add('selectedOption');
-                break;
-        
-            default:
-                break;
-        }
-        
+    switch (page) {
+        case "activity":
+            navDashboard.classList.add('selectedOption');
+            break;
+        case "transaction":
+            navTransaction.classList.add('selectedOption');
+            break;
+        case "product":
+            navProduct.classList.add('selectedOption');
+            break;
+        case "purchase":
+            navPurchase.classList.add('selectedOption');
+            break;
+        case "event":
+            navEvent.classList.add('selectedOption');
+            break;
+        case "sales":
+            navSales.classList.add('selectedOption');
+            break;
+        case "user":
+            navUser.classList.add('selectedOption');
+            break;
+        case "settingaccount":
+            navSetting.classList.add('selectedOption');
+            break;
+        default:
+            break;
+    }
 });
-
 </script>

@@ -12,7 +12,12 @@ require_once 'components/fetch_dashboard.php';
     <title>Product Management - Super Admin</title>
 </head>
 <body>
-
+        <button id="scrollBottomBtn" class="scroll-bottom-btn" title="Ke Paling Bawah">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+    </svg>
+</button>
         <div class="main-content">
             <h1 class="coolveticaa" style="color: #a0beff;font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
             <div class="content-card" id="container-produk">
@@ -60,14 +65,14 @@ require_once 'components/fetch_dashboard.php';
                                 <td>
                                     <div class="btn-action-group">
                                         <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
-                                        <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)">✏️</button>
+                                        <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                                        <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
                                         <label class="switch">
                                             <input type="checkbox" 
                                                 <?= ($row['status'] == 1) ? 'checked' : '' ?> 
                                                 onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
                                             <span class="slider"></span>
                                         </label>
-                                        <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)">🗑️</button>
                                     </div>
                                 </td>
                         </tr>

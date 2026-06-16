@@ -32,20 +32,20 @@
                 <td>
                     <div class="btn-action-group">
                         <button class="btn-view-icon" onclick="openDetailModal(<?= $row['id_game'] ?>)">...</button>
-                        <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)">✏️</button>
+                        <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                        <?php if ($row['is_deleted'] == 0): ?>
+                            <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
+                            <?php else: ?>
+                                <button class="btn-restore-icon"
+                                style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
+                                onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                                <?php endif; ?>
                         <label class="switch">
                             <input type="checkbox" 
                                 <?= $row['aktif'] == 1 ? 'checked' : '' ?> 
                                 onchange="toggleStatus(<?= $row['id_game'] ?>, this.checked, this)">
                             <span class="slider"></span>
                         </label>
-                        <?php if ($row['is_deleted'] == 0): ?>
-                            <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)">🗑️</button>
-                        <?php else: ?>
-                            <button class="btn-restore-icon"
-                                    style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                    onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
-                        <?php endif; ?>
                     </div>
                 </td>
             </tr>

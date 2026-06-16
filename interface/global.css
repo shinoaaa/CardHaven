@@ -468,7 +468,7 @@ input::placeholder {
     transition: 0.2s ease;
 }
 
-.btn-edit-icon { background-color: #F39C12; }
+.btn-edit-icon { background-color: #FF8E24; }
 .btn-delete-icon { background-color: #E74C3C; }
 .btn-view-icon { background-color: var(--primary-light); }
 .btn-edit-icon:hover { transform: scale(1.1); background-color: #e67e22; }
@@ -580,7 +580,6 @@ input::placeholder {
     padding: 30px;
     border-radius: 40px;
     position: relative;
-
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
@@ -1182,3 +1181,4 @@ input:checked + .slider:before {
     background-color: var(--primary-color);
     border: none;
 }
+
