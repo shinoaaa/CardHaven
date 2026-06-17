@@ -251,12 +251,37 @@ function submitEditAdmin() {
     if (!email) { showErr('editEmail', 'err-edit-email', 'Email is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('editEmail', 'err-edit-email', 'Invalid email format.'); valid = false; }
 
-    if (no_telp && !isValidPhone(no_telp)) { showErr('editNoTelp', 'err-edit-notelp', 'Invalid phone number format.'); valid = false; }
-    if (password || confirmPassword) {
-        if (password !== confirmPassword) {
-            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Passwords do not match.');
+    if (!no_telp) { 
+        showErr('editNoTelp', 'err-edit-notelp', 'Phone Number is required.'); 
+        valid = false; 
+    } else if (!isValidPhone(no_telp)) { 
+        showErr('editNoTelp', 'err-edit-notelp', 'Invalid phone number format.'); 
+        valid = false; 
+    }
+
+
+    if (password) {
+        if (password.length < 8 || password.length > 12) {
+            showErr('editPassword', 'err-edit-password', 'Password must be 8 - 12 characters long');
+            valid = false;
+        } 
+        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            showErr('editPassword', 'err-edit-password', 'Password must contain a special character');
             valid = false;
         }
+
+
+        if (!confirmPassword) {
+            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Please confirm your password');
+            valid = false;
+        } else if (password !== confirmPassword) {
+            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Confirm password does not match!');
+            valid = false;
+        }
+    } 
+    else if (confirmPassword) {
+        showErr('editPassword', 'err-edit-password', 'Please enter a new password');
+        valid = false;
     }
     if (!valid) return;
 
