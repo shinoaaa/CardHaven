@@ -274,12 +274,12 @@ function escHtml($str) {
                                         <div class="btn-action-group">
                                             <button class="btn-edit-icon"
                                                     onclick="eeEditStock(<?= (int)($p['id_produk_event'] ?? 0) ?>, <?= (int)($p['stok_event'] ?? 0) ?>)">
-                                                ✏️
+                                                <img src="/cardhaven/assets/image/edit.svg" alt="">
                                             </button>
 
                                             <button class="btn-delete-icon"
                                                     onclick="eeRemoveProductFromEvent(<?= (int)($p['id_produk_event'] ?? 0) ?>)">
-                                                🗑️
+                                                <img src="/cardhaven/assets/image/delete.svg" alt="">
                                             </button>
                                         </div>
                                     </td>
@@ -454,7 +454,7 @@ function escHtml($str) {
     background: #1284ff;
     color: #fff;
     padding: 8px 10px;
-    text-align: left;
+    text-align: center;
     font-weight: 700;
 }
 .ee-product-table td {

@@ -26,26 +26,54 @@ if ($id_event <= 0) {
 
 $modified_by = 1; // TODO: ganti dengan session user
 
-$sql = "
-    UPDATE event
-    SET 
-        status_event = 0,
-        modified_by = ?,
-        modified_date = GETDATE()
-    WHERE id_event = ?
-      AND is_deleted = 0;
+// ==========================================
+// 1. CEK STATUS EVENT TERLEBIH DAHULU
+// ==========================================
+$sql_check = "SELECT status_event FROM event WHERE id_event = ? AND is_deleted = 0";
+$stmt_check = sqlsrv_query($conn, $sql_check, [$id_event]);
 
-    UPDATE p
-    SET p.stok = p.stok + pe.stok_event
-    WHERE pe.id_produk_event = ?
-    FROM produk p 
-    JOIN produk_event pe
-    on pe.id_produk = p.id_produk_event
-";
+if ($stmt_check === false) {
+    echo json_encode(['error' => 'Failed to check event status', 'detail' => sqlsrv_errors()]);
+    exit;
+}
 
-$stmt = sqlsrv_query($conn, $sql, [$modified_by, $id_event]);
+$event = sqlsrv_fetch_array($stmt_check, SQLSRV_FETCH_ASSOC);
 
-if ($stmt === false) {
+if (!$event) {
+    echo json_encode(['success' => false, 'message' => 'Event not found']);
+    exit;
+}
+
+// Asumsi: jika status_event = 0 artinya event sudah selesai/tidak aktif
+if ($event['status_event'] == 0) {
+    echo json_encode(['success' => false, 'message' => 'Can not delete running event']);
+    exit;
+}
+
+// ==========================================
+// 2. PROSES UPDATE DENGAN TRANSACTION
+// ==========================================
+if (sqlsrv_begin_transaction($conn) === false) {
+    echo json_encode(['error' => 'Failed to start transaction', 'detail' => sqlsrv_errors()]);
+    exit;
+}
+
+// Query A: Update status event jadi 0
+$sql_update_event = "UPDATE event 
+                     SET status_event = 0, modified_by = ?, modified_date = GETDATE(), is_deleted = 1
+                     WHERE id_event = ? AND is_deleted = 0";
+$stmt1 = sqlsrv_query($conn, $sql_update_event, [$modified_by, $id_event]);
+
+$sql_update_stock = "UPDATE p
+                     SET p.stok = p.stok + pe.stok_event
+                     FROM produk p 
+                     JOIN produk_event pe ON pe.id_produk = p.id_produk 
+                     WHERE pe.id_event = ?";
+$stmt2 = sqlsrv_query($conn, $sql_update_stock, [$id_event]);
+
+// Cek apakah semua query update berhasil
+if ($stmt1 === false || $stmt2 === false) {
+    sqlsrv_rollback($conn); // Batalkan semua jika ada yang gagal
     echo json_encode([
         'error' => 'Failed to complete event',
         'detail' => sqlsrv_errors()
@@ -53,7 +81,10 @@ if ($stmt === false) {
     exit;
 }
 
+// Jika semua sukses, simpan perubahan permanen ke DB
+sqlsrv_commit($conn);
+
 echo json_encode([
     'success' => true,
-    'message' => 'Event marked as completed'
+    'message' => 'Event marked as completed and stock restored successfully'
 ]);

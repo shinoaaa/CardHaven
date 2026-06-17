@@ -151,6 +151,13 @@ switch ($action) {
                 WHERE id_produk_event = ?
             ";
             $stmt = sqlsrv_query($conn, $sqlUpdate, [$harga_event, $stok_event, (int)$exists['id_produk_event']]);
+
+            $sqlUpdate = "
+                UPDATE p
+                set stok = stok - ?
+                FROM produk p
+                JOIN produk_event
+            "
         } else {
             $sqlInsert = "
                 INSERT INTO produk_event (
