@@ -1,11 +1,13 @@
 const ADMIN_URL = '/cardhaven/interface/user/controller/controllerAdmin.php';
-let overlay, modalDetail, modalAdd, modalEdit;
+let overlay, modalDetail, modalAdd, modalEdit, modalAdminChange;
+let adminVerifyStepDone = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     overlay     = document.getElementById('adminOverlay');
     modalDetail = document.getElementById('modalAdminDetail');
     modalAdd    = document.getElementById('modalAdminAdd');
     modalEdit   = document.getElementById('modalAdminEdit');
+    modalAdminChange = document.getElementById('modalAdminChangePassword'); 
 
     attachLiveClear('addUsername', 'err-add-username');
     attachLiveClear('addEmail',    'err-add-email');
@@ -16,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     attachLiveClear('editEmail',    'err-edit-email');
     attachLiveClear('editPassword', 'err-edit-password');
     attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
+    attachLiveClear('adminChangeCreatedDate', 'err-admin-change-date');
+    attachLiveClear('adminChangeNewPassword', 'err-admin-change-pass');
+    attachLiveClear('adminChangeConfirmPassword', 'err-admin-change-confirm');
 });
 
 function attachLiveClear(inputId, errId) {
@@ -220,8 +225,9 @@ function openAdminEdit(id) {
             document.getElementById('editAdminId').value       = d.id_pengguna;
             document.getElementById('editUsername').value     = d.username || '';
             document.getElementById('editEmail').value        = d.email || '';
-            document.getElementById('editPassword').value     = ''; // Kosongkan password
-            document.getElementById('editConfirmPassword').value = ''; // Kosongkan konfirmasi
+            document.getElementById('editNoTelp').value        = d.no_telepon || '';
+            
+            document.getElementById('adminChangeEmail').value = d.email || '';
             
             const preview = document.getElementById('editFotoPreview');
             preview.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
@@ -257,8 +263,6 @@ function submitEditAdmin() {
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
     const no_telp  = document.getElementById('editNoTelp').value.trim();
-    const password = document.getElementById('editPassword').value;
-    const confirmPassword = document.getElementById('editConfirmPassword').value;
     const foto     = document.getElementById('editFoto').files[0];
 
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }
@@ -273,23 +277,6 @@ function submitEditAdmin() {
         valid = false; 
     }
 
-
-    if (password) { 
-        if (password.length < 8 || password.length > 12) {
-            showErr('editPassword', 'err-edit-password', 'Password must be 8 - 12 characters long');
-            valid = false;
-        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-            showErr('editPassword', 'err-edit-password', 'Password must contain a special character');
-            valid = false;
-        }
-    }
-
-    // 3. Validasi Konfirmasi Password
-    if (password && password !== confirmPassword) {
-        showErr('editConfirmPassword', 'err-edit-confirm-password', 'Confirm password does not match!');
-        valid = false;
-    }
-
     if (!valid) return;
 
     const body = new FormData();
@@ -298,7 +285,6 @@ function submitEditAdmin() {
     body.append('username', username);
     body.append('email', email);
     body.append('no_telepon', no_telp);
-    if (password) body.append('password', password);
     if (foto) body.append('foto_profil', foto);
 
     fetch(ADMIN_URL, { method: 'POST', body })
@@ -342,7 +328,10 @@ function toggleAdmin(id, isChecked, checkboxEl) {
     const newStatus = isChecked ? 1 : 0;
     const label     = isChecked ? 'activate' : 'deactivate';
 
-    cardhavenConfirm(`${isChecked ? 'Activate' : 'Deactivate'} Account?`, `Are you sure you want to ${label} this account?`, isChecked ? 'Activate' : 'Deactivate', 
+    cardhavenConfirm(
+        `${isChecked ? 'Activate' : 'Deactivate'} Account?`, 
+        `Are you sure you want to ${label} this account?`, 
+        isChecked ? 'Activate' : 'Deactivate', 
         () => {
             const body = new FormData();
             body.append('action', 'toggleAdmin');
@@ -352,23 +341,154 @@ function toggleAdmin(id, isChecked, checkboxEl) {
             fetch(ADMIN_URL, { method: 'POST', body })
                 .then(r => r.json())
                 .then(res => {
-                    if (!res.success) {
+                    if (res.success) {
+                        Swal.fire({ 
+                            icon: 'success', 
+                            iconColor: '#0088FF', 
+                            title: 'Success!', 
+                            text: 'Account status has been changed.', 
+                            showConfirmButton: false, 
+                            timer: 1500, 
+                            customClass: { title: 'coolveticaa' } 
+                        }).then(() => {
+                            location.reload(); // Reload agar badge status terupdate otomatis
+                        });
+                    } else {
+                        // Revert checkbox jika gagal di server
                         checkboxEl.checked = !isChecked;
-                        cardhavenAlert('error', 'Failed', res.message);
-                        return;
-                    }
-                    const row = checkboxEl.closest('tr');
-                    const badge = row?.querySelector('.status-badge');
-                    if (badge) {
-                        badge.textContent = isChecked ? 'Active' : 'Inactive';
-                        badge.style.color = isChecked ? '#27AE60' : '#E74C3C';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: res.message || 'Failed to update status.',
+                            confirmButtonText: 'OK',
+                            customClass: { title: 'coolveticaa' }
+                        });
                     }
                 })
-                .catch(() => {
+                .catch(err => {
+                    // Revert checkbox jika error koneksi
                     checkboxEl.checked = !isChecked;
-                    cardhavenAlert('error', 'Error', 'Network error.');
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Connection error occurred.',
+                        confirmButtonText: 'OK',
+                        customClass: { title: 'coolveticaa' }
+                    });
                 });
         },
-        () => { checkboxEl.checked = !isChecked; }
+        () => { 
+            // Revert checkbox jika user membatalkan konfirmasi (klik Batal)
+            checkboxEl.checked = !isChecked; 
+        }
     );
+}
+
+function openAdminChangePasswordModal() {
+    modalEdit.classList.remove('active'); // Tutup modal edit
+    
+    adminVerifyStepDone = false;
+    // 2. RESET FORM (Gunakan ID Form yang benar)
+    const form = document.getElementById('adminChangePasswordForm');
+    if(form) form.reset();
+
+    document.getElementById('admin-verify-section').style.display = 'block';
+    document.getElementById('admin-reset-section').style.display = 'none';
+    document.getElementById('btn-admin-submit-change').textContent = 'Verify';
+    
+    modalAdminChange.classList.add('active'); // Buka modal khusus admin
+}
+
+function closeAdminChangePasswordModal() {
+    modalAdminChange.classList.remove('active');
+    modalEdit.classList.add('active'); // Kembali ke modal edit
+}
+
+function handleAdminPasswordStep() {
+    if (!adminVerifyStepDone) {
+        verifyAdminIdentity();
+    } else {
+        resetAdminPassword();
+    }
+}
+async function verifyAdminIdentity() {
+    const email = document.getElementById('adminChangeEmail').value;
+    const date  = document.getElementById('adminChangeCreatedDate').value;
+
+    if (!date) {
+        showErr('adminChangeCreatedDate', 'err-admin-change-date', 'Date is required');
+        return;
+    }
+
+    const body = new FormData();
+    body.append('action', 'verifyAdmin');
+    body.append('email', email);
+    body.append('created_date', date);
+
+    try {
+        const response = await fetch(ADMIN_URL, { method: 'POST', body });
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            adminVerifyStepDone = true;
+            document.getElementById('admin-verify-section').style.display = 'none';
+            document.getElementById('admin-reset-section').style.display = 'block';
+            document.getElementById('btn-admin-submit-change').textContent = 'Update Password';
+        } else {
+            showErr('adminChangeCreatedDate', 'err-admin-change-date', data.message);
+        }
+    } catch (e) {
+        cardhavenAlert('error', 'Error', 'Network error');
+    }
+}
+
+async function resetAdminPassword() {
+    const password = document.getElementById('adminChangeNewPassword').value;
+    const confirm  = document.getElementById('adminChangeConfirmPassword').value;
+
+    let valid = true;
+    if (password.length < 8 || password.length > 12 || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        showErr('adminChangeNewPassword', 'err-admin-change-pass', 'Password must be 8-12 chars + symbol');
+        valid = false;
+    }
+    if (password !== confirm) {
+        showErr('adminChangeConfirmPassword', 'err-admin-change-confirm', 'Confirm password does not match!');
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    const body = new FormData();
+    body.append('action', 'resetAdminPassword');
+    body.append('password', password);
+    body.append('confirm_password', confirm);
+
+    try {
+        const response = await fetch(ADMIN_URL, { method: 'POST', body });
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            modalAdminChange.classList.remove('active');
+            hideOverlay();
+            cardhavenAlert('success', 'Success', 'Password updated!', () => location.reload());
+        } else {
+            cardhavenAlert('error', 'Failed', data.message);
+        }
+    } catch (e) {
+        cardhavenAlert('error', 'Error', 'Network error');
+    }
+}
+
+// 3. UPDATE FUNGSI OVERLAY CLICK
+function handleOverlayClick(e) {
+    if (e.target !== overlay) return;
+    if (modalDetail.classList.contains('active')) closeAdminModal();
+    if (modalAdd.classList.contains('active')) closeAddModal();
+    if (modalEdit.classList.contains('active')) closeEditModal();
+    
+    // TAMBAHKAN INI:
+    if (modalAdminChange && modalAdminChange.classList.contains('active')) {
+        closeAdminChangePasswordModal();
+    }
 }

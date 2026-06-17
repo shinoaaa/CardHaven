@@ -390,7 +390,6 @@ function deleteSupplier(id) {
 // ============================================================
 //  TOGGLE ACTIVE / INACTIVE
 // ============================================================
-
 function toggleSupplier(id, isChecked, checkboxEl) {
     const newStatus = isChecked ? 1 : 0;
     const label     = isChecked ? 'activate' : 'deactivate';
@@ -408,27 +407,45 @@ function toggleSupplier(id, isChecked, checkboxEl) {
             fetch(SUPP_URL, { method: 'POST', body })
                 .then(r => r.json())
                 .then(res => {
-                    if (!res.success) {
-                        // Revert toggle on failure
+                    if (res.success) {
+                        Swal.fire({ 
+                            icon: 'success', 
+                            iconColor: '#0088FF', 
+                            title: 'Success!', 
+                            text: `Supplier status changed.`, 
+                            showConfirmButton: false, 
+                            timer: 1500, 
+                            customClass: { title: 'coolveticaa' } 
+                        }).then(() => {
+                            location.reload(); // Reload agar badge dan tampilan sinkron
+                        });
+                    } else {
+                        // Revert toggle jika gagal di server
                         checkboxEl.checked = !isChecked;
-                        cardhavenAlert('error', 'Failed', res.message || 'Failed to update status.');
-                        return;
-                    }
-                    // Update the status text in the row
-                    const row    = checkboxEl.closest('tr');
-                    const badge  = row?.querySelector('.status-badge');
-                    if (badge) {
-                        badge.textContent  = isChecked ? 'Active' : 'inactive';
-                        badge.style.color  = isChecked ? '#27AE60' : '#E74C3C';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: res.message || 'Failed to update status.',
+                            confirmButtonText: 'OK',
+                            customClass: { title: 'coolveticaa' }
+                        });
                     }
                 })
-                .catch(() => {
+                .catch(err => {
+                    // Revert toggle jika error koneksi
                     checkboxEl.checked = !isChecked;
-                    cardhavenAlert('error', 'Error', 'Network error. Please try again.');
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Connection error occurred.',
+                        confirmButtonText: 'OK',
+                        customClass: { title: 'coolveticaa' }
+                    });
                 });
         },
         () => {
-            // Cancelled – revert the visual toggle
+            // Jika user membatalkan konfirmasi, kembalikan posisi checkbox
             checkboxEl.checked = !isChecked;
         }
     );

@@ -34,7 +34,7 @@ switch ($action) {
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if (!$id) jsonOut(false, 'Invalid Admin ID.');
 
-        $sql  = "SELECT id_pengguna, username, email, foto_profil, status_akun,
+        $sql  = "SELECT id_pengguna, username, email, foto_profil,no_telepon, status_akun, 
                         CONVERT(varchar, created_date, 105) AS created_date
                  FROM pengguna
                  WHERE id_pengguna = ? AND role = 2 AND is_deleted = 0";
@@ -202,6 +202,63 @@ switch ($action) {
     // ----------------------------------------------------
     //  DEFAULT: Render Table List (Pagination Logic)
     // ----------------------------------------------------
+    case 'verifyAdmin':
+        $email = trim($_POST['email'] ?? '');
+        $createdDate = trim($_POST['created_date'] ?? '');
+
+        if (!$email || !$createdDate) {
+            echo json_encode(["status" => "error", "message" => "All fields are required"]);
+            exit;
+        }
+
+        // Query cek email dan tanggal buat (role 2 = Super Admin)
+        $sql = "SELECT id_pengguna FROM pengguna 
+                WHERE email = ? AND CONVERT(date, created_date) = ? AND role = 2";
+        $params = [$email, $createdDate];
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt && sqlsrv_has_rows($stmt)) {
+            $_SESSION['super_reset_verified'] = true;
+            $_SESSION['super_reset_email'] = $email;
+            echo json_encode(["status" => "success", "message" => "Verified"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Identity mismatch. Please check the date."]);
+        }
+        break;
+
+    case 'resetAdminPassword':
+        if (!isset($_SESSION['super_reset_verified']) || !$_SESSION['super_reset_verified']) {
+            echo json_encode(["status" => "error", "message" => "Unauthorized access."]);
+            exit;
+        }
+
+        $password = $_POST['password'] ?? '';
+        $confirm  = $_POST['confirm_password'] ?? '';
+        $email    = $_SESSION['super_reset_email'];
+
+        if (strlen($password) < 8 || strlen($password) > 12 || !preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+            echo json_encode(["status" => "error", "message" => "Password complexity not met."]);
+            exit;
+        }
+
+        if ($password !== $confirm) {
+            echo json_encode(["status" => "error", "message" => "Passwords do not match."]);
+            exit;
+        }
+
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $sql = "UPDATE pengguna SET password = ? WHERE email = ? AND role = 2";
+        $params = [$hashedPassword, $email];
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt) {
+            unset($_SESSION['super_reset_verified']);
+            unset($_SESSION['super_reset_email']);
+            echo json_encode(["status" => "success", "message" => "Super Admin password updated."]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Update failed."]);
+        }
+        break;
     default:
         $limit  = 7;
         $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;

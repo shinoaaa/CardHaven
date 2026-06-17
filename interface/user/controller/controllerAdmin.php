@@ -36,7 +36,7 @@ switch ($action) {
         if (!$id) jsonOut(false, 'Invalid Admin ID.');
 
         // Role = 1 (Admin)
-        $sql  = "SELECT id_pengguna, username, email, foto_profil, status_akun,
+        $sql  = "SELECT id_pengguna, username, email, foto_profil, no_telepon, status_akun,
                         CONVERT(varchar, created_date, 105) AS created_date
                  FROM pengguna
                  WHERE id_pengguna = ? AND role = 1 AND is_deleted = 0";
@@ -202,7 +202,75 @@ switch ($action) {
 
         jsonOut(true, 'Account status updated successfully.');
         break;
+    case 'verifyAdmin':
+            $email = trim($_POST['email'] ?? '');
+            $createdDate = trim($_POST['created_date'] ?? '');
 
+            if (!$email || !$createdDate) {
+                echo json_encode(["status" => "error", "message" => "All fields are required"]);
+                exit;
+            }
+
+            // Query cek email dan tanggal buat (Format SQL Server)
+            $sql = "SELECT id_pengguna FROM pengguna 
+                    WHERE email = ? AND CONVERT(date, created_date) = ?";
+            $params = [$email, $createdDate];
+            $stmt = sqlsrv_query($conn, $sql, $params);
+
+            if ($stmt && sqlsrv_has_rows($stmt)) {
+                // Simpan verifikasi ke session
+                $_SESSION['admin_reset_verified'] = true;
+                $_SESSION['admin_reset_email'] = $email;
+                
+                echo json_encode(["status" => "success", "message" => "Identity verified"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Incorrect creation date"]);
+            }
+            break;
+    case 'resetAdminPassword':
+            // Cek apakah sudah lewat tahap verifikasi
+            if (!isset($_SESSION['admin_reset_verified']) || !$_SESSION['admin_reset_verified']) {
+                echo json_encode(["status" => "error", "message" => "Unauthorized access. Please verify first."]);
+                exit;
+            }
+
+            $password = $_POST['password'] ?? '';
+            $confirm  = $_POST['confirm_password'] ?? '';
+            $email    = $_SESSION['admin_reset_email'];
+
+            // 1. Validasi Kosong
+            if (!$password || !$confirm) {
+                echo json_encode(["status" => "error", "message" => "Password cannot be empty"]);
+                exit;
+            }
+
+            // 2. Validasi Panjang (8-12) & Karakter Spesial (Sesuai script_register.js)
+            if (strlen($password) < 8 || strlen($password) > 12 || !preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+                echo json_encode(["status" => "error", "message" => "Password must be 8-12 characters and contain a special character"]);
+                exit;
+            }
+
+            // 3. Validasi Kecocokan
+            if ($password !== $confirm) {
+                echo json_encode(["status" => "error", "message" => "Confirm password does not match"]);
+                exit;
+            }
+
+            // 4. Hash dan Update
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "UPDATE pengguna SET password = ? WHERE email = ?";
+            $params = [$hashedPassword, $email];
+            $stmt = sqlsrv_query($conn, $sql, $params);
+
+            if ($stmt) {
+                // Hapus session reset setelah berhasil
+                unset($_SESSION['admin_reset_verified']);
+                unset($_SESSION['admin_reset_email']);
+                echo json_encode(["status" => "success", "message" => "Password updated successfully"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Failed to update password"]);
+            }
+            break;
     // ----------------------------------------------------
     //  DEFAULT: Render Table List
     // ----------------------------------------------------

@@ -1,8 +1,8 @@
 <div class="main-content" style="display: flex; justify-content: center;">
     <div class="content-card">
         <div class="list-user">
-            <button class="unselectedRole" id="superAdminButton">Super Admin</button>
-            <button class="unselectedRole" id="AdminButton">Admin</button>
+            <button class="unselectedRole" id="superAdminButton">Manager</button>
+            <button class="unselectedRole" id="AdminButton">Employee</button>
             <button class="unselectedRole" id="customernButton">Customer</button>
             <button class="unselectedRole" id="supplierButton">Supplier</button>
         </div>
