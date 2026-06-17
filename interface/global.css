@@ -324,7 +324,7 @@ input::placeholder {
 }
 
 .selectedOption h2{
-    font-size: .6rem; 
+    font-size: .8rem; 
 }
 
 .unselected img{
@@ -340,7 +340,7 @@ input::placeholder {
 }
 
 .unselected h2{
-    font-size: .65rem;
+    font-size: .85rem;
 }
 
 .unselected:hover{

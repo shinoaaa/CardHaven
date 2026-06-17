@@ -132,7 +132,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "message" => "Data berhasil diupdate"
         ]);
     }
+    if ($action === 'change_password') {
+        $cur_pw = $_POST['current_password'] ?? '';
+        $new_pw = $_POST['new_password'] ?? '';
 
+        // 1. Verifikasi Password Lama
+        $sqlCheck = "SELECT password FROM pengguna WHERE id_pengguna = ?";
+        $stmtCheck = sqlsrv_prepare($conn, $sqlCheck, [$id_pengguna]);
+        sqlsrv_execute($stmtCheck);
+        $user = sqlsrv_fetch_array($stmtCheck, SQLSRV_FETCH_ASSOC);
+
+        if (!$user || $user['password'] !== $cur_pw) {
+            jsonResponse([
+                "status" => "error",
+                "message" => "Current password is incorrect!"
+            ]);
+        }
+
+        // 2. Update ke Password Baru
+        $sqlUp = "UPDATE pengguna SET password = ? WHERE id_pengguna = ?";
+        $stmtUp = sqlsrv_prepare($conn, $sqlUp, [$new_pw, $id_pengguna]);
+
+        if (sqlsrv_execute($stmtUp)) {
+            jsonResponse([
+                "status" => "success",
+                "message" => "Password updated successfully"
+            ]);
+        } else {
+            jsonResponse([
+                "status" => "error",
+                "message" => "Failed to update database"
+            ]);
+        }
+    }
     if ($action === 'deactivate' || $action === 'delete') {
         $sql = "UPDATE pengguna
                 SET status_akun = 0

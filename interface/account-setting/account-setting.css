@@ -162,7 +162,7 @@ body {
     border-radius: 24px;
     padding: 1.5rem;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    color: #fff;
+    color: var(--primary-color);
     flex: 0 0 auto;
 }
 
@@ -404,4 +404,47 @@ body {
 .showcase-text {
     display: none;
 }
+/* --- MODAL OVERRIDE --- */
 
+/* Memastikan Overlay ada di tengah layar */
+#pwModal.modal-overlay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Warna Label Khusus Modal (Menghapus efek teks putih dari parent) */
+.modal-label-dark {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #222 !important; /* Warna gelap agar kontras dengan modal putih */
+    text-align: left;
+}
+
+/* Input bergaya Pill/Lonjong sesuai desain CardHaven */
+.modal-input-pill {
+    width: 100%;
+    height: 40px;
+    border-radius: 999px;
+    border: 1.5px solid #4b4b4b;
+    padding: 0 20px;
+    font-size: 14px;
+    color: #333;
+    background: rgba(255, 255, 255, 0.8);
+    outline: none;
+    transition: 0.3s;
+}
+
+.modal-input-pill:focus {
+    border-color: #1284ff;
+    box-shadow: 0 0 8px rgba(18, 132, 255, 0.2);
+}
+
+/* Menyesuaikan tombol close agar terlihat */
+.event-modal-close {
+    color: #222 !important;
+    font-weight: bold;
+}

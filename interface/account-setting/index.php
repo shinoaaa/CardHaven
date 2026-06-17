@@ -49,14 +49,10 @@
                         <input type="email" id="email" autocomplete="off">
                     </div>
 
-                    <div class="field">
-                        <label>Password</label>
-                        <input type="password" id="password">
-                    </div>
-
-                    <div class="field">
-                        <label>Confirm Password</label>
-                        <input type="password" id="confirmPassword">
+                    <div class="field" style="margin-top: 1.5rem;">
+                        <button type="button" id="btnOpenPwModal" class="btn-link" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-weight:700; padding:0; text-decoration:underline;">
+                            Change Password?
+                        </button>
                     </div>
 
                     <div class="btn-row">
@@ -65,7 +61,41 @@
                     </div>
                 </form>
             </div>
+            <div class="modal-overlay" id="pwModal">
+                <div class="event-modal" style="width: 450px;"> 
+                    <button class="event-modal-close" id="btnClosePwModal">&times;</button>
+                    
+                    <div class="modal-card" style="width: 100%;">
+                        <div class="modal-title">
+                            <span class="title-blue">CHANGE</span> <span class="title-dark">PASSWORD</span>
+                        </div>
+                        <div class="modal-code">Secure your account access</div>
 
+                        <form id="pwForm" style="margin-top: 20px;">
+                            <div class="modal-field">
+                                <label class="modal-label-dark">Current Password</label>
+                                <input type="password" id="current_password" class="modal-input-pill" required>
+                            </div>
+
+                            <div class="modal-field">
+                                <label class="modal-label-dark">New Password</label>
+                                <input type="password" id="new_password" class="modal-input-pill" required>
+                            </div>
+
+                            <div class="modal-field">
+                                <label class="modal-label-dark">Confirm New Password</label>
+                                <input type="password" id="confirm_new_password" class="modal-input-pill" required>
+                            </div>
+
+                            <div class="modal-footer" style="margin-top: 30px;">
+                                <button type="submit" class="modal-confirm-btn" style="width: 100%; height: 45px; font-size: 16px;">
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <aside class="card-showcase">
                 <div class="cards-wrapper">
                     
@@ -92,6 +122,7 @@
         </section>
     </main>
 </div>
+
 
 <script src="/cardhaven/interface/account-setting/account-setting.js?v=<?= time() ?>"></script>
 </body>
