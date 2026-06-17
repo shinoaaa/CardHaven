@@ -454,7 +454,7 @@ input::placeholder {
     gap: 8px;
 }
 
-.btn-edit-icon, .btn-delete-icon, .btn-view-icon {
+.btn-edit-icon, .btn-delete-icon, .btn-view-icon, .btn-complete-icon {
     border: none;
     width: 30px;
     height: 30px;
@@ -469,7 +469,8 @@ input::placeholder {
 }
 
 .btn-edit-icon { background-color: #FF8E24; }
-.btn-delete-icon { background-color: #E74C3C; }
+.btn-delete-icon { background-color: #E74C3C;}
+.btn-complete-icon { background-color: var(--primary-color); }
 .btn-view-icon { background-color: var(--primary-light); }
 .btn-edit-icon:hover { transform: scale(1.1); background-color: #e67e22; }
 .btn-delete-icon:hover { transform: scale(1.1); background-color: #c0392b; }
