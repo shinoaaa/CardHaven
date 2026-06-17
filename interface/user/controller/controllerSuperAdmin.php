@@ -1,4 +1,5 @@
 <?php
+session_start(); 
 require __DIR__ . '/../../../connection.php';
 
 header('Content-Type: application/json');
@@ -203,26 +204,29 @@ switch ($action) {
     //  DEFAULT: Render Table List (Pagination Logic)
     // ----------------------------------------------------
     case 'verifyAdmin':
-        $email = trim($_POST['email'] ?? '');
-        $createdDate = trim($_POST['created_date'] ?? '');
+        $actorId = $_POST['actor_id'] ?? 0;
 
-        if (!$email || !$createdDate) {
-            echo json_encode(["status" => "error", "message" => "All fields are required"]);
+        // Cek Aktor harus Role 3
+        $stmtActor = sqlsrv_query($conn, "SELECT role FROM pengguna WHERE id_pengguna = ?", [$actorId]);
+        $actor = sqlsrv_fetch_array($stmtActor, SQLSRV_FETCH_ASSOC);
+
+        if (!$actor || $actor['role'] != 3) {
+            echo json_encode(["status" => "error", "message" => "Forbidden."]);
             exit;
         }
 
-        // Query cek email dan tanggal buat (role 2 = Super Admin)
-        $sql = "SELECT id_pengguna FROM pengguna 
-                WHERE email = ? AND CONVERT(date, created_date) = ? AND role = 2";
-        $params = [$email, $createdDate];
-        $stmt = sqlsrv_query($conn, $sql, $params);
+        // Cari Target (Hapus filter AND role = 2)
+        $email = $_POST['email'];
+        $date  = $_POST['created_date'];
+        $sql   = "SELECT id_pengguna FROM pengguna WHERE email = ? AND CONVERT(date, created_date) = ?";
+        $stmt  = sqlsrv_query($conn, $sql, [$email, $date]);
 
         if ($stmt && sqlsrv_has_rows($stmt)) {
             $_SESSION['super_reset_verified'] = true;
             $_SESSION['super_reset_email'] = $email;
             echo json_encode(["status" => "success", "message" => "Verified"]);
         } else {
-            echo json_encode(["status" => "error", "message" => "Identity mismatch. Please check the date."]);
+            echo json_encode(["status" => "error", "message" => "Identity mismatch."]);
         }
         break;
 
@@ -247,7 +251,7 @@ switch ($action) {
         }
 
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-        $sql = "UPDATE pengguna SET password = ? WHERE email = ? AND role = 2";
+        $sql = "UPDATE pengguna SET password = ? WHERE email = ?";
         $params = [$hashedPassword, $email];
         $stmt = sqlsrv_query($conn, $sql, $params);
 

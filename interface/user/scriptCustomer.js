@@ -411,6 +411,7 @@ function handleCustPasswordStep() {
 async function verifyCustIdentity() {
     const email = document.getElementById('custChangeEmail').value;
     const date  = document.getElementById('custChangeCreatedDate').value;
+    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
     if (!date) {
         showErr('custChangeCreatedDate', 'err-cust-change-date', 'Date is required');
@@ -421,6 +422,7 @@ async function verifyCustIdentity() {
     body.append('action', 'verifyCustomer');
     body.append('email', email);
     body.append('created_date', date);
+    body.append('actor_id', actorId);
 
     try {
         const response = await fetch(CUST_URL, { method: 'POST', body });
@@ -442,7 +444,7 @@ async function verifyCustIdentity() {
 async function resetCustPassword() {
     const password = document.getElementById('custChangeNewPassword').value;
     const confirm  = document.getElementById('custChangeConfirmPassword').value;
-
+    const actorId  = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
     let valid = true;
     if (password.length < 8 || password.length > 12 || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
         showErr('custChangeNewPassword', 'err-cust-change-pass', 'Password must be 8-12 chars + symbol');
@@ -459,17 +461,31 @@ async function resetCustPassword() {
     body.append('action', 'resetCustomerPassword');
     body.append('password', password);
     body.append('confirm_password', confirm);
+    body.append('actor_id', actorId);
 
     try {
         const response = await fetch(CUST_URL, { method: 'POST', body });
         const data = await response.json();
 
         if (data.status === 'success') {
-            modalCustChange.classList.remove('active');
-            hideOverlay();
-            cardhavenAlert('success', 'Success', 'Password updated!', () => location.reload());
+            wal.fire({
+                icon: 'success',
+                iconColor: '#0088FF',
+                title: 'Success!',
+                text: 'The password has been successfully changed.',
+                confirmButtonColor: '#0088FF',
+                customClass: { title: 'coolveticaa' }
+            }).then(() => {
+                location.reload(); // Refresh halaman setelah sukses
+            });
         } else {
-            cardhavenAlert('error', 'Failed', data.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed',
+                text: data.message,
+                confirmButtonColor: '#E74C3C',
+                customClass: { title: 'coolveticaa' }
+            });
         }
     } catch (e) {
         cardhavenAlert('error', 'Error', 'Network error');

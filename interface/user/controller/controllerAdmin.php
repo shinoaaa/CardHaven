@@ -1,4 +1,5 @@
 <?php
+session_start(); 
 require __DIR__ . '/../../../connection.php';
 
 header('Content-Type: application/json');
@@ -203,34 +204,46 @@ switch ($action) {
         jsonOut(true, 'Account status updated successfully.');
         break;
     case 'verifyAdmin':
-            $email = trim($_POST['email'] ?? '');
-            $createdDate = trim($_POST['created_date'] ?? '');
+            $actorId = $_POST['actor_id'] ?? 0;
 
-            if (!$email || !$createdDate) {
-                echo json_encode(["status" => "error", "message" => "All fields are required"]);
+           
+            $stmtActor = sqlsrv_query($conn, "SELECT role FROM pengguna WHERE id_pengguna = ?", [$actorId]);
+            $actor = sqlsrv_fetch_array($stmtActor, SQLSRV_FETCH_ASSOC);
+
+            if (!$actor || $actor['role'] != 3) {
+                echo json_encode(["status" => "error", "message" => "Only Role 3 can modify passwords."]);
                 exit;
             }
 
-            // Query cek email dan tanggal buat (Format SQL Server)
-            $sql = "SELECT id_pengguna FROM pengguna 
-                    WHERE email = ? AND CONVERT(date, created_date) = ?";
-            $params = [$email, $createdDate];
-            $stmt = sqlsrv_query($conn, $sql, $params);
+            // Query Target (Tanpa filter role)
+            $email = $_POST['email'];
+            $date  = $_POST['created_date'];
+            $sql = "SELECT id_pengguna FROM pengguna WHERE email = ? AND CONVERT(date, created_date) = ?";
+            $stmt = sqlsrv_query($conn, $sql, [$email, $date]);
 
             if ($stmt && sqlsrv_has_rows($stmt)) {
-                // Simpan verifikasi ke session
                 $_SESSION['admin_reset_verified'] = true;
                 $_SESSION['admin_reset_email'] = $email;
-                
-                echo json_encode(["status" => "success", "message" => "Identity verified"]);
+                echo json_encode(["status" => "success", "message" => "Verified"]);
             } else {
-                echo json_encode(["status" => "error", "message" => "Incorrect creation date"]);
+                echo json_encode(["status" => "error", "message" => "Wrong information."]);
             }
             break;
     case 'resetAdminPassword':
-            // Cek apakah sudah lewat tahap verifikasi
+            $actorId = $_POST['actor_id'] ?? 0;
+
+            // Cek Role Aktor lagi (Double Security)
+            $sqlActor = "SELECT role FROM pengguna WHERE id_pengguna = ?";
+            $stmtActor = sqlsrv_query($conn, $sqlActor, [$actorId]);
+            $actorData = sqlsrv_fetch_array($stmtActor, SQLSRV_FETCH_ASSOC);
+
+            if (!$actorData || $actorData['role'] != 3) {
+                echo json_encode(["status" => "error", "message" => "Unauthorized access."]);
+                exit;
+            }
+
             if (!isset($_SESSION['admin_reset_verified']) || !$_SESSION['admin_reset_verified']) {
-                echo json_encode(["status" => "error", "message" => "Unauthorized access. Please verify first."]);
+                echo json_encode(["status" => "error", "message" => "Please verify identity first."]);
                 exit;
             }
 
