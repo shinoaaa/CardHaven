@@ -87,20 +87,27 @@
                                             <img src="/cardhaven/assets/image/edit.svg" alt="">
                                         </button>
 
+                                        <?php if($row['status_event'] == 1): ?>
                                         <button class="btn-delete-icon"
                                             onclick="completeEvent(<?= (int)$row['id_event'] ?>)">
                                             <img src="/cardhaven/assets/image/clock-arrow-down.svg" alt="">
                                         </button>
+                                        <?php elseif($row['status_event'] == 0): ?>
+                                            <button class="btn-complete-icon"
+                                                style=" cursor: default;">
+                                                <img src="/cardhaven/assets/image/clock-check.svg" alt="">
+                                            </button>
+                                        <?php endif; ?>
 
                                         <button class="btn-delete-icon"
-                                            onclick="completeEvent(<?= (int)$row['id_event'] ?>)">
+                                            onclick="deleteEvent(<?= (int)$row['id_event'] ?>)">
                                             <img src="/cardhaven/assets/image/delete.svg" alt="">
                                         </button>
 
-                                        <label class="switch" title="Toggle Status">
-                                            <input type="checkbox" <?= ($row['status_akun'] ?? 0) == 1 ? 'checked' : '' ?> onchange="toggleCustomer(<?= (int)$row['id_pengguna'] ?>, this.checked, this)">
+                                        <!-- <label class="switch" title="Hide Event from Customers">
+                                            <input type="checkbox" <?= ($row['status_event'] ?? 0) == 3 ? 'checked' : '' ?> onchange="hideEvent(<?= (int)$row['id_event'] ?>, this.checked, this)">
                                             <span class="slider"></span>
-                                        </label>
+                                        </label> -->
                                     </div>
                                 </td>
                             </tr>
