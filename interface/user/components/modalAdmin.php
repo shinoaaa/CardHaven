@@ -41,31 +41,31 @@
     <div class="supp-modal-body">
         <form id="adminAddForm" novalidate enctype="multipart/form-data">
             <div class="supp-form-group">
-                <label class="supp-label" for="addUsername">Username <span class="supp-required">*</span></label>
+                <label class="supp-label" for="addUsername">Username<span class="supp-required">*</span></label>
                 <input type="text" id="addUsername" class="supp-input" placeholder="Enter username" autocomplete="off" style="width: 100%;">
                 <span class="supp-err" id="err-add-username"></span>
             </div>
 
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addEmail">Email <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="addEmail">Email<span class="supp-required">*</span></label>
                     <input type="email" id="addEmail" class="supp-input" placeholder="Enter email address" autocomplete="off">
                     <span class="supp-err" id="err-add-email"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addNoTelp">No Telepon</label>
+                    <label class="supp-label" for="addNoTelp">Phone Number<span class="supp-required">*</span></label>
                     <input type="text" id="addNoTelp" class="supp-input" placeholder="Enter phone number" autocomplete="off">
                     <span class="supp-err" id="err-add-notelp"></span>
                 </div>
             </div>
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addPassword">Password <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="addPassword">Password<span class="supp-required">*</span></label>
                     <input type="password" id="addPassword" class="supp-input" placeholder="Enter password">
                     <span class="supp-err" id="err-add-password"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addConfirmPassword">Confirm Password <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="addConfirmPassword">Confirm Password<span class="supp-required">*</span></label>
                     <input type="password" id="addConfirmPassword" class="supp-input" placeholder="Re-enter password">
                     <span class="supp-err" id="err-add-confirm-password"></span>
                 </div>
@@ -95,18 +95,18 @@
                 <img id="editFotoPreview" src="/cardhaven/assets/image/user.svg" alt="Current Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
             </div>
             <div class="supp-form-group">
-                <label class="supp-label" for="editUsername">Username <span class="supp-required">*</span></label>
+                <label class="supp-label" for="editUsername">Username<span class="supp-required">*</span></label>
                 <input type="text" id="editUsername" class="supp-input" placeholder="Enter username" autocomplete="off" style="width: 100%;">
                 <span class="supp-err" id="err-edit-username"></span>
             </div>
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="editEmail">Email <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="editEmail">Email<span class="supp-required">*</span></label>
                     <input type="email" id="editEmail" class="supp-input" placeholder="Enter email address" autocomplete="off">
                     <span class="supp-err" id="err-edit-email"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="editNoTelp">No Telepon</label>
+                    <label class="supp-label" for="editNoTelp">Phone Number<span class="supp-required">*</span></label>
                     <input type="text" id="editNoTelp" class="supp-input" placeholder="Enter phone number" autocomplete="off">
                     <span class="supp-err" id="err-edit-notelp"></span>
                 </div>
