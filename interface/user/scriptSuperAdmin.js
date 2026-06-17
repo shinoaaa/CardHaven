@@ -402,6 +402,7 @@ function handleSuperPasswordStep() {
 async function verifySuperIdentity() {
     const email = document.getElementById('superChangeEmail').value;
     const date  = document.getElementById('superChangeCreatedDate').value;
+    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
     if (!date) {
         showErr('superChangeCreatedDate', 'err-super-change-date', 'Date is required');
@@ -412,6 +413,8 @@ async function verifySuperIdentity() {
     body.append('action', 'verifyAdmin');
     body.append('email', email);
     body.append('created_date', date);
+    body.append('actor_id', actorId); 
+   
 
     try {
         const response = await fetch(ADMIN_URL, { method: 'POST', body });
@@ -433,6 +436,7 @@ async function verifySuperIdentity() {
 async function resetSuperPassword() {
     const password = document.getElementById('superChangeNewPassword').value;
     const confirm  = document.getElementById('superChangeConfirmPassword').value;
+    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
     let valid = true;
     if (password.length < 8 || password.length > 12 || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
@@ -450,17 +454,32 @@ async function resetSuperPassword() {
     body.append('action', 'resetAdminPassword');
     body.append('password', password);
     body.append('confirm_password', confirm);
+    body.append('actor_id', actorId);
 
     try {
         const response = await fetch(ADMIN_URL, { method: 'POST', body });
         const data = await response.json();
 
         if (data.status === 'success') {
-            modalSuperChange.classList.remove('active');
-            hideOverlay();
-            cardhavenAlert('success', 'Success', 'Password updated!', () => location.reload());
+            Swal.fire({
+                icon: 'success',
+                iconColor: '#0088FF',
+                title: 'Success!',
+                text: 'The password has been successfully changed.',
+                confirmButtonColor: '#0088FF',
+                customClass: { title: 'coolveticaa' }
+            }).then(() => {
+                location.reload(); // Refresh halaman setelah sukses
+            });
         } else {
-            cardhavenAlert('error', 'Failed', data.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed',
+                text: data.message,
+                confirmButtonColor: '#E74C3C',
+                customClass: { title: 'coolveticaa' }
+            });
+
         }
     } catch (e) {
         cardhavenAlert('error', 'Error', 'Network error');
