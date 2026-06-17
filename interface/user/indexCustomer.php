@@ -13,13 +13,13 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>Foto</th>
-                <th>Nama</th>
+                <th>Photo</th>
+                <th>Username</th>
                 <th>Email</th>
-                <th>No Telp</th>
+                <th>phone number</th>
                 <th>Shopping Amount</th>
                 <th>Shopping Total</th>
-                <th>Active</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
