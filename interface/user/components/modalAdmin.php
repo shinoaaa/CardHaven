@@ -111,28 +111,60 @@
                     <span class="supp-err" id="err-edit-notelp"></span>
                 </div>
             </div>
-            <div style="display: flex; gap: 1rem;">
-                <div class="supp-form-group">
-                    <label class="supp-label" for="editPassword">New Password </label>
-                    <input type="password" id="editPassword" class="supp-input" placeholder="Enter new password">
-                    <span class="supp-err" id="err-edit-password"></span>
-                </div>
-                <div class="supp-form-group">
-                    <label class="supp-label" for="editConfirmPassword">Confirm New Password</label>
-                    <input type="password" id="editConfirmPassword" class="supp-input" placeholder="Re-enter new password">
-                    <span class="supp-err" id="err-edit-confirm-password"></span>
-                </div>
-            </div>
             <div class="supp-form-group">
                 <label class="supp-label" for="editFoto">Change Profile Photo</label>
                 <input type="file" id="editFoto" class="supp-input" accept="image/*" style="width: 100%;">
                 <span class="supp-err" id="err-edit-foto"></span>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: -10px; margin-bottom: 15px; padding-right: 5px;">
+                <a href="javascript:void(0)" onclick="openChangePasswordModal()" class="change-pass-link">
+                    Change Password?
+                </a>
             </div>
         </form>
     </div>
     <div class="supp-modal-footer">
         <button class="btn-cancel-outline" onclick="closeEditModal()">Cancel</button>
         <button class="btn-confirm" onclick="submitEditAdmin()">Update</button>
+    </div>
+</div>
+
+<div id="modalAdminChangePassword" class="supp-modal" style="min-width: 25rem;">
+    <div class="modal-header">
+        <h2>Change <span class="blue-text">Password</span></h2>
+    </div>
+    <div class="supp-modal-body">
+        <form id="adminChangePasswordForm" novalidate>
+            <input type="hidden" id="adminChangeEmail">
+            
+            <!-- TAHAP 1: VERIFIKASI -->
+            <div id="admin-verify-section">
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Verify identity by entering the account creation date.</p>
+                <div class="supp-form-group">
+                    <label class="supp-label">Created Date<span class="supp-required">*</span></label>
+                    <input type="date" id="adminChangeCreatedDate" class="supp-input" style="width: 100%;">
+                    <span class="supp-err" id="err-admin-change-date"></span>
+                </div>
+            </div>
+
+            <!-- TAHAP 2: RESET -->
+            <div id="admin-reset-section" style="display: none;">
+                <div class="supp-form-group">
+                    <label class="supp-label">New Password<span class="supp-required">*</span></label>
+                    <input type="password" id="adminChangeNewPassword" class="supp-input" style="width: 100%;" placeholder="8-12 characters + symbol">
+                    <span class="supp-err" id="err-admin-change-pass"></span>
+                </div>
+                <div class="supp-form-group">
+                    <label class="supp-label">Confirm New Password<span class="supp-required">*</span></label>
+                    <input type="password" id="adminChangeConfirmPassword" class="supp-input" style="width: 100%;">
+                    <span class="supp-err" id="err-admin-change-confirm"></span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="supp-modal-footer">
+        <button class="btn-cancel-outline" onclick="closeAdminChangePasswordModal()">Cancel</button>
+        <button type="button" id="btn-admin-submit-change" class="btn-confirm" onclick="handleAdminPasswordStep()">Verify</button>
     </div>
 </div>
 
@@ -178,4 +210,22 @@
 .supp-modal-footer { display: flex; justify-content: flex-end; gap: 4px; padding: 6px 15px; border-top: 1.5px solid #E8EEF8; }
 .badge-active { display: inline-block; padding: 7px 75px; background: #d2ffe5; color: #0e6e36; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; }
 .badge-inactive { display: inline-block; padding: 7px 75px; background: #FDECEA; color: #E74C3C; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; }
+.change-pass-link {
+    color: #0088FF;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.change-pass-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Pastikan input modal juga mengikuti style rounded di gambar */
+.supp-input {
+    padding: 12px 25px; /* Sedikit lebih gemuk seperti gambar */
+    border: 1.5px solid #0F3891; /* Biru gelap seperti border di gambar */
+}
 </style>

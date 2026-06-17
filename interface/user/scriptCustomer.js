@@ -347,7 +347,10 @@ function toggleCustomer(id, isChecked, checkboxEl) {
     const newStatus = isChecked ? 1 : 0;
     const label     = isChecked ? 'activate' : 'deactivate';
 
-    cardhavenConfirm(`${isChecked ? 'Activate' : 'Deactivate'} Account?`, `Are you sure you want to ${label} this account?`, isChecked ? 'Activate' : 'Deactivate', 
+    cardhavenConfirm(
+        `${isChecked ? 'Activate' : 'Deactivate'} Account?`, 
+        `Are you sure you want to ${label} this account?`, 
+        isChecked ? 'Activate' : 'Deactivate', 
         () => {
             const body = new FormData();
             body.append('action', 'toggleCustomer');
@@ -357,23 +360,46 @@ function toggleCustomer(id, isChecked, checkboxEl) {
             fetch(CUST_URL, { method: 'POST', body })
                 .then(r => r.json())
                 .then(res => {
-                    if (!res.success) {
+                    if (res.success) {
+                        Swal.fire({ 
+                            icon: 'success', 
+                            iconColor: '#0088FF', 
+                            title: 'Success!', 
+                            text: 'Customer status has been changed.', 
+                            showConfirmButton: false, 
+                            timer: 1500, 
+                            customClass: { title: 'coolveticaa' } 
+                        }).then(() => {
+                            location.reload(); // Reload agar badge status di tabel diperbarui
+                        });
+                    } else {
+                        // Revert checkbox jika gagal di server
                         checkboxEl.checked = !isChecked;
-                        cardhavenAlert('error', 'Failed', res.message);
-                        return;
-                    }
-                    const row = checkboxEl.closest('tr');
-                    const badge = row?.querySelector('.status-badge');
-                    if (badge) {
-                        badge.textContent = isChecked ? 'Active' : 'Inactive';
-                        badge.style.color = isChecked ? '#27AE60' : '#E74C3C';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: res.message || 'Failed to update customer status.',
+                            confirmButtonText: 'OK',
+                            customClass: { title: 'coolveticaa' }
+                        });
                     }
                 })
-                .catch(() => {
+                .catch(err => {
+                    // Revert checkbox jika terjadi error jaringan
                     checkboxEl.checked = !isChecked;
-                    cardhavenAlert('error', 'Error', 'Network error.');
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Connection error occurred.',
+                        confirmButtonText: 'OK',
+                        customClass: { title: 'coolveticaa' }
+                    });
                 });
         },
-        () => { checkboxEl.checked = !isChecked; }
+        () => { 
+            // Revert checkbox jika user membatalkan konfirmasi
+            checkboxEl.checked = !isChecked; 
+        }
     );
 }
