@@ -1182,3 +1182,45 @@ input:checked + .slider:before {
     border: none;
 }
 
+/* =========================================
+   SCROLL TO BOTTOM BUTTON
+   ========================================= */
+.scroll-bottom-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 55px;
+    height: 55px;
+    background: #0F3891;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 10px 25px rgba(15, 56, 145, 0.4);
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity: 1;
+}
+
+.scroll-bottom-btn svg {
+    width: 26px;
+    height: 26px;
+}
+
+.scroll-bottom-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(15, 56, 145, 0.6);
+    background: #0088FF;
+}
+
+/* Kelas untuk menyembunyikan tombol secara mulus */
+.scroll-bottom-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(15px);
+}
+
+

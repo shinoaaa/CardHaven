@@ -172,6 +172,31 @@ switch ($action) {
         $id_produk_event = (int)($body['id_produk_event'] ?? 0);
         $stok_event      = (int)($body['stok_event'] ?? 0);
 
+        $sql = "
+            SELECT p.stok, pe.stok_event
+            FROM produk_event pe
+            JOIN produk p
+            ON p.id_produk = pe.id_produk
+            WHERE pe.id_produk_event = ?
+        ";
+
+        $stmt = sqlsrv_query($conn, $sql, [$id_produk_event]);
+
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        $stok_db = $row['stok'];
+        $stok_dijual = $row['stok_event'];
+
+        // 3. Bandingkan dengan $stok_event
+        if ($stok_event > $stok_db + $stok_dijual) {
+            jsonOut(false, [
+                'error' => "Maximum Quantity " . $stok_db + $stok_dijual
+            ]);
+        }
+        else{
+            $stokInput = $row['stok_event'] - $stok_event;
+        }
+        
+
         if ($id_produk_event <= 0) {
             jsonOut(false, ['error' => 'Invalid product-event ID']);
         }
@@ -183,11 +208,18 @@ switch ($action) {
             UPDATE produk_event
             SET stok_event = ?
             WHERE id_produk_event = ?
-              AND ISNULL(is_deleted, 0) = 0
-              AND ISNULL(is_product_deleted, 0) = 0
+            AND ISNULL(is_deleted, 0) = 0
+            AND ISNULL(is_product_deleted, 0) = 0;
+
+            -- Kueri Kedua
+            UPDATE p
+            SET p.stok = p.stok + ?
+            FROM produk p
+            JOIN produk_event pe ON pe.id_produk = p.id_produk
+            WHERE pe.id_produk_event = ?;
         ";
 
-        $stmt = sqlsrv_query($conn, $sql, [$stok_event, $id_produk_event]);
+        $stmt = sqlsrv_query($conn, $sql, [$stok_event, $id_produk_event, $stokInput,$id_produk_event]);
         if ($stmt === false) {
             jsonOut(false, ['error' => 'Failed to update stock', 'detail' => sqlsrv_errors()]);
         }
@@ -204,13 +236,18 @@ switch ($action) {
 
         $sql = "
             UPDATE produk_event
-            SET
-                is_deleted = 1,
-                is_product_deleted = 1
-            WHERE id_produk_event = ?
+            SET is_deleted = 1, is_product_deleted = 1
+            WHERE id_produk_event = ?;
+
+            -- Kueri 2: Mengembalikan stok ke tabel produk menggunakan JOIN
+            UPDATE p
+            SET p.stok = p.stok + pe.stok_event
+            FROM produk p
+            JOIN produk_event pe ON pe.id_produk = p.id_produk
+            WHERE pe.id_produk_event = ?;
         ";
 
-        $stmt = sqlsrv_query($conn, $sql, [$id_produk_event]);
+        $stmt = sqlsrv_query($conn, $sql, [$id_produk_event,$id_produk_event]);
         if ($stmt === false) {
             jsonOut(false, ['error' => 'Failed to remove product', 'detail' => sqlsrv_errors()]);
         }

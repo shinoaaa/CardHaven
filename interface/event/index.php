@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
 </head>
 <body>
-    <div class="main-content" style="display: flex; justify-content: center;">
+    <div class="main-content" style="display: flex; justify-content: center; overflow-y: hidden;">
         <div class="content-card">
             <div class="card-title-row">
                 <h2 class="coolveticaa">Events</h2>
@@ -84,13 +84,23 @@
 
                                         <button class="btn-edit-icon"
                                             onclick="openEditModal(<?= (int)$row['id_event'] ?>)">
-                                            ✏️
+                                            <img src="/cardhaven/assets/image/edit.svg" alt="">
                                         </button>
 
                                         <button class="btn-delete-icon"
                                             onclick="completeEvent(<?= (int)$row['id_event'] ?>)">
-                                            🗑️
+                                            <img src="/cardhaven/assets/image/clock-arrow-down.svg" alt="">
                                         </button>
+
+                                        <button class="btn-delete-icon"
+                                            onclick="completeEvent(<?= (int)$row['id_event'] ?>)">
+                                            <img src="/cardhaven/assets/image/delete.svg" alt="">
+                                        </button>
+
+                                        <label class="switch" title="Toggle Status">
+                                            <input type="checkbox" <?= ($row['status_akun'] ?? 0) == 1 ? 'checked' : '' ?> onchange="toggleCustomer(<?= (int)$row['id_pengguna'] ?>, this.checked, this)">
+                                            <span class="slider"></span>
+                                        </label>
                                     </div>
                                 </td>
                             </tr>

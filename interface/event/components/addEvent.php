@@ -141,7 +141,6 @@
 }
 
 .ae-field {
-    margin-bottom: 14px;
     position: relative;
 }
 

@@ -219,12 +219,29 @@ window.addEventListener('click', function(e) {
         const noRek    = document.getElementById('metodeNoRek').value.trim();
         const atasNama = document.getElementById('metodeAtasNama').value.trim();
         const biaya    = document.getElementById('metodeBiaya').value;
-        const anyFilled = nama !== '' || provider !== '' || noRek !== '' || atasNama !== '' || (biaya !== '' && biaya !== '0');
+        
+        if (nama !== '' || provider !== '' || noRek !== '' || atasNama !== '' || (biaya !== '' && biaya !== '0')) {
+            metodeModal.style.display = 'none';
+            let isConfirmed = false;
+            
+            const actionText = document.getElementById('metodeFormAction').value === 'edit' ? 'Edit' : 'Add';
+            cardhavenConfirm(
+                `Cancel ${actionText} Method?`, 
+                "Data yang sudah diisi akan hilang.", 
+                "Yes, Exit", 
+                () => {
+                    isConfirmed = true;
+                    metodeForm.reset();
+                    clearAllErrors('metodeForm');
+                }
+            );
 
-        if (anyFilled) {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => {
-                metodeModal.style.display = 'none';
-            });
+            const checkSwal = setInterval(() => {
+                if (!Swal.isVisible()) {
+                    clearInterval(checkSwal);
+                    if (!isConfirmed) metodeModal.style.display = 'flex';
+                }
+            }, 15);
         } else {
             metodeModal.style.display = 'none';
         }

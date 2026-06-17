@@ -191,7 +191,27 @@ window.addEventListener('click', function(e) {
         const inputNama = document.getElementById('nama_game').value.trim();
         const inputDev  = document.getElementById('developer').value.trim();
         if (inputNama !== '' || inputDev !== '') {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { modal.style.display = "none"; });
+            modal.style.display = "none";
+            let isConfirmed = false;
+            
+            const actionText = document.getElementById('formAction').value === 'edit' ? 'Edit' : 'Add';
+            cardhavenConfirm(
+                `Cancel ${actionText} Game?`, 
+                "Data yang sudah diisi akan hilang.", 
+                "Yes, Exit", 
+                () => {
+                    isConfirmed = true;
+                    gameForm.reset();
+                    clearAllErrors('gameForm');
+                }
+            );
+
+            const checkSwal = setInterval(() => {
+                if (!Swal.isVisible()) {
+                    clearInterval(checkSwal);
+                    if (!isConfirmed) modal.style.display = "flex";
+                }
+            }, 15);
         } else {
             modal.style.display = "none";
         }

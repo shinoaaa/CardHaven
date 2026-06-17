@@ -211,17 +211,34 @@ window.addEventListener('click', (e) => {
         const game = document.getElementById('inputGameRarity').value;
         const nama = document.getElementById('inputNamaRarity').value.trim();
         const kode = document.getElementById('inputKodeRarity').value.trim();
-        const anyFilled = game !== '' || nama !== '' || kode !== '';
+        
+        if (game !== '' || nama !== '' || kode !== '') {
+            modalRarity.style.display = 'none';
+            let isConfirmed = false;
+            
+            const actionText = document.getElementById('formActionRarity').value === 'edit' ? 'Edit' : 'Add';
+            cardhavenConfirm(
+                `Cancel ${actionText} Rarity?`, 
+                "Data yang sudah diisi akan hilang.", 
+                "Yes, Exit", 
+                () => {
+                    isConfirmed = true;
+                    rarityForm.reset();
+                    clearAllErrors('rarityForm');
+                }
+            );
 
-        if (anyFilled) {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => {
-                rarityForm.reset();
-                clearAllErrors('rarityForm');
-                modalRarity.style.display = 'none';
-            });
+            const checkSwal = setInterval(() => {
+                if (!Swal.isVisible()) {
+                    clearInterval(checkSwal);
+                    if (!isConfirmed) modalRarity.style.display = 'flex';
+                }
+            }, 15);
         } else {
             modalRarity.style.display = 'none';
         }
     }
-    if (e.target == document.getElementById('rarityDetailModal')) document.getElementById('rarityDetailModal').style.display = "none";
+    if (e.target == document.getElementById('rarityDetailModal')) {
+        document.getElementById('rarityDetailModal').style.display = "none";
+    }
 });

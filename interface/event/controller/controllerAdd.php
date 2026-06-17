@@ -68,6 +68,7 @@ $sqlEvent = "
     )
     OUTPUT INSERTED.id_event
     VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, GETDATE())
+
 ";
 
 $paramsEvent = [
@@ -95,6 +96,10 @@ $id_event = (int)$row['id_event'];
 $sqlProd = "
     INSERT INTO produk_event (id_produk, id_event, harga_event, stok_event)
     VALUES (?, ?, ?, ?)
+
+    UPDATE produk 
+    SET stok = stok - ?
+    WHERE id_produk = ?
 ";
 
 foreach ($products as $prod) {
@@ -102,7 +107,7 @@ foreach ($products as $prod) {
     $harga_event = (float)$prod['harga_event'];
     $stok_event  = (int)$prod['stok_event'];
     
-    $stmtProd = sqlsrv_query($conn, $sqlProd, [$id_produk, $id_event, $harga_event, $stok_event]);
+    $stmtProd = sqlsrv_query($conn, $sqlProd, [$id_produk, $id_event, $harga_event, $stok_event, $stok_event, $id_produk]);
 
     if ($stmtProd === false) {
         echo json_encode(['error' => "Gagal insert produk id $id_produk", 'detail' => sqlsrv_errors()]);

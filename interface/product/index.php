@@ -25,7 +25,7 @@ require_once 'components/fetch_dashboard.php';
                 <h2 class="coolveticaa">Products</h2>
                 <button class="btn-add-green" onclick="openAddProductModal()">+ Add Product</button>
             </div>
-
+        
             <table class="styled-table">
                 <thead>
                     <tr>
@@ -82,7 +82,6 @@ require_once 'components/fetch_dashboard.php';
                     <?php endif; ?>
                 </tbody>
             </table>
-
             <!-- PAGINATION PRODUK -->
             <div class="pagination-container">
                 <!-- Arrow Back -->
