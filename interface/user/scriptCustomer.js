@@ -1,11 +1,13 @@
 const CUST_URL = '/cardhaven/interface/user/controller/controllerCustomer.php';
-let overlay, modalDetail, modalAdd, modalEdit;
+let overlay, modalDetail, modalAdd, modalEdit, modalCustChange;
+let custVerifyStepDone = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     overlay     = document.getElementById('customerOverlay');
     modalDetail = document.getElementById('modalCustomerDetail');
     modalAdd    = document.getElementById('modalCustomerAdd');
     modalEdit   = document.getElementById('modalCustomerEdit');
+    modalCustChange = document.getElementById('modalCustChangePassword');
 
     attachLiveClear('addUsername', 'err-add-username');
     attachLiveClear('addEmail',    'err-add-email');
@@ -18,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     attachLiveClear('editNoTelp',   'err-edit-notelp');
     attachLiveClear('editPassword', 'err-edit-password');
     attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
+    attachLiveClear('custChangeCreatedDate', 'err-cust-change-date');
+    attachLiveClear('custChangeNewPassword', 'err-cust-change-pass');
+    attachLiveClear('custChangeConfirmPassword', 'err-cust-change-confirm');
 });
 
 function attachLiveClear(inputId, errId) {
@@ -218,9 +223,7 @@ function openCustomerEdit(id) {
             document.getElementById('editUsername').value     = d.username || '';
             document.getElementById('editEmail').value        = d.email || '';
             document.getElementById('editNoTelp').value       = d.no_telepon || '';
-            document.getElementById('editPassword').value     = '';
-            document.getElementById('editConfirmPassword').value = '';
-            
+            document.getElementById('custChangeEmail').value  = d.email || '';
             const preview = document.getElementById('editFotoPreview');
             preview.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
 
@@ -271,31 +274,6 @@ function submitEditCustomer() {
         valid = false; 
     }
 
-
-    if (password) {
-        if (password.length < 8 || password.length > 12) {
-            showErr('editPassword', 'err-edit-password', 'Password must be 8 - 12 characters long');
-            valid = false;
-        } 
-        // Cek karakter spesial
-        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-            showErr('editPassword', 'err-edit-password', 'Password must contain a special character');
-            valid = false;
-        }
-
-        // Cek Konfirmasi Password
-        if (!confirmPassword) {
-            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Please confirm your password');
-            valid = false;
-        } else if (password !== confirmPassword) {
-            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Confirm password does not match!');
-            valid = false;
-        }
-    } else if (confirmPassword) {
-        // Jika user mengisi konfirmasi tapi lupa isi password baru
-        showErr('editPassword', 'err-edit-password', 'Please enter a new password');
-        valid = false;
-    }
 
     if (!valid) return;
 
@@ -402,4 +380,110 @@ function toggleCustomer(id, isChecked, checkboxEl) {
             checkboxEl.checked = !isChecked; 
         }
     );
+}
+
+function openCustChangePasswordModal() {
+    modalEdit.classList.remove('active');
+    custVerifyStepDone = false;
+    const form = document.getElementById('custChangePasswordForm');
+    if(form) form.reset();
+
+    document.getElementById('cust-verify-section').style.display = 'block';
+    document.getElementById('cust-reset-section').style.display = 'none';
+    document.getElementById('btn-cust-submit-change').textContent = 'Verify';
+    
+    modalCustChange.classList.add('active');
+}
+
+function closeCustChangePasswordModal() {
+    modalCustChange.classList.remove('active');
+    modalEdit.classList.add('active');
+}
+
+function handleCustPasswordStep() {
+    if (!custVerifyStepDone) {
+        verifyCustIdentity();
+    } else {
+        resetCustPassword();
+    }
+}
+
+async function verifyCustIdentity() {
+    const email = document.getElementById('custChangeEmail').value;
+    const date  = document.getElementById('custChangeCreatedDate').value;
+
+    if (!date) {
+        showErr('custChangeCreatedDate', 'err-cust-change-date', 'Date is required');
+        return;
+    }
+
+    const body = new FormData();
+    body.append('action', 'verifyCustomer');
+    body.append('email', email);
+    body.append('created_date', date);
+
+    try {
+        const response = await fetch(CUST_URL, { method: 'POST', body });
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            custVerifyStepDone = true;
+            document.getElementById('cust-verify-section').style.display = 'none';
+            document.getElementById('cust-reset-section').style.display = 'block';
+            document.getElementById('btn-cust-submit-change').textContent = 'Update Password';
+        } else {
+            showErr('custChangeCreatedDate', 'err-cust-change-date', data.message);
+        }
+    } catch (e) {
+        cardhavenAlert('error', 'Error', 'Network error');
+    }
+}
+
+async function resetCustPassword() {
+    const password = document.getElementById('custChangeNewPassword').value;
+    const confirm  = document.getElementById('custChangeConfirmPassword').value;
+
+    let valid = true;
+    if (password.length < 8 || password.length > 12 || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        showErr('custChangeNewPassword', 'err-cust-change-pass', 'Password must be 8-12 chars + symbol');
+        valid = false;
+    }
+    if (password !== confirm) {
+        showErr('custChangeConfirmPassword', 'err-cust-change-confirm', 'Confirm password does not match!');
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    const body = new FormData();
+    body.append('action', 'resetCustomerPassword');
+    body.append('password', password);
+    body.append('confirm_password', confirm);
+
+    try {
+        const response = await fetch(CUST_URL, { method: 'POST', body });
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            modalCustChange.classList.remove('active');
+            hideOverlay();
+            cardhavenAlert('success', 'Success', 'Password updated!', () => location.reload());
+        } else {
+            cardhavenAlert('error', 'Failed', data.message);
+        }
+    } catch (e) {
+        cardhavenAlert('error', 'Error', 'Network error');
+    }
+}
+
+// Update fungsi handleOverlayClick
+function handleOverlayClick(e) {
+    if (e.target !== overlay) return;
+    if (modalDetail.classList.contains('active')) closeCustomerModal();
+    if (modalAdd.classList.contains('active'))    closeAddModal();
+    if (modalEdit.classList.contains('active'))   closeEditModal();
+    if (modalCustChange && modalCustChange.classList.contains('active')) {
+        modalCustChange.classList.remove('active');
+        hideOverlay();
+    }
 }

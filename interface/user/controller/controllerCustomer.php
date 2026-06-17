@@ -196,7 +196,64 @@ switch ($action) {
 
         jsonOut(true, 'Account status updated successfully.');
         break;
+    case 'verifyCustomer':
+        $email = trim($_POST['email'] ?? '');
+        $createdDate = trim($_POST['created_date'] ?? '');
 
+        if (!$email || !$createdDate) {
+            echo json_encode(["status" => "error", "message" => "All fields are required"]);
+            exit;
+        }
+
+        // Role 0 = Customer
+        $sql = "SELECT id_pengguna FROM pengguna 
+                WHERE email = ? AND CONVERT(date, created_date) = ? AND role = 0";
+        $params = [$email, $createdDate];
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt && sqlsrv_has_rows($stmt)) {
+            $_SESSION['cust_reset_verified'] = true;
+            $_SESSION['cust_reset_email'] = $email;
+            echo json_encode(["status" => "success", "message" => "Verified"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Identity mismatch. Please check the date."]);
+        }
+        break;
+
+    case 'resetCustomerPassword':
+        if (!isset($_SESSION['cust_reset_verified']) || !$_SESSION['cust_reset_verified']) {
+            echo json_encode(["status" => "error", "message" => "Unauthorized access."]);
+            exit;
+        }
+
+        $password = $_POST['password'] ?? '';
+        $confirm  = $_POST['confirm_password'] ?? '';
+        $email    = $_SESSION['cust_reset_email'];
+
+        // Validasi Kompleksitas Sesuai script_register.js
+        if (strlen($password) < 8 || strlen($password) > 12 || !preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+            echo json_encode(["status" => "error", "message" => "Password must be 8-12 characters and contain a symbol."]);
+            exit;
+        }
+
+        if ($password !== $confirm) {
+            echo json_encode(["status" => "error", "message" => "Confirm password does not match."]);
+            exit;
+        }
+
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $sql = "UPDATE pengguna SET password = ? WHERE email = ? AND role = 0";
+        $params = [$hashedPassword, $email];
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt) {
+            unset($_SESSION['cust_reset_verified']);
+            unset($_SESSION['cust_reset_email']);
+            echo json_encode(["status" => "success", "message" => "Password updated successfully."]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Update failed."]);
+        }
+        break;
     // ----------------------------------------------------
     //  DEFAULT: Render Table List dengan JOIN tabel penjualan
     // ----------------------------------------------------
