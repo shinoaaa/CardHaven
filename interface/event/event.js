@@ -98,6 +98,8 @@ const ADD_API_URL  = '/cardhaven/interface/event/controller/controllerAdd.php';
 const SEARCH_URL   = '/cardhaven/interface/event/apiFetch.php';
 const EDIT_URL     = '/cardhaven/interface/event/controller/controllerEdit.php';
 const FINISH_URL   = '/cardhaven/interface/event/controller/controller_complete_event.php';
+const DELETE_URL   = '/cardhaven/interface/event/controller/controllerDeleteEvent.php';
+const TOGGLE_URL   = '/cardhaven/interface/event/controller/controllerToggle.php';
 
 async function openEventModal(id) {
     // showModal('<p style="text-align:center;padding:20px;">Loading...</p>');
@@ -919,4 +921,99 @@ function completeEvent(idEvent) {
             });
         }
     );
+}
+
+function deleteEvent(idEvent){
+    cardhavenConfirm(
+        "Delete this event?",
+        "This event will be delete and you will not able to see it.",
+        "Yes, delete it",
+        () => {
+            fetch(DELETE_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id_event: idEvent
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Completed",
+                        text: "The event has been deleted."
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        // Ditambahkan data.message di tengah-tengah sebagai alternatif
+                        text: data.error || data.message || "Unable to complete the event."
+                    });
+                }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong while processing the request."
+                });
+            });
+        }
+    );
+}
+
+function hideEvent(idEvent, isHidden, element) {
+    // isHidden = true (ON) -> status 3 (Hidden)
+    // isHidden = false (OFF) -> status 1 (Visible/Active)
+    const newStatus = isHidden ? 3 : 1; 
+
+    fetch(TOGGLE_URL, { 
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id_event: idEvent,
+            status_event: newStatus
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Unobtrusive toast notification for success
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            Toast.fire({
+                icon: isHidden ? 'info' : 'success', 
+                title: data.message
+            });
+        } else {
+            element.checked = !isHidden; 
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: data.error || data.message || "Failed to update event visibility."
+            });
+        }
+    })
+    .catch(() => {
+        // Revert the switch position if a network error occurs
+        element.checked = !isHidden; 
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "A network error or server issue occurred."
+        });
+    });
 }
