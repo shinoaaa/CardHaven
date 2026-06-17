@@ -383,7 +383,29 @@ window.addEventListener('click', function(e) {
     if (md && e.target === md) {
         const nama = document.getElementById('pNama').value.trim();
         if (nama !== '') {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => { md.style.display = 'none'; });
+            md.style.display = 'none'; // Sembunyikan form seketika
+            let isConfirmed = false;
+            
+            const actionText = document.getElementById('pAction').value === 'edit' ? 'Edit' : 'Add';
+            // Gunakan fungsi bawaan sistem Anda
+            cardhavenConfirm(
+                `Cancel ${actionText} Product?`, 
+                "Data yang sudah diisi akan hilang.", 
+                "Yes, Exit", 
+                () => {
+                    isConfirmed = true;
+                    document.getElementById('productForm').reset();
+                    clearAllErrors('productForm');
+                }
+            );
+
+            // Pantau penutupan pop-up. Jika batal keluar, munculkan form lagi
+            const checkSwal = setInterval(() => {
+                if (!Swal.isVisible()) {
+                    clearInterval(checkSwal);
+                    if (!isConfirmed) md.style.display = 'flex';
+                }
+            }, 15);
         } else {
             md.style.display = 'none';
         }
@@ -394,29 +416,37 @@ window.addEventListener('click', function(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const scrollBtn = document.getElementById('scrollBottomBtn');
-    // Karena sistemmu menggunakan .content-wrap sebagai area scroll utama
-    const contentWrap = document.querySelector('.content-wrap'); 
+    
+    // Deteksi kontainer scroll. Jika .main-content tidak memiliki scroll, gunakan window.
+    const scrollContainer = document.querySelector('.main-content') || window;
+    const isWindow = scrollContainer === window;
 
-    if (scrollBtn && contentWrap) {
+    if (scrollBtn) {
         // Eksekusi scroll ke paling bawah
         scrollBtn.addEventListener('click', () => {
-            contentWrap.scrollTo({
-                top: contentWrap.scrollHeight,
-                behavior: 'smooth'
-            });
-        });
-
-        // Logika menyembunyikan tombol jika sudah mentok bawah
-        contentWrap.addEventListener('scroll', () => {
-            const isBottom = contentWrap.scrollTop + contentWrap.clientHeight >= contentWrap.scrollHeight - 50;
-            
-            if (isBottom) {
-                scrollBtn.style.opacity = '0';
-                scrollBtn.style.pointerEvents = 'none';
+            if (isWindow) {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             } else {
-                scrollBtn.style.opacity = '1';
-                scrollBtn.style.pointerEvents = 'auto';
+                scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
             }
         });
+
+        // Logika evaluasi posisi scroll
+        const checkScrollPosition = () => {
+            const scrollTop = isWindow ? window.scrollY : scrollContainer.scrollTop;
+            const clientHeight = isWindow ? window.innerHeight : scrollContainer.clientHeight;
+            const scrollHeight = isWindow ? document.body.scrollHeight : scrollContainer.scrollHeight;
+
+            // Sembunyikan tombol jika sudah mencapai jarak 50px dari batas bawah
+            if (scrollTop + clientHeight >= scrollHeight - 50) {
+                scrollBtn.classList.add('hidden');
+            } else {
+                scrollBtn.classList.remove('hidden');
+            }
+        };
+
+        // Pasang event listener dan jalankan sekali saat halaman dimuat
+        (isWindow ? window : scrollContainer).addEventListener('scroll', checkScrollPosition);
+        checkScrollPosition();
     }
 });

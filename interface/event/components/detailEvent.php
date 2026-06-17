@@ -197,11 +197,9 @@ function escHtml($str) {
                 <?php 
                     $tglSampai = '';
                     if (!empty($event['tanggal_sampai'])) {
-                        // Cek apakah dia object DateTime
                         if (is_object($event['tanggal_sampai'])) {
                             $tglSampai = $event['tanggal_sampai']->format('Y-m-d');
                         } else {
-                            // Kalau dia string, pastikan cuma ambil YYYY-MM-DD
                             $tglSampai = date('Y-m-d', strtotime($event['tanggal_sampai']));
                         }
                     }
@@ -323,7 +321,6 @@ function escHtml($str) {
     gap: 0 18px;
 }
 .ee-field {
-    margin-bottom: 14px;
     position: relative;
 }
 .ee-label {
@@ -470,7 +467,6 @@ function escHtml($str) {
     display: flex;
     justify-content: center;
     gap: 12px;
-    margin-top: 20px;
 }
 .ee-btn-cancel {
     min-width: 110px;

@@ -138,8 +138,6 @@ class controllerEvent
     {
         // Pakai % supaya bisa nyari kata yang ada di tengah-tengah nama produk
         $searchParam = '%' . trim($keyword) . '%';
-        
-        // Ambil TOP 10 aja biar performa tetep enteng kalau produknya banyak
         $sql = "
             SELECT TOP 10
                 id_produk,

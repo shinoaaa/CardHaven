@@ -33,7 +33,14 @@ $sql = "
         modified_by = ?,
         modified_date = GETDATE()
     WHERE id_event = ?
-      AND is_deleted = 0
+      AND is_deleted = 0;
+
+    UPDATE p
+    SET p.stok = p.stok + pe.stok_event
+    WHERE pe.id_produk_event = ?
+    FROM produk p 
+    JOIN produk_event pe
+    on pe.id_produk = p.id_produk_event
 ";
 
 $stmt = sqlsrv_query($conn, $sql, [$modified_by, $id_event]);

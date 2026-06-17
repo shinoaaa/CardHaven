@@ -229,17 +229,34 @@ window.addEventListener('click', function(e) {
         const nama    = document.getElementById('setNama').value.trim();
         const kode    = document.getElementById('setKode').value.trim();
         const tanggal = document.getElementById('setTanggal').value;
-        const anyFilled = game !== '' || nama !== '' || kode !== '' || tanggal !== '';
+        
+        if (game !== '' || nama !== '' || kode !== '' || tanggal !== '') {
+            setModal.style.display = 'none';
+            let isConfirmed = false;
+            
+            const actionText = document.getElementById('setFormAction').value === 'edit' ? 'Edit' : 'Add';
+            cardhavenConfirm(
+                `Cancel ${actionText} Set?`, 
+                "Data yang sudah diisi akan hilang.", 
+                "Yes, Exit", 
+                () => {
+                    isConfirmed = true;
+                    setForm.reset();
+                    clearAllErrors('setForm');
+                }
+            );
 
-        if (anyFilled) {
-            cardhavenConfirm("Close Form?", "Unsaved data will be lost. Are you sure you want to cancel?", "Yes, Close", () => {
-                setForm.reset();
-                clearAllErrors('setForm');
-                setModal.style.display = 'none';
-            });
+            const checkSwal = setInterval(() => {
+                if (!Swal.isVisible()) {
+                    clearInterval(checkSwal);
+                    if (!isConfirmed) setModal.style.display = 'flex';
+                }
+            }, 15);
         } else {
             setModal.style.display = 'none';
         }
     }
-    if (e.target === document.getElementById('setDetailModal')) document.getElementById('setDetailModal').style.display = 'none';
+    if (e.target === document.getElementById('setDetailModal')) {
+        document.getElementById('setDetailModal').style.display = 'none';
+    }
 });
