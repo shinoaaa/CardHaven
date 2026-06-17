@@ -1,6 +1,9 @@
 const controllerUrl = '/CardHaven/interface/account-setting/account-setting-controller.php';
 const userId = sessionStorage.getItem("id_pengguna") || localStorage.getItem("id_pengguna");
-
+const pwModal = document.getElementById("pwModal");
+const btnOpenPwModal = document.getElementById("btnOpenPwModal");
+const btnClosePwModal = document.getElementById("btnClosePwModal");
+const pwForm = document.getElementById("pwForm");
 if (!userId) {
     window.location.href = "../../login-page/";
 }
@@ -16,24 +19,110 @@ function setValue(id, value) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Inisialisasi Tampilan Awal
     setText("userName", sessionStorage.getItem("username") || sessionStorage.getItem("nama") || "Guest");
     setText("userEmail", sessionStorage.getItem("userEmail") || "-");
 
+    // 2. Load Data dari Database
     loadData();
 
+    // 3. Referensi Elemen Utama
     const form = document.getElementById("accountForm");
+    const btnDeactivate = document.getElementById("btnDeactivate");
+    const btnDelete = document.getElementById("btnDelete");
+
+    // 4. Referensi Elemen Modal Change Password
+    const pwModal = document.getElementById("pwModal");
+    const pwForm = document.getElementById("pwForm");
+    const btnOpenPwModal = document.getElementById("btnOpenPwModal");
+    const btnClosePwModal = document.getElementById("btnClosePwModal");
+
+    // --- EVENT LISTENERS PROFIL ---
+
     if (form) {
         form.addEventListener("submit", handleSubmit);
     }
 
-    const btnDeactivate = document.getElementById("btnDeactivate");
     if (btnDeactivate) {
         btnDeactivate.addEventListener("click", handleDeactivate);
     }
 
-    const btnDelete = document.getElementById("btnDelete");
     if (btnDelete) {
         btnDelete.addEventListener("click", handleDelete);
+    }
+
+    // --- EVENT LISTENERS MODAL CHANGE PASSWORD ---
+
+    // Buka Modal
+    if (btnOpenPwModal) {
+        btnOpenPwModal.onclick = () => {
+            pwModal.style.display = "flex";
+        };
+    }
+
+    // Tutup Modal (Tombol X atau Cancel)
+    if (btnClosePwModal) {
+        btnClosePwModal.onclick = () => {
+            pwModal.style.display = "none";
+            if (pwForm) pwForm.reset();
+        };
+    }
+
+    // Tutup Modal jika klik di luar area modal (Overlay)
+    window.onclick = (event) => {
+        if (event.target === pwModal) {
+            pwModal.style.display = "none";
+            if (pwForm) pwForm.reset();
+        }
+    };
+
+    // Handle Submit Change Password
+    if (pwForm) {
+        pwForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const curPw = document.getElementById("current_password").value;
+            const newPw = document.getElementById("new_password").value;
+            const cfPw = document.getElementById("confirm_new_password").value;
+
+            // Validasi client-side
+            if (newPw !== cfPw) {
+                alert("New password confirmation does not match!");
+                return;
+            }
+
+            if (newPw.length < 6) {
+                alert("New password must be at least 6 characters long.");
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append("action", "change_password");
+                formData.append("id_pengguna", userId);
+                formData.append("current_password", curPw);
+                formData.append("new_password", newPw);
+
+                const res = await fetch(controllerUrl, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (data.status === "success") {
+                    alert("Password updated successfully!");
+                    pwModal.style.display = "none";
+                    pwForm.reset();
+                } else {
+                    // Menampilkan pesan error dari server (misal: password lama salah)
+                    alert(data.message || "Failed to update password");
+                }
+            } catch (err) {
+                console.error("Error updating password:", err);
+                alert("A server error occurred. Please try again.");
+            }
+        });
     }
 });
 
@@ -65,23 +154,8 @@ async function loadData() {
 
 async function handleSubmit(e) {
     e.preventDefault();
-
     const nama = document.getElementById("nama").value.trim();
     const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const confirmPassword = document.getElementById("confirmPassword").value.trim();
-
-    if (!nama || !email) {
-        alert("Nama dan email wajib diisi");
-        return;
-    }
-
-    if (password || confirmPassword) {
-        if (password !== confirmPassword) {
-            alert("Password dan konfirmasi password tidak sama");
-            return;
-        }
-    }
 
     try {
         const formData = new FormData();
@@ -89,30 +163,18 @@ async function handleSubmit(e) {
         formData.append("id_pengguna", userId);
         formData.append("nama", nama);
         formData.append("email", email);
-        formData.append("password", password);
-        formData.append("confirm_password", confirmPassword);
 
-        const res = await fetch(controllerUrl, {
-            method: "POST",
-            body: formData
-        });
-
+        const res = await fetch(controllerUrl, { method: "POST", body: formData });
         const data = await res.json();
 
         if (data.status === "success") {
             sessionStorage.setItem("username", nama);
-            sessionStorage.setItem("nama", nama);
-            sessionStorage.setItem("userEmail", email);
-
-            alert(data.message || "Data berhasil diupdate");
+            alert("Profile updated!");
             location.reload();
         } else {
-            alert(data.message || "Update gagal");
+            alert(data.message);
         }
-    } catch (err) {
-        alert("Gagal konek ke server");
-        console.error(err);
-    }
+    } catch (err) { alert("Error connecting to server"); }
 }
 
 async function handleDeactivate() {
