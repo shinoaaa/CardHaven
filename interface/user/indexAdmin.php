@@ -13,7 +13,7 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>Foto</th>
+                <th>Photo</th>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Phone Number</th>

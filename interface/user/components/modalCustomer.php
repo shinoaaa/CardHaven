@@ -11,7 +11,7 @@
         </div>
         <div class="supp-detail-grid">
             <div class="supp-detail-item">
-                <span class="supp-detail-label">Nama</span>
+                <span class="supp-detail-label">Username</span>
                 <span class="supp-detail-value" id="detailUsername">-</span>
             </div>
             <div class="supp-detail-item">
@@ -19,7 +19,7 @@
                 <span class="supp-detail-value" id="detailEmail">-</span>
             </div>
             <div class="supp-detail-item">
-                <span class="supp-detail-label">No Telepon</span>
+                <span class="supp-detail-label">Phone Number</span>
                 <span class="supp-detail-value" id="detailNoTelp">-</span>
             </div>
             <div class="supp-detail-item">
@@ -45,19 +45,19 @@
     <div class="supp-modal-body">
         <form id="customerAddForm" novalidate enctype="multipart/form-data">
             <div class="supp-form-group">
-                <label class="supp-label" for="addUsername">Nama <span class="supp-required">*</span></label>
+                <label class="supp-label" for="addUsername">Username<span class="supp-required">*</span></label>
                 <input type="text" id="addUsername" class="supp-input" placeholder="Enter name" autocomplete="off" style="width: 100%;">
                 <span class="supp-err" id="err-add-username"></span>
             </div>
 
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addEmail">Email <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="addEmail">Email<span class="supp-required">*</span></label>
                     <input type="email" id="addEmail" class="supp-input" placeholder="Enter email address" autocomplete="off">
                     <span class="supp-err" id="err-add-email"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addNoTelp">No Telepon</label>
+                    <label class="supp-label" for="addNoTelp">No Telepon<span class="supp-required">*</span>/label>
                     <input type="text" id="addNoTelp" class="supp-input" placeholder="Enter phone number" autocomplete="off">
                     <span class="supp-err" id="err-add-notelp"></span>
                 </div>
@@ -65,12 +65,12 @@
 
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addPassword">Password <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="addPassword">Password<span class="supp-required">*</span></label>
                     <input type="password" id="addPassword" class="supp-input" placeholder="Enter password">
                     <span class="supp-err" id="err-add-password"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addConfirmPassword">Confirm Password <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="addConfirmPassword">Confirm Password<span class="supp-required">*</span></label>
                     <input type="password" id="addConfirmPassword" class="supp-input" placeholder="Re-enter password">
                     <span class="supp-err" id="err-add-confirm-password"></span>
                 </div>
@@ -103,19 +103,19 @@
             </div>
 
             <div class="supp-form-group">
-                <label class="supp-label" for="editUsername">Nama <span class="supp-required">*</span></label>
+                <label class="supp-label" for="editUsername">Username<span class="supp-required">*</span></label>
                 <input type="text" id="editUsername" class="supp-input" placeholder="Enter name" autocomplete="off" style="width: 100%;">
                 <span class="supp-err" id="err-edit-username"></span>
             </div>
 
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="editEmail">Email <span class="supp-required">*</span></label>
+                    <label class="supp-label" for="editEmail">Email<span class="supp-required">*</span></label>
                     <input type="email" id="editEmail" class="supp-input" placeholder="Enter email address" autocomplete="off">
                     <span class="supp-err" id="err-edit-email"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="editNoTelp">No Telepon</label>
+                    <label class="supp-label" for="editNoTelp">Phone Number<span class="supp-required">*</span></label>
                     <input type="text" id="editNoTelp" class="supp-input" placeholder="Enter phone number" autocomplete="off">
                     <span class="supp-err" id="err-edit-notelp"></span>
                 </div>
@@ -123,7 +123,7 @@
 
             <div style="display: flex; gap: 1rem;">
                 <div class="supp-form-group">
-                    <label class="supp-label" for="editPassword">New Password <span style="font-size: 0.75rem; color: #7A8BA8;">(Leave blank to keep current)</span></label>
+                    <label class="supp-label" for="editPassword">New Password<span style="font-size: 0.75rem; color: #7A8BA8;">(Leave blank to keep current)</span></label>
                     <input type="password" id="editPassword" class="supp-input" placeholder="Enter new password">
                     <span class="supp-err" id="err-edit-password"></span>
                 </div>

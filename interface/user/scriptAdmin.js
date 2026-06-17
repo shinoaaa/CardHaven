@@ -148,19 +148,35 @@ function submitAddAdmin() {
     if (!no_telp) { showErr('addNoTelp', 'err-add-notelp', 'Phone Number is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('addEmail', 'err-add-email', 'Invalid email format.'); valid = false; }
     
-    if (no_telp && !isValidPhone(no_telp)) { showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false; }
-
-    if (!password) { 
-        showErr('addPassword', 'err-add-password', 'Password is required.'); 
+    if (!no_telp) { 
+        showErr('addNoTelp', 'err-add-notelp', 'Phone Number is required.'); 
+        valid = false; 
+    } else if (!isValidPhone(no_telp)) { 
+        showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); 
         valid = false; 
     }
-    if (!confirmPassword) {
-        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password.');
+
+    // Validasi Password (Sesuai script_register.js)
+    if (!password) { 
+        showErr('addPassword', 'err-add-password', 'Password must be filled'); 
+        valid = false; 
+    } else if (password.length < 8 || password.length > 12) {
+        showErr('addPassword', 'err-add-password', 'Password must be 8 - 12 characters long');
         valid = false;
-    } else if (password !== confirmPassword) {
-        showErr('addConfirmPassword', 'err-add-confirm-password', 'Passwords do not match.');
+    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        showErr('addPassword', 'err-add-password', 'Password must contain a special character');
         valid = false;
     }
+
+    // Validasi Konfirmasi Password (Sesuai script_register.js)
+    if (!confirmPassword) {
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password');
+        valid = false;
+    } else if (password !== confirmPassword) {
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Confirm password does not match!');
+        valid = false;
+    }
+
 
     if (!valid) return;
 
@@ -249,13 +265,29 @@ function submitEditAdmin() {
     if (!email) { showErr('editEmail', 'err-edit-email', 'Email is required.'); valid = false; }
     else if (!isValidEmail(email)) { showErr('editEmail', 'err-edit-email', 'Invalid email format.'); valid = false; }
 
-    if (no_telp && !isValidPhone(no_telp)) { showErr('editNoTelp', 'err-edit-notelp', 'Invalid phone number format.'); valid = false; }
+    if (!no_telp) { 
+        showErr('editNoTelp', 'err-edit-notelp', 'Phone Number is required.'); 
+        valid = false; 
+    } else if (!isValidPhone(no_telp)) { 
+        showErr('editNoTelp', 'err-edit-notelp', 'Invalid phone number format.'); 
+        valid = false; 
+    }
 
-    if (password || confirmPassword) {
-        if (password !== confirmPassword) {
-            showErr('editConfirmPassword', 'err-edit-confirm-password', 'Passwords do not match.');
+
+    if (password) { 
+        if (password.length < 8 || password.length > 12) {
+            showErr('editPassword', 'err-edit-password', 'Password must be 8 - 12 characters long');
+            valid = false;
+        } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            showErr('editPassword', 'err-edit-password', 'Password must contain a special character');
             valid = false;
         }
+    }
+
+    // 3. Validasi Konfirmasi Password
+    if (password && password !== confirmPassword) {
+        showErr('editConfirmPassword', 'err-edit-confirm-password', 'Confirm password does not match!');
+        valid = false;
     }
 
     if (!valid) return;
