@@ -56,6 +56,43 @@ a{
 
     --bg-gradient: linear-gradient(75deg, var(--primary-color) 0%, var(--primary-light) 100%);
     --main-font: 'Inter', sans-serif;
+
+    --ch-navy:        #0A0F2E;
+    --ch-blue:        #1A3A8F;
+    --ch-blue-mid:    #1E4FC2;
+    --ch-blue-light:  #2E6AFF;
+    --ch-accent:      #FF7A00;
+    --ch-gold:        #F5A623;
+    --ch-white:       #FFFFFF;
+    --ch-off-white:   #F4F6FB;
+    --ch-gray-100:    #EEF1F8;
+    --ch-gray-200:    #D1D9EE;
+    --ch-gray-400:    #8B96B8;
+    --ch-gray-600:    #4A5580;
+    --ch-text:        #1A1F3C;
+    --ch-text-light:  #5A6288;
+
+    /* Shadows */
+    --shadow-sm:   0 2px 8px rgba(10,15,46,.08);
+    --shadow-md:   0 4px 20px rgba(10,15,46,.12);
+    --shadow-lg:   0 8px 40px rgba(10,15,46,.18);
+    --shadow-card: 0 2px 12px rgba(26,58,143,.10);
+    
+    /* Radii */
+    --r-sm:  8px;
+    --r-md:  12px;
+    --r-lg:  16px;
+    --r-xl:  24px;
+    --r-pill:9999px;
+    
+    /* Transitions */
+    --t-fast:   0.15s ease;
+    --t-normal: 0.25s ease;
+    --t-slow:   0.4s ease;
+    
+    /* Layout */
+    --container:    1240px;
+    --nav-height:   70px;
 }
 
 h1,h2, h3 {
