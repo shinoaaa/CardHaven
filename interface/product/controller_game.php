@@ -27,14 +27,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Game name is already registered!']); exit;
         }
     }
+    $path_foto_simpan = null;
+    if (isset($_FILES['foto_banner']) && $_FILES['foto_banner']['error'] === UPLOAD_ERR_OK) {
+        $file_tmp = $_FILES['foto_banner']['tmp_name'];
+        $file_name = $_FILES['foto_banner']['name'];
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        
+        // Buat nama file unik
+        $new_file_name = "GAME_" . time() . "_" . uniqid() . "." . $file_ext;
+        $target_dir = "../../image-profile/"; 
+        
+        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+
+        if (move_uploaded_file($file_tmp, $target_dir . $new_file_name)) {
+            $path_foto_simpan = "image-profile/" . $new_file_name;
+
+            // Jika sedang EDIT, hapus file foto lama agar folder tidak penuh
+            if ($action === 'edit' && $id_game) {
+                $sql_old = "SELECT foto_banner FROM dbo.game WHERE id_game = ?";
+                $stmt_old = sqlsrv_query($conn, $sql_old, [$id_game]);
+                $row_old = sqlsrv_fetch_array($stmt_old, SQLSRV_FETCH_ASSOC);
+                if ($row_old && $row_old['foto_banner']) {
+                    $old_file_path = "../../" . $row_old['foto_banner'];
+                    if (file_exists($old_file_path)) unlink($old_file_path);
+                }
+            }
+        }
+    }
 
     // 3. Eksekusi Action
     if ($action === 'add') {
-        $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif,is_deleted) VALUES (?, ?, ?, GETDATE(), 1,0)";
-        $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user]);
+        $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif, is_deleted, foto_banner) VALUES (?, ?, ?, GETDATE(), 1, 0, ?)";
+        $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $path_foto_simpan]);
     } else if ($action === 'edit') {
-        $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
-        $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $id_game]);
+        $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE()";
+        $params = [$nama, $dev, $id_user];
+        
+    
+        if ($path_foto_simpan) {
+            $sql .= ", foto_banner = ?";
+            $params[] = $path_foto_simpan;
+        }
+        
+        $sql .= " WHERE id_game = ?";
+        $params[] = $id_game;
+        
+        $stmt = sqlsrv_query($conn, $sql, $params);
     } else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
         $aktif = $action === 'aktifkan' ? 1 : 0;
         $sql = "UPDATE dbo.game SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";

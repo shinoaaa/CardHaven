@@ -23,17 +23,68 @@ function loadGamePage(page) {
             window.history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
         });
 }
+function previewBannerImage(input) {
+    const preview = document.getElementById('gPreview');
+    const placeholder = document.getElementById('gPlaceholder');
+    const errorEl = document.getElementById('error-foto-game');
+    
+    const file = input.files[0];
+    errorEl.innerText = "";
 
-function openAddModal() {
+    if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+            showError(input, "File is too large! (Max 5MB)");
+            input.value = ""; 
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+        placeholder.style.display = 'block';
+    }
+}
+function resetGameForm() {
+    const form = document.getElementById('gameForm');
+    if (form) form.reset(); // Reset input teks
+
+    // Reset Input File (Penting!)
+    const fileInput = document.getElementById('gFoto');
+    if (fileInput) fileInput.value = ""; 
+
+    // Reset Preview Gambar
+    const preview = document.getElementById('gPreview');
+    const placeholder = document.getElementById('gPlaceholder');
+    if (preview) {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+    if (placeholder) {
+        placeholder.style.display = 'block';
+    }
+
+    // Bersihkan error
     clearAllErrors('gameForm');
+}
+function openAddModal() {
+    resetGameForm();
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
     document.getElementById('displayID').innerText = '';
     document.getElementById('formAction').value = 'add';
     gameForm.reset();
+
+    document.getElementById('gPreview').style.display = 'none';
+    document.getElementById('gPlaceholder').style.display = 'block';
     modal.style.display = 'flex';
 }
 
 function openDetailModal(id) {
+    resetGameForm()
     fetch(`${URL_GAME}?get_detail=${id}`)
         .then(res => res.json())
         .then(data => {
@@ -48,6 +99,16 @@ function openDetailModal(id) {
                 statusEl.innerHTML = '<span style="color: #27AE60; font-weight: bold;">Active</span>';
             } else {
                 statusEl.innerHTML = '<span style="color: #E74C3C; font-weight: bold;">Inactive</span>';
+            }
+            const detImg = document.getElementById('detailGameBanner');
+            const detNoImg = document.getElementById('detailGameNoBanner');
+            if (data.foto_banner) {
+                detImg.src = '/CardHaven/' + data.foto_banner;
+                detImg.style.display = 'block';
+                detNoImg.style.display = 'none';
+            } else {
+                detImg.style.display = 'none';
+                detNoImg.style.display = 'block';
             }
 
             document.getElementById('gameDetailModal').style.display = 'flex';
@@ -72,6 +133,16 @@ function openEditModal(id) {
             document.getElementById('nama_game').value = data.nama_game;
             document.getElementById('developer').value = data.developer;
 
+            const preview = document.getElementById('gPreview');
+            const placeholder = document.getElementById('gPlaceholder');
+            if (data.foto_banner) {
+                preview.src = '/CardHaven/' + data.foto_banner;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
             modal.style.display = 'flex';
         })
         .catch(err => {
@@ -190,22 +261,26 @@ window.addEventListener('click', function(e) {
     if (e.target == modal) {
         const inputNama = document.getElementById('nama_game').value.trim();
         const inputDev  = document.getElementById('developer').value.trim();
-        if (inputNama !== '' || inputDev !== '') {
-            modal.style.display = "none";
+        const inputFoto = document.getElementById('gFoto').value; 
+
+        // If any field is filled or a file is selected
+        if (inputNama !== '' || inputDev !== '' || inputFoto !== '') {
+            modal.style.display = "none"; // Hide temporarily
             let isConfirmed = false;
             
             const actionText = document.getElementById('formAction').value === 'edit' ? 'Edit' : 'Add';
+            
             cardhavenConfirm(
                 `Cancel ${actionText} Game?`, 
-                "Data yang sudah diisi akan hilang.", 
+                "Any unsaved changes will be lost. Are you sure you want to exit?", 
                 "Yes, Exit", 
                 () => {
                     isConfirmed = true;
-                    gameForm.reset();
-                    clearAllErrors('gameForm');
+                    resetGameForm(); // Full reset on exit
                 }
             );
 
+            // Monitor if user cancels the confirmation, then show modal again
             const checkSwal = setInterval(() => {
                 if (!Swal.isVisible()) {
                     clearInterval(checkSwal);
@@ -214,8 +289,10 @@ window.addEventListener('click', function(e) {
             }, 15);
         } else {
             modal.style.display = "none";
+            resetGameForm();
         }
     }
+    // Detail modal close
     if (e.target == document.getElementById('gameDetailModal')) {
         document.getElementById('gameDetailModal').style.display = "none";
     }

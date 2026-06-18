@@ -242,7 +242,15 @@
                 <label>Status</label>
                 <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
-
+            <div class="modal-form-group">
+                <label>Game Banner <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
+                <div style="text-align: center; margin-bottom: 8px;">
+                    <img id="gPreview" src="" style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:contain; border: 1px solid #ddd;">
+                    <div id="gPlaceholder" style="color:#aaa; padding: 20px; border: 2px dashed #ccc; border-radius:8px; font-size:0.9rem;">No banner selected</div>
+                </div>
+                <input type="file" name="foto_banner" id="gFoto" class="modal-input" accept="image/jpeg,image/png,image/webp,image/svg+xml" onchange="previewBannerImage(this)">
+                <span id="error-foto-game" class="error-message"></span>
+            </div>
             <button type="submit" class="btn-confirm">Save Game</button>
         </form>
     </div>
@@ -253,6 +261,12 @@
         <div class="modal-header">
             <h2>GAME <span class="blue-text">DETAIL</span></h2>
             <span id="gameDetailDisplayID" class="game-id"></span>
+        </div>
+        <div class="modal-form-group" style="text-align: center;">
+            <div style="border: 1px solid #eee; border-radius: 8px; padding: 5px; background: #f9f9f9;">
+                <img id="detailGameBanner" src="" style="max-width: 100%; max-height: 180px; border-radius: 5px; display: none; margin: 0 auto;">
+                <div id="detailGameNoBanner" style="color: #ccc; padding: 20px;">No Banner Image</div>
+            </div>
         </div>
 
         <div class="modal-form-group">
