@@ -26,8 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const backToLogin = document.getElementById("back-to-login");
 
     const idPenggunaa = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const rolePenggunaa = localStorage.getItem('role') || sessionStorage.getItem('role');
 
-    if(idPenggunaa){
+    if(idPenggunaa && rolePenggunaa !== 0){
         window.location.replace("/CardHaven/dashboard/activity");
     }
 

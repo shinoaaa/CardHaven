@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 () => {
                     localStorage.clear();
                     sessionStorage.clear();
-                    window.location.href = "/CardHaven/home";
+                    window.location.href = "/CardHaven/login";
                 }
             );
         });

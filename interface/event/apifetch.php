@@ -69,6 +69,9 @@ if ($action === 'search_produk') {
 // ── action: list (default) → siapkan variabel untuk index.php ────────────────
 $page        = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $controller  = new controllerEvent($conn);
+
+$controller->autoUpdateStatusEvent();
+
 $stmt_event  = $controller->fetchEvent($page);
 $total_event = $controller->countEvent();
 $total_pages = max(1, (int)ceil($total_event / 7));

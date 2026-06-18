@@ -32,8 +32,16 @@ if (isset($row['tanggal_mulai']) && $row['tanggal_mulai'] instanceof DateTime) {
 
 $row['persen_diskon'] = number_format((float)($row['persen_diskon'] ?? 0), 0, ',', '.');
 $row['status_event']  = (int)($row['status_event'] ?? 1);
-$statusClass = $row['status_event'] === 1 ? 'status-active' : 'status-inactive';
-$statusLabel = $row['status_event'] === 1 ? 'Running' : 'Complete';
+if ($row['status_event'] === 1) {
+    $statusLabel = "Running";
+    $statusClass = "status-active";
+} elseif ($row['status_event'] === 2) {
+    $statusLabel = "Upcoming";
+    $statusClass = "status-upcoming";
+} else {
+    $statusLabel = "Complete";
+    $statusClass = "status-complete";
+}
 
 function escHtml($str) {
     return htmlspecialchars($str ?? '-', ENT_QUOTES, 'UTF-8');
@@ -79,10 +87,19 @@ function escHtml($str) {
         </div>
 
         <div class="modal-field">
-            <label>Discount</label>
-            <div class="modal-pill-row">
-                <span class="pill-left"><?= escHtml($row['persen_diskon']) ?>%</span>
-                <span class="pill-right"><?= count($products) ?> items</span>
+            <div style="display: flex; justify-content: space-between;">
+                <div style="width: 49%;">
+                    <label>Discount</label>
+                    <div class="modal-pill-row">
+                        <span class="pill-left"><?= escHtml($row['persen_diskon']) ?>%</span>
+                    </div>
+                </div>
+                <div style="width: 49%;">
+                    <label>Featured Item</label>
+                    <div class="modal-pill-row">
+                        <span class="pill-right"><?= count($products) ?> items</span>
+                    </div>
+                </div>
             </div>
         </div>
 

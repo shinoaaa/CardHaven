@@ -1104,6 +1104,16 @@ input:checked + .slider:before {
     font-size: 18px;
 }
 
+.status-upcoming {
+    color: #F39C12;
+    font-size: 18px;
+}
+
+.status-complete {
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
 .status-inactive {
     color: #ff2d2d;
     font-size: 18px;

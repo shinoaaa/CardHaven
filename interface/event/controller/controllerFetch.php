@@ -22,6 +22,7 @@ class controllerEvent
                 e.tanggal_mulai,
                 e.tanggal_berakhir,
                 e.persen_diskon,
+                e.is_hide,
                 COUNT(pe.id_produk) AS total_item,
                 e.status_event
             FROM event e
@@ -34,6 +35,7 @@ class controllerEvent
                 e.tipe_event,
                 e.tanggal_mulai,
                 e.tanggal_berakhir,
+                e.is_hide,
                 e.persen_diskon,
                 e.status_event
             ORDER BY e.status_event DESC
@@ -171,6 +173,33 @@ class controllerEvent
         }
 
         return $data;
+    }
+
+    // ── FUNGSI BARU UNTUK AUTO UPDATE STATUS (LAZY UPDATE) ───────────────────
+    public function autoUpdateStatusEvent()
+    {
+        // 1. Ubah Upcoming (2) jadi Running (1) jika hari ini sudah masuk atau lewat tanggal_mulai
+        $sqlStart = "
+            UPDATE event 
+            SET status_event = 1 
+            WHERE status_event = 2 
+              AND ISNULL(is_deleted, 0) = 0
+              AND CAST(GETDATE() AS DATE) >= CAST(tanggal_mulai AS DATE)
+        ";
+        sqlsrv_query($this->conn, $sqlStart);
+
+        // 2. Ubah Running (1) jadi Complete (0) jika hari ini sudah lewat dari tanggal_berakhir
+        $sqlEnd = "
+            UPDATE event 
+            SET status_event = 0 
+            WHERE status_event = 1 
+              AND ISNULL(is_deleted, 0) = 0
+              AND CAST(GETDATE() AS DATE) > CAST(tanggal_berakhir AS DATE)
+        ";
+        sqlsrv_query($this->conn, $sqlEnd);
+        
+        // Catatan: Status 3 (Hidden) sengaja tidak diubah otomatis agar tetap tersembunyi 
+        // sampai admin mengubahnya sendiri.
     }
 }
 ?>

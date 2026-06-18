@@ -32,14 +32,14 @@ if (empty($products)) {
     exit;
 }
 
-$nama_event      = trim($body['nama_event']);
-$tipe_event      = trim($body['tipe_event']);
-$tanggal_mulai   = $body['tanggal_mulai'];
+$nama_event       = trim($body['nama_event']);
+$tipe_event       = trim($body['tipe_event']);
+$tanggal_mulai    = $body['tanggal_mulai'];
 $tanggal_berakhir = $body['tanggal_berakhir'];
-$tanggal_sampai  = !empty($body['tanggal_sampai']) ? $body['tanggal_sampai'] : null;
-$persen_diskon   = (float)$body['persen_diskon'];
-$maks_pembelian  = (int)$body['maks_pembelian'];
-$created_by      = (int)$body['id_karyawan']; 
+$tanggal_sampai   = !empty($body['tanggal_sampai']) ? $body['tanggal_sampai'] : null;
+$persen_diskon    = (float)$body['persen_diskon'];
+$maks_pembelian   = (int)$body['maks_pembelian'];
+$created_by       = (int)$body['id_karyawan']; 
 
 // Validasi preorder max 1 produk
 if ($tipe_event === 'preorder' && count($products) > 1) {
@@ -59,6 +59,16 @@ if ($tanggal_berakhir < $tanggal_mulai) {
     exit;
 }
 
+$status_event = isset($body['status_event']) ? (int)$body['status_event'] : 1;
+
+// ==========================================
+// MULAI TRANSAKSI KESELURUHAN
+// ==========================================
+if (sqlsrv_begin_transaction($conn) === false) {
+    echo json_encode(['error' => 'Gagal memulai transaksi', 'detail' => sqlsrv_errors()]);
+    exit;
+}
+
 // ── Insert event ─────────────────────────────────────────────────────────────
 $sqlEvent = "
     INSERT INTO event (
@@ -67,8 +77,7 @@ $sqlEvent = "
         status_event, is_deleted, created_by, created_date
     )
     OUTPUT INSERTED.id_event
-    VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, GETDATE())
-
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, GETDATE())
 ";
 
 $paramsEvent = [
@@ -79,12 +88,14 @@ $paramsEvent = [
     $tanggal_sampai,
     $persen_diskon,
     $maks_pembelian,
+    $status_event, // <--- Memasukkan hasil hitungan status 1 atau 2 di sini
     $created_by
 ];
 
 $stmtEvent = sqlsrv_query($conn, $sqlEvent, $paramsEvent);
 
 if ($stmtEvent === false) {
+    sqlsrv_rollback($conn);
     echo json_encode(['error' => 'Gagal insert event', 'detail' => sqlsrv_errors()]);
     exit;
 }
@@ -92,27 +103,46 @@ if ($stmtEvent === false) {
 $row = sqlsrv_fetch_array($stmtEvent, SQLSRV_FETCH_ASSOC);
 $id_event = (int)$row['id_event'];
 
-// ── Insert produk_event ───────────────────────────────────────────────────────
-$sqlProd = "
-    INSERT INTO produk_event (id_produk, id_event, harga_event, stok_event)
-    VALUES (?, ?, ?, ?)
-
-    UPDATE produk 
-    SET stok = stok - ?
-    WHERE id_produk = ?
-";
+// ── Insert produk_event & Update Stok ─────────────────────────────────────────
+$sqlInsertProd = "INSERT INTO produk_event (id_produk, id_event, harga_event, stok_event) VALUES (?, ?, ?, ?)";
+$sqlUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
 
 foreach ($products as $prod) {
     $id_produk   = (int)$prod['id_produk'];
     $harga_event = (float)$prod['harga_event'];
     $stok_event  = (int)$prod['stok_event'];
     
-    $stmtProd = sqlsrv_query($conn, $sqlProd, [$id_produk, $id_event, $harga_event, $stok_event, $stok_event, $id_produk]);
+    // Cek Stok Asli
+    $sqlCekStok = "SELECT stok FROM produk WHERE id_produk = ?";
+    $stmtCek = sqlsrv_query($conn, $sqlCekStok, [$id_produk]);
+    $dataStok = sqlsrv_fetch_array($stmtCek, SQLSRV_FETCH_ASSOC);
+    
+    if (!$dataStok || $dataStok['stok'] < $stok_event) {
+        sqlsrv_rollback($conn);
+        echo json_encode(['error' => "Stok untuk produk ID $id_produk tidak mencukupi!"]);
+        exit;
+    }
 
-    if ($stmtProd === false) {
-        echo json_encode(['error' => "Gagal insert produk id $id_produk", 'detail' => sqlsrv_errors()]);
+    // Insert Produk Event
+    $stmtIn = sqlsrv_query($conn, $sqlInsertProd, [$id_produk, $id_event, $harga_event, $stok_event]);
+    if ($stmtIn === false) {
+        sqlsrv_rollback($conn);
+        echo json_encode(['error' => "Gagal insert produk event id $id_produk", 'detail' => sqlsrv_errors()]);
+        exit;
+    }
+
+    // Kurangi Stok Asli
+    $stmtUp = sqlsrv_query($conn, $sqlUpdateStok, [$stok_event, $id_produk]);
+    if ($stmtUp === false) {
+        sqlsrv_rollback($conn);
+        echo json_encode(['error' => "Gagal mengurangi stok produk id $id_produk", 'detail' => sqlsrv_errors()]);
         exit;
     }
 }
+
+// ==========================================
+// JIKA SEMUA BERHASIL, KUNCI PERUBAHAN
+// ==========================================
+sqlsrv_commit($conn);
 
 echo json_encode(['success' => true, 'id_event' => $id_event]);
