@@ -468,9 +468,9 @@ async function aeSubmitEvent() {
     if (!tipe)                                  { aeSetError('ae_tipe_event',       'err_tipe_event',       'Select event type.'); valid = false; }
     if (!mulai)                                 { aeSetError('ae_tanggal_mulai',    'err_tanggal_mulai',    'Start date is required.'); valid = false; }
     if (!berakhir)                              { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date is required.'); valid = false; }
-    if (mulai && berakhir && berakhir < mulai)   { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date can not filled before start date.'); valid = false; }
+    if (mulai && berakhir && berakhir < mulai)  { aeSetError('ae_tanggal_berakhir', 'err_tanggal_berakhir', 'End date can not filled before start date.'); valid = false; }
     if (diskon === '')                          { aeSetError('ae_persen_diskon',    'err_persen_diskon',    'Discount is required.'); valid = false; }
-    if (diskon < 1 )                          { aeSetError('ae_persen_diskon',    'err_persen_diskon',    'Discount can not less than 1.'); valid = false; }
+    if (diskon < 1 )                            { aeSetError('ae_persen_diskon',    'err_persen_diskon',    'Discount can not less than 1.'); valid = false; }
     if (!maks || parseInt(maks) <= 0)           { aeSetError('ae_maks_pembelian',   'err_maks_pembelian',   'Max purchase can not less than 0.'); valid = false; }
     if (tipe === 'preorder' && !sampai)         { aeSetError('ae_tanggal_sampai',   'err_tanggal_sampai',   'Estimated arrival time are required for pre order.'); valid = false; }
     if (aeProductList.length === 0) {
@@ -481,6 +481,25 @@ async function aeSubmitEvent() {
 
     if (!valid) return;
 
+    // --- LOGIKA PENENTUAN STATUS ---
+    // 1. Cek apakah format mulai adalah DD-MM-YYYY. Jika iya, ubah ke YYYY-MM-DD biar JS paham.
+    let formattedMulai = mulai;
+    if (mulai.includes('-') && mulai.split('-')[0].length === 2) {
+        let parts = mulai.split('-'); // Hasilnya: [DD, MM, YYYY]
+        formattedMulai = `${parts[2]}-${parts[1]}-${parts[0]}`; 
+    }
+
+    // 2. Buat objek Date untuk hari ini (waktu lokal laptop/hp user)
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0); // Reset jam ke 00:00:00 biar adil
+
+    // 3. Buat objek Date untuk tanggal mulai event
+    const eventDate = new Date(formattedMulai);
+    eventDate.setHours(0, 0, 0, 0);
+
+    // 4. Bandingkan secara matematis (Date object)
+    const statusEvent = (eventDate > todayDate) ? 2 : 1;
+
     const payload = {
         nama_event:       nama,
         tipe_event:       tipe,
@@ -489,6 +508,7 @@ async function aeSubmitEvent() {
         tanggal_sampai:   sampai || null,
         persen_diskon:    parseFloat(diskon),
         maks_pembelian:   parseInt(maks, 10),
+        status_event:     statusEvent, // <-- Lempar status ke PHP
         id_karyawan:      sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna'),
         products: aeProductList.map(p => ({
             id_produk:   p.id_produk,
@@ -879,6 +899,49 @@ async function eeSubmitEvent(idEvent) {
 // COMPLETE EVENT
 // ════════════════════════════════════════════════════════════════════════════
 
+// ── FUNGSI BARU: MAJUKAN EVENT KE HARI INI ──
+function moveUp(idEvent) {
+    cardhavenConfirm(
+        "Start this event today?",
+        "This upcoming event will start running immediately today.",
+        "Yes, start it",
+        () => {
+            fetch(FINISH_URL, { // Pakai URL yang sama
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id_event: idEvent,
+                    action: "move_up" // <--- Ini pembedanya
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Started",
+                        text: data.message
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: data.error || data.message || "Unable to move up the event."
+                    });
+                }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong while processing the request."
+                });
+            });
+        }
+    );
+}
+
+// ── FUNGSI LAMA YANG DI-UPDATE SEDIKIT ──
 function completeEvent(idEvent) {
     cardhavenConfirm(
         "Complete this event?",
@@ -887,11 +950,10 @@ function completeEvent(idEvent) {
         () => {
             fetch(FINISH_URL, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id_event: idEvent
+                    id_event: idEvent,
+                    action: "complete" // <--- Ditambahkan biar rapi
                 })
             })
             .then(res => res.json())
@@ -900,15 +962,13 @@ function completeEvent(idEvent) {
                     Swal.fire({
                         icon: "success",
                         title: "Completed",
-                        text: "The event has been marked as completed."
-                    }).then(() => {
-                        location.reload();
-                    });
+                        text: data.message
+                    }).then(() => location.reload());
                 } else {
                     Swal.fire({
                         icon: "error",
                         title: "Failed",
-                        text: data.error || "Unable to complete the event."
+                        text: data.error || data.message || "Unable to complete the event."
                     });
                 }
             })
@@ -971,7 +1031,7 @@ function deleteEvent(idEvent){
 function hideEvent(idEvent, isHidden, element) {
     // isHidden = true (ON) -> status 3 (Hidden)
     // isHidden = false (OFF) -> status 1 (Visible/Active)
-    const newStatus = isHidden ? 3 : 1; 
+    const newStatus = isHidden ? 0 : 1; 
 
     fetch(TOGGLE_URL, { 
         method: "POST",
@@ -980,7 +1040,7 @@ function hideEvent(idEvent, isHidden, element) {
         },
         body: JSON.stringify({
             id_event: idEvent,
-            status_event: newStatus
+            is_hide: newStatus
         })
     })
     .then(res => res.json())

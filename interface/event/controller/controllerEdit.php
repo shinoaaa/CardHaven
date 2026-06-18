@@ -157,7 +157,7 @@ switch ($action) {
                 set stok = stok - ?
                 FROM produk p
                 JOIN produk_event
-            "
+            ";
         } else {
             $sqlInsert = "
                 INSERT INTO produk_event (

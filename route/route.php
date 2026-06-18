@@ -6,10 +6,13 @@ $url = str_replace('/CardHaven', '', $request);
 $segments = explode('/', trim($url, '/'));
 
 if ($segments[0] === '' || $segments[0] === 'home') {
-    include '../CardHaven/interface/login-page/index.php';
+    include '../CardHaven/interface/home-page/index.php';
 } 
 else if ($segments[0] === 'register') {
     include '../CardHaven/interface/register-page/index.php';
+} 
+else if ($segments[0] === 'login') {
+    include '../CardHaven/interface/login-page/index.php';
 } 
 else if ($segments[0] === 'dashboard') {
     include '../CardHaven/interface/dashboard/index.php';

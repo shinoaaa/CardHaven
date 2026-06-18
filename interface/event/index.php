@@ -68,10 +68,22 @@
                                 </td>
 
                                 <td>
-                                    <?php if (($row['status_event'] ?? 0) == 1): ?>
-                                        <span style="color: #27AE60; font-weight: bold;">Running</span>
+                                    <?php 
+                                    $status = $row['status_event'] ?? 0; // Ambil status utama
+                                    $is_hide = $row['is_hide'] ?? 0;     // Ambil status hide
+
+                                    // Siapkan teks tambahan jika event sedang disembunyikan
+                                    $hideBadge = ($is_hide == 1) ? ' <span style="color: #7F8C8D; font-weight: normal; font-size: 0.9em;">(Hidden)</span>' : '';
+
+                                    if ($status == 1): ?>
+                                        <span style="color: #27AE60; font-weight: bold;">Running</span><?= $hideBadge ?>
+
+                                    <?php elseif ($status == 2): ?>
+                                        <span style="color: #F39C12; font-weight: bold;">Upcoming</span><?= $hideBadge ?>
+
                                     <?php else: ?>
-                                        <span style="color: #E74C3C; font-weight: bold;">Complete</span>
+                                        <span style="color: var(--primary-color); font-weight: bold;">Complete</span><?= $hideBadge ?>
+
                                     <?php endif; ?>
                                 </td>
 
@@ -82,10 +94,17 @@
                                             ...
                                         </button>
 
+                                        <?php if($row['status_event'] == 1 || $row['status_event'] == 2): ?>
                                         <button class="btn-edit-icon"
                                             onclick="openEditModal(<?= (int)$row['id_event'] ?>)">
                                             <img src="/cardhaven/assets/image/edit.svg" alt="">
                                         </button>
+                                        <?php elseif($row['status_event'] == 0): ?>
+                                            <button class="btn-complete-icon"
+                                                style=" cursor: default;">
+                                                <img src="/cardhaven/assets/image/edit.svg" alt="">
+                                            </button>
+                                        <?php endif; ?>
 
                                         <?php if($row['status_event'] == 1): ?>
                                         <button class="btn-delete-icon"
@@ -97,6 +116,11 @@
                                                 style=" cursor: default;">
                                                 <img src="/cardhaven/assets/image/clock-check.svg" alt="">
                                             </button>
+                                        <?php elseif($row['status_event'] == 2): ?>
+                                            <button class="btn-edit-icon"
+                                                onclick="moveUp(<?= (int)$row['id_event'] ?>)">
+                                                <img src="/cardhaven/assets/image/clock-arrow-up.svg" alt="">
+                                            </button>
                                         <?php endif; ?>
 
                                         <button class="btn-delete-icon"
@@ -104,10 +128,12 @@
                                             <img src="/cardhaven/assets/image/delete.svg" alt="">
                                         </button>
 
-                                        <!-- <label class="switch" title="Hide Event from Customers">
-                                            <input type="checkbox" <?= ($row['status_event'] ?? 0) == 3 ? 'checked' : '' ?> onchange="hideEvent(<?= (int)$row['id_event'] ?>, this.checked, this)">
+                                        <label class="switch" title="Hide Event from Customers">
+                                            <input type="checkbox" 
+                                                <?= (int)($row['is_hide'] ?? 0) === 0 ? 'checked="checked"' : '' ?> 
+                                                onchange="hideEvent(<?= (int)$row['id_event'] ?>, this.checked, this)">
                                             <span class="slider"></span>
-                                        </label> -->
+                                        </label>
                                     </div>
                                 </td>
                             </tr>

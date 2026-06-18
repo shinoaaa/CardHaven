@@ -12,23 +12,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $body = json_decode(file_get_contents('php://input'), true);
 
-if (!$body || !isset($body['id_event']) || !isset($body['status_event'])) {
+// Sesuaikan pengecekan dengan is_hide
+if (!$body || !isset($body['id_event']) || !isset($body['is_hide'])) {
     echo json_encode(['error' => 'Invalid request data']);
     exit;
 }
 
 $id_event = (int)$body['id_event'];
-$status_event = (int)$body['status_event']; // Accepted values: 1 or 3
+$is_hide = (int)$body['is_hide']; // Pastikan yang ditangkap adalah is_hide (0 atau 1)
 
-// Validate the status to prevent unwanted database modifications
-if ($status_event !== 1 && $status_event !== 3) {
+// Validasi hanya boleh 0 (Visible) atau 1 (Hidden)
+if ($is_hide !== 0 && $is_hide !== 1) {
     echo json_encode(['error' => 'Invalid status value']);
     exit;
 }
 
-// Execute the Update query
-$sql = "UPDATE event SET status_event = ? WHERE id_event = ? AND is_deleted = 0";
-$stmt = sqlsrv_query($conn, $sql, [$status_event, $id_event]);
+// Execute the Update query (Targetkan kolom is_hide)
+$sql = "UPDATE event SET is_hide = ? WHERE id_event = ? AND ISNULL(is_deleted, 0) = 0";
+$stmt = sqlsrv_query($conn, $sql, [$is_hide, $id_event]);
 
 if ($stmt === false) {
     echo json_encode([
@@ -40,7 +41,7 @@ if ($stmt === false) {
 }
 
 // Send back the appropriate success message
-$message = ($status_event == 3) ? 'Event is now hidden from customers' : 'Event is visible again';
+$message = ($is_hide === 1) ? 'Event is now hidden from customers' : 'Event is visible again';
 echo json_encode([
     'success' => true,
     'message' => $message
