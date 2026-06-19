@@ -167,12 +167,12 @@ function toggleStatus(id, isActive, el) {
             Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Game status has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
         } else {
             el.checked = !isActive;
-            Swal.fire('Failed', res.message, 'error');
+            cardhavenAlert('error', 'Failed', res.message);
         }
     })
     .catch(err => {
         el.checked = !isActive;
-        Swal.fire('Error', 'Connection error occurred.', 'error');
+        cardhavenAlert('error', 'Error', 'Connection error occurred.');
     });
 }
 
@@ -182,8 +182,8 @@ gameForm.onsubmit = function(e) {
     const inputDev = document.getElementById('developer');
     let isValid = true;
 
-    if (!inputNama.value.trim()) { showError(inputNama, "Game name is required!"); isValid = false; } else clearError(inputNama);
-    if (!inputDev.value.trim()) { showError(inputDev, "Developer name is required!"); isValid = false; } else clearError(inputDev);
+    if (!inputNama.value.trim()) { showError(inputNama, "Game name is required."); isValid = false; } else clearError(inputNama);
+    if (!inputDev.value.trim()) { showError(inputDev, "Developer name is required."); isValid = false; } else clearError(inputDev);
 
     if (!isValid) return;
 
