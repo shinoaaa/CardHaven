@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 1. Validasi Kosong
     if (($action == 'add' || $action == 'edit') && ($nama == "" || $dev == "")) {
-        echo json_encode(['status' => 'error', 'message' => 'All fields are required!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'All fields are required.']); exit;
     }
 
     // 2. Validasi Duplikat Nama
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $stmt_cek = sqlsrv_query($conn, $sql_cek, $params_cek);
         if (sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC)['total'] > 0) {
-            echo json_encode(['status' => 'error', 'message' => 'Game name is already registered!']); exit;
+            echo json_encode(['status' => 'error', 'message' => 'Game name is already registered.']); exit;
         }
     }
     $path_foto_simpan = null;
@@ -90,11 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE dbo.game SET is_deleted=0, aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid action!']);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid action.']);
         exit;   
     }
 
-    echo json_encode(['status' => $stmt ? 'success' : 'error', 'message' => $stmt ? '' : 'Database error']);
+    echo json_encode(['status' => $stmt ? 'success' : 'error', 'message' => $stmt ? '' : 'A database error occurred.']);
     exit;
 }
 

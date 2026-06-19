@@ -100,19 +100,19 @@ setForm.onsubmit = async function(e) {
     clearError(game);
 }
 if (!nama.value.trim()) {
-    showError(nama, 'Set name is required!');
+    showError(nama, 'Set name is required.');
     isValid = false;
 } else if (nama.value.trim().length > 50) {
-    showError(nama, 'Set name must not exceed 50 characters!');
+    showError(nama, 'Set name must not exceed 50 characters.');
     isValid = false;
 } else {
     clearError(nama);
 }
 if (!kode.value.trim()) {
-    showError(kode, 'Set code is required!');
+    showError(kode, 'Set code is required.');
     isValid = false;
 } else if (kode.value.trim().length > 20) {
-    showError(kode, 'Set code must not exceed 20 characters!');
+    showError(kode, 'Set code must not exceed 20 characters.');
     isValid = false;
 } else {
     clearError(kode);
@@ -162,7 +162,7 @@ function toggleSetStatus(id, isActive, el) {
         .then(async res => JSON.parse(await res.text()))
         .then(res => {
             if (res.status === 'success') {
-                Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Set status has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
+                cardhavenAlert('success', 'Success', `Set status has been ${label}.`, () => location.reload());
             } else {
                 el.checked = !isActive;
                 cardhavenAlert('error', 'Failed', res.message);
@@ -237,7 +237,7 @@ window.addEventListener('click', function(e) {
             const actionText = document.getElementById('setFormAction').value === 'edit' ? 'Edit' : 'Add';
             cardhavenConfirm(
                 `Cancel ${actionText} Set?`, 
-                "Data yang sudah diisi akan hilang.", 
+                "Any unsaved changes will be lost.", 
                 "Yes, Exit", 
                 () => {
                     isConfirmed = true;

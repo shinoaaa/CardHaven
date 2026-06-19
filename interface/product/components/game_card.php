@@ -10,7 +10,7 @@
                 <th>No</th>
                 <th>Game Name</th>
                 <th>Developer</th>
-                <th>status</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
