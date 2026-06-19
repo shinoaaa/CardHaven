@@ -81,15 +81,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt  = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user, $id_metode]);
     }
     else if ($action === 'delete') {
-        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_metode=?";
+        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=1, aktif=0, deleted_by=?, deleted_date=GETDATE() WHERE id_metode=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_metode]);
     }
     else if ($action === 'restore') {
-        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
+        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=0, aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_metode]);
     }
-    else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
-        $aktif = $action === 'aktifkan' ? 1 : 0;
+    else if ($action === 'activate' || $action === 'deactivate') {
+        $aktif = $action === 'activate' ? 1 : 0;
         $sql   = "UPDATE dbo.metode_pembayaran SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
         $stmt  = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_metode]);
     }

@@ -71,40 +71,40 @@ metodeForm.onsubmit = async function(e) {
     const biaya     = document.getElementById('metodeBiaya');
 
 if (!nama.value.trim()) {
-    showError(nama, 'Method name is required!');
+    showError(nama, 'Method name is required.');
     isValid = false;
 } else {
     clearError(nama);
 }
 if (!provider.value.trim()) {
-    showError(provider, 'Provider is required!');
+    showError(provider, 'Provider is required.');
     isValid = false;
 } else {
     clearError(provider);
 }
 if (!noRek.value.trim()) {
-    showError(noRek, 'Account number is required!');
+    showError(noRek, 'Account number is required.');
     isValid = false;
 } else if (!/^\d+$/.test(noRek.value.trim())) {
-    showError(noRek, 'Account number must contain numbers only!');
+    showError(noRek, 'Account number must contain numbers only.');
     isValid = false;
 } else if (noRek.value.trim().length < 5) {
-    showError(noRek, 'Account number must be at least 5 digits!');
+    showError(noRek, 'Account number must be at least 5 digits.');
     isValid = false;
 } else if (noRek.value.trim().length > 20) {
-    showError(noRek, 'Account number must not exceed 20 digits!');
+    showError(noRek, 'Account number must not exceed 20 digits.');
     isValid = false;
 } else {
     clearError(noRek);
 }
 if (!atasNama.value.trim()) {
-    showError(atasNama, 'Account name is required!');
+    showError(atasNama, 'Account name is required.');
     isValid = false;
 } else {
     clearError(atasNama);
 }
 if (biaya.value !== '' && parseFloat(biaya.value) < 0) {
-    showError(biaya, 'Admin fee cannot be negative!');
+    showError(biaya, 'Admin fee cannot be negative.');
     isValid = false;
 } else {
     clearError(biaya);
@@ -114,7 +114,7 @@ if (biaya.value !== '' && parseFloat(biaya.value) < 0) {
 
     const submitBtn = metodeForm.querySelector('button[type="submit"]');
     submitBtn.disabled  = true;
-    submitBtn.innerText = 'Saving...';
+    submitBtn.innerText = 'Processing...';
 
     try {
         const formData = new FormData(metodeForm);
@@ -139,29 +139,37 @@ if (biaya.value !== '' && parseFloat(biaya.value) < 0) {
 };
 
 function toggleMetode(id, isActive, el) {
-    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const action = isActive ? 'activate' : 'deactivate';
     const label  = isActive ? 'activated' : 'deactivated';
 
-    const fd = new FormData();
-    fd.append('action', action);
-    fd.append('id_metode', id);
-    fd.append('id_pengguna_js', getEmpId());
+    cardhavenConfirm(
+        `${isActive ? 'Activate' : 'Deactivate'} Payment Method?`,
+        `Are you sure you want to ${isActive ? 'activate' : 'deactivate'} this payment method?`,
+        isActive ? 'Activate' : 'Deactivate',
+        () => {
+            const fd = new FormData();
+            fd.append('action', action);
+            fd.append('id_metode', id);
+            fd.append('id_pengguna_js', getEmpId());
 
-    fetch(METODE_API, { method: 'POST', body: fd })
-        .then(async res => JSON.parse(await res.text()))
-        .then(res => {
-            if (res.status === 'success') {
-                Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Payment method has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
-            } else {
-                el.checked = !isActive;
-                cardhavenAlert('error', 'Failed', res.message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            el.checked = !isActive;
-            cardhavenAlert('error', 'System Error', 'Connection error.');
-        });
+            fetch(METODE_API, { method: 'POST', body: fd })
+                .then(async res => JSON.parse(await res.text()))
+                .then(res => {
+                    if (res.status === 'success') {
+                        cardhavenAlert('success', 'Success', `Payment method has been ${label}.`, () => location.reload());
+                    } else {
+                        el.checked = !isActive;
+                        cardhavenAlert('error', 'Failed', res.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    el.checked = !isActive;
+                    cardhavenAlert('error', 'Error', 'Connection error occurred.');
+                });
+        },
+        () => { el.checked = !isActive; }
+    );
 }
 
 function confirmDeleteMetode(id) {
@@ -174,8 +182,15 @@ function confirmDeleteMetode(id) {
         fetch(METODE_API, { method: 'POST', body: fd })
             .then(async res => JSON.parse(await res.text()))
             .then(res => {
-                if (res.status === 'success') location.reload();
-                else cardhavenAlert('error', 'Failed', res.message);
+                if (res.status === 'success') {
+                    cardhavenAlert('success', 'Deleted!', 'Payment method has been deleted.', () => location.reload());
+                } else {
+                    cardhavenAlert('error', 'Failed', res.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                cardhavenAlert('error', 'Error', 'Connection error occurred.');
             });
     });
 }
@@ -227,7 +242,7 @@ window.addEventListener('click', function(e) {
             const actionText = document.getElementById('metodeFormAction').value === 'edit' ? 'Edit' : 'Add';
             cardhavenConfirm(
                 `Cancel ${actionText} Method?`, 
-                "Data yang sudah diisi akan hilang.", 
+                "Any unsaved changes will be lost.", 
                 "Yes, Exit", 
                 () => {
                     isConfirmed = true;
