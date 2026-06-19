@@ -131,7 +131,7 @@ if (!kode.value.trim()) {
     
     const submitBtn = rarityForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.innerText = "Checking...";
+    submitBtn.innerText = "Processing...";
 
     try {
         const duplicate = await isDuplicate(game.value, nama.value.trim(), kode.value.trim(), idRarity);
@@ -167,42 +167,57 @@ if (!kode.value.trim()) {
 };
 
 function toggleRarityStatus(id, isActive, el) {
-    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const action = isActive ? 'activate' : 'deactivate';
     const label  = isActive ? 'activated' : 'deactivated';
 
-    const fd = new FormData();
-    fd.append('action', action);
-    fd.append('id_rarity', id);
-    fd.append('id_pengguna_js', getEmpId()); 
+    cardhavenConfirm(
+        `${isActive ? 'Activate' : 'Deactivate'} Rarity?`,
+        `Are you sure you want to ${isActive ? 'activate' : 'deactivate'} this rarity?`,
+        isActive ? 'Activate' : 'Deactivate',
+        () => {
+            const fd = new FormData();
+            fd.append('action', action);
+            fd.append('id_rarity', id);
+            fd.append('id_pengguna_js', getEmpId());
 
-    fetch(API_URL, { method: 'POST', body: fd })
-    .then(res => res.json())
-    .then(res => {
-        if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', `Rarity has been ${label}.`, () => location.reload());
-        } else {
-            el.checked = !isActive;
-            cardhavenAlert('error', 'Failed', res.message);
-        }
-    })
-    .catch(err => {
-        el.checked = !isActive;
-        cardhavenAlert('error', 'Error', 'Connection error occurred.');
-    });
+            fetch(API_URL, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    cardhavenAlert('success', 'Success', `Rarity status has been ${label}.`, () => location.reload());
+                } else {
+                    el.checked = !isActive;
+                    cardhavenAlert('error', 'Failed', res.message);
+                }
+            })
+            .catch(err => {
+                el.checked = !isActive;
+                cardhavenAlert('error', 'Error', 'Connection error occurred.');
+            });
+        },
+        () => { el.checked = !isActive; }
+    );
 }
 
 function confirmDeleteRarity(id) {
-    cardhavenConfirm("Delete Rarity?", "This rarity will be permanently deleted.", "Yes, Delete", () => {
+    cardhavenConfirm("Delete Rarity?", "This rarity will be permanently deleted. Are you sure?", "Yes, Delete", () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_rarity', id);
         fd.append('id_pengguna_js', getEmpId());
-        
+
         fetch(API_URL, { method: 'POST', body: fd })
             .then(res => res.json())
             .then(res => {
-                if (res.status === 'success') location.reload();
-                else cardhavenAlert('error', 'Failed', res.message);
+                if (res.status === 'success') {
+                    cardhavenAlert('success', 'Deleted!', 'Rarity has been deleted.', () => location.reload());
+                } else {
+                    cardhavenAlert('error', 'Failed', res.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                cardhavenAlert('error', 'Error', 'Connection error occurred.');
             });
     });
 }
