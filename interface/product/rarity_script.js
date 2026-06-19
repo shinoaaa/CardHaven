@@ -110,24 +110,24 @@ rarityForm.onsubmit = async function(e) {
     clearError(game);
 }
 if (!nama.value.trim()) {
-    showError(nama, "Rarity name is required!");
+    showError(nama, "Rarity name is required.");
     isValid = false;
 } else if (nama.value.trim().length > 20) {
-    showError(nama, "Rarity name must not exceed 20 characters!");
+    showError(nama, "Rarity name must not exceed 20 characters.");
     isValid = false;
 } else {
     clearError(nama);
 }
 if (!kode.value.trim()) {
-    showError(kode, "Rarity code is required!");
+    showError(kode, "Rarity code is required.");
     isValid = false;
 } else if (kode.value.trim().length > 20) {
-    showError(kode, "Rarity code must not exceed 20 characters!");
+    showError(kode, "Rarity code must not exceed 20 characters.");
     isValid = false;
 } else {
     clearError(kode);
 }
-    if (!isValid) return;
+    if (!isValid) return;   
     
     const submitBtn = rarityForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
@@ -136,7 +136,7 @@ if (!kode.value.trim()) {
     try {
         const duplicate = await isDuplicate(game.value, nama.value.trim(), kode.value.trim(), idRarity);
         if (duplicate) {
-            showError(nama, "Rarity name or code already exists in this game!");
+            showError(nama, "Rarity name or code is already registered.");
             submitBtn.disabled = false;
             submitBtn.innerText = "Save Rarity";
             return; 
@@ -168,7 +168,8 @@ if (!kode.value.trim()) {
 
 function toggleRarityStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
-    
+    const label  = isActive ? 'activated' : 'deactivated';
+
     const fd = new FormData();
     fd.append('action', action);
     fd.append('id_rarity', id);
@@ -178,15 +179,15 @@ function toggleRarityStatus(id, isActive, el) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Rarity has been ${action}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
+            cardhavenAlert('success', 'Success', `Rarity has been ${label}.`, () => location.reload());
         } else {
             el.checked = !isActive;
-            Swal.fire('Failed', res.message, 'error');
+            cardhavenAlert('error', 'Failed', res.message);
         }
     })
     .catch(err => {
         el.checked = !isActive;
-        Swal.fire('Error', 'Connection error occurred.', 'error');
+        cardhavenAlert('error', 'Error', 'Connection error occurred.');
     });
 }
 
@@ -219,7 +220,7 @@ window.addEventListener('click', (e) => {
             const actionText = document.getElementById('formActionRarity').value === 'edit' ? 'Edit' : 'Add';
             cardhavenConfirm(
                 `Cancel ${actionText} Rarity?`, 
-                "Data yang sudah diisi akan hilang.", 
+                "Any unsaved changes will be lost.", 
                 "Yes, Exit", 
                 () => {
                     isConfirmed = true;

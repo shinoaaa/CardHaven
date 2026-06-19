@@ -39,19 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'add' || $action === 'edit') {
     if (empty($id_game)) {
-        echo json_encode(['status' => 'error', 'message' => 'Game is required!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'Game is required.']); exit;
     }
     if ($nama === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Rarity name is required!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'Rarity name is required.']); exit;
     }
     if (strlen($nama) > 20) {
-        echo json_encode(['status' => 'error', 'message' => 'Rarity name must not exceed 20 characters!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'Rarity name must not exceed 20 characters.']); exit;
     }
     if ($kode === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Rarity code is required!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'Rarity code is required.']); exit;
     }
     if (strlen($kode) > 20) {
-        echo json_encode(['status' => 'error', 'message' => 'Rarity code must not exceed 20 characters!']); exit;
+        echo json_encode(['status' => 'error', 'message' => 'Rarity code must not exceed 20 characters.']); exit;
     }
 }
     if ($action === 'add' || $action === 'edit') {
@@ -70,9 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($duplicate) {
             $pesan = "";
             if (strcasecmp($duplicate['nama_rarity'], $nama) == 0) {
-                $pesan = "Rarity Name '$nama' is already registered in this game!";
+                $pesan = "Rarity Name '$nama' is already registered in this game.";
             } else {
-                $pesan = "Rarity Code '$kode' is already registered in this game!";
+                $pesan = "Rarity Code '$kode' is already registered in this game.";
             }
             echo json_encode(['status' => 'error', 'message' => $pesan]);
             exit;
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $errors = sqlsrv_errors();
         $error_msg = $errors != null ? $errors[0]['message'] : 'Failed to execute database query.';
-        echo json_encode(['status' => 'error', 'message' => 'SQL ERROR: ' . $error_msg]);
+        echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
     }
     exit;
 }
@@ -130,7 +130,7 @@ $sql = "SELECT
     if ($stmt === false) {
         $errors = sqlsrv_errors();
         $error_msg = $errors != null ? $errors[0]['message'] : 'Failed to fetch detail data.';
-        echo json_encode(['error' => 'SQL ERROR: ' . $error_msg]);
+        echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
         exit;
     }
 
