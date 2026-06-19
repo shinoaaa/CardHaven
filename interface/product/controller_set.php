@@ -116,19 +116,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_game = (int)($_POST['id_game']  ?? 0);
 
         if ($id_game <= 0) {
-    echo json_encode(['status' => 'error', 'message' => 'Game is required!']); exit;
+    echo json_encode(['status' => 'error', 'message' => 'Game is required.']); exit;
 }
 if ($nama === '') {
-    echo json_encode(['status' => 'error', 'message' => 'Set name is required!']); exit;
+    echo json_encode(['status' => 'error', 'message' => 'Set name is required.']); exit;
 }
 if (strlen($nama) > 50) {
-    echo json_encode(['status' => 'error', 'message' => 'Set name must not exceed 50 characters!']); exit;
+    echo json_encode(['status' => 'error', 'message' => 'Set name must not exceed 50 characters.']); exit;
 }
 if ($kode === '') {
-    echo json_encode(['status' => 'error', 'message' => 'Set code is required!']); exit;
+    echo json_encode(['status' => 'error', 'message' => 'Set code is required.']); exit;
 }
 if (strlen($kode) > 20) {
-    echo json_encode(['status' => 'error', 'message' => 'Set code must not exceed 20 characters!']); exit;
+    echo json_encode(['status' => 'error', 'message' => 'Set code must not exceed 20 characters.']); exit;
 }
 
         // Cek duplikat kode_set
@@ -141,7 +141,7 @@ if (strlen($kode) > 20) {
         $stmt_check = sqlsrv_query($conn, $sql_check, $params_check);
         $row_check  = sqlsrv_fetch_array($stmt_check, SQLSRV_FETCH_ASSOC);
         if ((int)($row_check['total'] ?? 0) > 0) {
-            echo json_encode(['status' => 'error', 'message' => "Set code '$kode' is already in use!"]);
+            echo json_encode(['status' => 'error', 'message' => "Set code '$kode' is already in use."]);
             exit;
         }
 
@@ -162,7 +162,7 @@ if (strlen($kode) > 20) {
         if ($stmt) echo json_encode(['status' => 'success']);
         else {
             $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Failed to insert data.']);
+            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
         }
         exit;
     }
@@ -179,7 +179,7 @@ if (strlen($kode) > 20) {
         if ($stmt) echo json_encode(['status' => 'success']);
         else {
             $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Failed to update data.']);
+            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
         }
         exit;
     }
@@ -194,7 +194,7 @@ if (strlen($kode) > 20) {
         if ($stmt) echo json_encode(['status' => 'success']);
         else {
             $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Failed to update status.']);
+            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
         }
         exit;
     }
@@ -208,7 +208,7 @@ if (strlen($kode) > 20) {
         if ($stmt) echo json_encode(['status' => 'success']);
         else {
             $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Failed to delete set.']);
+            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
         }
         exit;
     }
@@ -221,8 +221,8 @@ if (strlen($kode) > 20) {
 
         if ($stmt) echo json_encode(['status' => 'success']);
         else {
-            $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Failed to restore set.']);
+                $err = sqlsrv_errors();
+                echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
         }
         exit;
     }
