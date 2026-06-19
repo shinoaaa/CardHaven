@@ -90,15 +90,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $id_user, $id_rarity]);
     } 
     else if ($action === 'delete') {
-        $sql = "UPDATE dbo.rarity SET is_deleted=1, deleted_by=?, deleted_date=GETDATE() WHERE id_rarity=?";
+        $sql = "UPDATE dbo.rarity SET is_deleted=1, aktif=0, deleted_by=?, deleted_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
-    else if($action === 'restore'){
-        $sql = "UPDATE dbo.rarity SET is_deleted=0, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
+    else if ($action === 'restore') {
+        $sql = "UPDATE dbo.rarity SET is_deleted=0, aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_rarity]);
     }
-    else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
-        $aktif = $action === 'aktifkan' ? 1 : 0;
+    else if ($action === 'activate' || $action === 'deactivate') {
+        $aktif = $action === 'activate' ? 1 : 0;
         $sql = "UPDATE dbo.rarity SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_rarity=?";
         $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_rarity]);
     }
