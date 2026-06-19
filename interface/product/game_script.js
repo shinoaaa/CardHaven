@@ -164,7 +164,7 @@ function toggleStatus(id, isActive, el) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Game status has been ${label}.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
+            cardhavenAlert('success', 'Success', `Game status has been ${label}.`, () => location.reload());
         } else {
             el.checked = !isActive;
             cardhavenAlert('error', 'Failed', res.message);
