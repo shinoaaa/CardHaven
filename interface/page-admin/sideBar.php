@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("userEmail").textContent = sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail");
     
     if (userId) {
-        fetch(`/CardHaven/interface/dashboard/controller.php?action=getProfileImage&id=${userId}`)
+        fetch(`/CardHaven/interface/page-admin/controller.php?action=getProfileImage&id=${userId}`)
             .then(response => response.text()) // UBAH JADI TEXT DULU BUAT DEBUG
             .then(textData => {
                 try {
