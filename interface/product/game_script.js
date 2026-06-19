@@ -153,27 +153,35 @@ function openEditModal(id) {
 
 function toggleStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
-    const label = isActive ? 'activated' : 'deactivated';
-    
-    const fd = new FormData();
-    fd.append('action', action);
-    fd.append('id_game', id);
-    fd.append('id_pengguna_js', getEmpId()); 
+    const label  = isActive ? 'activated' : 'deactivated';
 
-    fetch(URL_GAME, { method: 'POST', body: fd })
-    .then(res => res.json())
-    .then(res => {
-        if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', `Game status has been ${label}.`, () => location.reload());
-        } else {
-            el.checked = !isActive;
-            cardhavenAlert('error', 'Failed', res.message);
-        }
-    })
-    .catch(err => {
-        el.checked = !isActive;
-        cardhavenAlert('error', 'Error', 'Connection error occurred.');
-    });
+    cardhavenConfirm(
+        `${isActive ? 'Activate' : 'Deactivate'} Game?`,
+        `Are you sure you want to ${isActive ? 'activate' : 'deactivate'} this game?`,
+        isActive ? 'Activate' : 'Deactivate',
+        () => {
+            const fd = new FormData();
+            fd.append('action', action);
+            fd.append('id_game', id);
+            fd.append('id_pengguna_js', getEmpId());
+
+            fetch(URL_GAME, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    cardhavenAlert('success', 'Success', `Game status has been ${label}.`, () => location.reload());
+                } else {
+                    el.checked = !isActive;
+                    cardhavenAlert('error', 'Failed', res.message);
+                }
+            })
+            .catch(err => {
+                el.checked = !isActive;
+                cardhavenAlert('error', 'Error', 'Connection error occurred.');
+            });
+        },
+        () => { el.checked = !isActive; }
+    );
 }
 
 gameForm.onsubmit = function(e) {
@@ -227,12 +235,15 @@ function confirmDelete(id) {
         fetch(URL_GAME, { method: 'POST', body: fd })
         .then(res => res.json())
         .then(res => {
-            if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Failed', res.message);
+            if (res.status === 'success') {
+                cardhavenAlert('success', 'Success', 'Game has been deleted.', () => location.reload());
+            } else {
+                cardhavenAlert('error', 'Failed', res.message);
+            }
         })
         .catch(err => {
             console.error(err);
-            cardhavenAlert('error', 'Connection Error', 'Failed to connect to server.');
+            cardhavenAlert('error', 'Error', 'Connection error occurred.');
         });
     });
 }
@@ -247,12 +258,15 @@ function confirmRestore(id) {
         fetch(URL_GAME, { method: 'POST', body: fd })
         .then(res => res.json())
         .then(res => {
-            if (res.status === 'success') location.reload();
-            else cardhavenAlert('error', 'Failed', res.message);
+            if (res.status === 'success') {
+                cardhavenAlert('success', 'Success', 'Game has been activated.', () => location.reload());
+            } else {
+                cardhavenAlert('error', 'Failed', res.message);
+            }
         })
         .catch(err => {
             console.error(err);
-            cardhavenAlert('error', 'Connection Error', 'Failed to connect to server.');
+            cardhavenAlert('error', 'Error', 'Connection error occurred.');
         });
     });
 }
