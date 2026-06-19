@@ -202,8 +202,19 @@ if (strlen($kode) > 20) {
     // DELETE (soft delete)
     if ($action === 'delete') {
         $id_set = (int)$_POST['id_set'];
-        $sql    = "UPDATE dbo.set_kartu SET is_deleted = 1, deleted_by = ?, deleted_date = GETDATE() WHERE id_set = ?";
-        $stmt   = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
+
+        $totalProduk = sqlsrv_fetch_array(
+            sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.produk WHERE id_set = ? AND is_deleted = 0", [$id_set]),
+            SQLSRV_FETCH_ASSOC
+        )['total'];
+
+        if ($totalProduk > 0) {
+            echo json_encode(['status' => 'error', 'message' => "Cannot delete: this set is still used by {$totalProduk} product(s)."]);
+            exit;
+        }
+
+        $sql  = "UPDATE dbo.set_kartu SET is_deleted = 1, deleted_by = ?, deleted_date = GETDATE() WHERE id_set = ?";
+        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
 
         if ($stmt) echo json_encode(['status' => 'success']);
         else {

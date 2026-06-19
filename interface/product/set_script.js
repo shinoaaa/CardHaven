@@ -153,30 +153,38 @@ function toggleSetStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
     const label  = isActive ? 'activated' : 'deactivated';
 
-    const fd = new FormData();
-    fd.append('action', action);
-    fd.append('id_set', id);
-    fd.append('id_pengguna_js', getEmpId());
+    cardhavenConfirm(
+        `${isActive ? 'Activate' : 'Deactivate'} Set?`,
+        `Are you sure you want to ${isActive ? 'activate' : 'deactivate'} this set?`,
+        isActive ? 'Activate' : 'Deactivate',
+        () => {
+            const fd = new FormData();
+            fd.append('action', action);
+            fd.append('id_set', id);
+            fd.append('id_pengguna_js', getEmpId());
 
-    fetch(SET_API, { method: 'POST', body: fd })
-        .then(async res => JSON.parse(await res.text()))
-        .then(res => {
-            if (res.status === 'success') {
-                cardhavenAlert('success', 'Success', `Set status has been ${label}.`, () => location.reload());
-            } else {
-                el.checked = !isActive;
-                cardhavenAlert('error', 'Failed', res.message);
-            }
-        })
-        .catch(err => {
-            console.error('toggleSetStatus error:', err);
-            el.checked = !isActive;
-            cardhavenAlert('error', 'System Error', 'Connection error.');
-        });
+            fetch(SET_API, { method: 'POST', body: fd })
+                .then(async res => JSON.parse(await res.text()))
+                .then(res => {
+                    if (res.status === 'success') {
+                        cardhavenAlert('success', 'Success', `Set status has been ${label}.`, () => location.reload());
+                    } else {
+                        el.checked = !isActive;
+                        cardhavenAlert('error', 'Failed', res.message);
+                    }
+                })
+                .catch(err => {
+                    console.error('toggleSetStatus error:', err);
+                    el.checked = !isActive;
+                    cardhavenAlert('error', 'Error', 'Connection error occurred.');
+                });
+        },
+        () => { el.checked = !isActive; }
+    );
 }
 
 function confirmDeleteSet(id) {
-    cardhavenConfirm('Delete Set?', 'This set will be permanently deleted. Are you sure?', 'Yes, Delete', () => {
+    cardhavenConfirm('Delete Set?', 'This action cannot be undone.', 'Yes, Delete', () => {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_set', id);
@@ -185,8 +193,15 @@ function confirmDeleteSet(id) {
         fetch(SET_API, { method: 'POST', body: fd })
             .then(async res => JSON.parse(await res.text()))
             .then(res => {
-                if (res.status === 'success') location.reload();
-                else cardhavenAlert('error', 'Failed', res.message);
+                if (res.status === 'success') {
+                    cardhavenAlert('success', 'Success', 'Set has been deleted.', () => location.reload());
+                } else {
+                    cardhavenAlert('error', 'Failed', res.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                cardhavenAlert('error', 'Error', 'Connection error occurred.');
             });
     });
 }
