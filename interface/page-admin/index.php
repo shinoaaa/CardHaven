@@ -22,7 +22,7 @@
 <body>
     <div class="container" style="justify-content: flex-start; align-items: flex-start;">
         <div class="sideBar">
-            <?php include '../CardHaven/interface/dashboard/sideBar.php'; ?>
+            <?php include '../CardHaven/interface/page-admin/sideBar.php'; ?>
         </div>
 
         <?php
