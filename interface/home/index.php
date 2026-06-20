@@ -1,6 +1,6 @@
-<div class="snap-container">
+<div class="home-container">
     <div class="hero-wrapper scroll-area">
-        <div style="width: 5px; height: 2rem;"></div>
+        <div style="width: 5px; height: 3.5rem;"></div>
 
         <div class="hero-section">
             <div class="hero-desc">
@@ -16,7 +16,7 @@
                 
                 <div class="hero-text">
                     <h4>Description</h4>
-                    <p>
+                    <p style="color: var(--paragraf);">
                         Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit.
                     </p>
                 </div>
@@ -24,7 +24,7 @@
                 <div class="action-buttons">
                     <button class="nav-btn-circle"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
                     <button class="nav-btn-circle"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
-                    <button class="btn-primary">Pre-Order Now</button>
+                    <button class="btn-primary" style="background: var(--bg-gradient);">Pre-Order Now</button>
                     <button class="btn-secondary">Another Event</button>
                 </div>
             </div>
@@ -49,8 +49,31 @@
         </div>
     </div>
 
-    <div class="scroll-area dummy-section">
-        <h1 style="color: white; font-size: 4rem; color: blue;">Ini Section Bawah</h1>
+    <div class="promo">
+        <div class="promo-header">
+            <h3 class="coolveticaa">Promo🔥</h3>
+            <div style="width: 25%; ">
+                <select name="" class="modal-input">
+                    <option value="">-- Select Game --</option>
+                </select>
+            </div>
+        </div>
+        <div class="promo-content">
+            <div class="promo-card"></div>
+            <div class="promo-card"></div>
+            <div class="promo-card"></div>
+            <div class="promo-card"></div>
+        </div>
+        <div class="promo-pagination">
+            <button class="nav-btn-circle"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
+            <div>
+                <span>1</span>
+                <span>of</span>
+                <span>8</span>
+            </div>
+            <button class="nav-btn-circle"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
+        </div>
+        <div style="width: 100%; height: 1px; background-color: var(--primary-color); margin: 3rem 0rem 1rem 0rem"></div>
     </div>
-    
+
 </div>
