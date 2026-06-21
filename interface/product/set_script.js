@@ -122,7 +122,7 @@ if (!kode.value.trim()) {
 
     const submitBtn = setForm.querySelector('button[type="submit"]');
     submitBtn.disabled  = true;
-    submitBtn.innerText = 'Saving...';
+    submitBtn.innerText = 'Processing...';
 
     try {
         const formData = new FormData(setForm);

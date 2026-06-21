@@ -94,6 +94,7 @@ function openAdminModal(id) {
             const d = res.data;
             document.getElementById('detailUsername').textContent = d.username || '-';
             document.getElementById('detailEmail').textContent    = d.email || '-';
+            document.getElementById('detailNoTelp').textContent = d.no_telepon || '-';
             document.getElementById('detailCreated').textContent  = d.created_date || '-';
             
             const fotoEl = document.getElementById('detailFoto');
