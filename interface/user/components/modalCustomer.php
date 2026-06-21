@@ -57,7 +57,7 @@
                     <span class="supp-err" id="err-add-email"></span>
                 </div>
                 <div class="supp-form-group">
-                    <label class="supp-label" for="addNoTelp">No Telepon<span class="supp-required">*</span>/label>
+                    <label class="supp-label" for="addNoTelp">Phone Number<span class="supp-required">*</span></label>
                     <input type="text" id="addNoTelp" class="supp-input" placeholder="Enter phone number" autocomplete="off">
                     <span class="supp-err" id="err-add-notelp"></span>
                 </div>
@@ -332,7 +332,7 @@
     font-weight: 700; 
     font-size: 0.85rem; 
 }
-change-pass-link { color: #0088FF; font-size: 13px; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+.change-pass-link { color: #0088FF; font-size: 13px; text-decoration: none; font-weight: 500; transition: color 0.2s; }
 .change-pass-link:hover { color: #0056b3; text-decoration: underline; }
 /* Input Rounded gemuk sesuai gambar login */
 .supp-input { padding: 12px 25px; border: 1.5px solid #0F3891; }

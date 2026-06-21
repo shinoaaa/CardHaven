@@ -3,7 +3,7 @@
     <div>
         <div class="card-title-row">
             <h2 class="coolveticaa"></h2>
-            <button class="btn-add-green" onclick="openAddEventModal()">+ Add Supplier</button>
+            <button class="btn-add-green" onclick="openAddSupplierModal()">+ Add Supplier</button>
         </div>
         <div class="userList">
             <div></div>

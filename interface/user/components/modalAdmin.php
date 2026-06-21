@@ -19,6 +19,10 @@
                 <span class="supp-detail-value" id="detailEmail">-</span>
             </div>
             <div class="supp-detail-item">
+            <span class="supp-detail-label">Phone Number</span>
+            <span class="supp-detail-value" id="detailNoTelp">-</span>
+            </div>
+            <div class="supp-detail-item">
                 <span class="supp-detail-label">Created Date</span>
                 <span class="supp-detail-value" id="detailCreated">-</span>
             </div>

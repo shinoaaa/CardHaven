@@ -69,7 +69,12 @@ switch ($action) {
         if (emailExists($conn, $email)) {
             jsonOut(false, 'This email address is already in use.', [], 'EMAIL_DUPLICATE');
         }
-
+        if (trim($password) === '' || strlen($password) < 8 || strlen($password) > 12) {
+        jsonOut(false, 'Password must be 8-12 characters long and cannot be blank/whitespace only.');
+        }
+        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        jsonOut(false, 'Password must contain at least one special character.');
+        }
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         // Upload Foto Profil
@@ -165,17 +170,20 @@ switch ($action) {
     //  DELETE Customer
     // ----------------------------------------------------
     case 'deleteCustomer':
-        $id = (int)($_POST['id_pengguna'] ?? 0);
+        $id     = (int)($_POST['id_pengguna'] ?? 0);
+        $del_by = (int)($_SESSION['id_pengguna'] ?? 0);
         if (!$id) jsonOut(false, 'Invalid ID.');
 
-        $sql  = "UPDATE pengguna SET is_deleted = 1, deleted_date = GETDATE() WHERE id_pengguna = ? AND role = 0";
-        $stmt = sqlsrv_query($conn, $sql, [$id]);
+        $sql  = "UPDATE pengguna
+                 SET is_deleted = 1, deleted_date = GETDATE(), deleted_by = ?
+                 WHERE id_pengguna = ? AND role = 0";
+        $stmt = sqlsrv_query($conn, $sql, [$del_by, $id]);
 
         if (!$stmt) {
             jsonOut(false, 'Failed to delete record.');
         }
 
-        jsonOut(true, 'Customer soft-deleted successfully.');
+        jsonOut(true, 'Customer deleted successfully.');
         break;
 
     // ----------------------------------------------------

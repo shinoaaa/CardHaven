@@ -92,6 +92,7 @@ function openAdminModal(id) {
             const d = res.data;
             document.getElementById('detailUsername').textContent = d.username || '-';
             document.getElementById('detailEmail').textContent    = d.email || '-';
+            document.getElementById('detailNoTelp').textContent = d.no_telepon || '-';
             document.getElementById('detailCreated').textContent  = d.created_date || '-';
             
             const fotoEl = document.getElementById('detailFoto');
@@ -472,7 +473,7 @@ async function resetAdminPassword() {
         const data = await response.json();
 
         if (data.status === 'success') {
-            wal.fire({
+            Swal.fire({
                 icon: 'success',
                 iconColor: '#0088FF',
                 title: 'Success!',
