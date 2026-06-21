@@ -140,7 +140,7 @@ function closeSupplierModal() {
 //  ADD MODAL
 // ============================================================
 
-function openAddEventModal() {
+function openAddSupplierModal() {
     // Reset form
     document.getElementById('suppAddForm').reset();
     clearAllErrors('add');
