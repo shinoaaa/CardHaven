@@ -1,4 +1,5 @@
 <?php
+session_start();
 require __DIR__ . '/../../../connection.php';
 
 header('Content-Type: application/json');
@@ -80,7 +81,7 @@ switch ($action) {
         $stmt = sqlsrv_query($conn, $sql, [$nama, $email, $telp, $alamat]);
 
         if (!$stmt) {
-            die(print_r(sqlsrv_errors(), true));
+            jsonOut(false, 'Failed to add supplier. Please try again.');
         }
 
         jsonOut(true, 'Supplier added successfully.');
@@ -109,10 +110,12 @@ switch ($action) {
             jsonOut(false, 'This email is already used by another supplier.', [], 'EMAIL_DUPLICATE');
         }
 
+       $mod_by = (int)($_SESSION['id_pengguna'] ?? 0);
         $sql  = "UPDATE supplier
-                 SET nama_suplier = ?, email = ?, no_telp = ?, alamat = ?
+                 SET nama_suplier = ?, email = ?, no_telp = ?, alamat = ?,
+                     modified_by = ?, modified_date = GETDATE()
                  WHERE id_supplier = ? AND is_deleted = 0";
-        $stmt = sqlsrv_query($conn, $sql, [$nama, $email, $telp, $alamat, $id]);
+        $stmt = sqlsrv_query($conn, $sql, [$nama, $email, $telp, $alamat, $mod_by, $id]);
 
         if (!$stmt) {
             jsonOut(false, 'Failed to update supplier. Please try again.');
@@ -125,16 +128,16 @@ switch ($action) {
     //  DELETE supplier (soft delete)
     // ----------------------------------------------------
     case 'deleteSupplier':
-        $id = (int)($_POST['id_supplier'] ?? 0);
+        $id     = (int)($_POST['id_supplier'] ?? 0);
+        $del_by = (int)($_SESSION['id_pengguna'] ?? 0);
         if (!$id) jsonOut(false, 'Invalid supplier ID.');
-
-        $sql  = "UPDATE supplier SET is_deleted = 1 WHERE id_supplier = ?";
-        $stmt = sqlsrv_query($conn, $sql, [$id]);
-
+        $sql  = "UPDATE supplier
+        SET is_deleted = 1, deleted_by = ?, deleted_date = GETDATE()
+        WHERE id_supplier = ?";
+        $stmt = sqlsrv_query($conn, $sql, [$del_by, $id]);
         if (!$stmt) {
             jsonOut(false, 'Failed to delete supplier. Please try again.');
         }
-
         jsonOut(true, 'Supplier deleted successfully.');
         break;
 

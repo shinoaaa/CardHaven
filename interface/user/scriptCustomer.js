@@ -154,11 +154,16 @@ function submitAddCustomer() {
     const foto     = document.getElementById('addFoto').files[0];
 
     if (!username) { showErr('addUsername', 'err-add-username', 'Name is required.'); valid = false; }
-    if (!email) { showErr('addEmail', 'err-add-email', 'Email is required.'); valid = false; }
-    if (!no_telp) { showErr('addNoTelp', 'err-add-notelp', 'Phone Number is required.'); valid = false; }
-    else if (!isValidEmail(email)) { showErr('addEmail', 'err-add-email', 'Invalid email format.'); valid = false; }
-    
-    if (no_telp && !isValidPhone(no_telp)) { showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false; }
+    if (!email) {
+        showErr('addEmail', 'err-add-email', 'Email is required.'); valid = false;
+    } else if (!isValidEmail(email)) {
+        showErr('addEmail', 'err-add-email', 'Invalid email format.'); valid = false;
+    }
+    if (!no_telp) {
+        showErr('addNoTelp', 'err-add-notelp', 'Phone Number is required.'); valid = false;
+    } else if (!isValidPhone(no_telp)) {
+        showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false;
+    }
 
     if (!password) { 
         showErr('addPassword', 'err-add-password', 'Password must be filled'); 
@@ -468,7 +473,7 @@ async function resetCustPassword() {
         const data = await response.json();
 
         if (data.status === 'success') {
-            wal.fire({
+            Swal.fire({
                 icon: 'success',
                 iconColor: '#0088FF',
                 title: 'Success!',

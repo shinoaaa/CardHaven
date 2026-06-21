@@ -16,7 +16,7 @@
                 <th>Photo</th>
                 <th>Username</th>
                 <th>Email</th>
-                <th>phone number</th>
+                <th>Phone Number</th>
                 <th>Shopping Amount</th>
                 <th>Shopping Total</th>
                 <th>Status</th>

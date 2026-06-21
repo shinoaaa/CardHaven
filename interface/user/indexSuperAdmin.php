@@ -3,7 +3,7 @@
 <div>
     <div class="card-title-row">
         <h2 class="coolveticaa"></h2>
-        <button class="btn-add-green" onclick="openAddAdminModal()">+ Add Super Admin</button>
+        <button class="btn-add-green" onclick="openAddAdminModal()">+ Add Manager</button>
     </div>
     <div class="userList">
         <div></div>
@@ -11,7 +11,7 @@
 
     <table class="styled-table">
         <thead>
-            <tr>
+            <tr>    
                 <th>No</th>
                 <th>Photo</th>
                 <th>Username</th>
