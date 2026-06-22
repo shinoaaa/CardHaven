@@ -1,4 +1,4 @@
-<div style="flex: 1;">
+<div style="flex: 1;" id="container-metode">
     <div class="card-title-row">
         <h2 class="coolveticaa" style="font-size: 1.2rem;">Payment Method</h2>
         <button class="btn-add-green" onclick="openAddMetode()">+ Add Method</button>
@@ -18,7 +18,10 @@
         <tbody>
             <?php 
             $no_m = $offset_metode + 1;
-            if ($stmt_metode): while ($rowMetode = sqlsrv_fetch_array($stmt_metode, SQLSRV_FETCH_ASSOC)): ?>
+            $rowCountMetode = 0;
+            if ($stmt_metode): while ($rowMetode = sqlsrv_fetch_array($stmt_metode, SQLSRV_FETCH_ASSOC)):
+            $rowCountMetode++;
+            ?>
             <tr>
                 <td><?= $no_m++ ?></td>
                 <td><?= htmlspecialchars($rowMetode['nama_metode']) ?></td>
@@ -45,7 +48,10 @@
     </div>
 </td>
             </tr>
-            <?php endwhile; endif; ?>
+           <?php endwhile; endif; ?>
+            <?php if ($rowCountMetode === 0): ?>
+            <tr><td colspan="6" style="text-align:center; color:#aaa; padding:20px;">No payment methods found.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </div>

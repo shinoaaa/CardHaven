@@ -1,4 +1,4 @@
-<div style="flex: 1;">
+<div style="flex: 1;" id="container-game">
     <div class="card-title-row">
         <h2 class="coolveticaa" style="font-size: 1.2rem;">Game</h2>
         <button class="btn-add-green" onclick="openAddModal()">+ Add Game</button>

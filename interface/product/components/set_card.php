@@ -1,4 +1,4 @@
-<div style="flex: 1;">
+<div style="flex: 1;" id="container-set">
     <div class="card-title-row">
         <h2 class="coolveticaa" style="font-size: 1.2rem;">Set</h2>
         <button class="btn-add-green" onclick="openAddSetModal()">+ Add Set</button>
@@ -17,7 +17,10 @@
         <tbody>
             <?php
             $no = $offset_set + 1;
-            if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): ?>
+            $rowCount = 0;
+            if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): 
+            $rowCount++;
+            ?>
             <tr>
                 <td><?= $no++ ?></td>
                 <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
@@ -43,7 +46,10 @@
     </div>
 </td>
             </tr>
-            <?php endwhile; endif; ?>
+           <?php endwhile; endif; ?>
+            <?php if ($rowCount === 0): ?>
+            <tr><td colspan="5" style="text-align:center; color:#aaa; padding:20px;">No sets found.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </div>
