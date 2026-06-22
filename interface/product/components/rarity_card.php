@@ -1,4 +1,4 @@
-<div style="flex: 1;"id="container-rarity">
+<div style="flex: 1;" id="container-rarity">
     <div class="card-title-row">
         <h2 class="coolveticaa" style="font-size: 1.2rem;">Rarity</h2>
         <button class="btn-add-green" onclick="openModalRarity()">+ Add Rarity</button>
@@ -17,7 +17,10 @@
         <tbody>
             <?php 
             $no = $offset_rarity + 1;
-            if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)): ?>
+            $rowCountRarity = 0;
+            if ($stmt_rarity): while ($rowRarity = sqlsrv_fetch_array($stmt_rarity, SQLSRV_FETCH_ASSOC)):
+            $rowCountRarity++;
+            ?>
             <tr>
                 <td><?= $no++ ?></td>
                 <td>
@@ -47,6 +50,9 @@
                     </td>
             </tr>
             <?php endwhile; endif; ?>
+            <?php if ($rowCountRarity === 0): ?>
+             <tr><td colspan="5" style="text-align:center; color:#aaa; padding:20px;">No rarities found.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </div>
