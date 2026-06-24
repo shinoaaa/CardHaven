@@ -1739,7 +1739,7 @@ p.product-paragraf {
     background-image: linear-gradient(114deg, #0f3891 32%, #3571ea 111%);
     position: relative;
     overflow: hidden;
-    min-height: 35rem;
+    min-height: 37rem;
     display: flex;
     align-items: center;
 }
