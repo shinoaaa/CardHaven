@@ -11,31 +11,12 @@
 <body>
     <?php include '../page-customer/navBar.php'; ?>
     <div class="main-content">
-        <div class="content-card" style:"margin-top= 100px>
-            <div class="card-title-row">
-                <h2>Card Buyback Submission</h2>
+        <div class="content-card" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; min-height: auto; padding: 20px 30px;">
+            <div>
+                <h2 style="color: var(--primary-color); font-weight: 700; font-size: 1.8rem; margin: 0;">Card Buyback</h2>
+                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">Submit your cards for appraisal and get the best price.</p>
             </div>
-            
-            <form id="formBuyback" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label>Card Name <span class="required">*</span></label>
-                    <input type="text" name="nama_kartu[]" required placeholder="e.g., Pikachu VMAX Secret Rare">
-                </div>
-                <div class="form-group">
-                    <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                    <input type="number" name="harga_beli[]" required placeholder="e.g., 1500000">
-                </div>
-                <div class="form-group">
-                    <label>Front Photo <span class="required">*</span></label>
-                    <input type="file" name="foto_depan[]" class="file-input-custom" accept="image/*" required>
-                </div>
-                <div class="form-group">
-                    <label>Back Photo <span class="required">*</span></label>
-                    <input type="file" name="foto_belakang[]" class="file-input-custom" accept="image/*" required>
-                </div>
-                
-                <button type="button" class="btn-primary" style="margin-top: 1rem;" onclick="submitBuyback()">Submit Buyback</button>
-            </form>
+            <button class="btn-confirm" style="width: auto; margin: 0; padding: 12px 25px;" onclick="openSubmitModal()">+ Sell Cards</button>
         </div>
 
         <div class="content-card" style="margin-top: 2rem;">
