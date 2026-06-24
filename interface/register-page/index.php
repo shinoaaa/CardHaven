@@ -54,7 +54,7 @@
                         <button type="submit" class="btn-signup">Sign Up</button>
                     </form>
 
-                    <p class="footer-text">Have an account? <span><a href="home" style="text-decoration: underline; color: #0088FF;">Log in</a></span></p>
+                    <p class="footer-text">Have an account? <span><a href="login" style="text-decoration: underline; color: #0088FF;">Log in</a></span></p>
                     <p class="terms-text">By Proceeding you agree to our terms of use</p>
                 </div>
             </div>
