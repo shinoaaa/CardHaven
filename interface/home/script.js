@@ -1,3 +1,10 @@
+// 1. Tambahkan path controller keranjang di bagian atas
+const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
+
+// 2. Fungsi untuk mengambil ID Pengguna (Pastikan ini ada)
+var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+
+
 document.addEventListener("DOMContentLoaded", function() {
     
     // Pisahkan state halaman secara absolut (Masing-masing jalan sendiri)
@@ -169,7 +176,11 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <div><span>-</span><span>1</span><span>+</span></div>
                             </div>
                             <button style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
-                            <button class="btn-primary" style="width: 100%; padding: 0.5rem 0; font-size: 1rem;">Add To Cart</button>
+                            <button class="btn-primary" 
+                                    onclick="addToCart(${prod.id_produk}, ${prod.harga_jual})" 
+                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem;">
+                                Add To Cart
+                            </button>
                         </div>
                     </div>`;
                     productContainer.innerHTML += cardHTML;
@@ -238,3 +249,38 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial Load
     loadData();
 });
+
+// 3. Fungsi utama Add To Cart
+window.addToCart = function(idProduk, harga) {
+    const userId = getUserId();
+
+    // Cek Login
+    if (!userId || userId === "0") {
+        alert("Silahkan login terlebih dahulu!");
+        window.location.href = "/cardhaven/interface/login-page/";
+        return;
+    }
+
+    // Siapkan data untuk dikirim
+    const fd = new FormData();
+    fd.append('action', 'add_to_cart');
+    fd.append('id_produk', idProduk);
+    fd.append('harga_produk', harga);
+    fd.append('id_pengguna_js', userId); // Menggunakan ID dari storage agar sinkron
+
+    // Kirim data ke controller_keranjang.php
+    fetch(CART_CONTROLLER, {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            // Jika pakai SweetAlert (cardhavenAlert)
+            cardhavenAlert('success', 'Berhasil', 'Produk ditambahkan ke keranjang!');
+        } else {
+            alert("Gagal: " + res.message);
+        }
+    })
+    .catch(err => console.error("Error add to cart:", err));
+};
