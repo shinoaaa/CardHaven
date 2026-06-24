@@ -22,7 +22,10 @@
                         <img src="https://i.pinimg.com/736x/5e/14/90/5e149094251c9316fc696e7aeba7b2b1.jpg" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div style="height: 60%; aspect-ratio: 1/1;">
-                        <img src="/cardhaven/assets/image/cart.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <a href="/cardhaven/interface/cart/index.php" style="height: 60%; aspect-ratio: 1/1; display: block;">
+                            <img src="/cardhaven/assets/image/cart.svg" style="object-fit: cover; width: 100%; height: 100%; cursor: pointer;" title="Keranjang Belanja">
+                        </a>
+
                     </div>
                 </div>
             </div>
