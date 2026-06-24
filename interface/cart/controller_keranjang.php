@@ -6,6 +6,7 @@ header('Content-Type: application/json');
 // --- LOGIKA IDENTITAS (Sama dengan Controller Game) ---
 // Mengambil ID dari POST (FormData), GET (URL), atau Session sebagai cadangan
 $id_pengguna = $_POST['id_pengguna_js'] ?? ($_GET['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0));
+$action = $_POST['action'] ?? ($_GET['action'] ?? '');
 
 if ($id_pengguna == 0) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);
