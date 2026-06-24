@@ -1,0 +1,39 @@
+/* interface/buyback/buyback_style.css */
+.main-content {
+    /* Tinggi navbar 6rem ditambah ekstra ruang bernapas 2rem */
+    padding-top: 8rem; 
+}
+.content-card form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    max-width: 600px;
+}
+
+.file-input-custom {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    border: 1px dashed var(--primary-color);
+    border-radius: 8px;
+    background-color: #f9fbfd;
+    transition: 0.3s;
+}
+
+.file-input-custom:hover {
+    border-color: var(--primary-light);
+    background-color: #eef4ff;
+}
+
+.btn-add-green {
+    background-color: #27AE60;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.btn-add-green:hover { background-color: #1e8449; }
