@@ -28,7 +28,7 @@
                     </div>
                     <div class="form-group">
                         <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                        <input type="number" name="harga_beli[]" required placeholder="e.g., 1500000">
+                        <input type="number" name="harga_beli[]" required placeholder="e.g., 1500000" min="0">
                     </div>
                     <div class="form-group">
                         <label>Front Photo <span class="required">*</span></label>
