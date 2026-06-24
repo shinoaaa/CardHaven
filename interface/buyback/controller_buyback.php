@@ -112,45 +112,87 @@ switch ($action) {
             $role = $_GET['role'] ?? null;
             $id_pengguna = $_GET['id_pengguna'] ?? null;
             
+            // Parameter Filter & Pagination
+            $page = max(1, intval($_GET['page'] ?? 1));
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
+            $search = $_GET['search'] ?? '';
+            $status = $_GET['status'] ?? ''; 
+            
+            $whereClause = "WHERE 1=1";
+            $params = [];
+            
             if ($role == 0) { 
-                $sql = "SELECT * FROM pembelian_kartu WHERE id_customer = ? ORDER BY created_date DESC";
-                $stmt = sqlsrv_query($conn, $sql, [$id_pengguna]);
-            } else if ($role == 2) { 
-                $sql = "SELECT p.*, c.username FROM pembelian_kartu p LEFT JOIN pengguna c ON p.id_customer = c.id_pengguna ORDER BY p.created_date DESC";
-                $stmt = sqlsrv_query($conn, $sql);
-            } else {
+                $whereClause .= " AND p.id_customer = ?";
+                $params[] = $id_pengguna;
+            } else if ($role != 2) {
                 throw new Exception("Akses tidak diizinkan.");
             }
 
-            if ($stmt === false) {
-                throw new Exception(getSqlError());
+            // 1. Filter Pencarian
+            if ($search !== '') {
+                $whereClause .= " AND (c.username LIKE ? OR p.id_pembelian LIKE ?)";
+                $params[] = "%$search%";
+                $params[] = "%$search%";
             }
+
+            // 2. Hitung Badge Status (Dihitung sebelum filter status aktif diterapkan)
+            $sqlGroup = "SELECT p.status_pembelian, COUNT(*) as cnt FROM pembelian_kartu p LEFT JOIN pengguna c ON p.id_customer = c.id_pengguna $whereClause GROUP BY p.status_pembelian";
+            $stmtGroup = sqlsrv_query($conn, $sqlGroup, $params);
+            $statusCounts = [];
+            if ($stmtGroup !== false) {
+                while ($rowG = sqlsrv_fetch_array($stmtGroup, SQLSRV_FETCH_ASSOC)) {
+                    $statusCounts[$rowG['status_pembelian']] = $rowG['cnt'];
+                }
+            }
+
+            // 3. Filter Status Spesifik
+            if ($status !== '') {
+                $whereClause .= " AND p.status_pembelian = ?";
+                $params[] = $status;
+            }
+
+            // 4. Hitung Total Data untuk Pagination
+            $sqlCount = "SELECT COUNT(*) as total FROM pembelian_kartu p LEFT JOIN pengguna c ON p.id_customer = c.id_pengguna $whereClause";
+            $stmtCount = sqlsrv_query($conn, $sqlCount, $params);
+            $rowCount = sqlsrv_fetch_array($stmtCount, SQLSRV_FETCH_ASSOC);
+            $totalData = $rowCount['total'];
+            $totalPages = ceil($totalData / $limit);
+
+            // 5. Ambil Data Utama dengan SQL Server Pagination (OFFSET FETCH)
+            $sql = "SELECT p.*, c.username FROM pembelian_kartu p LEFT JOIN pengguna c ON p.id_customer = c.id_pengguna $whereClause ORDER BY p.created_date DESC OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY";
+            $stmt = sqlsrv_query($conn, $sql, $params);
+
+            if ($stmt === false) throw new Exception(getSqlError());
             
             $data = [];
             while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                // Konversi objek DateTime dari SQL Server menjadi format String standar
                 foreach ($row as $key => $val) {
-                    if ($val instanceof DateTime) {
-                        $row[$key] = $val->format('Y-m-d H:i:s');
-                    }
+                    if ($val instanceof DateTime) $row[$key] = $val->format('Y-m-d H:i:s');
                 }
                 $data[] = $row;
             }
             
             ob_clean();
-            echo json_encode(["status" => "success", "data" => $data]);
+            echo json_encode([
+                "status" => "success", 
+                "data" => $data,
+                "pagination" => ["current_page" => $page, "total_pages" => $totalPages, "total_data" => $totalData],
+                "status_counts" => $statusCounts
+            ]);
         } catch (Throwable $e) {
             ob_clean();
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
         break;
-
     case 'update_status':
         try {
             $id_pembelian = $_POST['id_pembelian'];
             $status_baru = $_POST['status'];
             $modified_by = $_POST['id_pengguna'];
             $tanggal = date('Y-m-d H:i:s');
+
+            if (sqlsrv_begin_transaction($conn) === false) throw new Exception(getSqlError());
 
             $query = "UPDATE pembelian_kartu SET status_pembelian = ?, modified_by = ?, modified_date = ? ";
             $params = [$status_baru, $modified_by, $tanggal];
@@ -160,17 +202,26 @@ switch ($action) {
                 array_push($params, $_POST['no_resi'], $tanggal);
             }
 
+            // Jika status 3 (Offer Accepted), hitung ulang total harga final dari kartu_dibeli
+            if ($status_baru == 3) {
+                $sqlSum = "SELECT SUM(penawaran_customer) as total_final FROM kartu_dibeli WHERE id_pembelian = ?";
+                $stmtSum = sqlsrv_query($conn, $sqlSum, [$id_pembelian]);
+                $rowSum = sqlsrv_fetch_array($stmtSum, SQLSRV_FETCH_ASSOC);
+                
+                $query .= ", total_harga = ? ";
+                array_push($params, $rowSum['total_final']);
+            }
+
             $query .= " WHERE id_pembelian = ?";
             array_push($params, $id_pembelian);
 
-            $stmt = sqlsrv_query($conn, $query, $params);
-            if ($stmt === false) {
-                throw new Exception(getSqlError());
-            }
-
+            if (sqlsrv_query($conn, $query, $params) === false) throw new Exception(getSqlError());
+            
+            sqlsrv_commit($conn);
             ob_clean();
             echo json_encode(["status" => "success", "message" => "Status updated successfully."]);
         } catch (Throwable $e) {
+            sqlsrv_rollback($conn);
             ob_clean();
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
@@ -179,25 +230,168 @@ switch ($action) {
     case 'admin_negotiate':
         try {
             $id_pembelian = $_POST['id_pembelian'];
+            $id_kartu = $_POST['id_kartu']; // Tambahkan ID Kartu
             $id_admin = $_POST['id_pengguna'];
             $penawaran_admin = $_POST['penawaran_admin'];
             $tanggal = date('Y-m-d H:i:s');
 
             if (sqlsrv_begin_transaction($conn) === false) throw new Exception(getSqlError());
 
-            // Admin HANYA update harga admin, TIDAK menambah percobaan_penawaran
-            $sqlKartu = "UPDATE kartu_dibeli SET penawaran_admin = ? WHERE id_pembelian = ?";
-            if (sqlsrv_query($conn, $sqlKartu, [$penawaran_admin, $id_pembelian]) === false) throw new Exception(getSqlError());
+            // Update hanya kartu spesifik
+            $sqlKartu = "UPDATE kartu_dibeli SET penawaran_admin = ? WHERE id_kartu = ?";
+            if (sqlsrv_query($conn, $sqlKartu, [$penawaran_admin, $id_kartu]) === false) throw new Exception(getSqlError());
 
+            // Set status transaksi ke "Price Negotiation" (2)
             $sqlStatus = "UPDATE pembelian_kartu SET status_pembelian = 2, id_admin = ?, modified_by = ?, modified_date = ? WHERE id_pembelian = ?";
-            if (sqlsrv_query($conn, $sqlStatus, [$id_admin, $id_admin, $tanggal, $id_pembelian]) === false) throw new Exception(getSqlError());
+            sqlsrv_query($conn, $sqlStatus, [$id_admin, $id_admin, $tanggal, $id_pembelian]);
 
             sqlsrv_commit($conn);
-            ob_clean();
             echo json_encode(["status" => "success"]);
         } catch (Throwable $e) {
             sqlsrv_rollback($conn);
-            ob_clean();
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+        break;
+    case 'customer_negotiate_item': // Case baru untuk per kartu
+        try {
+            $id_kartu = $_POST['id_kartu'];
+            $id_pembelian = $_POST['id_pembelian'];
+            $penawaran = $_POST['penawaran_customer'];
+            
+            // Cek attempt
+            $sqlCek = "SELECT percobaan_penawaran FROM kartu_dibeli WHERE id_kartu = ?";
+            $stmt = sqlsrv_query($conn, $sqlCek, [$id_kartu]);
+            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            if ($row['percobaan_penawaran'] >= 3) throw new Exception("Max attempts reached for this card.");
+
+            $sql = "UPDATE kartu_dibeli SET penawaran_customer = ?, percobaan_penawaran = percobaan_penawaran + 1, penawaran_admin = NULL WHERE id_kartu = ?";
+            sqlsrv_query($conn, $sql, [$penawaran, $id_kartu]);
+            
+            // Kembalikan status transaksi ke Under Review (1) agar admin tahu ada tawaran masuk
+            sqlsrv_query($conn, "UPDATE pembelian_kartu SET status_pembelian = 1 WHERE id_pembelian = ?", [$id_pembelian]);
+
+            echo json_encode(["status" => "success"]);
+        } catch (Throwable $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+        break;case 'admin_negotiate':
+        try {
+            $id_kartu = $_POST['id_kartu']; // ID Kartu spesifik
+            $penawaran_admin = $_POST['penawaran_admin'];
+
+            // HANYA update harga admin per kartu, TIDAK mengubah status_pembelian transaksi
+            $sqlKartu = "UPDATE kartu_dibeli SET penawaran_admin = ? WHERE id_kartu = ?";
+            if (sqlsrv_query($conn, $sqlKartu, [$penawaran_admin, $id_kartu]) === false) {
+                throw new Exception(getSqlError());
+            }
+
+            echo json_encode(["status" => "success"]);
+        } catch (Throwable $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+        break;
+
+    case 'customer_negotiate_item': 
+        try {
+            $id_kartu = $_POST['id_kartu'];
+            $penawaran = $_POST['penawaran_customer'];
+            
+            // Cek attempt
+            $sqlCek = "SELECT percobaan_penawaran FROM kartu_dibeli WHERE id_kartu = ?";
+            $stmt = sqlsrv_query($conn, $sqlCek, [$id_kartu]);
+            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            if ($row['percobaan_penawaran'] >= 3) throw new Exception("Max attempts reached for this card.");
+
+            // Update penawaran customer dan tambah percobaan, tapi JANGAN ubah status transaksi di sini
+            $sql = "UPDATE kartu_dibeli SET penawaran_customer = ?, percobaan_penawaran = percobaan_penawaran + 1 WHERE id_kartu = ?";
+            sqlsrv_query($conn, $sql, [$penawaran, $id_kartu]);
+
+            echo json_encode(["status" => "success"]);
+        } catch (Throwable $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+        break;case 'customer_negotiate_item': 
+        try {
+            $id_pengguna = $_POST['id_pengguna'] ?? null;
+            $id_pembelian = $_POST['id_pembelian'] ?? null; 
+
+            // Verifikasi Otorisasi Transaksi
+            $sqlAuth = "SELECT id_customer FROM pembelian_kartu WHERE id_pembelian = ?";
+            $stmtAuth = sqlsrv_query($conn, $sqlAuth, [$id_pembelian]);
+            $auth = sqlsrv_fetch_array($stmtAuth, SQLSRV_FETCH_ASSOC);
+            
+            if (!$auth || $auth['id_customer'] != $id_pengguna) {
+                throw new Exception("Akses Ditolak: Memanipulasi transaksi milik orang lain.");
+            }
+            $id_kartu = $_POST['id_kartu'];
+            $penawaran = $_POST['penawaran_customer'];
+            
+            $sqlCek = "SELECT percobaan_penawaran FROM kartu_dibeli WHERE id_kartu = ?";
+            $stmt = sqlsrv_query($conn, $sqlCek, [$id_kartu]);
+            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            if ($row['percobaan_penawaran'] >= 3) throw new Exception("Max attempts reached for this card.");
+
+            $sql = "UPDATE kartu_dibeli SET penawaran_customer = ?, percobaan_penawaran = percobaan_penawaran + 1, penawaran_admin = NULL WHERE id_kartu = ?";
+            sqlsrv_query($conn, $sql, [$penawaran, $id_kartu]);
+            
+            // HAPUS QUERY UPDATE STATUS_PEMBELIAN DI SINI
+
+            echo json_encode(["status" => "success"]);
+        } catch (Throwable $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+        break;
+    case 'customer_accept_item': // Case baru untuk setuju per kartu
+        try {
+            $id_pengguna = $_POST['id_pengguna'] ?? null;
+            $id_pembelian = $_POST['id_pembelian'] ?? null; 
+
+            // Verifikasi Otorisasi Transaksi
+            $sqlAuth = "SELECT id_customer FROM pembelian_kartu WHERE id_pembelian = ?";
+            $stmtAuth = sqlsrv_query($conn, $sqlAuth, [$id_pembelian]);
+            $auth = sqlsrv_fetch_array($stmtAuth, SQLSRV_FETCH_ASSOC);
+            
+            if (!$auth || $auth['id_customer'] != $id_pengguna) {
+                throw new Exception("Akses Ditolak: Memanipulasi transaksi milik orang lain.");
+            }
+            $id_kartu = $_POST['id_kartu'];
+            $harga_final = $_POST['harga_final'];
+            
+            // Kita tandai dengan menyamakan penawaran_customer dengan penawaran_admin
+            $sql = "UPDATE kartu_dibeli SET penawaran_customer = ? WHERE id_kartu = ?";
+            sqlsrv_query($conn, $sql, [$harga_final, $id_kartu]);
+            
+            echo json_encode(["status" => "success"]);
+        } catch (Throwable $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
+        break;
+
+    case 'update_address': 
+        try {
+            $id_pembelian = $_POST['id_pembelian'] ?? null;
+            $alamat = $_POST['alamat_retur'] ?? '';
+            $id_pengguna = $_POST['id_pengguna'] ?? null;
+
+            // 1. Verifikasi Otorisasi Transaksi (Mencegah IDOR)
+            $sqlAuth = "SELECT id_customer FROM pembelian_kartu WHERE id_pembelian = ?";
+            $stmtAuth = sqlsrv_query($conn, $sqlAuth, [$id_pembelian]);
+            $auth = sqlsrv_fetch_array($stmtAuth, SQLSRV_FETCH_ASSOC);
+            
+            if (!$auth || $auth['id_customer'] != $id_pengguna) {
+                throw new Exception("Akses Ditolak: Anda tidak memiliki izin untuk mengubah transaksi ini.");
+            }
+
+            // 2. Eksekusi Update Alamat
+            $sql = "UPDATE pembelian_kartu SET alamat = ? WHERE id_pembelian = ?"; 
+            $stmt = sqlsrv_query($conn, $sql, ["Return Address: " . $alamat, $id_pembelian]);
+            
+            if ($stmt === false) {
+                throw new Exception(getSqlError());
+            }
+
+            echo json_encode(["status" => "success", "message" => "Return address submitted successfully."]);
+        } catch (Throwable $e) {
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
         break;
@@ -237,11 +431,27 @@ switch ($action) {
     case 'get_detail':
         try {
             $id_pembelian = $_GET['id_pembelian'];
+            $role = $_GET['role'] ?? null;
+            $id_pengguna = $_GET['id_pengguna'] ?? null;
             
             $sqlPem = "SELECT p.*, c.username, c.no_rekening FROM pembelian_kartu p LEFT JOIN pengguna c ON p.id_customer = c.id_pengguna WHERE p.id_pembelian = ?";
-            $stmtPem = sqlsrv_query($conn, $sqlPem, [$id_pembelian]);
+            $params = [$id_pembelian];
+
+            // Proteksi IDOR: Jika Customer, pastikan transaksi ini diverifikasi miliknya
+            if ($role === '0') {
+                $sqlPem .= " AND p.id_customer = ?";
+                $params[] = $id_pengguna;
+            }
+
+            $stmtPem = sqlsrv_query($conn, $sqlPem, $params);
             if ($stmtPem === false) throw new Exception(getSqlError());
+            
             $pembelian = sqlsrv_fetch_array($stmtPem, SQLSRV_FETCH_ASSOC);
+            
+            // Eksekusi mati (terminate) jika data tidak valid atau bukan milik pengguna
+            if (!$pembelian) {
+                throw new Exception("Akses Ditolak: Transaksi tidak ditemukan atau Anda tidak memiliki izin.");
+            }
             
             if ($pembelian['tanggal_pembelian'] instanceof DateTime) {
                 $pembelian['tanggal_pembelian'] = $pembelian['tanggal_pembelian']->format('Y-m-d H:i:s');
@@ -300,6 +510,24 @@ switch ($action) {
             ob_clean();
             echo json_encode(["status" => "error", "message" => $e->getMessage()]);
         }
+        break;
+    case 'submit_return_address':
+        $id_pengguna = $_POST['id_pengguna'] ?? null;
+            $id_pembelian = $_POST['id_pembelian'] ?? null; 
+
+            // Verifikasi Otorisasi Transaksi
+            $sqlAuth = "SELECT id_customer FROM pembelian_kartu WHERE id_pembelian = ?";
+            $stmtAuth = sqlsrv_query($conn, $sqlAuth, [$id_pembelian]);
+            $auth = sqlsrv_fetch_array($stmtAuth, SQLSRV_FETCH_ASSOC);
+            
+            if (!$auth || $auth['id_customer'] != $id_pengguna) {
+                throw new Exception("Akses Ditolak: Memanipulasi transaksi milik orang lain.");
+            }
+        $alamat = $_POST['alamat_retur'];
+        // Simpan alamat ke kolom catatan atau kolom baru 'alamat_retur'
+        $sql = "UPDATE pembelian_kartu SET catatan_admin = ? WHERE id_pembelian = ?";
+        sqlsrv_query($conn, $sql, ["RETURN TO: " . $alamat, $id_pembelian]);
+        echo json_encode(["status" => "success", "message" => "Address saved. Admin will ship back your cards."]);
         break;
 }
 ?>

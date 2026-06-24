@@ -1,7 +1,9 @@
 <?php require 'apifetch.php'; ?>
 
 <?php
-// Status mapping untuk PHP render
+$type = $_GET['type'] ?? 'sales';
+
+// Status mapping untuk PHP render (Khusus Sales)
 $STATUS_LABEL = [
     0 => 'Pending Payment',
     1 => 'Paid',
@@ -35,9 +37,29 @@ $activeSearch = $search;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction</title>
+    <title>Transaction Dashboard</title>
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <style>
+        .main-content {
+            padding-top: 20px !important; /* Tambahkan jarak dari atas */
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-bottom: 2rem;
+            box-sizing: border-box;
+        }
+
+        .content-card {
+            margin-top: 1rem;
+            background: var(--card-bg, #ffffff);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Memastikan tombol toggle Sales/Buyback tidak terpotong */
+        .card-title-row {
+            margin-bottom: 1.5rem;
+        }
         /* ── Tab Filter ── */
         .trx-tabs {
             display: flex;
@@ -103,7 +125,7 @@ $activeSearch = $search;
         }
 
         /* ── Modal ── */
-        .trx-modal-overlay {
+        .trx-modal-overlay, .event-modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
@@ -115,22 +137,22 @@ $activeSearch = $search;
             overflow-y: auto;
         }
 
-        .trx-modal-overlay.show {
+        .trx-modal-overlay.show, .event-modal-overlay.show {
             display: flex;
         }
 
-        .trx-modal-box {
-            background: var(--card-bg, #1a1a2e);
+        .trx-modal-box, .modal-box {
+            background: var(--card-bg, #ffffff);
             border-radius: 14px;
             padding: 1.75rem;
             width: min(700px, 96vw);
             position: relative;
-            color: var(--highlight);
-            box-shadow: 0 12px 50px rgba(0,0,0,.55);
+            color: var(--text-dark, #333);
+            box-shadow: 0 12px 50px rgba(0,0,0,.35);
             margin: auto;
         }
 
-        .trx-modal-close {
+        .trx-modal-close, .event-modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
@@ -139,9 +161,10 @@ $activeSearch = $search;
             cursor: pointer;
             opacity: .55;
             padding: 0;
+            font-size: 24px;
         }
 
-        .trx-modal-close:hover { opacity: 1; }
+        .trx-modal-close:hover, .event-modal-close:hover { opacity: 1; }
 
         .trx-modal-header {
             display: flex;
@@ -149,7 +172,7 @@ $activeSearch = $search;
             align-items: flex-start;
             margin-bottom: 1.25rem;
             padding-bottom: .85rem;
-            border-bottom: 1px solid rgba(255,255,255,.1);
+            border-bottom: 1px solid rgba(0,0,0,.1);
         }
 
         .trx-modal-id {
@@ -171,7 +194,7 @@ $activeSearch = $search;
         }
 
         .trx-modal-section {
-            background: rgba(255,255,255,.04);
+            background: rgba(0,0,0,.04);
             border-radius: 10px;
             padding: .85rem 1rem;
         }
@@ -210,7 +233,7 @@ $activeSearch = $search;
             flex-wrap: wrap;
             margin-top: 1.25rem;
             padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,.1);
+            border-top: 1px solid rgba(0,0,0,.1);
         }
 
         .btn-trx-action {
@@ -224,177 +247,187 @@ $activeSearch = $search;
         }
 
         .btn-trx-action:hover { filter: brightness(1.15); }
-
         .btn-confirm  { background: #15803d; color: #fff; }
         .btn-process  { background: #7c3aed; color: #fff; }
         .btn-ship     { background: #1d4ed8; color: #fff; }
         .btn-deliver  { background: #065f46; color: #fff; }
         .btn-cancel   { background: #b91c1c; color: #fff; }
+        .btn-cancel-outline { border: 2px solid var(--primary-color); color: var(--primary-color); background: transparent; font-weight: bold; border-radius: 8px;}
 
         /* ── Table clickable row ── */
         .trx-row { cursor: pointer; }
-        .trx-row:hover td { filter: brightness(1.1); }
+        .trx-row:hover td { background-color: rgba(15, 56, 145, 0.05) !important; }
     </style>
 </head>
 <body>
-    <div class="main-content" style="display:flex;justify-content:center;overflow-y:auto;">
-        <div class="content-card" style="width:100%;">
+    <div class="main-content">
+        <div class="content-card">
 
-            <div class="card-title-row">
-                <h2 class="coolveticaa">Transaction</h2>
+            <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 class="coolveticaa" style="margin: 0; font-size: 2rem; color: var(--primary-color);">Transaction</h2>
+                
+                <!-- TOGGLE TRANSACTION TYPE -->
+                <div style="display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 999px;">
+                    <a href="?type=sales" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; <?= $type === 'sales' ? 'background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);' : 'color: #555;' ?>">Sales</a>
+                    <a href="?type=buyback" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; <?= $type === 'buyback' ? 'background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);' : 'color: #555;' ?>">Buyback</a>
+                </div>
             </div>
 
-            <!-- Tab Filter -->
-            <div class="trx-tabs">
-                <a href="?status=&search=<?= urlencode($activeSearch) ?>"
-                    class="trx-tab <?= $activeStatus === null ? 'active' : '' ?>"
-                    style="color:#555;">
-                    All
-                    <span class="tab-count"><?= array_sum($count_status) ?></span>
-                </a>
-                <?php foreach ($STATUS_LABEL as $s => $label): ?>
-                    <?php $cnt = $count_status[$s] ?? 0; ?>
-                    <a href="?status=<?= $s ?>&search=<?= urlencode($activeSearch) ?>"
-                        class="trx-tab <?= $activeStatus == $s ? 'active' : '' ?>"
-                        style="color:<?= $STATUS_COLOR[$s]['color'] ?>;">
-                        <?= $label ?>
-                        <?php if ($cnt > 0): ?>
-                            <span class="tab-count"><?= $cnt ?></span>
-                        <?php endif; ?>
+            <?php if ($type === 'sales'): ?>
+                <!-- ================== START SALES ================== -->
+                <div class="trx-tabs">
+                    <a href="?type=sales&status=&search=<?= urlencode($activeSearch) ?>"
+                        class="trx-tab <?= $activeStatus === null ? 'active' : '' ?>" style="color:#555;">
+                        All <span class="tab-count"><?= array_sum($count_status) ?></span>
                     </a>
-                <?php endforeach; ?>
-            </div>
+                    <?php foreach ($STATUS_LABEL as $s => $label): ?>
+                        <?php $cnt = $count_status[$s] ?? 0; ?>
+                        <a href="?type=sales&status=<?= $s ?>&search=<?= urlencode($activeSearch) ?>"
+                            class="trx-tab <?= $activeStatus == $s ? 'active' : '' ?>"
+                            style="color:<?= $STATUS_COLOR[$s]['color'] ?>;">
+                            <?= $label ?>
+                            <?php if ($cnt > 0): ?><span class="tab-count"><?= $cnt ?></span><?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
 
-            <!-- Search -->
-            <div class="trx-search-wrap">
-                <input
-                    class="trx-search-input"
-                    type="text"
-                    placeholder="Cari username atau ID order..."
-                    value="<?= htmlspecialchars($activeSearch) ?>"
-                    oninput="onSearchInput(this.value)">
-            </div>
+                <div class="trx-search-wrap">
+                    <input class="trx-search-input" type="text" placeholder="Cari username atau ID order..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
+                </div>
 
-            <!-- Table -->
-            <table class="styled-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Tanggal</th>
-                        <th>Items</th>
-                        <th style="text-align:right;">Total</th>
-                        <th>Metode</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($stmt_trx)): ?>
-                        <?php
-                            $limit = 10;
-                            $no    = (($page - 1) * $limit) + 1;
-                        ?>
-                        <?php foreach ($stmt_trx as $row): ?>
-                            <?php $s = (int)$row['status_penjualan']; ?>
-                            <tr class="trx-row" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">
-                                <td><?= $no++ ?></td>
-                                <td style="font-weight:700;color:var(--primary-color);">
-                                    #<?= (int)$row['id_penjualan'] ?>
-                                </td>
-                                <td>
-                                    <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
-                                    <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
-                                </td>
-                                <td style="white-space:nowrap;font-size:.82rem;">
-                                    <?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?>
-                                </td>
-                                <td style="text-align:center;"><?= (int)$row['total_barang'] ?></td>
-                                <td style="text-align:right;font-weight:700;white-space:nowrap;">
-                                    Rp <?= htmlspecialchars($row['total_harga']) ?>
-                                </td>
-                                <td style="font-size:.8rem;">
-                                    <?= htmlspecialchars($row['nama_metode'] ?? '-') ?>
-                                    <?php if (!empty($row['provider'])): ?>
-                                        <span style="opacity:.5;"> · <?= htmlspecialchars($row['provider']) ?></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span style="
-                                        display:inline-block;
-                                        padding:3px 10px;
-                                        border-radius:20px;
-                                        font-size:.72rem;
-                                        font-weight:700;
-                                        background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>;
-                                        color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>;
-                                        white-space:nowrap;
-                                    ">
-                                        <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
-                                    </span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+                <table class="styled-table">
+                    <thead>
                         <tr>
-                            <td colspan="8" style="text-align:center;padding:2rem 0;opacity:.5;">
-                                Tidak ada transaksi ditemukan.
-                            </td>
+                            <th>No</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Payment Metode</th>
+                            <th>Status</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($stmt_trx)): ?>
+                            <?php
+                                $limit = 10;
+                                $no    = (($page - 1) * $limit) + 1;
+                            ?>
+                            <?php foreach ($stmt_trx as $row): ?>
+                                <?php $s = (int)$row['status_penjualan']; ?>
+                                <tr class="trx-row" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">
+                                    <td><?= $no++ ?></td>
+                                    <td style="font-weight:700;color:var(--primary-color);">#<?= (int)$row['id_penjualan'] ?></td>
+                                    <td>
+                                        <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
+                                        <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
+                                    </td>
+                                    <td style="white-space:nowrap;font-size:.82rem;"><?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?></td>
+                                    <td style="text-align:center;"><?= (int)$row['total_barang'] ?></td>
+                                    <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
+                                    <td style="font-size:.8rem;">
+                                        <?= htmlspecialchars($row['nama_metode'] ?? '-') ?>
+                                        <?php if (!empty($row['provider'])): ?>
+                                            <span style="opacity:.5;"> · <?= htmlspecialchars($row['provider']) ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>; color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>; white-space:nowrap;">
+                                            <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan="8" style="text-align:center;padding:2rem 0;opacity:.5;">Tidak ada transaksi ditemukan.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+
+                <div class="pagination-container">
+                    <?php
+                    $baseUrl = '?type=sales&status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch);
+                    ?>
+                    <?php if ($page > 1): ?>
+                        <a href="<?= $baseUrl ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
+                    <?php else: ?>
+                        <span class="page-link disabled">&lt;</span>
                     <?php endif; ?>
-                </tbody>
-            </table>
+                    <?php
+                    $start = max(1, $page - 1);
+                    $end   = min($total_pages, $page + 1);
+                    if ($start > 1):
+                    ?>
+                        <a href="<?= $baseUrl ?>&page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
+                        <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
+                    <?php endif; ?>
+                    <?php for ($i = $start; $i <= $end; $i++): ?>
+                        <a href="<?= $baseUrl ?>&page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+                    <?php endfor; ?>
+                    <?php if ($end < $total_pages): ?>
+                        <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
+                        <a href="<?= $baseUrl ?>&page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
+                    <?php endif; ?>
+                    <?php if ($page < $total_pages): ?>
+                        <a href="<?= $baseUrl ?>&page=<?= $page + 1 ?>" class="page-link">&gt;</a>
+                    <?php else: ?>
+                        <span class="page-link disabled">&gt;</span>
+                    <?php endif; ?>
+                </div>
 
-            <!-- Pagination -->
-            <div class="pagination-container">
-                <?php
-                $baseUrl = '?status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch);
-                ?>
-                <?php if ($page > 1): ?>
-                    <a href="<?= $baseUrl ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
-                <?php else: ?>
-                    <span class="page-link disabled">&lt;</span>
-                <?php endif; ?>
+            <?php elseif ($type === 'buyback'): ?>
+                <div class="trx-tabs" id="buybackTabs"></div>
 
-                <?php
-                $start = max(1, $page - 1);
-                $end   = min($total_pages, $page + 1);
-                if ($start > 1):
-                ?>
-                    <a href="<?= $baseUrl ?>&page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
-                    <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
-                <?php endif; ?>
+                <div class="trx-search-wrap">
+                    <input class="trx-search-input" type="text" id="buybackSearch" placeholder="Cari username atau ID order..." oninput="handleBuybackSearch(this.value)">
+                </div>
 
-                <?php for ($i = $start; $i <= $end; $i++): ?>
-                    <a href="<?= $baseUrl ?>&page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
-                <?php endfor; ?>
+                <table class="styled-table" id="tableAdmin">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total Offer</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
 
-                <?php if ($end < $total_pages): ?>
-                    <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
-                    <a href="<?= $baseUrl ?>&page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
-                <?php endif; ?>
+                <div class="pagination-container" id="buybackPagination"></div>
+            <?php endif; ?>
+        </div>
+    </div>
 
-                <?php if ($page < $total_pages): ?>
-                    <a href="<?= $baseUrl ?>&page=<?= $page + 1 ?>" class="page-link">&gt;</a>
-                <?php else: ?>
-                    <span class="page-link disabled">&gt;</span>
-                <?php endif; ?>
+    <!-- Modals -->
+    <?php if ($type === 'sales'): ?>
+        <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
+            <div class="trx-modal-box" onclick="event.stopPropagation()">
+                <button class="trx-modal-close" onclick="closeTrxModal()">&times;</button>
+                <div id="trxModalBody"></div>
             </div>
-
         </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
-        <div class="trx-modal-box" onclick="event.stopPropagation()">
-            <button class="trx-modal-close" onclick="closeTrxModal()">
-                <img src="/cardhaven/assets/image/x.svg" style="width:1rem;height:1rem;" alt="close">
-            </button>
-            <div id="trxModalBody"></div>
+        <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
+    
+    <?php elseif ($type === 'buyback'): ?>
+        <div id="detailModal" class="event-modal-overlay" style="display: none;" onclick="closeDetailModal()">
+            <div class="modal-box" style="width: 650px; max-width: 95vw;" onclick="event.stopPropagation()">
+                <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
+                <div class="modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+                    <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Transaction <span class="blue-text" id="modalTxId"></span></h2>
+                    <span class="game-id" id="modalStatus" style="font-weight: 600;"></span>
+                </div>
+                <div id="modalContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;"></div>
+                <div class="modal-footer" id="modalFooter" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"></div>
+            </div>
         </div>
-    </div>
+        <script src="/cardhaven/interface/buyback/buyback_admin_script.js?v=<?= time() ?>"></script>
+    <?php endif; ?>
 
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
 </body>
 </html>
