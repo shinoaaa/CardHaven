@@ -1322,14 +1322,21 @@ input:checked + .slider:before {
 .home-container {
     width: 100vw;
     height: 100vh;
+<<<<<<< HEAD
     overflow-x: hidden;
+=======
+    overflow-y: auto;
+>>>>>>> benerinHomee
 }
 
 /* --- 2. ANAK/SLIDE (Wajib seukuran parent) --- */
 .scroll-area {
     width: 100%;
     height: 100vh;
+<<<<<<< HEAD
     overflow-x: hidden;
+=======
+>>>>>>> benerinHomee
 }
 
 .hero-wrapper {
@@ -1494,42 +1501,469 @@ input:checked + .slider:before {
     cursor: pointer;
 }
 
-.promo{
-    margin-top: 2rem;
-    padding: 1rem 2.75rem; 
-    overflow-x: hidden;
+/* ============================================
+   PROMO SECTION
+   ============================================ */
+
+.promo {
+    padding: 2rem 2.75rem 0 2.75rem;
+    background-color: #ffffff;
 }
 
-.promo-header{
-    width: 100%;
+.promo-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
 }
 
-.promo-header h3{
-    color: var(--paragraf);
-    font-size: 1.75rem;
+.promo-header h3 {
+    font-size: 2rem;
+    color: #4d4d4d;
+    font-weight: 400;
+    letter-spacing: -0.02em;
 }
 
-.promo-content{
+/* Select dropdown (-- Select Game --) */
+.modal-input {
+    width: 100%;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    color: #333;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230f3891'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    padding-right: 2rem;
+}
+
+.modal-input:focus {
+    box-shadow: 0 0 0 2px rgba(15, 56, 145, 0.2);
+}
+
+/* Promo card — full-width banner dengan overlay gelap */
+.promo-content {
+    width: 100%;
+    margin-bottom: 1rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 2rem;
-    margin-top: 1.5rem;
 }
 
-.promo-card{
-    height: 17rem;
-    background-color: #003399;
-    border-radius: 1rem;
-}
-
-.promo-pagination{
-    margin-top: 3rem;
+.promo-card {
+    width: 100%;
+    height: 19rem;
+    border-radius: 1.5rem;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #1a2a5e;
 }
 
+/* Text di dalam promo card */
+.promo-card h2 {
+    color: white;
+    font-size: 2rem;
+    text-align: center;
+}
+
+/* Pagination (dipakai di promo & product) */
+.promo-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.85rem 0 1.25rem 0;
+}
+
+#promo-page-info {
+    display: flex;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Garis pembatas bawah promo */
+.promo > div[style*="height: 1px"] {
+    margin: 1.5rem 0 0.75rem 0;
+}
+
+/* ============================================
+   GAME SECTION (3 card game dengan gambar)
+   ============================================ */
+
+.game {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Tombol navigasi kiri-kanan di sudut kanan atas */
+.game-button {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+    position: absolute;
+    z-index: 999;
+    width: 100%;
+    padding: 0rem 1.25rem;
+}
+
+/* Override circle button di dalam .game */
+.game .nav-btn-circle {
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--primary-color);
+    border: 3px solid white !important;
+    box-shadow: 0 2px 6px rgba(15, 56, 145, 0.25);
+}
+
+/* Grid untuk kartu game (Pokemon, Yu-Gi-Oh, Uma Musume, dll) */
+.game-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.25rem 2.75rem 2rem 2.75rem;
+}
+
+.game-card{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    overflow: hidden;
+    height: 10rem;
+    background-size: cover; 
+    background-position: center; 
+    position: relative;
+}
+
+
+/* ============================================
+   PRODUCT SECTION
+   ============================================ */
+
+.product {
+    padding: 2rem 2.75rem 1.5rem 2.75rem;
+    background-color: #ffffff;
+}
+
+/* Header produk: judul + search bar */
+.product-header {
+    margin-bottom: 1.5rem;
+}
+
+/* Filter row bawah header */
+.product-header > div:last-child label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.product-header > div:last-child input[type="text"] {
+    width: 100%;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 1.1rem;
+    font-size: 0.8rem;
+    outline: none;
+    color: #333;
+    font-family: 'Inter', sans-serif;
+}
+
+.product-header > div:last-child input[type="text"]::placeholder {
+    color: rgba(126, 126, 126, 0.8);
+    font-size: 0.75rem;
+}
+
+.product-header > div:last-child input[type="text"]:focus {
+    border-color: #3571ea;
+    box-shadow: 0 0 0 2px rgba(15, 56, 145, 0.12);
+}
+
+/* Search bar di kanan atas produk */
+.product .nav-search input[type="text"] {
+    height: 100%;
+    border: 1px solid var(--primary-color);
+    border-radius: 9999px;
+    padding: 0 1.25rem;
+    font-size: 0.85rem;
+    outline: none;
+    color: #333;
+}
+
+.product .nav-search input[type="text"]::placeholder {
+    color: #7e7e7e;
+    font-size: 0.75rem;
+}
+
+/* Product list — grid 2 kolom */
+.product-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Tiap product card */
+.product-card {
+    display: flex;
+    border: 1px solid #584c4c;
+    border-radius: 0.9rem;
+    padding: 0.25rem 0.85rem;
+    background-color: #fafcff;
+    height: 27rem;
+}
+
+/* Label kecil di dalam product card (Stock, Game, dll) */
+p.product-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0 0 0.15rem 0;
+}
+
+p.product-paragraf {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: #7e7e7e;
+    margin: 0;
+}
+
+/* Pagination produk */
+#ui-product-page-info {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* ============================================
+   BUYBACK SECTION
+   ============================================ */
+
+.buyback {
+    padding: 4.5rem 2.75rem;
+    background-image: linear-gradient(114deg, #0f3891 32%, #3571ea 111%);
+    position: relative;
+    overflow: hidden;
+    min-height: 37rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Badge "Buyback Card" oval di atas judul */
+.buyback-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #2857be;
+    border: 1px solid #739fff;
+    border-radius: 9999px;
+    padding: 0.4rem 1rem 0.4rem 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+.buyback-title h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+/* Judul besar buyback */
+.buyback h2.coolveticaa {
+    font-size: 2.6rem !important;
+    color: white !important;
+    line-height: 1.15;
+    margin: 0 0 1.25rem 0;
+}
+
+/* Paragraf buyback */
+.buyback > div[style*="z-index: 999"] > p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.65);
+    width: 30rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Tombol-tombol buyback */
+.buyback-list-btn {
+    display: flex;
+    gap: 0.85rem;
+    margin-top: 1.85rem;
+    flex-wrap: wrap;
+}
+
+.btn-buyback {
+    cursor: pointer;
+    border-radius: 0.4rem !important;
+    border: 1px solid white !important;
+    padding: 0.55rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.18s ease;
+}
+
+.btn-buyback:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.btn-buyback h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    margin: 0;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.foot-line {
+    background-color: #0f3891;
+    height: 1px;
+    width: 100%;
+}
+
+.footer {
+    background-color: #ffffff;
+    padding: 2rem 2.75rem 1.25rem 2.75rem;
+}
+
+/* Grid 4 kolom footer */
+.foot-top {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.foot-game,
+.foot-service,
+.foot-about {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header tiap kolom footer (ikon + judul) */
+.list-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.list-header h1 {
+    font-family: 'Coolvetica', 'Bebas Neue', Impact, sans-serif;
+    font-size: 1.25rem !important;
+    font-weight: 400;
+    color: var(--primary-color) !important;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.footer-list li {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: #6b81b2;
+    line-height: 1.9;
+    cursor: pointer;
+    transition: color 0.18s ease;
+    list-style: disc;
+}
+
+.footer-list li:hover {
+    color: var(--primary-color);
+}
+
+/* Kolom "Join Us On" */
+.footer-community {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-community > h1 {
+    font-family: 'Coolvetica', 'Bebas Neue', Impact, sans-serif;
+    font-size: 1.25rem !important;
+    color: var(--primary-color) !important;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+}
+
+/* Garis biru di bawah judul "Join Us On" */
+.footer-community > div[style*="height: 2px"] {
+    background-color: var(--primary-color);
+    width: 8rem;
+    height: 2px;
+    margin-bottom: 0.6rem;
+}
+
+/* Icon sosmed */
+.community-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.18s ease;
+}
+
+.community-icon:hover {
+    opacity: 0.7;
+}
+
+.community-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Baris sosmed */
+.footer-community > div[style*="display: flex"] {
+    display: flex;
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+    align-items: center;
+}
+
+/* Footer bottom: copyright */
+.foot-bottom {
+    border-top: 1px solid #e8ecf5;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.foot-bottom h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 400;
+    text-align: left;
+    margin: 0;
+    margin-bottom: 1rem;
+}
