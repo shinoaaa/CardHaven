@@ -30,10 +30,12 @@
             echo 'Welcome to activity';
         } else if ($segments[1] == 'product') {
             include '../CardHaven/interface/product/index.php';
+        } else if ($segments[1] == 'notification'){
+            include '../CardHaven/interface/notification/index.php';
         } else if ($segments[1] == 'transaction'){
             include '../CardHaven/interface/transaction/index.php';
         }else if ($segments[1] == 'purchase'){
-            include '../CardHaven/interface/purchase/index.php';
+            echo 'Welcome to ', $segments[1] ;
         }else if ($segments[1] == 'product'){
             echo 'Welcome to ', $segments[1] ;
         }else if ($segments[1] == 'event'){

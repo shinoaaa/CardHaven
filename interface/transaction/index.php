@@ -1,0 +1,400 @@
+<?php require 'apifetch.php'; ?>
+
+<?php
+// Status mapping untuk PHP render
+$STATUS_LABEL = [
+    0 => 'Pending Payment',
+    1 => 'Paid',
+    2 => 'Waiting Stock',
+    3 => 'Processing',
+    4 => 'Shipped',
+    5 => 'Delivered',
+    6 => 'Completed',
+    7 => 'Returned',
+    8 => 'Cancelled',
+];
+
+$STATUS_COLOR = [
+    0 => ['bg' => '#fef9c3', 'color' => '#ca8a04'],
+    1 => ['bg' => '#dcfce7', 'color' => '#15803d'],
+    2 => ['bg' => '#e0f2fe', 'color' => '#0369a1'],
+    3 => ['bg' => '#ede9fe', 'color' => '#7c3aed'],
+    4 => ['bg' => '#dbeafe', 'color' => '#1d4ed8'],
+    5 => ['bg' => '#d1fae5', 'color' => '#065f46'],
+    6 => ['bg' => '#d1fae5', 'color' => '#14532d'],
+    7 => ['bg' => '#fee2e2', 'color' => '#b91c1c'],
+    8 => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
+];
+
+$activeStatus = $status; // dari apifetch.php
+$activeSearch = $search;
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction</title>
+    <link rel="stylesheet" href="/cardhaven/interface/global.css">
+    <style>
+        /* ── Tab Filter ── */
+        .trx-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .trx-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .35rem .85rem;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1.5px solid transparent;
+            transition: all .18s;
+            color: inherit;
+            opacity: .6;
+        }
+
+        .trx-tab:hover { opacity: 1; }
+
+        .trx-tab.active {
+            opacity: 1;
+            border-color: currentColor;
+        }
+
+        .trx-tab .tab-count {
+            background: rgba(0,0,0,.12);
+            border-radius: 999px;
+            padding: 0 6px;
+            font-size: .68rem;
+            line-height: 1.6;
+        }
+
+        /* ── Search bar ── */
+        .trx-search-wrap {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: 1rem;
+        }
+
+        .trx-search-input {
+            flex: 1;
+            max-width: 300px;
+            padding: .45rem .85rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(255,255,255,.06);
+            color: inherit;
+            font-size: .85rem;
+            outline: none;
+            transition: border-color .18s;
+        }
+
+        .trx-search-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* ── Modal ── */
+        .trx-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 900;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+        }
+
+        .trx-modal-overlay.show {
+            display: flex;
+        }
+
+        .trx-modal-box {
+            background: var(--card-bg, #1a1a2e);
+            border-radius: 14px;
+            padding: 1.75rem;
+            width: min(700px, 96vw);
+            position: relative;
+            color: var(--highlight);
+            box-shadow: 0 12px 50px rgba(0,0,0,.55);
+            margin: auto;
+        }
+
+        .trx-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: .55;
+            padding: 0;
+        }
+
+        .trx-modal-close:hover { opacity: 1; }
+
+        .trx-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            padding-bottom: .85rem;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+
+        .trx-modal-id {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .trx-modal-date {
+            font-size: .75rem;
+            opacity: .5;
+            margin-top: .2rem;
+        }
+
+        .trx-modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .trx-modal-section {
+            background: rgba(255,255,255,.04);
+            border-radius: 10px;
+            padding: .85rem 1rem;
+        }
+
+        .trx-section-title {
+            font-size: .72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            opacity: .5;
+            margin-bottom: .6rem;
+        }
+
+        .trx-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: .8rem;
+            margin-bottom: .35rem;
+            gap: .5rem;
+        }
+
+        .trx-info-row span {
+            opacity: .55;
+            flex-shrink: 0;
+        }
+
+        .trx-info-row b {
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .trx-action-row {
+            display: flex;
+            gap: .6rem;
+            flex-wrap: wrap;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,.1);
+        }
+
+        .btn-trx-action {
+            padding: .5rem 1.1rem;
+            border-radius: 8px;
+            border: none;
+            font-size: .82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: filter .18s;
+        }
+
+        .btn-trx-action:hover { filter: brightness(1.15); }
+
+        .btn-confirm  { background: #15803d; color: #fff; }
+        .btn-process  { background: #7c3aed; color: #fff; }
+        .btn-ship     { background: #1d4ed8; color: #fff; }
+        .btn-deliver  { background: #065f46; color: #fff; }
+        .btn-cancel   { background: #b91c1c; color: #fff; }
+
+        /* ── Table clickable row ── */
+        .trx-row { cursor: pointer; }
+        .trx-row:hover td { filter: brightness(1.1); }
+    </style>
+</head>
+<body>
+    <div class="main-content" style="display:flex;justify-content:center;overflow-y:auto;">
+        <div class="content-card" style="width:100%;">
+
+            <div class="card-title-row">
+                <h2 class="coolveticaa">Transaction</h2>
+            </div>
+
+            <!-- Tab Filter -->
+            <div class="trx-tabs">
+                <a href="?status=&search=<?= urlencode($activeSearch) ?>"
+                    class="trx-tab <?= $activeStatus === null ? 'active' : '' ?>"
+                    style="color:#555;">
+                    All
+                    <span class="tab-count"><?= array_sum($count_status) ?></span>
+                </a>
+                <?php foreach ($STATUS_LABEL as $s => $label): ?>
+                    <?php $cnt = $count_status[$s] ?? 0; ?>
+                    <a href="?status=<?= $s ?>&search=<?= urlencode($activeSearch) ?>"
+                        class="trx-tab <?= $activeStatus == $s ? 'active' : '' ?>"
+                        style="color:<?= $STATUS_COLOR[$s]['color'] ?>;">
+                        <?= $label ?>
+                        <?php if ($cnt > 0): ?>
+                            <span class="tab-count"><?= $cnt ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Search -->
+            <div class="trx-search-wrap">
+                <input
+                    class="trx-search-input"
+                    type="text"
+                    placeholder="Cari username atau ID order..."
+                    value="<?= htmlspecialchars($activeSearch) ?>"
+                    oninput="onSearchInput(this.value)">
+            </div>
+
+            <!-- Table -->
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Tanggal</th>
+                        <th>Items</th>
+                        <th style="text-align:right;">Total</th>
+                        <th>Metode</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($stmt_trx)): ?>
+                        <?php
+                            $limit = 10;
+                            $no    = (($page - 1) * $limit) + 1;
+                        ?>
+                        <?php foreach ($stmt_trx as $row): ?>
+                            <?php $s = (int)$row['status_penjualan']; ?>
+                            <tr class="trx-row" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">
+                                <td><?= $no++ ?></td>
+                                <td style="font-weight:700;color:var(--primary-color);">
+                                    #<?= (int)$row['id_penjualan'] ?>
+                                </td>
+                                <td>
+                                    <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
+                                    <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
+                                </td>
+                                <td style="white-space:nowrap;font-size:.82rem;">
+                                    <?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?>
+                                </td>
+                                <td style="text-align:center;"><?= (int)$row['total_barang'] ?></td>
+                                <td style="text-align:right;font-weight:700;white-space:nowrap;">
+                                    Rp <?= htmlspecialchars($row['total_harga']) ?>
+                                </td>
+                                <td style="font-size:.8rem;">
+                                    <?= htmlspecialchars($row['nama_metode'] ?? '-') ?>
+                                    <?php if (!empty($row['provider'])): ?>
+                                        <span style="opacity:.5;"> · <?= htmlspecialchars($row['provider']) ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span style="
+                                        display:inline-block;
+                                        padding:3px 10px;
+                                        border-radius:20px;
+                                        font-size:.72rem;
+                                        font-weight:700;
+                                        background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>;
+                                        color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>;
+                                        white-space:nowrap;
+                                    ">
+                                        <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8" style="text-align:center;padding:2rem 0;opacity:.5;">
+                                Tidak ada transaksi ditemukan.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <?php
+                $baseUrl = '?status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch);
+                ?>
+                <?php if ($page > 1): ?>
+                    <a href="<?= $baseUrl ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
+                <?php else: ?>
+                    <span class="page-link disabled">&lt;</span>
+                <?php endif; ?>
+
+                <?php
+                $start = max(1, $page - 1);
+                $end   = min($total_pages, $page + 1);
+                if ($start > 1):
+                ?>
+                    <a href="<?= $baseUrl ?>&page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
+                    <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
+                <?php endif; ?>
+
+                <?php for ($i = $start; $i <= $end; $i++): ?>
+                    <a href="<?= $baseUrl ?>&page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+                <?php endfor; ?>
+
+                <?php if ($end < $total_pages): ?>
+                    <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
+                    <a href="<?= $baseUrl ?>&page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
+                <?php endif; ?>
+
+                <?php if ($page < $total_pages): ?>
+                    <a href="<?= $baseUrl ?>&page=<?= $page + 1 ?>" class="page-link">&gt;</a>
+                <?php else: ?>
+                    <span class="page-link disabled">&gt;</span>
+                <?php endif; ?>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
+        <div class="trx-modal-box" onclick="event.stopPropagation()">
+            <button class="trx-modal-close" onclick="closeTrxModal()">
+                <img src="/cardhaven/assets/image/x.svg" style="width:1rem;height:1rem;" alt="close">
+            </button>
+            <div id="trxModalBody"></div>
+        </div>
+    </div>
+
+    <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
+</body>
+</html>
