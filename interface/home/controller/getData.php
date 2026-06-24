@@ -76,7 +76,7 @@ $sqlPromo = "SELECT
                  JOIN game g ON p.id_game = g.id_game 
                  WHERE pe.id_event = e.id_event) AS nama_game
              FROM event e
-             WHERE e.tipe_event = 'promo'
+             WHERE e.tipe_event = 'promo' AND e.is_hide = 0
              ORDER BY e.id_event DESC
              OFFSET $offsetPromo ROWS
              FETCH NEXT 4 ROWS ONLY"; // Ambil 4 baris sekaligus

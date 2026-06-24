@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         <div style="z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 0.75rem;">
                             <p style="color: #e4e4e4;"><span style="color: #90b3ff;">${gameName}</span>'s Event</p>
                             <h2 class="coolveticaa" style="text-align: center; width: 30rem;">${promo.nama_event}</h2>
-                            <button style="background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;">
+                            <button style="cursor:pointer; background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;" onclick="openPromoEvent(${promo.id_event})">
                                 Join Now
                             </button>
                         </div>
