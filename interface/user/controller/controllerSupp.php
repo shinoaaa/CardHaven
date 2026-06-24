@@ -14,7 +14,14 @@ function jsonOut(bool $success, string $message = '', array $data = [], string $
     ]);
     exit;
 }
-
+function telpExists($conn, string $telp, int $excludeId = 0): bool
+{
+    $sql  = "SELECT COUNT(*) AS cnt FROM supplier WHERE no_telp = ? AND is_deleted = 0 AND id_supplier <> ?";
+    $stmt = sqlsrv_query($conn, $sql, [$sql, [$telp, $excludeId]]);
+    if (!$stmt) return false;
+    $row  = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    return (int)($row['cnt'] ?? 0) > 0;
+}
 function emailExists($conn, string $email, int $excludeId = 0): bool
 {
     $sql    = "SELECT COUNT(*) AS cnt FROM supplier WHERE email = ? AND is_deleted = 0 AND id_supplier <> ?";
@@ -70,10 +77,12 @@ switch ($action) {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             jsonOut(false, 'Invalid email address format.');
         }
-
         // Email uniqueness
         if (emailExists($conn, $email)) {
             jsonOut(false, 'Email address is already in use by another supplier.', [], 'EMAIL_DUPLICATE');
+        }
+        if (telpExists($conn, $telp)) {
+    jsonOut(false, 'Phone number is already in use by another supplier.', [], 'TELP_DUPLICATE');
         }
 
         $sql  = "INSERT INTO supplier (nama_suplier, email, no_telp, alamat, aktif,created_by, is_deleted, created_date)
@@ -109,6 +118,9 @@ switch ($action) {
         if (emailExists($conn, $email, $id)) {
             jsonOut(false, 'This email is already used by another supplier.', [], 'EMAIL_DUPLICATE');
         }
+        if (telpExists($conn, $telp, $id)) {
+    jsonOut(false, 'This phone number is already used by another supplier.', [], 'TELP_DUPLICATE');
+}
 
        $mod_by = (int)($_SESSION['id_pengguna'] ?? 0);
         $sql  = "UPDATE supplier
