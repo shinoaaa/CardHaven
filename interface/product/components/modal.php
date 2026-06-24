@@ -29,7 +29,7 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Game <span style="color: #E74C3C;">*</span></label>
+                <label>Game</label>
                 <div style="position:relative;">
                     <input type="text" id="pGameSearch" class="modal-input" placeholder="Type game name..." autocomplete="off">
                     <input type="hidden" name="id_game" id="pIdGame">

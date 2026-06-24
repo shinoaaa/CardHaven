@@ -98,7 +98,7 @@ $offsetGameBar = ($p_game_bar - 1) * 4;
 $sqlGameBar = "SELECT id_game, nama_game 
                FROM [CardHaven].[dbo].[game] 
                WHERE is_deleted = 0 AND aktif = 1 
-               ORDER BY id_game DESC 
+               ORDER BY id_game ASC 
                OFFSET $offsetGameBar ROWS 
                FETCH NEXT 4 ROWS ONLY";
 $stmtGameBar = sqlsrv_query($conn, $sqlGameBar);
@@ -113,7 +113,7 @@ $offsetGameCard = ($p_game_card - 1) * 4;
 $sqlGameCard = "SELECT id_game, nama_game, foto_banner 
                 FROM [CardHaven].[dbo].[game] 
                 WHERE is_deleted = 0 AND aktif = 1 
-                ORDER BY id_game DESC 
+                ORDER BY id_game ASC 
                 OFFSET $offsetGameCard ROWS 
                 FETCH NEXT 4 ROWS ONLY";
 $stmtGameCard = sqlsrv_query($conn, $sqlGameCard);
@@ -137,7 +137,7 @@ $offsetProduct = ($p_product - 1) * 4;
 $sqlProduct = "SELECT p.id_produk, p.nama_produk, p.stok, g.nama_game, p.deskripsi, p.harga_jual, p.foto 
                FROM [CardHaven].[dbo].[produk] p
                LEFT JOIN [CardHaven].[dbo].[game] g ON p.id_game = g.id_game
-               ORDER BY p.id_produk DESC
+               ORDER BY p.id_produk ASC
                OFFSET $offsetProduct ROWS
                FETCH NEXT 4 ROWS ONLY";
 $stmtProduct = sqlsrv_query($conn, $sqlProduct);

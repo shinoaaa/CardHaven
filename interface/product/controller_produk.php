@@ -28,7 +28,7 @@ try {
             if ($stok < 1) throw new Exception("Stock must be at least 1!");
             $deskripsi = $_POST['deskripsi'] ?? '';
             
-            if (!$nama || !$id_game || !$tipe) throw new Exception("Name, Game, and Type fields are required!");
+            if (!$nama || !$tipe) throw new Exception("Name, and Type fields are required!");
 
             // 1. PENGAMANAN CHECK DUPLICATE
             $check_sql = "SELECT id_produk FROM dbo.produk WHERE nama_produk = ? AND id_game = ? AND ISNULL(id_set, 0) = ? AND id_produk <> ? AND is_deleted = 0";

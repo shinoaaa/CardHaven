@@ -1,6 +1,12 @@
-const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
+/**
+ * CARDHAVEN CART SCRIPT
+ * Konsisten dengan gaya alert & konfirmasi sistem Game
+ */
 
-// --- LOGIKA IDENTITAS (Sama dengan Controller Game) ---
+const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
+const BASE_URL = '/cardhaven';
+
+// --- LOGIKA IDENTITAS ---
 var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 document.addEventListener('DOMContentLoaded', loadCart);
@@ -8,7 +14,10 @@ document.addEventListener('DOMContentLoaded', loadCart);
 // ---- Load semua item ----
 function loadCart() {
     const userId = getUserId();
-    // Mengirim id_pengguna_js via URL untuk method GET
+    
+    // Jika tidak ada user, hentikan proses (keamanan tambahan)
+    if (!userId || userId === "0") return;
+
     fetch(`${CART_CONTROLLER}?action=get_items&id_pengguna_js=${userId}`)
         .then(res => {
             if (!res.ok) throw new Error('Network response was not ok');
@@ -20,6 +29,7 @@ function loadCart() {
         .catch(err => {
             console.error('Gagal memuat keranjang:', err);
             showError();
+            cardhavenAlert('error', 'Connection Error', 'Failed to load cart items from server.');
         });
 }
  
@@ -33,7 +43,8 @@ function renderCart(data) {
     const itemCount   = document.getElementById('cart-item-count');
  
     if (loadingState) loadingState.style.display = 'none';
- 
+    if (!tbody) return;
+
     tbody.innerHTML = '';
  
     if (!data || data.length === 0) {
@@ -64,7 +75,7 @@ function renderCart(data) {
  
     itemCount.textContent = `${data.length} item${data.length > 1 ? 's' : ''}`;
  
-    const allChecked = data.every(item => parseInt(item.is_selected) === 1);
+    const allChecked = data.length > 0 && data.every(item => parseInt(item.is_selected) === 1);
     const selectAllCb = document.getElementById('select-all-checkbox');
     if (selectAllCb) {
         selectAllCb.checked       = allChecked;
@@ -79,6 +90,7 @@ function renderCart(data) {
 function renderRow(item) {
     const tr = document.createElement('tr');
     const formatIDR = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
+    const fotoSrc = item.foto ? `${BASE_URL}/${item.foto}` : `${BASE_URL}/image-profile/defaultProduct.jpg`;
  
     tr.setAttribute('data-id', item.id_detail_keranjang);
  
@@ -91,9 +103,9 @@ function renderRow(item) {
         <td>
             <div class="cart-product-info">
                 <div class="cart-img-wrap">
-                    <img src="/CardHaven/${item.foto}"
+                    <img src="${fotoSrc}"
                          alt="${escapeHtml(item.nama_produk)}"
-                         onerror="this.src='/cardhaven/image-profile/no-image.png'">
+                         onerror="this.src='${BASE_URL}/image-profile/no-image.png'">
                 </div>
                 <div class="cart-product-details">
                     <span class="cart-product-title">${escapeHtml(item.nama_produk)}</span>
@@ -180,31 +192,47 @@ function toggleSelectAll(checked) {
         .catch(err => console.error(err));
 }
  
+// ---- Hapus Item dengan cardhavenConfirm ----
 function deleteItem(id) {
-    if (!confirm('Hapus produk ini dari keranjang?')) return;
-    const fd = new FormData();
-    fd.append('action', 'delete');
-    fd.append('id', id);
-    fd.append('id_pengguna_js', getUserId());
- 
-    fetch(CART_CONTROLLER, { method: 'POST', body: fd })
-        .then(res => res.json())
-        .then(json => {
-            if (json.success) {
-                const row = document.querySelector(`tr[data-id="${id}"]`);
-                if (row) {
-                    row.style.opacity = '0';
-                    setTimeout(loadCart, 260);
-                } else { loadCart(); }
-            }
-        })
-        .catch(err => console.error(err));
+    cardhavenConfirm(
+        "Remove Product?", 
+        "Are you sure you want to remove this item from your cart?", 
+        "Yes, Remove", 
+        () => {
+            const fd = new FormData();
+            fd.append('action', 'delete');
+            fd.append('id', id);
+            fd.append('id_pengguna_js', getUserId());
+         
+            fetch(CART_CONTROLLER, { method: 'POST', body: fd })
+                .then(res => res.json())
+                .then(json => {
+                    if (json.success) {
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.25s, transform 0.25s';
+                            row.style.opacity    = '0';
+                            row.style.transform  = 'translateX(20px)';
+                            setTimeout(loadCart, 260);
+                        } else {
+                            loadCart();
+                        }
+                    } else {
+                        cardhavenAlert('error', 'Failed', 'Could not remove item.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    cardhavenAlert('error', 'Error', 'A connection error occurred.');
+                });
+        }
+    );
 }
  
 function showError() {
     const tbody = document.getElementById('cart-table-body');
     if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #dc2626;">Gagal memuat keranjang.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #dc2626; font-weight:bold;">Gagal memuat keranjang. Silahkan refresh halaman.</td></tr>`;
     }
 }
  
