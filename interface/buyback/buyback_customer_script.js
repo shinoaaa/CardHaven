@@ -3,6 +3,58 @@ const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php'
 // Mengambil dari sessionStorage atau localStorage
 const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
 const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+let cardIndexCounter = 1;
+
+function openSubmitModal() {
+    document.getElementById('submitModal').style.display = 'flex';
+}
+
+function closeSubmitModal() {
+    document.getElementById('submitModal').style.display = 'none';
+    document.getElementById('formBuyback').reset();
+    resetCardFields();
+}
+
+function addCardField() {
+    cardIndexCounter++;
+    const container = document.getElementById('cardInputsContainer');
+    const html = `
+        <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
+            <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
+            <div class="form-group">
+                <label>Card Name <span class="required">*</span></label>
+                <input type="text" name="nama_kartu[]" required placeholder="e.g., Charizard Base Set">
+            </div>
+            <div class="form-group">
+                <label>Your Offer Price (Rp) <span class="required">*</span></label>
+                <input type="number" name="harga_beli[]" required placeholder="e.g., 500000">
+            </div>
+            <div class="form-group">
+                <label>Front Photo <span class="required">*</span></label>
+                <input type="file" name="foto_depan[]" class="file-input-custom" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label>Back Photo <span class="required">*</span></label>
+                <input type="file" name="foto_belakang[]" class="file-input-custom" accept="image/*" required>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function removeCardField(id) {
+    document.getElementById(`cardGroup${id}`).remove();
+}
+
+function resetCardFields() {
+    const container = document.getElementById('cardInputsContainer');
+    // Sisakan hanya elemen pertama, hapus sisanya
+    while (container.children.length > 1) {
+        container.removeChild(container.lastChild);
+    }
+    cardIndexCounter = 1;
+}
 
 if (!idPengguna || userRole != '0') {
     window.location.href = '../login-page/index.php';
@@ -31,6 +83,13 @@ function loadRiwayat() {
 
 function submitBuyback() {
     const form = document.getElementById('formBuyback');
+    
+    // Validasi HTML bawaan (pastikan field required terisi)
+    if(!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
     const formData = new FormData(form);
     formData.append('action', 'submit_buyback');
     formData.append('id_pengguna', idPengguna);
@@ -39,8 +98,8 @@ function submitBuyback() {
     .then(res => res.json())
     .then(res => {
         if(res.status === 'success') {
+            closeSubmitModal();
             cardhavenAlert('success', 'Success', res.message, () => {
-                form.reset();
                 loadRiwayat();
             });
         } else {
@@ -199,7 +258,7 @@ function cancelBuyback(id_pembelian) {
         // Jika batal dibatalkan, buka kembali modal
         document.getElementById('detailModal').style.display = 'flex';
     });
-    
+
 }function completeTransaction(id_pembelian) {
     closeDetailModal();
     cardhavenConfirm("Confirm Receipt", "Have you verified that the money is in your bank account?", "Yes, Complete", () => {
