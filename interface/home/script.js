@@ -172,8 +172,12 @@ document.addEventListener("DOMContentLoaded", function() {
                                 </p>
                             </div>
                             <div style="display: flex; align-items: center; justify-content: space-between; color: var(--primary-color); margin-top: 1.25rem;">
-                                <h2>Price: <span>${formatRupiah(prod.harga_jual)}</span></h2>
-                                <div><span>-</span><span>1</span><span>+</span></div>
+                                <h2>Price: <span id="display-price-${prod.id_produk}">${formatRupiah(prod.harga_jual)}</span></h2>
+                                <div style="display: flex; align-items: center; gap: 10px; border: 1px solid #ccc; border-radius: 20px; padding: 2px 10px;">
+                                    <span onclick="updateHomeQty(${prod.id_produk}, -1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">-</span>
+                                    <span id="qty-val-${prod.id_produk}" style="font-weight:bold; min-width: 20px; text-align:center;">1</span>
+                                    <span onclick="updateHomeQty(${prod.id_produk}, 1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">+</span>
+                                </div>
                             </div>
                             <button style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
                             <button class="btn-primary" 
@@ -249,6 +253,14 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initial Load
     loadData();
 });
+function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', { 
+        style: 'currency', 
+        currency: 'IDR', 
+        minimumFractionDigits: 0 
+    }).format(angka);
+}
+
 
 // 3. Fungsi utama Add To Cart
 window.addToCart = function(idProduk, harga) {
@@ -283,4 +295,53 @@ window.addToCart = function(idProduk, harga) {
         }
     })
     .catch(err => console.error("Error add to cart:", err));
+};
+
+window.updateHomeQty = function(id, change, hargaSatuan) {
+    const qtyEl = document.getElementById(`qty-val-${id}`);
+    const priceEl = document.getElementById(`display-price-${id}`);
+    
+    let currentQty = parseInt(qtyEl.textContent);
+    currentQty += change;
+    
+    if (currentQty < 1) currentQty = 1; // Minimal 1
+    
+    // Update teks quantity
+    qtyEl.textContent = currentQty;
+    
+    // Update teks harga (Harga Satuan * Quantity Baru)
+    priceEl.textContent = formatRupiah(currentQty * hargaSatuan);
+};
+
+// Update fungsi addToCart untuk mengambil nilai Qty terbaru
+window.addToCart = function(idProduk, hargaSatuan) {
+    const userId = getUserId();
+    // Ambil jumlah barang dari elemen quantity
+    const qty = parseInt(document.getElementById(`qty-val-${idProduk}`).textContent);
+
+    if (!userId || userId === "0") {
+        alert("Silahkan login terlebih dahulu");
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'add_to_cart');
+    fd.append('id_produk', idProduk);
+    fd.append('harga_produk', hargaSatuan); // Kirim harga satuan
+    fd.append('jumlah', qty);               // Kirim jumlah yang dipilih
+    fd.append('id_pengguna_js', userId);
+
+    fetch('/cardhaven/interface/cart/controller_keranjang.php', {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            cardhavenAlert('success', 'Berhasil', `${qty} item ditambahkan ke keranjang!`);
+            // Reset qty ke 1 setelah berhasil
+            document.getElementById(`qty-val-${idProduk}`).textContent = 1;
+            document.getElementById(`display-price-${idProduk}`).textContent = formatRupiah(hargaSatuan);
+        }
+    });
 };

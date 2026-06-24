@@ -213,6 +213,9 @@ session_start();
             }
         }
     </script> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/cardhaven/interface/global_alert.js"></script>
     <script src="/cardhaven/interface/cart/keranjang_script.js"></script>
+    
 </body>
 </html>

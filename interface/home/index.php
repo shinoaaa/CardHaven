@@ -222,5 +222,5 @@
         </div>
     </div>
 </div>
-
+<script src="/cardhaven/interface/global_alert.js"></script>
 <script src="/cardhaven/interface/home/script.js"></script>
