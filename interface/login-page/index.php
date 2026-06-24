@@ -50,7 +50,7 @@
                     </form>
 
                     <p style="margin-bottom: 16px;" class="footer-text">Doesn't have an account? <span><a href="register" style="text-decoration: underline; color: #0088FF;">Sign Up</a></span></p>
-                    <a href="" style="text-decoration: underline; color: #0088FF;">Return to home page</a>
+                    <a href="home" style="text-decoration: underline; color: #0088FF;">Return to home page</a>
                 </div>
             </div>
             <div class="form-section" id="forgot-wrap">

@@ -54,18 +54,7 @@
                 </select>
             </div>
         </div>
-        <div class="promo-content">
-            <div class="promo-card" id="promo-card-bg" style="background-image: url('/cardhaven/image-profile/defaultEvent.jpg');">
-                <div style="z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 0.75rem;">
-                    <p style="color: #e4e4e4;"><span style="color: #90b3ff;" id="promo-game-name">Game Name</span>'s Event</p>
-                    <h2 class="coolveticaa" id="promo-event-name" style="text-align: center; width: 30rem;">Memuat data event...</h2>
-                    <button style="background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;">
-                        Join Now
-                    </button>
-                </div>
-                <div style="background-color: black; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"></div>
-            </div>
-        </div>
+        <div class="promo-content"></div>
         <div class="promo-pagination">
             <button class="nav-btn-circle" id="btn-prev-promo"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
             <div id="promo-page-info">
@@ -121,44 +110,7 @@
             </div>
         </div>
         <div class="product-list">
-            <div class="product-card">
-                <div style="width: 47%; display: flex; align-items: center; justify-content: center;">
-                    <div style="width: 100%; height: 85%; border-radius: 0.5rem; overflow: hidden;">
-                        <img src="/cardhaven/assets/image/card-sylveon.jpg" style="height: 100%; object-fit: contain;">
-                    </div>
-                </div>
-                <div style="width: 50%; display: flex; flex-direction: column; justify-content: center;">
-                    <h2 class="coolveticaa" style="font-size: 1.75rem; color: var(--primary-color);" id="product-name">Nama Produk</h2>
-                    <div style="display: flex;">
-                        <div style="display: flex; gap: 1.5rem; margin-top: 1.5rem;">
-                            <div>
-                                <p class="product-header">Stock Remain:</p>
-                                <p class="product-paragraf" id="stok-number">6</p>
-                            </div>
-                            <div>
-                                <p class="product-header">Game:</p>
-                                <p class="product-paragraf" id="game-name">Pokemon</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <p class="product-header">Description:</p>
-                        <p class="product-paragraf" style="width: 17rem; height: 5rem; text-align: justify; font-size: 0.75rem;" id="stok-number">
-                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Incidunt ea adipisci obcaecati, repudiandae placeat explicabo. Quod aut explicabo aliquid nam pariatur alias. Nesciunt provident quos adipisci, iure eligendi placeat assumenda?\
-                        </p>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; color: var(--primary-color); margin-top: 1.25rem;">
-                        <h2>Price: <span id="Harga">Rp.200000</span></h2>
-                        <div>
-                            <span>-</span>
-                            <span>2</span>
-                            <span>+</span>
-                        </div>
-                    </div>
-                    <button style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
-                    <button class="btn-primary" style="width: 100%; padding: 0.5rem 0; font-size: 1rem;">Add To Cart</button>
-                </div>
-            </div>
+            <div class="product-card"></div>
         </div>
         <div class="promo-pagination">
             <button class="nav-btn-circle" id="btn-prev-product"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
@@ -204,7 +156,6 @@
         </div>
     </div>
 
-    <div class="foot-line" style="width: 100%; height: 0.5px; background-color: #0F3891;"></div>
     <div class="footer">
         <div class="foot-top">
             <div class="foot-game">
@@ -214,7 +165,7 @@
                     </div>
                     <h1 style="font-size: 1.25rem;">Games</h1>
                 </div>
-                <ul class="footer-list" style="margin-left: 1.5rem; margin-top: 0.75rem; color: #6B81B2;">
+                <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
                     <li>Yu-Gi-Oh! Official DB</li>
                     <li>Pokémon TCG Live</li>
                     <li>Magic: The Gathering</li>
@@ -229,7 +180,7 @@
                     </div>
                     <h1 style="font-size: 1.25rem;">Services</h1>
                 </div>
-                <ul class="footer-list" style="margin-left: 1.5rem; margin-top: 0.75rem; color: #6B81B2;">
+                <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
                     <li>Contact Us</li>
                     <li>Privacy And Policy</li>
                     <li>FAQ</li>
@@ -242,7 +193,7 @@
                     </div>
                     <h1 style="font-size: 1.25rem;">About Us</h1>
                 </div>
-                <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.75rem; color: #6B81B2; gap: 1000px;">
+                <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2; gap: 1000px;">
                     <li>Contact Us</li>
                     <li>Privacy And Policy</li>
                     <li>FAQ</li>
@@ -265,7 +216,7 @@
             </div>
         </div>
         <div class="foot-bottom">
-            <div style="margin-top: 7rem;">
+            <div style="margin-top: 0.25rem;">
                 <h3>© 2026 www.card-haven.com - All Rights Reserved.</h3>
             </div>
         </div>

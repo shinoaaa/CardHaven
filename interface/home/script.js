@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const aNav = document.createElement('a');
                     aNav.href = `list.php?id=${game.id_game}`;
                     aNav.textContent = game.nama_game;
+                    aNav.style.color = 'white';
                     gameBarContainer.appendChild(aNav);
                 });
             } else {
@@ -180,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Helper buat ganti state tombol
         const setBtnState = (btn, isDisabled) => {
             if(btn) {
-                btn.style.opacity = isDisabled ? '0.3' : '1';
+                btn.style.opacity = isDisabled ? '0.5' : '1';
                 btn.style.cursor = isDisabled ? 'default' : 'pointer';
             }
         };
