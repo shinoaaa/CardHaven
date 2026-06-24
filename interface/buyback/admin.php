@@ -17,6 +17,7 @@
             <table class="styled-table" id="tableAdmin">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Transaction ID</th>
                         <th>Customer</th>
                         <th>Date</th>

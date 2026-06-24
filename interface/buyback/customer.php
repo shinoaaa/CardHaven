@@ -26,6 +26,7 @@
             <table class="styled-table" id="tableRiwayat">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Transaction ID</th>
                         <th>Date</th>
                         <th>Total Price</th>
