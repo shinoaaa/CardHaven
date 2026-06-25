@@ -7,7 +7,15 @@
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
-    
+    <script>
+        (function() {
+            const token = localStorage.getItem("id_pengguna") || sessionStorage.getItem("id_pengguna");
+            const role = localStorage.getItem("role") || sessionStorage.getItem("role");
+            if (token && (role === "2" && role === "1" && role === "3" )) {
+                window.location.replace("/CardHaven/dashboard");
+            }
+        })();
+    </script>
 </head>
 <body>
     <div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">

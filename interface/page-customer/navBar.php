@@ -11,8 +11,8 @@
                 </div>
             </div>
             <div class="nav-profile">
-                <button id="btn-sign" style="height: 60%; width: 35%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem;">
-                    <a class="coolveticaa" href="register" style="color: white;">
+                <button id="btn-sign" style="height: 60%; width: 35%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">
+                    <a class="coolveticaa" href="register" style="color: white; font-size: 1rem;">
                         Sign In
                     </a>
                 </button>

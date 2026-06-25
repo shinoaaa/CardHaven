@@ -39,7 +39,7 @@ $response = [
 
 // --- 2. QUERY EVENT PREORDER (1 Data per Halaman) ---
 $offsetEvent = $p_event - 1;
-$sqlEvent = "SELECT e.nama_event, e.tanggal_sampai, pe.harga_event, p.nama_produk, p.deskripsi, p.harga_jual, p.foto
+$sqlEvent = "SELECT e.nama_event, e.tanggal_sampai, pe.harga_event, p.nama_produk, p.deskripsi, p.harga_jual, p.foto,e.status_event
              FROM event e
              JOIN produk_event pe ON e.id_event = pe.id_event
              JOIN produk p ON pe.id_produk = p.id_produk
@@ -70,16 +70,17 @@ $sqlPromo = "SELECT
                 e.id_event, 
                 e.nama_event, 
                 e.foto_banner, 
+                e.status_event,
                 (SELECT TOP 1 g.nama_game 
                  FROM produk_event pe 
                  JOIN produk p ON pe.id_produk = p.id_produk 
                  JOIN game g ON p.id_game = g.id_game 
                  WHERE pe.id_event = e.id_event) AS nama_game
              FROM event e
-             WHERE e.tipe_event = 'promo'
+             WHERE e.tipe_event = 'promo' AND e.is_hide = 0
              ORDER BY e.id_event DESC
              OFFSET $offsetPromo ROWS
-             FETCH NEXT 4 ROWS ONLY"; // Ambil 4 baris sekaligus
+             FETCH NEXT 4 ROWS ONLY";
 $stmtPromo = sqlsrv_query($conn, $sqlPromo);
 
 if ($stmtPromo !== false) {

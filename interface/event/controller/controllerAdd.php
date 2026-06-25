@@ -74,10 +74,10 @@ $sqlEvent = "
     INSERT INTO event (
         nama_event, tipe_event, tanggal_mulai, tanggal_berakhir,
         tanggal_sampai, persen_diskon, maks_pembelian,
-        status_event, is_deleted, created_by, created_date
+        status_event, is_deleted, created_by, created_date,is_hide
     )
     OUTPUT INSERTED.id_event
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, GETDATE())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, GETDATE(),0)
 ";
 
 $paramsEvent = [
@@ -104,7 +104,7 @@ $row = sqlsrv_fetch_array($stmtEvent, SQLSRV_FETCH_ASSOC);
 $id_event = (int)$row['id_event'];
 
 // ── Insert produk_event & Update Stok ─────────────────────────────────────────
-$sqlInsertProd = "INSERT INTO produk_event (id_produk, id_event, harga_event, stok_event) VALUES (?, ?, ?, ?)";
+$sqlInsertProd = "INSERT INTO produk_event (id_produk, id_event, harga_event, stok_event,is_deleted, is_product_deleted) VALUES (?, ?, ?, ?,0,0)";
 $sqlUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
 
 foreach ($products as $prod) {

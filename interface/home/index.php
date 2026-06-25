@@ -4,7 +4,7 @@
 
         <div class="hero-section">
             <div class="hero-desc">
-                <h1 class="hero-title" id="ui-event-title">Memuat Event...</h1>
+                <h1 class="hero-title" id="ui-event-title"></h1>
                 
                 <div class="hero-subtitle-container">
                     <h3 id="ui-event-product">-</h3>
@@ -14,15 +14,13 @@
                 
                 <div class="hero-text">
                     <h4>Description</h4>
-                    <p style="color: var(--paragraf);" id="ui-event-desc">
-                        Sedang memuat deskripsi...
-                    </p>
+                    <p style="color: var(--paragraf);" id="ui-event-desc"></p>
                 </div>
 
                 <div class="action-buttons">
                     <button type="button" class="nav-btn-circle" id="btn-prev-event"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
                     <button type="button" class="nav-btn-circle" id="btn-next-event"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
-                    <button class="btn-primary" style="background: var(--bg-gradient);">Pre-Order Now</button>
+                    <button class="btn-primary" onclick="openPreOrderEvent(4)" style="background: var(--bg-gradient);" id="btn-title">See detail</button>
                     <a href="#promo-section">
                         <button class="btn-secondary">Another Event</button>
                     </a>
@@ -224,6 +222,13 @@
             </div>
         </div>
     </div>
+
+
+    <?php include __DIR__ . '/../../interface/event-transaction/index.php' ?>
+    <?php include __DIR__ . '/../../interface/preorder-transaction/index.php' ?>
 </div>
+
 <script src="/cardhaven/interface/global_alert.js"></script>
 <script src="/cardhaven/interface/home/script.js"></script>
+<script src="/cardhaven/interface/event-transaction/script.js"></script>
+<script src="/cardhaven/interface/preorder-transaction/script.js"></script>

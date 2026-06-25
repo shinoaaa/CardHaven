@@ -3,6 +3,7 @@ const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
 
 // 2. Fungsi untuk mengambil ID Pengguna (Pastikan ini ada)
 var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+let eventButton; 
 
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -66,31 +67,50 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 document.getElementById('ui-event-image').src = `/cardhaven/${data.event.foto}`;
             }
+            const eventTitle = document.getElementById('btn-title');
+
+            if (data.event.status_event == 1) {
+                eventTitle.textContent = "Check detail";
+            } else if (data.event.status_event == 2) {
+                eventTitle.textContent = "Upcoming event check detail";
+            } else {
+                eventTitle.textContent = "Event has complete";
+            }
         }
 
         // --- 2. RENDER EVENT (PROMO) - RENDER 4 ITEM ---
-        const promoContainer = document.querySelector('.promo-content'); // Pastikan HTML kamu pakai class ini untuk bungkus card promo
+        const promoContainer = document.querySelector('.promo-content');
         if (promoContainer) {
             promoContainer.innerHTML = '';
             if (data.list_promo && data.list_promo.length > 0) {
                 data.list_promo.forEach(promo => {
                     const bannerSrc = promo.foto_banner ? `/cardhaven/${promo.foto_banner}` : '/cardhaven/image-profile/defaultEvent.jpg';
                     const gameName = promo.nama_game ? promo.nama_game : 'All Games';
+
+                    if (promo.status_event == 1) {
+                        eventButton = "Check detail";
+                    } else if (promo.status_event == 2) {
+                        eventButton = "Upcoming event check detail";
+                    } else {
+                        eventButton = "Event has complete";
+                    }
                     
                     const promoHTML = `
                     <div class="promo-card" style="background-image: url('${bannerSrc}');">
                         <div style="z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 0.75rem;">
                             <p style="color: #e4e4e4;"><span style="color: #90b3ff;">${gameName}</span>'s Event</p>
                             <h2 class="coolveticaa" style="text-align: center; width: 30rem;">${promo.nama_event}</h2>
-                            <button style="background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;">
-                                Join Now
+                            <button style="cursor:pointer; background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;" onclick="openPromoEvent(${promo.id_event})">
+                                ${eventButton}
                             </button>
                         </div>
                         <div style="background-color: black; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"></div>
                     </div>`;
+                    
                     promoContainer.innerHTML += promoHTML;
                 });
-            } else {
+            }
+            else {
                 promoContainer.innerHTML = '<span style="color: white; text-align: center; display: block; width: 100%;">Belum ada event promo saat ini</span>';
             }
         }
