@@ -4,6 +4,7 @@ const pwModal = document.getElementById("pwModal");
 const btnOpenPwModal = document.getElementById("btnOpenPwModal");
 const btnClosePwModal = document.getElementById("btnClosePwModal");
 const pwForm = document.getElementById("pwForm");
+
 if (!userId) {
     window.location.href = "../../login-page/";
 }
@@ -19,48 +20,23 @@ function setValue(id, value) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Inisialisasi Tampilan Awal
     setText("userName", sessionStorage.getItem("username") || sessionStorage.getItem("nama") || "Guest");
     setText("userEmail", sessionStorage.getItem("userEmail") || "-");
 
-    // 2. Load Data dari Database
     loadData();
 
-    // 3. Referensi Elemen Utama
     const form = document.getElementById("accountForm");
     const btnDeactivate = document.getElementById("btnDeactivate");
     const btnDelete = document.getElementById("btnDelete");
 
-    // 4. Referensi Elemen Modal Change Password
-    const pwModal = document.getElementById("pwModal");
-    const pwForm = document.getElementById("pwForm");
-    const btnOpenPwModal = document.getElementById("btnOpenPwModal");
-    const btnClosePwModal = document.getElementById("btnClosePwModal");
+    if (form) form.addEventListener("submit", handleSubmit);
+    if (btnDeactivate) btnDeactivate.addEventListener("click", handleDeactivate);
+    if (btnDelete) btnDelete.addEventListener("click", handleDelete);
 
-    // --- EVENT LISTENERS PROFIL ---
-
-    if (form) {
-        form.addEventListener("submit", handleSubmit);
-    }
-
-    if (btnDeactivate) {
-        btnDeactivate.addEventListener("click", handleDeactivate);
-    }
-
-    if (btnDelete) {
-        btnDelete.addEventListener("click", handleDelete);
-    }
-
-    // --- EVENT LISTENERS MODAL CHANGE PASSWORD ---
-
-    // Buka Modal
     if (btnOpenPwModal) {
-        btnOpenPwModal.onclick = () => {
-            pwModal.style.display = "flex";
-        };
+        btnOpenPwModal.onclick = () => { pwModal.style.display = "flex"; };
     }
 
-    // Tutup Modal (Tombol X atau Cancel)
     if (btnClosePwModal) {
         btnClosePwModal.onclick = () => {
             pwModal.style.display = "none";
@@ -68,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // Tutup Modal jika klik di luar area modal (Overlay)
     window.onclick = (event) => {
         if (event.target === pwModal) {
             pwModal.style.display = "none";
@@ -76,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Handle Submit Change Password
     if (pwForm) {
         pwForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -85,14 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const newPw = document.getElementById("new_password").value;
             const cfPw = document.getElementById("confirm_new_password").value;
 
-            // Validasi client-side
             if (newPw !== cfPw) {
-                alert("New password confirmation does not match!");
+                cardhavenAlert('error', 'Error', "New password confirmation does not match!");
                 return;
             }
 
             if (newPw.length < 6) {
-                alert("New password must be at least 6 characters long.");
+                cardhavenAlert('error', 'Error', "New password must be at least 6 characters long.");
                 return;
             }
 
@@ -103,24 +76,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 formData.append("current_password", curPw);
                 formData.append("new_password", newPw);
 
-                const res = await fetch(controllerUrl, {
-                    method: "POST",
-                    body: formData
-                });
-
+                const res = await fetch(controllerUrl, { method: "POST", body: formData });
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    alert("Password updated successfully!");
-                    pwModal.style.display = "none";
-                    pwForm.reset();
+                    cardhavenAlert('success', 'Success', data.message, () => {
+                        pwModal.style.display = "none";
+                        pwForm.reset();
+                    });
                 } else {
-                    // Menampilkan pesan error dari server (misal: password lama salah)
-                    alert(data.message || "Failed to update password");
+                    cardhavenAlert('error', 'Failed', data.message);
                 }
             } catch (err) {
                 console.error("Error updating password:", err);
-                alert("A server error occurred. Please try again.");
+                cardhavenAlert('error', 'Server Error', "A server error occurred. Please try again.");
             }
         });
     }
@@ -132,14 +101,14 @@ async function loadData() {
         const data = await res.json();
 
         if (data.status !== "success") {
-            alert(data.message || "Gagal ambil data");
+            cardhavenAlert('error', 'Failed', data.message || "Failed to fetch user data.");
             return;
         }
 
         const user = data.data;
         setValue("nama", user.username || "");
         setValue("email", user.email || "");
-        setText("statusAkun", `Status: ${user.status_akun == 1 ? "Aktif" : "Nonaktif"}`);
+        setText("statusAkun", `Status: ${user.status_akun == 1 ? "Active" : "Inactive"}`);
         setText("profileInfo", `${user.username || "-"} • ${user.email || "-"}`);
 
         const foto = document.getElementById("fotoProfil");
@@ -147,7 +116,7 @@ async function loadData() {
             foto.src = `/cardhaven/image-profile/${user.foto_profil}`;
         }
     } catch (err) {
-        alert("Gagal konek ke server");
+        cardhavenAlert('error', 'Server Error', "Failed to connect to the server.");
         console.error(err);
     }
 }
@@ -169,70 +138,63 @@ async function handleSubmit(e) {
 
         if (data.status === "success") {
             sessionStorage.setItem("username", nama);
-            alert("Profile updated!");
-            location.reload();
+            cardhavenAlert('success', 'Success', data.message, () => location.reload());
         } else {
-            alert(data.message);
+            cardhavenAlert('error', 'Failed', data.message);
         }
-    } catch (err) { alert("Error connecting to server"); }
+    } catch (err) { 
+        cardhavenAlert('error', 'Server Error', "Error connecting to server.");
+    }
 }
 
 async function handleDeactivate() {
-    if (!confirm("Yakin mau nonaktifkan akun ini?")) return;
+    cardhavenConfirm("Deactivate Account", "Are you sure you want to deactivate this account?", "Yes, Deactivate", async () => {
+        try {
+            const formData = new FormData();
+            formData.append("action", "deactivate");
+            formData.append("id_pengguna", userId);
 
-    try {
-        const formData = new FormData();
-        formData.append("action", "deactivate");
-        formData.append("id_pengguna", userId);
+            const res = await fetch(controllerUrl, { method: "POST", body: formData });
+            const data = await res.json();
 
-        const res = await fetch(controllerUrl, {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await res.json();
-
-        if (data.status === "success") {
-            sessionStorage.clear();
-            localStorage.clear();
-            alert(data.message || "Akun dinonaktifkan");
-            window.location.href = "home";
-        } else {
-            alert(data.message || "Gagal menonaktifkan akun");
+            if (data.status === "success") {
+                sessionStorage.clear();
+                localStorage.clear();
+                cardhavenAlert('success', 'Deactivated', data.message, () => {
+                    window.location.href = "/CardHaven";
+                });
+            } else {
+                cardhavenAlert('error', 'Failed', data.message);
+            }
+        } catch (err) {
+            cardhavenAlert('error', 'Server Error', "Failed to connect to the server.");
         }
-    } catch (err) {
-        alert("Gagal konek ke server");
-        console.error(err);
-    }
+    });
 }
 
 async function handleDelete() {
-    if (!confirm("Yakin mau hapus akun? Akun akan dinonaktifkan dan kamu akan logout.")) return;
+    cardhavenConfirm("Delete Account", "Are you sure you want to delete this account? You will be logged out.", "Yes, Delete", async () => {
+        try {
+            const formData = new FormData();
+            formData.append("action", "delete");
+            formData.append("id_pengguna", userId);
 
-    try {
-        const formData = new FormData();
-        formData.append("action", "delete");
-        formData.append("id_pengguna", userId);
+            const res = await fetch(controllerUrl, { method: "POST", body: formData });
+            const data = await res.json();
 
-        const res = await fetch(controllerUrl, {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await res.json();
-
-        if (data.status === "success") {
-            sessionStorage.clear();
-            localStorage.clear();
-            alert(data.message || "Akun dinonaktifkan");
-            window.location.href = "../../login-page/";
-        } else {
-            alert(data.message || "Gagal menghapus akun");
+            if (data.status === "success") {
+                sessionStorage.clear();
+                localStorage.clear();
+                cardhavenAlert('success', 'Deleted', data.message, () => {
+                    window.location.href = "../../login-page/";
+                });
+            } else {
+                cardhavenAlert('error', 'Failed', data.message);
+            }
+        } catch (err) {
+            cardhavenAlert('error', 'Server Error', "Failed to connect to the server.");
         }
-    } catch (err) {
-        alert("Gagal konek ke server");
-        console.error(err);
-    }
+    });
 }
 
 // === Card showcase interaction ===
