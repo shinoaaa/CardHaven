@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['id_pengguna'])) {
-    header("Location: /cardhaven/interface/auth/login.php");
+    header("Location: /cardhaven/interface/login-page/index.php?error=login_required");
     exit;
 }
 ?>
@@ -482,10 +482,15 @@ if (!isset($_SESSION['id_pengguna'])) {
             .step-item .step-label { display: none; }
             .step-item::after { width: calc(100% - 46px); }
         }
+
+        /* ---- Offset navbar ---- */
+        .main-content {
+            margin-top: 80px;
+        }
     </style>
 </head>
 <body>
-    <!-- Navbar disini -->
+    <?php include '../page-customer/navBar.php'; ?>
 
     <main class="main-content">
         <div class="checkout-page-wrapper">
