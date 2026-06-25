@@ -217,7 +217,6 @@ function updateStatus(id_pembelian, statusBaru, message) {
         loadDaftar();
     });
 }
-
 function adminCounterItem(idP, idK) {
     Swal.fire({
         title: 'Input Offer for this Card',
@@ -234,7 +233,16 @@ function adminCounterItem(idP, idK) {
             formData.append('id_pengguna', idPengguna);
 
             fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
-            .then(() => openDetailModal(idP)); 
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    // JANGAN panggil loadDaftar() di sini agar modal tidak menutup.
+                    // Cukup panggil openDetailModal agar data harga yang baru tersimpan langsung ter-refresh di dalam modal.
+                    openDetailModal(idP); 
+                } else {
+                    Swal.fire('Error', res.message, 'error');
+                }
+            });
         }
     });
 }
