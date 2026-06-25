@@ -8,6 +8,7 @@ let preorderEvent          = null;
 let preorderProduct        = null; 
 let preorderQty            = 0;
 let preorderAlreadyBought  = 0;
+ const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 /* ─────────────────────────────────────────────
    OPEN / CLOSE
@@ -61,6 +62,7 @@ function preorderSwitchToDetail() {
 }
 
 function preorderSwitchToOrder() {
+    if (!idPengguna) { window.location.replace("login"); }
     if (!preorderProduct) return;
     loadPreorderPaymentMethods();
     loadPreorderAlreadyPurchased(function () {
@@ -214,12 +216,10 @@ function loadPreorderAlreadyPurchased(callback) {
 /* ─────────────────────────────────────────────
    SUBMIT ORDER
 ───────────────────────────────────────────── */
-function submitPreOrder() {
-    const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+function submitPreOrder() {    
     const address    = document.getElementById('preorder-address').value.trim();
     const idMetode   = document.getElementById('preorder-payment').value;
 
-    if (!idPengguna) { Swal.fire('Warning', 'Silakan login terlebih dahulu.', 'warning'); return; }
     if (!address)    { Swal.fire('Warning', 'Alamat pengiriman wajib diisi.', 'warning'); return; }
     if (!idMetode)   { Swal.fire('Warning', 'Metode pembayaran wajib dipilih.', 'warning'); return; }
     if (preorderQty <= 0) { Swal.fire('Warning', 'Tentukan jumlah produk yang akan di pre-order.', 'warning'); return; }
@@ -273,4 +273,10 @@ function submitPreOrder() {
 
     document.getElementById('pop-up-preorder-overlay').style.display = 'none';
     document.getElementById('pop-up-preorder').style.display   = 'none';
+}
+
+const btnContent = document.getElementById('btn-content');
+
+if(!idPengguna){
+    btnContent.textContent = 'Login to buy product';
 }

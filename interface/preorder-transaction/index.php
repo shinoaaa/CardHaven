@@ -82,7 +82,7 @@
 
             <p id="preorder-price" style="font-family:'Bell MT',serif; font-size:32px; color:#0f3891; margin: 0 0 28px;"></p>
 
-            <button onclick="preorderSwitchToOrder()" style="
+            <button id="btn-content" onclick="preorderSwitchToOrder()" style="
                 background:var(--bg-gradient,#0f3891); color:#fff; border:none;
                 border-radius:25px; padding:14px 0; width:300px;
                 font-size:20px; font-family:'Coolvetica',sans-serif;
