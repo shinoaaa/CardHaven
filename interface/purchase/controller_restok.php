@@ -1,6 +1,9 @@
 <?php
 session_start();
-require_once '../../connection.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 0);   // jangan tampilkan error ke output (biar JSON gak rusak)
+ini_set('log_errors', 1);       // tapi catat ke error log PHP/Apache, bisa dicek manual kalau perlu
+require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/connection.php';
 header('Content-Type: application/json');
 
 function jsonOut(bool $success, string $message = '', array $data = []): void {
@@ -20,7 +23,7 @@ switch ($action) {
         $status   = $_GET['status'] ?? '';   // 'pending','approved','rejected',''
         $search   = trim($_GET['search'] ?? '');
 
-        $where  = "WHERE r.is_deleted = 0";
+        $where  = "WHERE 1=1";
         $params = [];
 
         if ($status !== '') {
@@ -89,7 +92,7 @@ switch ($action) {
                       LEFT JOIN supplier s ON s.id_supplier = r.id_supplier
                       LEFT JOIN pengguna p ON p.id_pengguna = r.created_by
                       LEFT JOIN pengguna pa ON pa.id_pengguna = r.modified_by
-                      WHERE r.id_restok = ? AND r.is_deleted = 0";
+                      WHERE r.id_restok = ?";
         $stmtH = sqlsrv_query($conn, $sqlHeader, [$id]);
         $header = sqlsrv_fetch_array($stmtH, SQLSRV_FETCH_ASSOC);
         if (!$header) jsonOut(false, 'Data not found.');
@@ -100,8 +103,7 @@ switch ($action) {
             $header['modified_date'] = $header['modified_date']->format('d M Y H:i');
 
         // Items
-        $sqlItems = "SELECT pr.nama_produk, dr.jumlah, dr.harga_satuan,
-                            (dr.jumlah * dr.harga_satuan) AS subtotal
+        $sqlItems = "SELECT pr.nama_produk, dr.jumlah_barang, dr.harga_beli, dr.subtotal_harga
                      FROM detail_restok dr
                      LEFT JOIN produk pr ON pr.id_produk = dr.id_produk
                      WHERE dr.id_restok = ?";
@@ -115,12 +117,13 @@ switch ($action) {
 
     // ─── APPROVE ─────────────────────────────────────────────────────────
     case 'approve':
+        // NOTE: validasi role sementara dimatikan — semua role bisa approve untuk saat ini.
         $id      = (int)($_POST['id_restok'] ?? 0);
-        $by      = (int)($_SESSION['id_pengguna'] ?? 0);
+        $by      = (int)($_SESSION['id_pengguna'] ?? 1);
         if (!$id) jsonOut(false, 'Invalid ID.');
 
         // Cek status masih pending (0)
-        $stmtCek = sqlsrv_query($conn, "SELECT status_restok FROM restok WHERE id_restok = ? AND is_deleted = 0", [$id]);
+        $stmtCek = sqlsrv_query($conn, "SELECT status_restok FROM restok WHERE id_restok = ?", [$id]);
         $cek = sqlsrv_fetch_array($stmtCek, SQLSRV_FETCH_ASSOC);
         if (!$cek) jsonOut(false, 'PO not found.');
         if ((int)$cek['status_restok'] !== 0) jsonOut(false, 'PO is no longer pending.');
@@ -133,11 +136,12 @@ switch ($action) {
 
     // ─── REJECT ──────────────────────────────────────────────────────────
     case 'reject':
+        // NOTE: validasi role sementara dimatikan — semua role bisa reject untuk saat ini.
         $id      = (int)($_POST['id_restok'] ?? 0);
-        $by      = (int)($_SESSION['id_pengguna'] ?? 0);
+        $by      = (int)($_SESSION['id_pengguna'] ?? 1);
         if (!$id) jsonOut(false, 'Invalid ID.');
 
-        $stmtCek = sqlsrv_query($conn, "SELECT status_restok FROM restok WHERE id_restok = ? AND is_deleted = 0", [$id]);
+        $stmtCek = sqlsrv_query($conn, "SELECT status_restok FROM restok WHERE id_restok = ?", [$id]);
         $cek = sqlsrv_fetch_array($stmtCek, SQLSRV_FETCH_ASSOC);
         if (!$cek) jsonOut(false, 'PO not found.');
         if ((int)$cek['status_restok'] !== 0) jsonOut(false, 'PO is no longer pending.');
@@ -147,6 +151,93 @@ switch ($action) {
         if (!$stmt) jsonOut(false, 'Failed to reject PO.');
 
         jsonOut(true, 'PO has been rejected.');
+
+    // ─── SUPPLIER LIST (untuk dropdown form Add PO) ────────────────────────
+    case 'getSuppliers':
+        $sql  = "SELECT id_supplier, nama_suplier, no_telp FROM supplier WHERE is_deleted = 0 ORDER BY nama_suplier ASC";
+        $stmt = sqlsrv_query($conn, $sql, []);
+        $rows = [];
+        while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        jsonOut(true, '', ['rows' => $rows]);
+
+    // ─── PRODUK LIST (untuk dropdown item form Add PO) ─────────────────────
+    case 'getProduk':
+        $sql  = "SELECT id_produk, nama_produk, harga_beli FROM produk WHERE is_deleted = 0 ORDER BY nama_produk ASC";
+        $stmt = sqlsrv_query($conn, $sql, []);
+        $rows = [];
+        while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        jsonOut(true, '', ['rows' => $rows]);
+
+    // ─── CREATE PO BARU ─────────────────────────────────────────────────────
+    case 'create':
+        // NOTE: validasi role sementara dimatikan — semua role bisa create PO untuk saat ini.
+        // NOTE: fallback ke id_pengguna=1 kalau session kosong (sementara, sambil sistem session dibenahi).
+        $id_supplier = (int)($_POST['id_supplier'] ?? 0);
+        $by          = (int)($_SESSION['id_pengguna'] ?? 1);
+        $itemsJson   = $_POST['items'] ?? '';
+        $items       = json_decode($itemsJson, true);
+
+        if (!$id_supplier) jsonOut(false, 'Supplier is required.');
+        if (!is_array($items) || count($items) === 0) jsonOut(false, 'At least one item is required.');
+
+        // Validasi & hitung total
+        $totalBarang = 0;
+        $totalHarga  = 0;
+        $cleanItems  = [];
+        foreach ($items as $it) {
+            $id_produk = (int)($it['id_produk'] ?? 0);
+            $jumlah    = (int)($it['jumlah_barang'] ?? 0);
+            $harga     = (float)($it['harga_beli'] ?? 0);
+            if (!$id_produk || $jumlah < 1 || $harga <= 0) {
+                jsonOut(false, 'Each item must have a valid product, quantity (min 1), and price.');
+            }
+            $subtotal     = $jumlah * $harga;
+            $totalBarang += $jumlah;
+            $totalHarga  += $subtotal;
+            $cleanItems[] = [$id_produk, $jumlah, $harga, $subtotal];
+        }
+
+        sqlsrv_begin_transaction($conn);
+
+        try {
+            // Insert header — pakai OUTPUT supaya id_restok langsung didapat dari statement yang sama
+            // (lebih reliable daripada SCOPE_IDENTITY() di query terpisah, apalagi kalau ada trigger di tabel restok)
+            $sqlHeader = "INSERT INTO restok (id_supplier, tanggal_restok, total_barang, total_harga, status_restok, created_by, created_date)
+                          OUTPUT INSERTED.id_restok
+                          VALUES (?, GETDATE(), ?, ?, 0, ?, GETDATE())";
+            $stmtHeader = sqlsrv_query($conn, $sqlHeader, [$id_supplier, $totalBarang, $totalHarga, $by]);
+            if (!$stmtHeader) {
+                $errors = sqlsrv_errors();
+                $detail = $errors ? $errors[0]['message'] : 'unknown error';
+                throw new Exception('Failed to create PO header: ' . $detail);
+            }
+
+            $idRestok = (int)(sqlsrv_fetch_array($stmtHeader, SQLSRV_FETCH_ASSOC)['id_restok'] ?? 0);
+            if (!$idRestok) {
+                $errors = sqlsrv_errors();
+                $detail = $errors ? $errors[0]['message'] : 'no rows returned from OUTPUT';
+                throw new Exception('Failed to retrieve new PO ID: ' . $detail);
+            }
+
+            // Insert detail items
+            $sqlDetail = "INSERT INTO detail_restok (id_restok, id_produk, jumlah_barang, harga_beli, subtotal_harga)
+                          VALUES (?, ?, ?, ?, ?)";
+            foreach ($cleanItems as $ci) {
+                $stmtDetail = sqlsrv_query($conn, $sqlDetail, [$idRestok, $ci[0], $ci[1], $ci[2], $ci[3]]);
+                if (!$stmtDetail) {
+                    $errors = sqlsrv_errors();
+                    $detail = $errors ? $errors[0]['message'] : 'unknown error';
+                    throw new Exception('Failed to add PO item: ' . $detail);
+                }
+            }
+
+            sqlsrv_commit($conn);
+            jsonOut(true, 'PO created successfully.', ['id_restok' => $idRestok]);
+
+        } catch (Exception $e) {
+            sqlsrv_rollback($conn);
+            jsonOut(false, $e->getMessage());
+        }
 
     default:
         jsonOut(false, 'Unknown action.');
