@@ -1,7 +1,8 @@
 <?php
 session_start();
+// NOTE: validasi role untuk fitur Purchase sementara dimatikan (semua role bisa create/approve/reject).
+// Nanti aktifkan lagi setelah sistem session/login role-nya jelas.
 $role = (int)($_SESSION['role'] ?? 0);
-// role: 1=Admin, 2=Owner/Manager, 3=Superadmin
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,6 +22,7 @@ $role = (int)($_SESSION['role'] ?? 0);
             <!-- Title row -->
             <div class="card-title-row">
                 <h2 class="coolveticaa">Restock (Purchase Orders)</h2>
+                <button class="btn-add-green" onclick="openAddRestokModal()">+ Buat PO</button>
             </div>
 
             <!-- Filter bar -->
@@ -43,7 +45,6 @@ $role = (int)($_SESSION['role'] ?? 0);
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>PO ID</th>
                         <th>Supplier</th>
                         <th>Date</th>
                         <th>Total Items</th>
@@ -54,7 +55,7 @@ $role = (int)($_SESSION['role'] ?? 0);
                     </tr>
                 </thead>
                 <tbody id="restokTableBody">
-                    <tr><td colspan="9" style="color:#999;">Loading...</td></tr>
+                    <tr><td colspan="8" style="color:#999;">Loading...</td></tr>
                 </tbody>
             </table>
 
@@ -63,7 +64,8 @@ $role = (int)($_SESSION['role'] ?? 0);
         </div>
     </div>
 
-    <?php include 'components/modal_restok.php'; ?>
+    <?php include 'modal_restok.php'; ?>
+    <?php include 'modal_add_restok.php'; ?>
 
     <script>
         // Inject role dari PHP ke JS supaya JS tahu boleh approve/reject atau tidak
