@@ -7,16 +7,93 @@
     <link rel="stylesheet" href="buyback_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>
+    
 </head>
 <body>
     <?php include '../page-customer/navBar.php'; ?>
     <div class="main-content">
-        <div class="content-card" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; min-height: auto; padding: 20px 30px;">
-            <div>
-                <h2 style="color: var(--primary-color); font-weight: 700; font-size: 1.8rem; margin: 0;">Card Buyback</h2>
-                <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">Submit your cards for appraisal and get the best price.</p>
+        
+        <div class="content-card" style="margin-bottom: 2rem; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #E1EBFF;">
+                <div>
+                    <h2 style="color: var(--primary-color); font-weight: 700; font-size: 1.8rem; margin: 0;">Submit Card Buyback</h2>
+                    <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">Fill the form below to sell your cards and get the best offer.</p>
+                </div>
+                <a href="/cardhaven/interface/home/index.php" class="btn-cancel-outline" style="text-decoration: none; padding: 10px 20px; border-width: 2px; border-radius: 8px;">Back to Home</a>
             </div>
-            <button class="btn-confirm" style="width: auto; margin: 0; padding: 12px 25px;" onclick="openSubmitModal()">+ Sell Cards</button>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; align-items: start;">
+                
+                <div style="grid-column: span 2;">
+                    <form id="formBuyback" enctype="multipart/form-data">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; border-bottom: 2px dashed #E1EBFF; padding-bottom: 20px;">
+                            <div class="form-group">
+                                <label>Provider<span class="required">*</span></label>
+                                <input type="text" name="provider" id="bankProvider" class="modal-input" placeholder="e.g., BCA, GoPay, DANA">
+                                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>account number<span class="required">*</span></label>
+                                <input type="text" name="no_rekening" id="bankNoRek" class="modal-input" placeholder="e.g., 08123456789">
+                                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                            </div>
+                        </div>
+                        <div id="cardInputsContainer">
+                            <div class="card-input-group" id="cardGroup1" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff;">
+                                <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card 1</h4>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div class="form-group">
+                                        <label>Card Name <span class="required">*</span></label>
+                                        <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Pikachu VMAX Secret Rare">
+                                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Your Offer Price (Rp) <span class="required">*</span></label>
+                                        <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 1500000">
+                                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                    <div class="form-group">
+                                        <label>Front Photo <span class="required">*</span></label>
+                                        <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewFront1')">
+                                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                                        <img id="previewFront1" src="" style="max-width: 100%; max-height: 200px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Back Photo <span class="required">*</span></label>
+                                        <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewBack1')">
+                                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                                        <img id="previewBack1" src="" style="max-width: 100%; max-height: 200px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" class="btn-cancel-outline" style="flex: 1; border-style: dashed; border-width: 2px; padding: 12px;" onclick="addCardField()">+ Add Another Card</button>
+                            <button type="button" class="btn-cancel" style="width: auto; padding: 12px 30px; border-radius: 8px; background: #E74C3C; color: white; font-weight: bold; border: none; cursor: pointer;" onclick="resetForm()">Reset Form</button>
+                            <button type="button" class="btn-confirm" style="flex: 1; margin: 0; padding: 12px;" onclick="submitBuyback()">Submit Transaction</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div style="grid-column: span 1; top: 20px;">
+                    <div style="background: #fafcff; border: 2px solid #E1EBFF; border-radius: 12px; padding: 25px;">
+                        <h3 style="color: var(--primary-color); margin-top: 0; font-size: 1.2rem; border-bottom: 2px dashed #E1EBFF; padding-bottom: 10px; margin-bottom: 15px;">Terms & Conditions</h3>
+                        <ul style="padding-left: 20px; font-size: 0.85rem; color: #555; line-height: 1.8; margin: 0;">
+                            <li style="margin-bottom: 10px;"><strong>Originality:</strong> Ensure your cards are 100% genuine. Counterfeit cards will be automatically rejected.</li>
+                            <li style="margin-bottom: 10px;"><strong>Clear Photos:</strong> Photos must be clear, well-lit, and clearly show all four edges of the card.</li>
+                            <li style="margin-bottom: 10px;"><strong>Condition Match:</strong> Any physical damage (scratches, dents) not visible in the uploaded photos may result in rejection during the final physical check.</li>
+                            <li style="margin-bottom: 10px;"><strong>Negotiation:</strong> You have a maximum of 3 attempts to counter-offer per card.</li>
+                            <li style="margin-bottom: 10px;"><strong>Shipping:</strong> Once the price is agreed upon, you must ship the card securely to our store address.</li>
+                            <li style="margin-bottom: 10px;"><strong>Payment:</strong> Payment will be transferred strictly after the package is received and the physical quality is verified by our admin.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <div class="content-card" style="margin-top: 2rem;">
