@@ -70,7 +70,7 @@ switch ($action) {
                 mkdir($uploadDir, 0777, true);
             }
 
-            $sqlKartu = "INSERT INTO kartu_dibeli (id_kartu, id_pembelian, nama_kartu, foto_depan, foto_belakang, penawaran_customer, percobaan_penawaran) VALUES (?, ?, ?, ?, ?, ?, 1)";
+            $sqlKartu = "INSERT INTO kartu_dibeli (id_pembelian, nama_kartu, foto_depan, foto_belakang, penawaran_customer, percobaan_penawaran) VALUES ( ?, ?, ?, ?, ?, 1)";
 
             for ($i = 0; $i < $total_barang; $i++) {
                 $nama_kartu = $_POST['nama_kartu'][$i];
@@ -92,9 +92,9 @@ switch ($action) {
 
                 $pathDepan = $dbPath . $fileNameDepan;
                 $pathBelakang = $dbPath . $fileNameBelakang;
-                $id_kartu = rand(10000, 99999); 
                 
-                $paramsKartu = [$id_kartu, $id_pembelian, $nama_kartu, $pathDepan, $pathBelakang, $harga_beli];
+                
+                $paramsKartu = [$id_pembelian, $nama_kartu, $pathDepan, $pathBelakang, $harga_beli];
                 $stmtKartu = sqlsrv_query($conn, $sqlKartu, $paramsKartu);
                 
                 if ($stmtKartu === false) {
