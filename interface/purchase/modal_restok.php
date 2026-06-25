@@ -1,40 +1,39 @@
-<div id="restokOverlay" class="supp-overlay" onclick="closeRestokModal()"></div>
-
-<div id="restokDetailModal" class="supp-modal" style="min-width: 38rem; max-width: 44rem;">
-    <div class="modal-header">
-        <h2>Purchase Order <span class="blue-text" id="modalPOId"></span></h2>
-    </div>
-    <div class="supp-modal-body" style="padding: 0 4px;">
+<div id="restokDetailModal" class="modal-overlay">
+    <div class="modal-box" style="width: 700px; max-width: 95%;">
+        <div class="modal-header">
+            <h2>PURCHASE <span class="blue-text">ORDER</span></h2>
+            <span class="game-id" id="modalPOId"></span>
+        </div>
 
         <!-- Info Header -->
-        <div id="modalHeaderInfo" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0 1.2rem 0;">
-            <div class="supp-detail-item" style="flex: 1; min-width: 140px;">
-                <span class="supp-detail-label">Supplier</span>
-                <span class="supp-detail-value" id="modalSupplier">-</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+            <div class="modal-form-group" style="margin-bottom: 0;">
+                <label>Supplier</label>
+                <div class="detail-field" id="modalSupplier">-</div>
             </div>
-            <div class="supp-detail-item" style="flex: 1; min-width: 140px;">
-                <span class="supp-detail-label">Phone</span>
-                <span class="supp-detail-value" id="modalTelp">-</span>
+            <div class="modal-form-group" style="margin-bottom: 0;">
+                <label>Phone</label>
+                <div class="detail-field" id="modalTelp">-</div>
             </div>
-            <div class="supp-detail-item" style="flex: 1; min-width: 140px;">
-                <span class="supp-detail-label">Date</span>
-                <span class="supp-detail-value" id="modalTanggal">-</span>
+            <div class="modal-form-group" style="margin-bottom: 0;">
+                <label>Date</label>
+                <div class="detail-field" id="modalTanggal">-</div>
             </div>
-            <div class="supp-detail-item" style="flex: 1; min-width: 140px;">
-                <span class="supp-detail-label">Created By</span>
-                <span class="supp-detail-value" id="modalCreatedBy">-</span>
+            <div class="modal-form-group" style="margin-bottom: 0;">
+                <label>Created By</label>
+                <div class="detail-field" id="modalCreatedBy">-</div>
             </div>
         </div>
 
-        <!-- Status badge -->
-        <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;">
-            <span class="supp-detail-label">Status</span>
+        <!-- Status -->
+        <div class="status-text" style="display:flex; align-items:center; justify-content:center; gap:0.6rem;">
+            <span>Status:</span>
             <span id="modalStatusBadge"></span>
-            <span id="modalApprovedBy" style="font-size: 0.78rem; color: #7A8BA8;"></span>
+            <span id="modalApprovedBy" style="font-size: 0.78rem; color: #7A8BA8; font-weight: 400;"></span>
         </div>
 
         <!-- Items Table -->
-        <table class="styled-table" style="margin-bottom: 0.5rem;">
+        <table class="modal-product-table">
             <thead>
                 <tr>
                     <th>Product</th>
@@ -44,21 +43,20 @@
                 </tr>
             </thead>
             <tbody id="modalItemsBody">
-                <tr><td colspan="4">Loading...</td></tr>
+                <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2" style="text-align: right; font-weight: 700; padding: 10px; border-top: 2px solid #0D47A1; color: #0D47A1;">TOTAL</td>
-                    <td style="border-top: 2px solid #0D47A1;"></td>
-                    <td style="text-align: right; font-weight: 700; padding: 10px; border-top: 2px solid #0D47A1; color: #0D47A1;" id="modalTotal">-</td>
+                    <td colspan="2" style="text-align: right; font-weight: 700; border-top: 2px solid var(--primary-color); color: var(--primary-color);">TOTAL</td>
+                    <td style="border-top: 2px solid var(--primary-color);"></td>
+                    <td style="text-align: right; font-weight: 700; border-top: 2px solid var(--primary-color); color: var(--primary-color);" id="modalTotal">-</td>
                 </tr>
             </tfoot>
         </table>
-    </div>
 
-    <div class="supp-modal-footer" id="modalFooter">
-        <!-- Tombol approve/reject hanya muncul untuk superadmin dan hanya kalau pending -->
-        <button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>
+        <div class="modal-footer" id="modalFooter" style="gap: 0.75rem;">
+            <button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>
+        </div>
     </div>
 </div>
 
