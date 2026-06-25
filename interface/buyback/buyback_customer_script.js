@@ -1,12 +1,14 @@
 const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php';
 
-// Mengambil dari sessionStorage atau localStorage
 const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
 const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
 let cardIndexCounter = 1;
 
-function openSubmitModal() {
-    // 1. Tarik data Rekening & Provider dari tabel pengguna saat modal dibuka
+if (!idPengguna || userRole != '0') {
+    window.location.href = '../login-page/index.php';
+}
+
+function fetchBankDetails() {
     fetch(`${BUYBACK_CONTROLLER}?action=get_user_bank&id_pengguna=${idPengguna}`)
     .then(res => res.json())
     .then(res => {
@@ -14,9 +16,41 @@ function openSubmitModal() {
             document.getElementById('bankProvider').value = res.data.provider || '';
             document.getElementById('bankNoRek').value = res.data.no_rekening || '';
         }
-        document.getElementById('submitModal').style.display = 'flex';
     });
 }
+
+// Fungsi untuk me-render gambar ke tag <img> saat user memilih file
+function previewImage(input, imgId) {
+    const imgElement = document.getElementById(imgId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imgElement.src = e.target.result;
+            imgElement.style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        imgElement.src = '';
+        imgElement.style.display = 'none';
+    }
+}
+
+function resetForm() {
+    const form = document.getElementById('formBuyback');
+    if (form) {
+        form.reset();
+        form.querySelectorAll('.error-message').forEach(el => el.innerText = '');
+        form.querySelectorAll('.modal-input').forEach(el => el.style.borderColor = '#ccc');
+        // Sembunyikan semua preview gambar
+        form.querySelectorAll('img[id^="preview"]').forEach(img => {
+            img.src = '';
+            img.style.display = 'none';
+        });
+    }
+    resetCardFields();
+    fetchBankDetails(); // Kembalikan data rekening bawaan
+}
+
 function addCardField() {
     cardIndexCounter++;
     const container = document.getElementById('cardInputsContainer');
@@ -24,25 +58,33 @@ function addCardField() {
         <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
             <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
             <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
-            <div class="form-group">
-                <label>Card Name <span class="required">*</span></label>
-                <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Charizard Base Set">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Card Name <span class="required">*</span></label>
+                    <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Charizard Base Set">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Your Offer Price (Rp) <span class="required">*</span></label>
+                    <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 500000">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 500000">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
-            </div>
-            <div class="form-group">
-                <label>Front Photo <span class="required">*</span></label>
-                <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
-            </div>
-            <div class="form-group">
-                <label>Back Photo <span class="required">*</span></label>
-                <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div class="form-group">
+                    <label>Front Photo <span class="required">*</span></label>
+                    <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewFront${cardIndexCounter}')">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                    <img id="previewFront${cardIndexCounter}" src="" style="max-width: 100%; max-height: 200px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
+                <div class="form-group">
+                    <label>Back Photo <span class="required">*</span></label>
+                    <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewBack${cardIndexCounter}')">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                    <img id="previewBack${cardIndexCounter}" src="" style="max-width: 100%; max-height: 200px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
             </div>
         </div>
     `;
@@ -55,33 +97,6 @@ function closeSubmitModal() {
     resetCardFields();
 }
 
-function addCardField() {
-    cardIndexCounter++;
-    const container = document.getElementById('cardInputsContainer');
-    const html = `
-        <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
-            <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
-            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
-            <div class="form-group">
-                <label>Card Name <span class="required">*</span></label>
-                <input type="text" name="nama_kartu[]" required placeholder="e.g., Charizard Base Set">
-            </div>
-            <div class="form-group">
-                <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                <input type="number" name="harga_beli[]" required placeholder="e.g., 500000">
-            </div>
-            <div class="form-group">
-                <label>Front Photo <span class="required">*</span></label>
-                <input type="file" name="foto_depan[]" class="file-input-custom" accept="image/*" required>
-            </div>
-            <div class="form-group">
-                <label>Back Photo <span class="required">*</span></label>
-                <input type="file" name="foto_belakang[]" class="file-input-custom" accept="image/*" required>
-            </div>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', html);
-}
 
 function removeCardField(id) {
     document.getElementById(`cardGroup${id}`).remove();
@@ -150,10 +165,11 @@ function submitBuyback() {
     const cardBacks = document.getElementsByName('foto_belakang[]');
 
     for (let i = 0; i < cardNames.length; i++) {
-        if (!cardNames[i].value.trim()) showError(cardNames[i], "Nama kartu tidak boleh kosong.");
-        if (!cardPrices[i].value || cardPrices[i].value <= 0) showError(cardPrices[i], "Harga tidak valid (harus > 0).");
-        if (cardFronts[i].files.length === 0) showError(cardFronts[i], "Foto depan wajib diunggah.");
-        if (cardBacks[i].files.length === 0) showError(cardBacks[i], "Foto belakang wajib diunggah.");
+        if (!cardNames[i].value.trim()) showError(cardNames[i], "Please enter the card name!");
+        if (!cardPrices[i].value) showError(cardPrices[i], "Please enter the price!");
+        if (cardPrices[i].value <= 0) showError(cardPrices[i], "Please enter a valid price!");
+        if (cardFronts[i].files.length === 0) showError(cardFronts[i], "Please upload the front side photo of the card!");
+        if (cardBacks[i].files.length === 0) showError(cardBacks[i], "Please upload the back side photo of the card!");
     }
 
     if (!isValid) return; // Hentikan proses jika ada error
@@ -166,7 +182,7 @@ function submitBuyback() {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            closeSubmitModal();
+            resetForm();
             cardhavenAlert('success', 'Success', res.message, () => loadRiwayat());
         } else {
             cardhavenAlert('error', 'Failed', res.message);
@@ -419,3 +435,8 @@ function inputAddress(id_pembelian) {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadRiwayat();
+    fetchBankDetails(); // Agar provider dan rekening muncul seketika saat halaman dimuat
+});

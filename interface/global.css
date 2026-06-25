@@ -1386,7 +1386,7 @@ input:checked + .slider:before {
     margin: 0;
 }
 
-.divider {
+.divider-hero {
     width: 1px; 
     height: 20px; 
     background-color: #999;
@@ -1530,10 +1530,6 @@ input:checked + .slider:before {
     cursor: pointer;
     outline: none;
     appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230f3891'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.9rem center;
     padding-right: 2rem;
 }
 

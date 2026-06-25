@@ -7,7 +7,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.25rem;
-    max-width: 600px;
+    width: 90%;
 }
 
 .file-input-custom {
