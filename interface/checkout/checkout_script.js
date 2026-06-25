@@ -1,10 +1,5 @@
-/**
- * checkout_script.js — CardHaven Checkout Flow
- * Menangani 3 tahap: (1) Detail Order → (2) Upload Bukti → (3) Konfirmasi
- */
-
 const CHECKOUT_CONTROLLER = '/cardhaven/interface/checkout/controller_checkout.php';
-const BASE_IMG_URL        = '/cardhaven';          // prefix untuk path foto produk
+const BASE_IMG_URL        = '/cardhaven';
 
 const fmt = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
 
@@ -13,6 +8,20 @@ let selectedMethodFee  = 0;
 let currentOrderId     = null;
 let cartSubtotal       = 0;
 let selectedFile       = null;
+
+// Anti-spam flags
+let isPlacingOrder    = false;
+let isSubmittingProof = false;
+
+// ============================================================
+// FETCH WITH TIMEOUT
+// ============================================================
+function fetchWithTimeout(url, options = {}, ms = 10000) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), ms);
+    return fetch(url, { ...options, signal: ctrl.signal })
+        .finally(() => clearTimeout(timer));
+}
 
 // ============================================================
 // INIT
@@ -28,21 +37,28 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 
 function loadUserInfo() {
-    fetch(`${CHECKOUT_CONTROLLER}?action=get_user_info`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_user_info`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
                 document.getElementById('field-name').value  = data.username   || '';
                 document.getElementById('field-phone').value = data.no_telepon || '';
-                // Setelah nama ter-isi (dari server), update tombol
                 checkCanOrder();
+            } else {
+                showAlert('checkout', 'Gagal memuat info pengguna. Silakan login ulang.', 'error');
             }
         })
-        .catch(console.error);
+        .catch(err => {
+            const msg = err.name === 'AbortError'
+                ? 'Koneksi timeout saat memuat info pengguna. Coba refresh halaman.'
+                : 'Gagal memuat info pengguna. Coba refresh halaman.';
+            showAlert('checkout', msg, 'error');
+            console.error(err);
+        });
 }
 
 function loadCartItems() {
-    fetch(`${CHECKOUT_CONTROLLER}?action=get_selected_items`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_selected_items`)
         .then(r => r.json())
         .then(data => {
             const loading = document.getElementById('checkout-items-loading');
@@ -50,6 +66,17 @@ function loadCartItems() {
 
             loading.style.display = 'none';
             list.style.display    = 'flex';
+
+            // Tangani jika response adalah error object
+            if (data && !Array.isArray(data) && data.success === false) {
+                list.innerHTML = `<p style="color:#dc2626;font-size:0.88rem;">
+                    ${escapeHtml(data.message || 'Gagal memuat item.')}
+                    <a href="/cardhaven/interface/cart/" style="color:#1a3a6b;font-weight:700;">Kembali ke keranjang</a>.
+                </p>`;
+                updateSummary();
+                checkCanOrder();
+                return;
+            }
 
             if (!data || data.length === 0) {
                 list.innerHTML = `<p style="color:#888;font-size:0.88rem;">
@@ -74,15 +101,33 @@ function loadCartItems() {
             updateSummary();
             checkCanOrder();
         })
-        .catch(console.error);
+        .catch(err => {
+            const loading = document.getElementById('checkout-items-loading');
+            const list    = document.getElementById('checkout-item-list');
+            if (loading) loading.style.display = 'none';
+            if (list) {
+                list.style.display = 'block';
+                const msg = err.name === 'AbortError'
+                    ? 'Koneksi timeout. Periksa internet Anda.'
+                    : 'Gagal memuat item. Coba refresh halaman.';
+                list.innerHTML = `
+                    <div style="padding:16px;text-align:center;color:#dc2626;">
+                        <p style="font-weight:700;margin-bottom:8px;">⚠ ${msg}</p>
+                        <button onclick="location.reload()"
+                                style="padding:8px 20px;background:#1a3a6b;color:white;
+                                       border:none;border-radius:6px;cursor:pointer;font-weight:700;">
+                            🔄 Refresh
+                        </button>
+                    </div>`;
+            }
+            console.error(err);
+        });
 }
 
 function renderCheckoutItem(item) {
     const div = document.createElement('div');
     div.className = 'checkout-item';
 
-    // Path foto: jika sudah ada "image-profile/" di depan pakai BASE_IMG_URL,
-    // jika tidak ada (null / kosong) pakai gambar default
     const fotoSrc = item.foto
         ? `${BASE_IMG_URL}/${item.foto}`
         : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
@@ -105,7 +150,7 @@ function renderCheckoutItem(item) {
 }
 
 function loadPaymentMethods() {
-    fetch(`${CHECKOUT_CONTROLLER}?action=get_payment_methods`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_payment_methods`)
         .then(r => r.json())
         .then(methods => {
             const loading = document.getElementById('payment-method-loading');
@@ -113,6 +158,14 @@ function loadPaymentMethods() {
 
             loading.style.display = 'none';
             list.style.display    = 'flex';
+
+            // Tangani jika response adalah error object
+            if (methods && !Array.isArray(methods) && methods.success === false) {
+                list.innerHTML = `<p style="color:#dc2626;font-size:0.88rem;">
+                    ${escapeHtml(methods.message || 'Gagal memuat metode pembayaran.')}
+                </p>`;
+                return;
+            }
 
             if (!methods || methods.length === 0) {
                 list.innerHTML = `<p style="color:#888;font-size:0.88rem;">No payment methods available.</p>`;
@@ -147,7 +200,27 @@ function loadPaymentMethods() {
 
             checkCanOrder();
         })
-        .catch(console.error);
+        .catch(err => {
+            const loading = document.getElementById('payment-method-loading');
+            const list    = document.getElementById('payment-method-list');
+            if (loading) loading.style.display = 'none';
+            if (list) {
+                list.style.display = 'block';
+                const msg = err.name === 'AbortError'
+                    ? 'Koneksi timeout. Periksa internet Anda.'
+                    : 'Gagal memuat metode pembayaran. Coba refresh halaman.';
+                list.innerHTML = `
+                    <div style="padding:16px;text-align:center;color:#dc2626;">
+                        <p style="font-weight:700;margin-bottom:8px;">⚠ ${msg}</p>
+                        <button onclick="location.reload()"
+                                style="padding:8px 20px;background:#1a3a6b;color:white;
+                                       border:none;border-radius:6px;cursor:pointer;font-weight:700;">
+                            🔄 Refresh
+                        </button>
+                    </div>`;
+            }
+            console.error(err);
+        });
 }
 
 function selectPaymentMethod(id, fee, el) {
@@ -175,28 +248,29 @@ function updateSummary() {
 }
 
 function checkCanOrder() {
-    // field-name diisi dari server (readonly), cukup cek panjangnya
     const name   = (document.getElementById('field-name')?.value   || '').trim();
     const alamat = (document.getElementById('field-alamat')?.value  || '').trim();
     const ready  = name.length > 0 && alamat.length > 0 && selectedMethodId !== null && cartSubtotal > 0;
     const btn    = document.getElementById('btn-place-order');
-    if (btn) btn.disabled = !ready;
+    if (btn) btn.disabled = !ready || isPlacingOrder;
 }
 
-// Re-check saat user mengetik di field yang bisa diubah
 document.addEventListener('input', e => {
     if (['field-phone', 'field-alamat'].includes(e.target.id)) checkCanOrder();
 });
 
 // ============================================================
-// PLACE ORDER (Step 1 → Step 2)
+// PLACE ORDER (Step 1 → Step 2) — anti-spam
 // ============================================================
 
 function placeOrder() {
+    if (isPlacingOrder) return;
+
     const alamat = document.getElementById('field-alamat').value.trim();
     if (!alamat)          { showAlert('checkout', 'Please enter your shipping address.', 'error'); return; }
     if (!selectedMethodId){ showAlert('checkout', 'Please select a payment method.', 'error');     return; }
 
+    isPlacingOrder = true;
     const btn = document.getElementById('btn-place-order');
     btn.disabled    = true;
     btn.textContent = 'Processing...';
@@ -206,22 +280,30 @@ function placeOrder() {
     fd.append('alamat',    alamat);
     fd.append('id_metode', selectedMethodId);
 
-    fetch(CHECKOUT_CONTROLLER, { method: 'POST', body: fd })
+    fetchWithTimeout(CHECKOUT_CONTROLLER, { method: 'POST', body: fd }, 15000)
         .then(r => r.json())
         .then(json => {
             if (json.success) {
                 currentOrderId = json.id_penjualan;
+                isPlacingOrder = false;
                 goToStep2(json);
             } else {
                 showAlert('checkout', json.message || 'Failed to place order.', 'error');
+                isPlacingOrder  = false;
                 btn.disabled    = false;
                 btn.textContent = 'Place Order →';
+                checkCanOrder();
             }
         })
         .catch(err => {
-            showAlert('checkout', 'Network error. Please try again.', 'error');
+            const msg = err.name === 'AbortError'
+                ? 'Koneksi timeout. Coba lagi.'
+                : 'Network error. Please try again.';
+            showAlert('checkout', msg, 'error');
+            isPlacingOrder  = false;
             btn.disabled    = false;
             btn.textContent = 'Place Order →';
+            checkCanOrder();
             console.error(err);
         });
 }
@@ -237,11 +319,11 @@ function goToStep2(orderData) {
     document.getElementById('step1-content').style.display = 'none';
     document.getElementById('step2-content').style.display = 'block';
 
-    document.getElementById('step2-order-id').textContent              = '#' + currentOrderId;
+    document.getElementById('step2-order-id').textContent             = '#' + currentOrderId;
     const totalWithFee = cartSubtotal + selectedMethodFee;
-    document.getElementById('step2-total').textContent                 = fmt(totalWithFee);
-    document.getElementById('payment-instruction-amount').textContent  = fmt(totalWithFee);
-    document.getElementById('payment-instruction-detail').innerHTML    = orderData.payment_detail || '';
+    document.getElementById('step2-total').textContent                = fmt(totalWithFee);
+    document.getElementById('payment-instruction-amount').textContent = fmt(totalWithFee);
+    document.getElementById('payment-instruction-detail').innerHTML   = orderData.payment_detail || '';
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -260,7 +342,7 @@ function handleFileDrop(event) {
 }
 
 function setUploadFile(file) {
-    const maxSize     = 5 * 1024 * 1024;
+    const maxSize      = 5 * 1024 * 1024;
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 
     if (file.size > maxSize) {
@@ -277,13 +359,12 @@ function setUploadFile(file) {
     if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = e => {
-            document.getElementById('file-preview-img').src    = e.target.result;
+            document.getElementById('file-preview-img').src       = e.target.result;
             document.getElementById('file-preview').style.display = 'block';
         };
         reader.readAsDataURL(file);
     } else {
-        // PDF — tampilkan ikon generik
-        document.getElementById('file-preview-img').src    = `${BASE_IMG_URL}/assets/image/pdf-icon.svg`;
+        document.getElementById('file-preview-img').src       = `${BASE_IMG_URL}/assets/image/pdf-icon.svg`;
         document.getElementById('file-preview').style.display = 'block';
     }
 
@@ -296,15 +377,19 @@ function clearFile() {
     document.getElementById('bukti-file-input').value        = '';
     document.getElementById('file-preview').style.display    = 'none';
     document.getElementById('btn-submit-payment').disabled   = true;
+    isSubmittingProof = false;
 }
 
 function submitPayment() {
+    if (isSubmittingProof) return;
+
     if (!selectedFile) {
         showAlert('upload', 'Please upload your payment proof first.', 'error');
         return;
     }
 
-    const btn    = document.getElementById('btn-submit-payment');
+    isSubmittingProof = true;
+    const btn = document.getElementById('btn-submit-payment');
     btn.disabled    = true;
     btn.textContent = 'Uploading...';
 
@@ -313,19 +398,25 @@ function submitPayment() {
     fd.append('id_penjualan', currentOrderId);
     fd.append('bukti',        selectedFile);
 
-    fetch(CHECKOUT_CONTROLLER, { method: 'POST', body: fd })
+    fetchWithTimeout(CHECKOUT_CONTROLLER, { method: 'POST', body: fd }, 20000)
         .then(r => r.json())
         .then(json => {
             if (json.success) {
+                isSubmittingProof = false;
                 goToStep3();
             } else {
                 showAlert('upload', json.message || 'Upload failed. Please try again.', 'error');
+                isSubmittingProof = false;
                 btn.disabled    = false;
                 btn.textContent = 'Submit Payment Proof →';
             }
         })
         .catch(err => {
-            showAlert('upload', 'Network error. Please try again.', 'error');
+            const msg = err.name === 'AbortError'
+                ? 'Upload timeout. File mungkin terlalu besar atau koneksi lambat.'
+                : 'Network error. Please try again.';
+            showAlert('upload', msg, 'error');
+            isSubmittingProof = false;
             btn.disabled    = false;
             btn.textContent = 'Submit Payment Proof →';
             console.error(err);
@@ -343,6 +434,30 @@ function goToStep3() {
     document.getElementById('step2-content').style.display = 'none';
     document.getElementById('step3-content').style.display = 'block';
     document.getElementById('confirm-order-id').textContent = '#' + currentOrderId;
+
+    // Tombol navigasi
+    const step3 = document.getElementById('step3-content');
+    if (step3 && !document.getElementById('btn-back-home')) {
+        const btnWrapper = document.createElement('div');
+        btnWrapper.style.cssText = 'display:flex;gap:12px;margin-top:28px;justify-content:center;flex-wrap:wrap;';
+        btnWrapper.innerHTML = `
+            <a id="btn-back-home"
+               href="/cardhaven/interface/home/"
+               style="padding:12px 28px;background:#1a3a6b;color:white;border-radius:6px;
+                      font-weight:800;text-decoration:none;font-size:0.85rem;
+                      text-transform:uppercase;letter-spacing:1px;">
+                🏠 Back to Home
+            </a>
+            <a href="/cardhaven/interface/cart/"
+               style="padding:12px 28px;background:white;color:#1a3a6b;border-radius:6px;
+                      font-weight:800;text-decoration:none;font-size:0.85rem;
+                      text-transform:uppercase;letter-spacing:1px;
+                      border:2px solid #1a3a6b;">
+                🛒 My Cart
+            </a>
+        `;
+        step3.appendChild(btnWrapper);
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
