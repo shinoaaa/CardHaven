@@ -6,6 +6,8 @@
     <title>Account Setting</title>
     <link rel="stylesheet" href="/cardhaven/interface/account-setting/account-setting.css">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/cardhaven/interface/global_alert.js"></script>
 </head>
 <body>
 <div class="page-shell">

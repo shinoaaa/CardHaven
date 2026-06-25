@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'get') {
     if ($id_pengguna === '') {
         jsonResponse([
             "status" => "error",
-            "message" => "ID pengguna tidak ditemukan"
+            "message" => "User ID not found."
         ]);
     }
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'get') {
         $errors = sqlsrv_errors();
         jsonResponse([
             "status" => "error",
-            "message" => $errors[0]['message'] ?? "Gagal mengambil data"
+            "message" => $errors[0]['message'] ?? "Failed to retrieve data."
         ]);
     }
 
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'get') {
     if (!$user) {
         jsonResponse([
             "status" => "error",
-            "message" => "Data tidak ditemukan"
+            "message" => "Data not found."
         ]);
     }
 
@@ -54,30 +54,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($id_pengguna === '') {
         jsonResponse([
             "status" => "error",
-            "message" => "ID pengguna tidak ditemukan"
+            "message" => "User ID not found."
         ]);
     }
 
     if ($action === 'update') {
         $nama = trim($_POST['nama'] ?? '');
         $email = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $confirm_password = trim($_POST['confirm_password'] ?? '');
 
         if ($nama === '' || $email === '') {
             jsonResponse([
                 "status" => "error",
-                "message" => "Nama dan email wajib diisi"
+                "message" => "Name and email are required."
             ]);
-        }
-
-        if ($password !== '' || $confirm_password !== '') {
-            if ($password !== $confirm_password) {
-                jsonResponse([
-                    "status" => "error",
-                    "message" => "Password dan konfirmasi password tidak sama"
-                ]);
-            }
         }
 
         $sqlCheck = "SELECT id_pengguna
@@ -90,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = sqlsrv_errors();
             jsonResponse([
                 "status" => "error",
-                "message" => $errors[0]['message'] ?? "Validasi email gagal"
+                "message" => $errors[0]['message'] ?? "Email validation failed."
             ]);
         }
 
@@ -99,23 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($emailExists) {
             jsonResponse([
                 "status" => "error",
-                "message" => "Email sudah dipakai akun lain"
+                "message" => "Email is already in use by another account."
             ]);
         }
 
-        if ($password !== '') {
-            $sql = "UPDATE pengguna
-                    SET username = ?, email = ?, password = ?
-                    WHERE id_pengguna = ?";
-
-            $params = [$nama, $email, $password, $id_pengguna];
-        } else {
-            $sql = "UPDATE pengguna
-                    SET username = ?, email = ?
-                    WHERE id_pengguna = ?";
-
-            $params = [$nama, $email, $id_pengguna];
-        }
+        $sql = "UPDATE pengguna SET username = ?, email = ? WHERE id_pengguna = ?";
+        $params = [$nama, $email, $id_pengguna];
 
         $stmt = sqlsrv_prepare($conn, $sql, $params);
 
@@ -123,15 +101,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = sqlsrv_errors();
             jsonResponse([
                 "status" => "error",
-                "message" => $errors[0]['message'] ?? "Update gagal"
+                "message" => $errors[0]['message'] ?? "Failed to update profile."
             ]);
         }
 
         jsonResponse([
             "status" => "success",
-            "message" => "Data berhasil diupdate"
+            "message" => "Profile updated successfully."
         ]);
     }
+
     if ($action === 'change_password') {
         $cur_pw = $_POST['current_password'] ?? '';
         $new_pw = $_POST['new_password'] ?? '';
@@ -156,43 +135,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (sqlsrv_execute($stmtUp)) {
             jsonResponse([
                 "status" => "success",
-                "message" => "Password updated successfully"
+                "message" => "Password updated successfully!"
             ]);
         } else {
             jsonResponse([
                 "status" => "error",
-                "message" => "Failed to update database"
+                "message" => "Failed to update password in database."
             ]);
         }
     }
+    
     if ($action === 'deactivate' || $action === 'delete') {
-        $sql = "UPDATE pengguna
-                SET status_akun = 0
-                WHERE id_pengguna = ?";
-
+        $sql = "UPDATE pengguna SET status_akun = 0 WHERE id_pengguna = ?";
         $stmt = sqlsrv_prepare($conn, $sql, [$id_pengguna]);
 
         if (!$stmt || !sqlsrv_execute($stmt)) {
             $errors = sqlsrv_errors();
             jsonResponse([
                 "status" => "error",
-                "message" => $errors[0]['message'] ?? "Gagal menonaktifkan akun"
+                "message" => $errors[0]['message'] ?? "Failed to deactivate account."
             ]);
         }
 
+        $msg = ($action === 'delete') ? "Account successfully deleted." : "Account successfully deactivated.";
         jsonResponse([
             "status" => "success",
-            "message" => "Akun berhasil dinonaktifkan"
+            "message" => $msg
         ]);
     }
 
     jsonResponse([
         "status" => "error",
-        "message" => "Action tidak valid"
+        "message" => "Invalid action."
     ]);
 }
 
 jsonResponse([
     "status" => "error",
-    "message" => "Request tidak valid"
+    "message" => "Invalid request."
 ]);
