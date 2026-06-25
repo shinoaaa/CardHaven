@@ -22,7 +22,7 @@ $role = (int)($_SESSION['role'] ?? 0);
             <!-- Title row -->
             <div class="card-title-row">
                 <h2 class="coolveticaa">Restock (Purchase Orders)</h2>
-                <button class="btn-add-green" onclick="openAddRestokModal()">+ Buat PO</button>
+                <button class="btn-add-green" id="btnBuatPO" onclick="openAddRestokModal()" style="display:none;">+ Add PO</button>
             </div>
 
             <!-- Filter bar -->
@@ -67,10 +67,6 @@ $role = (int)($_SESSION['role'] ?? 0);
     <?php include 'modal_restok.php'; ?>
     <?php include 'modal_add_restok.php'; ?>
 
-    <script>
-        // Inject role dari PHP ke JS supaya JS tahu boleh approve/reject atau tidak
-        const USER_ROLE = <?= $role ?>;
-    </script>
     <script src="/cardhaven/interface/purchase/restok_script.js?v=<?= time() ?>"></script>
 </body>
 </html>

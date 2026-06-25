@@ -1,4 +1,6 @@
-const API = '/cardhaven/interface/purchase/controller_restok.php';
+const API       = '/cardhaven/interface/purchase/controller_restok.php';
+const ACTOR_ID  = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
+const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
 let currentPage = 1;
 let searchTimer = null;
 
@@ -27,6 +29,7 @@ function loadRestok(page = 1) {
         page,
         search,
         status,
+        actor_id: ACTOR_ID,
     });
 
     const tbody = document.getElementById('restokTableBody');
@@ -113,7 +116,7 @@ function openRestokModal(id) {
     document.getElementById('modalItemsBody').innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
     document.getElementById('modalFooter').innerHTML = '<button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>';
 
-    fetch(`${API}?action=getDetail&id=${id}`)
+    fetch(`${API}?action=getDetail&id=${id}&actor_id=${ACTOR_ID}`)
         .then(r => r.json())
         .then(res => {
             if (!res.success) {
@@ -155,8 +158,8 @@ function openRestokModal(id) {
             document.getElementById('modalItemsBody').innerHTML = itemHtml || '<tr><td colspan="4">No items.</td></tr>';
             document.getElementById('modalTotal').textContent = formatRupiah(h.total_harga);
 
-            // Tombol approve/reject — sementara selalu muncul kalau status masih pending (validasi role dimatikan sementara)
-            if (parseInt(h.status_restok) === 0) {
+            // Tombol approve/reject — hanya Superadmin (role=3) dan hanya kalau status masih pending
+            if (parseInt(res.data.can_approve) === 1 && parseInt(h.status_restok) === 0) {
                 document.getElementById('modalFooter').innerHTML = `
                     <button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>
                     <button class="btn-cancel-outline" style="color:#E74C3C; border-color:#E74C3C;"
@@ -173,6 +176,8 @@ function closeRestokModal() {
 
 // ─── APPROVE / REJECT ─────────────────────────────────────────────────────────
 function confirmAction(id, action) {
+const ACTOR_ID = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
+const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
     const isApprove = action === 'approve';
     cardhavenConfirm(
         isApprove ? 'Approve this PO?' : 'Reject this PO?',
@@ -181,9 +186,11 @@ function confirmAction(id, action) {
             : 'This will reject the PO. The admin will need to create a new one.',
         isApprove ? 'Yes, Approve' : 'Yes, Reject',
         () => {
-            const body = new FormData();
+          const body = new FormData();
             body.append('action', action);
             body.append('id_restok', id);
+            body.append('actor_id', ACTOR_ID);
+            
 
             fetch(API, { method: 'POST', body })
                 .then(r => r.json())
@@ -203,7 +210,12 @@ function confirmAction(id, action) {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => loadRestok(1));
+document.addEventListener('DOMContentLoaded', () => {
+    // Owner (role=2) read-only — tombol Buat PO disembunyikan
+    const btn = document.getElementById('btnBuatPO');
+    if (btn) btn.style.display = (USER_ROLE === 2) ? '' : 'none';
+    loadRestok(1);
+});
 
 // Klik di luar modal box (di area overlay) untuk menutup, sama seperti modul Product
 window.addEventListener('click', (e) => {
@@ -225,7 +237,7 @@ function openAddRestokModal() {
     itemRowCount = 0;
 
     // Load supplier dropdown
-    fetch(`${API}?action=getSuppliers`)
+    fetch(`${API}?action=getSuppliers&actor_id=${ACTOR_ID}`)
         .then(r => r.json())
         .then(res => {
             const sel = document.getElementById('addSupplierSelect');
@@ -241,7 +253,7 @@ function openAddRestokModal() {
         });
 
     // Load produk list (dipakai berkali-kali tiap nambah baris, jadi di-cache di produkList)
-    fetch(`${API}?action=getProduk`)
+    fetch(`${API}?action=getProduk&actor_id=${ACTOR_ID}`)
         .then(r => r.json())
         .then(res => {
             produkList = res.success ? res.data.rows : [];
@@ -315,6 +327,9 @@ function recalcAddTotal() {
 
 // ─── ADD PO: submit ──────────────────────────────────────────────────────────
 function submitAddRestok() {
+    // Tambahkan di paling atas file, setelah baris const API = ...
+const ACTOR_ID = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
+const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
     const id_supplier = document.getElementById('addSupplierSelect').value;
     if (!id_supplier) {
         cardhavenAlert('error', 'Validation', 'Please select a supplier.');
@@ -345,6 +360,7 @@ function submitAddRestok() {
     body.append('action', 'create');
     body.append('id_supplier', id_supplier);
     body.append('items', JSON.stringify(items));
+    body.append('actor_id', ACTOR_ID);
 
     fetch(API, { method: 'POST', body })
         .then(r => r.json())

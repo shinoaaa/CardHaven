@@ -11,6 +11,23 @@ function jsonOut(bool $success, string $message = '', array $data = []): void {
     exit;
 }
 
+$actor_id = (int)($_POST['actor_id'] ?? $_GET['actor_id'] ?? 0);
+if (!$actor_id) {
+    http_response_code(401);
+    jsonOut(false, 'You must be logged in.');
+}
+$stmtActor = sqlsrv_query($conn, "SELECT role FROM pengguna WHERE id_pengguna = ? AND is_deleted = 0 AND status_akun = 1", [$actor_id]);
+$actor = sqlsrv_fetch_array($stmtActor, SQLSRV_FETCH_ASSOC);
+if (!$actor) {
+    http_response_code(403);
+    jsonOut(false, 'Invalid user or account inactive.');
+}
+$role    = (int)$actor['role'];
+$id_user = $actor_id;
+if ($role === 0) {
+    http_response_code(403);
+    jsonOut(false, 'Access denied.');
+}
 $action = $_REQUEST['action'] ?? '';
 
 switch ($action) {
@@ -113,13 +130,17 @@ switch ($action) {
             $items[] = $item;
         }
 
-        jsonOut(true, '', ['header' => $header, 'items' => $items]);
+        jsonOut(true, '', [
+            'header'      => $header,
+            'items'       => $items,
+            'can_approve' => ($role === 3) ? 1 : 0,
+        ]);
 
     // ─── APPROVE ─────────────────────────────────────────────────────────
     case 'approve':
-        // NOTE: validasi role sementara dimatikan — semua role bisa approve untuk saat ini.
-        $id      = (int)($_POST['id_restok'] ?? 0);
-        $by      = (int)($_SESSION['id_pengguna'] ?? 1);
+        if ($role !== 3) jsonOut(false, 'Only Superadmin can approve a Purchase Order.');
+        $id = (int)($_POST['id_restok'] ?? 0);
+        $by = $id_user;
         if (!$id) jsonOut(false, 'Invalid ID.');
 
         // Cek status masih pending (0)
@@ -136,9 +157,9 @@ switch ($action) {
 
     // ─── REJECT ──────────────────────────────────────────────────────────
     case 'reject':
-        // NOTE: validasi role sementara dimatikan — semua role bisa reject untuk saat ini.
-        $id      = (int)($_POST['id_restok'] ?? 0);
-        $by      = (int)($_SESSION['id_pengguna'] ?? 1);
+        if ($role !== 3) jsonOut(false, 'Only Superadmin can reject a Purchase Order.');
+        $id = (int)($_POST['id_restok'] ?? 0);
+        $by = $id_user;
         if (!$id) jsonOut(false, 'Invalid ID.');
 
         $stmtCek = sqlsrv_query($conn, "SELECT status_restok FROM restok WHERE id_restok = ?", [$id]);
@@ -170,10 +191,9 @@ switch ($action) {
 
     // ─── CREATE PO BARU ─────────────────────────────────────────────────────
     case 'create':
-        // NOTE: validasi role sementara dimatikan — semua role bisa create PO untuk saat ini.
-        // NOTE: fallback ke id_pengguna=1 kalau session kosong (sementara, sambil sistem session dibenahi).
+        if ($role !== 2) jsonOut(false, 'Only Superadmin can create a Purchase Order.');
         $id_supplier = (int)($_POST['id_supplier'] ?? 0);
-        $by          = (int)($_SESSION['id_pengguna'] ?? 1);
+        $by          = $id_user;
         $itemsJson   = $_POST['items'] ?? '';
         $items       = json_decode($itemsJson, true);
 
