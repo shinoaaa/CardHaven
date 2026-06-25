@@ -28,6 +28,7 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 switch ($action) {
     case 'submit_buyback':
         try {
+            
             if (!isset($_POST['nama_kartu']) || !is_array($_POST['nama_kartu'])) {
                 throw new Exception("Data form tidak valid atau kosong.");
             }
@@ -36,6 +37,10 @@ switch ($action) {
             if (empty($id_customer)) {
                 throw new Exception("Sesi pengguna terputus.");
             }
+            $provider = $_POST['provider'] ?? '';
+            $no_rekening = $_POST['no_rekening'] ?? '';
+            $sqlUpdateBank = "UPDATE pengguna SET provider = ?, no_rekening = ? WHERE id_pengguna = ?";
+            sqlsrv_query($conn, $sqlUpdateBank, [$provider, $no_rekening, $id_customer]);
 
             // Memulai transaksi menggunakan standar SQLSRV
             if (sqlsrv_begin_transaction($conn) === false) {
@@ -204,7 +209,12 @@ switch ($action) {
 
             // Jika status 3 (Offer Accepted), hitung ulang total harga final dari kartu_dibeli
             if ($status_baru == 3) {
-                $sqlSum = "SELECT SUM(penawaran_customer) as total_final FROM kartu_dibeli WHERE id_pembelian = ?";
+                // 1. UPDATE harga_beli di tabel kartu_dibeli. Ambil penawaran admin, jika null ambil penawaran customer
+                $sqlFinalKartu = "UPDATE kartu_dibeli SET harga_beli = ISNULL(penawaran_admin, penawaran_customer) WHERE id_pembelian = ?";
+                if (sqlsrv_query($conn, $sqlFinalKartu, [$id_pembelian]) === false) throw new Exception(getSqlError());
+
+                // 2. Kalkulasi total_harga transaksi
+                $sqlSum = "SELECT SUM(harga_beli) as total_final FROM kartu_dibeli WHERE id_pembelian = ?";
                 $stmtSum = sqlsrv_query($conn, $sqlSum, [$id_pembelian]);
                 $rowSum = sqlsrv_fetch_array($stmtSum, SQLSRV_FETCH_ASSOC);
                 
@@ -528,6 +538,20 @@ switch ($action) {
         $sql = "UPDATE pembelian_kartu SET catatan_admin = ? WHERE id_pembelian = ?";
         sqlsrv_query($conn, $sql, ["RETURN TO: " . $alamat, $id_pembelian]);
         echo json_encode(["status" => "success", "message" => "Address saved. Admin will ship back your cards."]);
+        break;
+    case 'get_user_bank':
+        try {
+            $id_pengguna = $_GET['id_pengguna'] ?? null;
+            $sql = "SELECT provider, no_rekening FROM pengguna WHERE id_pengguna = ?";
+            $stmt = sqlsrv_query($conn, $sql, [$id_pengguna]);
+            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            
+            ob_clean();
+            echo json_encode(["status" => "success", "data" => $row]);
+        } catch (Throwable $e) {
+            ob_clean();
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        }
         break;
 }
 ?>

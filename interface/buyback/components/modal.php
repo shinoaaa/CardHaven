@@ -19,40 +19,49 @@
         </div>
         
         <form id="formBuyback" enctype="multipart/form-data" style="margin-top: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; border-bottom: 2px dashed #E1EBFF; padding-bottom: 20px;">
+                <div class="form-group">
+                    <label>Provider Bank/E-Wallet <span class="required">*</span></label>
+                    <input type="text" name="provider" id="bankProvider" class="modal-input" placeholder="e.g., BCA, GoPay, DANA">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Nomor Rekening/Telepon <span class="required">*</span></label>
+                    <input type="text" name="no_rekening" id="bankNoRek" class="modal-input" placeholder="e.g., 08123456789">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                </div>
+            </div>
+
             <div id="cardInputsContainer">
-                <div class="card-input-group" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff;">
+                <div class="card-input-group" id="cardGroup1" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff;">
                     <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card 1</h4>
                     <div class="form-group">
                         <label>Card Name <span class="required">*</span></label>
-                        <input type="text" name="nama_kartu[]" required placeholder="e.g., Pikachu VMAX Secret Rare">
+                        <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Pikachu VMAX Secret Rare">
+                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
                     </div>
                     <div class="form-group">
                         <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                        <input type="number" name="harga_beli[]" required placeholder="e.g., 1500000" min="0">
+                        <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 1500000">
+                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
                     </div>
                     <div class="form-group">
                         <label>Front Photo <span class="required">*</span></label>
-                        <input type="file" name="foto_depan[]" class="file-input-custom" accept="image/*" required>
+                        <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*">
+                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
                     </div>
                     <div class="form-group">
                         <label>Back Photo <span class="required">*</span></label>
-                        <input type="file" name="foto_belakang[]" class="file-input-custom" accept="image/*" required>
+                        <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*">
+                        <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
                     </div>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="button" class="btn-cancel-outline" 
-                        style="flex: 1; border-style: dashed; border-width: 2px; padding: 12px;" 
-                        onclick="addCardField()">
-                    + Add Another Card
-                </button>
-                <button type="button" class="btn-confirm" 
-                        style="flex: 1; margin: 0; padding: 12px;" 
-                        onclick="submitBuyback()">
-                    Submit Transaction
-                </button>
-            </div>
             
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" class="btn-cancel-outline" style="flex: 1; border-style: dashed; border-width: 2px; padding: 12px;" onclick="addCardField()">+ Add Another Card</button>
+                <button type="button" class="btn-confirm" style="flex: 1; margin: 0; padding: 12px;" onclick="submitBuyback()">Submit Transaction</button>
+            </div>
         </form>
     </div>
 </div>

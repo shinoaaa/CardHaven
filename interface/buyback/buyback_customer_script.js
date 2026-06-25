@@ -6,7 +6,47 @@ const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
 let cardIndexCounter = 1;
 
 function openSubmitModal() {
-    document.getElementById('submitModal').style.display = 'flex';
+    // 1. Tarik data Rekening & Provider dari tabel pengguna saat modal dibuka
+    fetch(`${BUYBACK_CONTROLLER}?action=get_user_bank&id_pengguna=${idPengguna}`)
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success' && res.data) {
+            document.getElementById('bankProvider').value = res.data.provider || '';
+            document.getElementById('bankNoRek').value = res.data.no_rekening || '';
+        }
+        document.getElementById('submitModal').style.display = 'flex';
+    });
+}
+function addCardField() {
+    cardIndexCounter++;
+    const container = document.getElementById('cardInputsContainer');
+    const html = `
+        <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
+            <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
+            <div class="form-group">
+                <label>Card Name <span class="required">*</span></label>
+                <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Charizard Base Set">
+                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+            </div>
+            <div class="form-group">
+                <label>Your Offer Price (Rp) <span class="required">*</span></label>
+                <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 500000">
+                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+            </div>
+            <div class="form-group">
+                <label>Front Photo <span class="required">*</span></label>
+                <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*">
+                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+            </div>
+            <div class="form-group">
+                <label>Back Photo <span class="required">*</span></label>
+                <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*">
+                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
 }
 
 function closeSubmitModal() {
@@ -79,15 +119,44 @@ function loadRiwayat() {
         });
     });
 }
-
 function submitBuyback() {
     const form = document.getElementById('formBuyback');
-    
-    // Validasi HTML bawaan (pastikan field required terisi)
-    if(!form.checkValidity()) {
-        form.reportValidity();
-        return;
+    let isValid = true;
+
+    // Bersihkan error sebelumnya
+    document.querySelectorAll('#formBuyback .error-message').forEach(el => el.innerText = '');
+    document.querySelectorAll('#formBuyback .modal-input').forEach(el => el.style.borderColor = '#ccc');
+
+    // Fungsi trigger error ala Master Game
+    const showError = (element, message) => {
+        element.style.borderColor = '#E74C3C';
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('error-message')) {
+            errorDiv.innerText = message;
+        }
+        isValid = false;
+    };
+
+    // Validasi Rekening Bank
+    const provider = document.getElementById('bankProvider');
+    const noRek = document.getElementById('bankNoRek');
+    if (!provider.value.trim()) showError(provider, "Provider Bank/E-Wallet wajib diisi.");
+    if (!noRek.value.trim()) showError(noRek, "Nomor Rekening wajib diisi.");
+
+    // Validasi Per Kartu
+    const cardNames = document.getElementsByName('nama_kartu[]');
+    const cardPrices = document.getElementsByName('harga_beli[]');
+    const cardFronts = document.getElementsByName('foto_depan[]');
+    const cardBacks = document.getElementsByName('foto_belakang[]');
+
+    for (let i = 0; i < cardNames.length; i++) {
+        if (!cardNames[i].value.trim()) showError(cardNames[i], "Nama kartu tidak boleh kosong.");
+        if (!cardPrices[i].value || cardPrices[i].value <= 0) showError(cardPrices[i], "Harga tidak valid (harus > 0).");
+        if (cardFronts[i].files.length === 0) showError(cardFronts[i], "Foto depan wajib diunggah.");
+        if (cardBacks[i].files.length === 0) showError(cardBacks[i], "Foto belakang wajib diunggah.");
     }
+
+    if (!isValid) return; // Hentikan proses jika ada error
 
     const formData = new FormData(form);
     formData.append('action', 'submit_buyback');
@@ -96,11 +165,9 @@ function submitBuyback() {
     fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
     .then(res => res.json())
     .then(res => {
-        if(res.status === 'success') {
+        if (res.status === 'success') {
             closeSubmitModal();
-            cardhavenAlert('success', 'Success', res.message, () => {
-                loadRiwayat();
-            });
+            cardhavenAlert('success', 'Success', res.message, () => loadRiwayat());
         } else {
             cardhavenAlert('error', 'Failed', res.message);
         }
