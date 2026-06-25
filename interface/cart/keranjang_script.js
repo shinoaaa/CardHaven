@@ -151,6 +151,14 @@ function setCheckoutState(enabled) {
     const btn = document.getElementById('btn-checkout-main');
     if (!btn) return;
     btn.disabled = !enabled;
+
+    // Navigasi ke halaman checkout saat tombol diklik
+    if (!btn._checkoutBound) {
+        btn.addEventListener('click', () => {
+            window.location.href = '/cardhaven/interface/checkout/checkout.php';
+        });
+        btn._checkoutBound = true;
+    }
 }
  
 // ---- Aksi POST dengan id_pengguna_js ----

@@ -4,6 +4,7 @@
  */
 
 const CHECKOUT_CONTROLLER = '/cardhaven/interface/checkout/controller_checkout.php';
+const BASE_IMG_URL        = '/cardhaven';          // prefix untuk path foto produk
 
 const fmt = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
 
@@ -31,8 +32,10 @@ function loadUserInfo() {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById('field-name').value  = data.username  || '';
+                document.getElementById('field-name').value  = data.username   || '';
                 document.getElementById('field-phone').value = data.no_telepon || '';
+                // Setelah nama ter-isi (dari server), update tombol
+                checkCanOrder();
             }
         })
         .catch(console.error);
@@ -52,6 +55,8 @@ function loadCartItems() {
                 list.innerHTML = `<p style="color:#888;font-size:0.88rem;">
                     No items selected. <a href="/cardhaven/interface/cart/">Return to cart</a>.
                 </p>`;
+                updateSummary();
+                checkCanOrder();
                 return;
             }
 
@@ -75,11 +80,18 @@ function loadCartItems() {
 function renderCheckoutItem(item) {
     const div = document.createElement('div');
     div.className = 'checkout-item';
+
+    // Path foto: jika sudah ada "image-profile/" di depan pakai BASE_IMG_URL,
+    // jika tidak ada (null / kosong) pakai gambar default
+    const fotoSrc = item.foto
+        ? `${BASE_IMG_URL}/${item.foto}`
+        : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
+
     div.innerHTML = `
         <div class="checkout-item-img">
-            <img src="/CardHaven/${escapeHtml(item.foto)}"
+            <img src="${fotoSrc}"
                  alt="${escapeHtml(item.nama_produk)}"
-                 onerror="this.src='/cardhaven/interface/assets/img/no-image.png'">
+                 onerror="this.src='${BASE_IMG_URL}/image-profile/no-image.png'">
         </div>
         <div class="checkout-item-info">
             <div class="checkout-item-name">${escapeHtml(item.nama_produk)}</div>
@@ -150,7 +162,7 @@ function selectPaymentMethod(id, fee, el) {
 function updateSummary() {
     const grand = cartSubtotal + selectedMethodFee;
 
-    document.getElementById('summary-subtotal').textContent   = fmt(cartSubtotal);
+    document.getElementById('summary-subtotal').textContent    = fmt(cartSubtotal);
     document.getElementById('summary-grand-total').textContent = fmt(grand);
 
     const feeRow = document.getElementById('summary-fee-row');
@@ -163,14 +175,17 @@ function updateSummary() {
 }
 
 function checkCanOrder() {
-    const name   = (document.getElementById('field-name')?.value  || '').trim();
-    const alamat = (document.getElementById('field-alamat')?.value || '').trim();
-    const ready  = name && alamat && selectedMethodId && cartSubtotal > 0;
-    document.getElementById('btn-place-order').disabled = !ready;
+    // field-name diisi dari server (readonly), cukup cek panjangnya
+    const name   = (document.getElementById('field-name')?.value   || '').trim();
+    const alamat = (document.getElementById('field-alamat')?.value  || '').trim();
+    const ready  = name.length > 0 && alamat.length > 0 && selectedMethodId !== null && cartSubtotal > 0;
+    const btn    = document.getElementById('btn-place-order');
+    if (btn) btn.disabled = !ready;
 }
 
+// Re-check saat user mengetik di field yang bisa diubah
 document.addEventListener('input', e => {
-    if (['field-name','field-phone','field-alamat'].includes(e.target.id)) checkCanOrder();
+    if (['field-phone', 'field-alamat'].includes(e.target.id)) checkCanOrder();
 });
 
 // ============================================================
@@ -179,12 +194,12 @@ document.addEventListener('input', e => {
 
 function placeOrder() {
     const alamat = document.getElementById('field-alamat').value.trim();
-    if (!alamat) { showAlert('checkout', 'Please enter your shipping address.', 'error'); return; }
-    if (!selectedMethodId) { showAlert('checkout', 'Please select a payment method.', 'error'); return; }
+    if (!alamat)          { showAlert('checkout', 'Please enter your shipping address.', 'error'); return; }
+    if (!selectedMethodId){ showAlert('checkout', 'Please select a payment method.', 'error');     return; }
 
     const btn = document.getElementById('btn-place-order');
-    btn.disabled      = true;
-    btn.textContent   = 'Processing...';
+    btn.disabled    = true;
+    btn.textContent = 'Processing...';
 
     const fd = new FormData();
     fd.append('action',    'place_order');
@@ -216,61 +231,59 @@ function placeOrder() {
 // ============================================================
 
 function goToStep2(orderData) {
-    // Update step indicators
     markStepDone(1);
     markStepActive(2);
 
     document.getElementById('step1-content').style.display = 'none';
     document.getElementById('step2-content').style.display = 'block';
 
-    // Populate payment instruction
-    document.getElementById('step2-order-id').textContent = '#' + currentOrderId;
+    document.getElementById('step2-order-id').textContent              = '#' + currentOrderId;
     const totalWithFee = cartSubtotal + selectedMethodFee;
-    document.getElementById('step2-total').textContent = fmt(totalWithFee);
-    document.getElementById('payment-instruction-amount').textContent = fmt(totalWithFee);
-    document.getElementById('payment-instruction-detail').innerHTML   = orderData.payment_detail || '';
+    document.getElementById('step2-total').textContent                 = fmt(totalWithFee);
+    document.getElementById('payment-instruction-amount').textContent  = fmt(totalWithFee);
+    document.getElementById('payment-instruction-detail').innerHTML    = orderData.payment_detail || '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function handleFileSelect(input) {
-    if (input.files && input.files[0]) {
-        setUploadFile(input.files[0]);
-    }
+    if (input.files && input.files[0]) setUploadFile(input.files[0]);
 }
 
 function handleFileDrop(event) {
     event.preventDefault();
-    document.getElementById('upload-drop-zone').style.borderColor = '#dde4f8';
-    document.getElementById('upload-drop-zone').style.background  = '';
+    const zone = document.getElementById('upload-drop-zone');
+    zone.style.borderColor = '#dde4f8';
+    zone.style.background  = '';
     const file = event.dataTransfer.files[0];
     if (file) setUploadFile(file);
 }
 
 function setUploadFile(file) {
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize     = 5 * 1024 * 1024;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+
     if (file.size > maxSize) {
         showAlert('upload', 'File is too large. Maximum 5MB.', 'error');
         return;
     }
-
-    const allowedTypes = ['image/jpeg','image/png','image/webp','application/pdf'];
     if (!allowedTypes.includes(file.type)) {
-        showAlert('upload', 'Invalid file type. Upload JPG, PNG, or PDF.', 'error');
+        showAlert('upload', 'Invalid file type. Upload JPG, PNG, WEBP, or PDF.', 'error');
         return;
     }
 
     selectedFile = file;
 
-    // Preview
     if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = e => {
-            document.getElementById('file-preview-img').src = e.target.result;
+            document.getElementById('file-preview-img').src    = e.target.result;
             document.getElementById('file-preview').style.display = 'block';
         };
         reader.readAsDataURL(file);
     } else {
-        // PDF: tampilkan nama file saja
-        document.getElementById('file-preview-img').src = '/cardhaven/interface/assets/img/pdf-icon.png';
+        // PDF — tampilkan ikon generik
+        document.getElementById('file-preview-img').src    = `${BASE_IMG_URL}/assets/image/pdf-icon.svg`;
         document.getElementById('file-preview').style.display = 'block';
     }
 
@@ -280,9 +293,9 @@ function setUploadFile(file) {
 
 function clearFile() {
     selectedFile = null;
-    document.getElementById('bukti-file-input').value = '';
-    document.getElementById('file-preview').style.display  = 'none';
-    document.getElementById('btn-submit-payment').disabled = true;
+    document.getElementById('bukti-file-input').value        = '';
+    document.getElementById('file-preview').style.display    = 'none';
+    document.getElementById('btn-submit-payment').disabled   = true;
 }
 
 function submitPayment() {
@@ -359,8 +372,8 @@ function markStepActive(n) {
 function showAlert(context, msg, type) {
     const el = document.getElementById(`alert-${context}`);
     if (!el) return;
-    el.textContent  = msg;
-    el.className    = `alert-box ${type} show`;
+    el.textContent = msg;
+    el.className   = `alert-box ${type} show`;
 }
 
 function hideAlert(context) {
@@ -374,9 +387,9 @@ function hideAlert(context) {
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#39;');
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
