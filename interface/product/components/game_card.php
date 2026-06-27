@@ -17,7 +17,8 @@
         <tbody>
             <?php
             $no = $offset_game + 1;
-            while ($row = sqlsrv_fetch_array($stmt_game, SQLSRV_FETCH_ASSOC)): ?>
+            if (!empty($data_game)):
+                foreach ($data_game as $row): ?>
             <tr>
                 <td><?= $no++ ?></td>
                 <td><?= htmlspecialchars($row['nama_game']) ?></td>
@@ -35,11 +36,11 @@
                         <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
                         <?php if ($row['is_deleted'] == 0): ?>
                             <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
-                            <?php else: ?>
-                                <button class="btn-restore-icon"
-                                style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
-                                onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
-                                <?php endif; ?>
+                        <?php else: ?>
+                            <button class="btn-restore-icon"
+                            style="background-color: #27AE60; border:none; padding:5px; border-radius:5px; color:white; cursor:pointer;"
+                            onclick="confirmRestore(<?= $row['id_game'] ?>)">🔄</button>
+                        <?php endif; ?>
                         <label class="switch">
                             <input type="checkbox" 
                                 <?= $row['aktif'] == 1 ? 'checked' : '' ?> 
@@ -49,13 +50,15 @@
                     </div>
                 </td>
             </tr>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <tr><td colspan="5" style="text-align:center; color:#aaa; padding:20px;">No games found.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </div>
 
 <div class="pagination-container">
-    <!-- Arrow Back -->
     <?php if ($page_game > 1): ?>
         <a href="javascript:void(0)" onclick="loadGamePage(<?= $page_game - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
@@ -64,21 +67,17 @@
 
     <?php
     $range = 3;
-    
-    // Halaman Pertama & Dots
     if ($page_game > ($range + 2)) {
         echo '<a href="javascript:void(0)" onclick="loadGamePage(1)" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_game > $range + 1) {
         echo '<a href="javascript:void(0)" onclick="loadGamePage(1)" class="page-link">1</a>';
     }
 
-    // Loop Angka Halaman
     for ($i = max(1, $page_game - $range); $i <= min($total_pages_game, $page_game + $range); $i++) {
         $activeClass = ($i == $page_game) ? 'active' : '';
         echo '<a href="javascript:void(0)" onclick="loadGamePage('.$i.')" class="page-link '.$activeClass.'">'.$i.'</a>';
     }
 
-    // Dots & Halaman Terakhir
     if ($page_game < ($total_pages_game - $range - 1)) {
         echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadGamePage('.$total_pages_game.')" class="page-link">'.$total_pages_game.'</a>';
     } elseif ($page_game < $total_pages_game - $range) {
@@ -86,7 +85,6 @@
     }
     ?>
 
-    <!-- Arrow Next -->
     <?php if ($page_game < $total_pages_game): ?>
         <a href="javascript:void(0)" onclick="loadGamePage(<?= $page_game + 1 ?>)" class="page-link">&gt;</a>
     <?php else: ?>

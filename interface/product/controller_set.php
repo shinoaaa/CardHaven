@@ -1,244 +1,107 @@
 <?php
 session_start();
 ini_set('display_errors', 0);
+error_reporting(0);
 header('Content-Type: application/json');
-
 require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/connection.php';
 
-$raw_id_js = $_POST['id_pengguna_js'] ?? '';
-if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
-    $id_user = $_SESSION['id_pengguna'] ?? 1;
-} else {
-    $id_user = $raw_id_js;
-}
-$id_user = (int)$id_user;
+ob_start();
 
-// ================================================================
-// GET — list set (pagination)
-// ================================================================
-if (isset($_GET['get_list'])) {
-    $limit  = 3;
-    $page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-    $offset = ($page - 1) * $limit;
+try {
+    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 1));
 
-    $sql_count  = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE is_deleted = 0";
-    $stmt_count = sqlsrv_query($conn, $sql_count);
-    $row_count  = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC);
-    $total_rows  = (int)($row_count['total'] ?? 0);
-    $total_pages = (int)ceil($total_rows / $limit);
+    if (isset($_GET['get_list'])) {
+        $limit  = 3;
+        $page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $offset = ($page - 1) * $limit;
 
-    $sql  = "SELECT s.id_set, s.nama_set, s.kode_set, s.aktif, g.nama_game
-             FROM dbo.set_kartu s
-             INNER JOIN dbo.game g ON s.id_game = g.id_game
-             WHERE s.is_deleted = 0
-             ORDER BY s.aktif DESC, s.id_set ASC
-             OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    $stmt = sqlsrv_query($conn, $sql, [$offset, $limit]);
+        $stmt_count = sqlsrv_query($conn, "SELECT dbo.udf_CountDashboard('set') AS total");
+        if ($stmt_count === false) throw new Exception('Count query failed.');
+        $row_count   = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC);
+        $total_pages = (int)ceil(($row_count['total'] ?? 0) / $limit);
 
-    $rows = [];
-    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-        $rows[] = [
-            'id_set'    => $row['id_set'],
-            'nama_set'  => $row['nama_set'],
-            'kode_set'  => $row['kode_set'],
-            'aktif'     => $row['aktif'],
-            'nama_game' => $row['nama_game'],
-        ];
-    }
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetSetList(?, ?)}', [$limit, $offset]);
+        if ($stmt === false) throw new Exception('sp_GetSetList query failed.');
 
-    echo json_encode([
-        'status'       => 'success',
-        'data'         => $rows,
-        'total_pages'  => $total_pages,
-        'current_page' => $page,
-    ]);
-    exit;
-}
+        $rows = [];
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $rows[] = $row;
 
-// ================================================================
-// GET — detail satu set
-// ================================================================
-if (isset($_GET['get_detail'])) {
-    $id  = (int)$_GET['get_detail'];
-    $sql = "SELECT s.*, g.nama_game,
-                k1.username as creator,
-                k2.username as modifier
-            FROM dbo.set_kartu s
-            INNER JOIN dbo.game g ON s.id_game = g.id_game
-            LEFT JOIN dbo.pengguna k1 ON s.created_by  = k1.id_pengguna
-            LEFT JOIN dbo.pengguna k2 ON s.modified_by = k2.id_pengguna
-            WHERE s.id_set = ? AND s.is_deleted = 0";
-
-    $stmt = sqlsrv_query($conn, $sql, [$id]);
-    if ($stmt === false) {
-        echo json_encode(['error' => 'Query failed.']);
+        ob_clean();
+        echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    if ($data) {
-        if ($data['created_date'])  $data['created_date']  = $data['created_date']->format('d-M-Y H:i');
-        if ($data['modified_date']) $data['modified_date'] = $data['modified_date']->format('d-M-Y H:i');
-        if ($data['tanggal_rilis']) $data['tanggal_rilis'] = $data['tanggal_rilis']->format('Y-m-d');
-        echo json_encode($data);
-    } else {
-        echo json_encode(['error' => 'Set not found.']);
-    }
-    exit;
-}
+    // [FIX] GET: get_detail
+    if (isset($_GET['get_detail'])) {
+        $id   = (int)$_GET['get_detail'];
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetSetDetail(?)}', [$id]);
+        if ($stmt === false) throw new Exception('Query sp_GetSetDetail failed.');
 
-// ================================================================
-// GET — list game aktif untuk dropdown
-// ================================================================
-if (isset($_GET['get_games'])) {
-    $sql  = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
-    $stmt = sqlsrv_query($conn, $sql);
-
-    $games = [];
-    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-        $games[] = ['id_game' => $row['id_game'], 'nama_game' => $row['nama_game']];
+        $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        ob_clean();
+        if ($data) {
+            // [FIX] Konversi semua DateTime ke string sebelum json_encode
+            $data['created_date']  = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
+            $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
+            $data['tanggal_rilis'] = ($data['tanggal_rilis'] instanceof DateTime) ? $data['tanggal_rilis']->format('Y-m-d') : null;
+            echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode(['error' => 'Set not found.']);
+        }
+        exit;
     }
 
-    echo json_encode(['status' => 'success', 'data' => $games]);
-    exit;
-}
+    if (isset($_GET['get_games'])) {
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownGame('')}");
+        if ($stmt === false) throw new Exception('sp_GetDropdownGame query failed.');
+        $games = [];
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $games[] = $row;
+        ob_clean();
+        echo json_encode(['status' => 'success', 'data' => $games], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-// ================================================================
-// POST — add / edit / toggle / delete / restore
-// ================================================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-
-    // Validasi field wajib untuk add/edit
-    if ($action === 'add' || $action === 'edit') {
-        $nama    = trim($_POST['nama_set']  ?? '');
-        $kode    = trim($_POST['kode_set']  ?? '');
-        $id_game = (int)($_POST['id_game']  ?? 0);
-
-        if ($id_game <= 0) {
-    echo json_encode(['status' => 'error', 'message' => 'Game is required.']); exit;
-}
-if ($nama === '') {
-    echo json_encode(['status' => 'error', 'message' => 'Set name is required.']); exit;
-}
-if (strlen($nama) > 50) {
-    echo json_encode(['status' => 'error', 'message' => 'Set name must not exceed 50 characters.']); exit;
-}
-if ($kode === '') {
-    echo json_encode(['status' => 'error', 'message' => 'Set code is required.']); exit;
-}
-if (strlen($kode) > 20) {
-    echo json_encode(['status' => 'error', 'message' => 'Set code must not exceed 20 characters.']); exit;
-}
-
-        // Cek duplikat kode_set
-        $sql_check    = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE kode_set = ? AND is_deleted = 0";
-        $params_check = [$kode];
-        if ($action === 'edit') {
-            $sql_check   .= " AND id_set <> ?";
-            $params_check[] = (int)$_POST['id_set'];
-        }
-        $stmt_check = sqlsrv_query($conn, $sql_check, $params_check);
-        $row_check  = sqlsrv_fetch_array($stmt_check, SQLSRV_FETCH_ASSOC);
-        if ((int)($row_check['total'] ?? 0) > 0) {
-            echo json_encode(['status' => 'error', 'message' => "Set code '$kode' is already in use."]);
-            exit;
-        }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action  = $_POST['action'] ?? '';
+        $id_set  = isset($_POST['id_set']) && $_POST['id_set'] !== '' ? (int)$_POST['id_set'] : 0;
+        $id_game = (int)($_POST['id_game'] ?? 0);
+        $nama    = trim($_POST['nama_set'] ?? '');
+        $kode    = trim($_POST['kode_set'] ?? '');
 
         $tanggal = null;
-        $raw = trim($_POST['tanggal_rilis'] ?? '');
-        if ($raw !== '') {
-            $dt = DateTime::createFromFormat('Y-m-d', $raw);
+        $tgl_raw = trim($_POST['tanggal_rilis'] ?? '');
+        if ($tgl_raw !== '') {
+            $dt = DateTime::createFromFormat('Y-m-d', $tgl_raw);
             $tanggal = $dt ? $dt->format('Y-m-d H:i:s') : null;
         }
-    }
 
-    // ADD
-    if ($action === 'add') {
-        $sql    = "INSERT INTO dbo.set_kartu (id_game, nama_set, kode_set, tanggal_rilis, created_by, created_date, aktif,is_deleted)
-                   VALUES (?, ?, ?, ?, ?, GETDATE(), 1,0)";
-        $stmt   = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $tanggal, $id_user]);
+        if ($action === 'add' || $action === 'edit') {
+            $stmt_cek = sqlsrv_query($conn, 'SELECT dbo.udf_CheckDuplicateSet(?, ?) AS total', [$kode, $id_set]);
+            if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
+            $row_cek = sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC);
+            if ($row_cek && $row_cek['total'] > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => "Set code '$kode' is already in use."]);
+                exit;
+            }
+        }
 
-        if ($stmt) echo json_encode(['status' => 'success']);
-        else {
+        $params = [$action, $id_set, $id_game, $nama, $kode, $tanggal, $id_user];
+        $stmt   = sqlsrv_query($conn, '{CALL dbo.sp_ManageSet(?, ?, ?, ?, ?, ?, ?)}', $params);
+
+        ob_clean();
+        if ($stmt === false) {
             $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
+            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Database error.']);
+        } else {
+            echo json_encode(['status' => 'success', 'message' => '']);
         }
         exit;
     }
 
-    // EDIT
-    if ($action === 'edit') {
-        $id_set = (int)$_POST['id_set'];
-        $sql    = "UPDATE dbo.set_kartu
-                   SET id_game = ?, nama_set = ?, kode_set = ?, tanggal_rilis = ?,
-                       modified_by = ?, modified_date = GETDATE()
-                   WHERE id_set = ?";
-        $stmt   = sqlsrv_query($conn, $sql, [$id_game, $nama, $kode, $tanggal, $id_user, $id_set]);
-
-        if ($stmt) echo json_encode(['status' => 'success']);
-        else {
-            $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
-        }
-        exit;
-    }
-
-    // TOGGLE (aktifkan / nonaktifkan)
-    if ($action === 'aktifkan' || $action === 'nonaktifkan') {
-        $id_set = (int)$_POST['id_set'];  // ← FIX: sebelumnya tidak ada baris ini
-        $aktif  = $action === 'aktifkan' ? 1 : 0;
-        $sql    = "UPDATE dbo.set_kartu SET aktif = ?, modified_by = ?, modified_date = GETDATE() WHERE id_set = ?";
-        $stmt   = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_set]);
-
-        if ($stmt) echo json_encode(['status' => 'success']);
-        else {
-            $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
-        }
-        exit;
-    }
-
-    // DELETE (soft delete)
-    if ($action === 'delete') {
-        $id_set = (int)$_POST['id_set'];
-
-        $totalProduk = sqlsrv_fetch_array(
-            sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.produk WHERE id_set = ? AND is_deleted = 0", [$id_set]),
-            SQLSRV_FETCH_ASSOC
-        )['total'];
-
-        if ($totalProduk > 0) {
-            echo json_encode(['status' => 'error', 'message' => "Cannot delete: this set is still used by {$totalProduk} product(s)."]);
-            exit;
-        }
-
-        $sql  = "UPDATE dbo.set_kartu SET is_deleted = 1, deleted_by = ?, deleted_date = GETDATE() WHERE id_set = ?";
-        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
-
-        if ($stmt) echo json_encode(['status' => 'success']);
-        else {
-            $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
-        }
-        exit;
-    }
-
-    // RESTORE
-    if ($action === 'restore') {
-        $id_set = (int)$_POST['id_set'];
-        $sql    = "UPDATE dbo.set_kartu SET is_deleted = 0, modified_by = ?, modified_date = GETDATE() WHERE id_set = ?";
-        $stmt   = sqlsrv_query($conn, $sql, [$id_user, $id_set]);
-
-        if ($stmt) echo json_encode(['status' => 'success']);
-        else {
-                $err = sqlsrv_errors();
-                echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
-        }
-        exit;
-    }
-
-    echo json_encode(['status' => 'error', 'message' => 'Action not recognized.']);
+} catch (Throwable $e) {
+    ob_clean();
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     exit;
 }
 ?>

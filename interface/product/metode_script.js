@@ -1,7 +1,7 @@
 const metodeModal = document.getElementById('metodeModal');
 const metodeForm  = document.getElementById('metodeForm');
 const METODE_API  = '/CardHaven/interface/product/controller_metode.php';
-var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+// var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 function openAddMetode() {
     clearAllErrors('metodeForm');
