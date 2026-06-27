@@ -73,5 +73,5 @@ $controller  = new controllerEvent($conn);
 $controller->autoUpdateStatusEvent();
 
 $stmt_event  = $controller->fetchEvent($page);
-$total_event = $controller->countEvent();
+$total_event = $controller->countEvent(); // Mengambil nilai dari global memory yang diset oleh SP
 $total_pages = max(1, (int)ceil($total_event / 7));
