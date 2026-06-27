@@ -13,9 +13,14 @@ function clearError(el) {
     if (err) err.innerText = "";
 }
 
-document.querySelectorAll('.modal-input').forEach(input => {
-    input.addEventListener('input', function() { clearError(this); });
-    input.addEventListener('change', function() { clearError(this); });
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-input').forEach(input => {
+        input.addEventListener('input', function() { clearError(this); });
+        input.addEventListener('change', function() { clearError(this); });
+    });
+
+    setupSuggest('pGameSearch', 'pIdGame', 'pGameSuggest', 'search_game');
+    setupSuggest('pSetSearch', 'pIdSet', 'pSetSuggest', 'search_set', 'pIdGame');
 });
 
 function clearAllErrors(formId) {
