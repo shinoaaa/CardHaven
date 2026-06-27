@@ -19,7 +19,7 @@
                     <h2 style="color: var(--primary-color); font-weight: 700; font-size: 1.8rem; margin: 0;">Submit Card Buyback</h2>
                     <p style="color: #666; margin-top: 5px; font-size: 0.9rem;">Fill the form below to sell your cards and get the best offer.</p>
                 </div>
-                <a href="/cardhaven/interface/home/index.php" class="btn-cancel-outline" style="text-decoration: none; padding: 10px 20px; border-width: 2px; border-radius: 8px;">Back to Home</a>
+                <a href="/CardHaven/home" class="btn-cancel-outline" style="text-decoration: none; padding: 10px 20px; border-width: 2px; border-radius: 8px;">Back to Home</a>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; align-items: start;">
