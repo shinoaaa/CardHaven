@@ -39,7 +39,7 @@ $response = [
 
 // --- 2. QUERY EVENT PREORDER (1 Data per Halaman) ---
 $offsetEvent = $p_event - 1;
-$sqlEvent = "SELECT e.nama_event, e.tanggal_sampai, pe.harga_event, p.nama_produk, p.deskripsi, p.harga_jual, p.foto,e.status_event
+$sqlEvent = "SELECT e.nama_event, e.tanggal_sampai, pe.harga_event, p.nama_produk, p.deskripsi, p.harga_jual, p.foto,e.status_event,e.id_event,e.tanggal_mulai,e.tanggal_berakhir
              FROM event e
              JOIN produk_event pe ON e.id_event = pe.id_event
              JOIN produk p ON pe.id_produk = p.id_produk
@@ -71,6 +71,8 @@ $sqlPromo = "SELECT
                 e.nama_event, 
                 e.foto_banner, 
                 e.status_event,
+                e.tanggal_mulai,
+                e.tanggal_berakhir,
                 (SELECT TOP 1 g.nama_game 
                  FROM produk_event pe 
                  JOIN produk p ON pe.id_produk = p.id_produk 

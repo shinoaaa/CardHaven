@@ -163,7 +163,7 @@
                 font-family:'Coolvetica',sans-serif;
                 cursor:pointer;
                 display:block;
-            ">Order From this event</button>
+            " id="promo-status"></button>
         </div>
     </div><!-- /view-detail -->
 

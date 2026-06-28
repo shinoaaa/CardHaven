@@ -20,6 +20,7 @@ let alreadyPurchased    = {};            // { id_produk: qty_already_bought }
 
 const DETAIL_PAGE_SIZE  = 3;
 const ORDER_PAGE_SIZE   = 2;
+const isLogin = sessionStorage.getItem('username') || localStorage.getItem('username');
 
 /* ─────────────────────────────────────────────
    OPEN / CLOSE
@@ -77,6 +78,7 @@ function switchToDetailView() {
 }
 
 function switchToOrderView() {
+    if(!isLogin) window.location.replace("/CardHaven/login");;
     if (!eventProducts.length) return;
     loadPaymentMethods();
     loadAlreadyPurchased(function () {
@@ -121,6 +123,7 @@ function renderDetailView() {
 
     // Event name
     document.getElementById('detail-event-name').textContent = ev.nama_event;
+    
 
     // Select first product
     if (eventProducts.length) {
@@ -133,7 +136,9 @@ function renderDetailView() {
 
 function selectDetailProduct(idx) {
     selectedProductIdx = idx;
+    const e = currentEvent;
     const p = eventProducts[idx];
+    let promoStatus = document.getElementById('promo-status');
     if (!p) return;
 
     document.getElementById('detail-main-card-img').src = p.foto 
@@ -146,6 +151,23 @@ function selectDetailProduct(idx) {
     document.getElementById('detail-type').textContent          = p.tipe_produk || '-';
     document.getElementById('detail-kondisi').textContent       = p.kondisi || '-';
     document.getElementById('detail-deskripsi').textContent     = p.deskripsi || '-';
+
+    if(!isLogin){
+        promoStatus.textContent = "Login to order product";
+    }
+    else{
+        if (e.status_event === 1) {
+            console.log(e.status_event);
+            promoStatus.textContent = "Order product now";
+            promoStatus.disabled = false
+        } else if (e.status_event === 2) {
+            promoStatus.textContent = "Event is not begin";
+            promoStatus.disabled = true
+        } else {
+            promoStatus.textContent = "Event was complete";
+            promoStatus.disabled = true
+        }
+    }
 
     // Price: strikethrough original, show event price
     const hargaAsli  = formatRupiah(p.harga_jual);

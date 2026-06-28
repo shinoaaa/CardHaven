@@ -11,6 +11,10 @@
                     <div class="divider"></div>
                     <p>Release Date: <span id="ui-event-date">-</span></p>
                 </div>
+
+                <div class="duration-preoder">
+                    <p>Event duration: <span id="startDate">Tanggal Mulai</span> to <span id="endDate">Tanggal Selesai</span></p>
+                </div>
                 
                 <div class="hero-text">
                     <h4>Description</h4>
@@ -20,7 +24,7 @@
                 <div class="action-buttons">
                     <button type="button" class="nav-btn-circle" id="btn-prev-event"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
                     <button type="button" class="nav-btn-circle" id="btn-next-event"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
-                    <button class="btn-primary" onclick="openPreOrderEvent(4)" style="background: var(--bg-gradient);" id="btn-title">See detail</button>
+                    <button class="btn-primary" style="background: var(--bg-gradient);" id="btn-title">See detail</button>
                     <a href="#promo-section">
                         <button class="btn-secondary">Another Event</button>
                     </a>

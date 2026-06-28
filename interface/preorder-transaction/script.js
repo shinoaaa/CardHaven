@@ -8,12 +8,12 @@ let preorderEvent          = null;
 let preorderProduct        = null; 
 let preorderQty            = 0;
 let preorderAlreadyBought  = 0;
- const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 /* ─────────────────────────────────────────────
    OPEN / CLOSE
 ───────────────────────────────────────────── */
-// Gunakan `id_event` pada tombol HTML agar dinamis: onclick="openPreOrderEvent(<?= $event['id_event'] ?>)"
+
 function openPreOrderEvent(id_event) {
     if (!id_event) {
         console.error("ID Event tidak ditemukan!");
@@ -102,6 +102,8 @@ function loadPreOrderData(id) {
 
 function renderPreOrderDetail() {
     const p = preorderProduct;
+    const e = preorderEvent;
+    let preorderStatus = document.getElementById('preorder-title');
     
     document.getElementById('preorder-event-name').textContent = preorderEvent.nama_event;
     document.getElementById('preorder-detail-img').src = p.foto 
@@ -114,6 +116,26 @@ function renderPreOrderDetail() {
     document.getElementById('preorder-type').textContent          = p.tipe_produk || '-';
     document.getElementById('preorder-kondisi').textContent       = p.kondisi || '-';
     document.getElementById('preorder-deskripsi').textContent     = p.deskripsi || '-';
+
+    if(!idPengguna){
+        preorderStatus.textContent = "Login to order product";
+    }
+    else{
+        if (e.status_event === 1) {
+            console.log(e.status_event);
+            preorderStatus.textContent = "Order product now";
+            preorderStatus.disabled = false
+        } else if (e.status_event === 2) {
+            console.log(e.status_event);
+            preorderStatus.textContent = "Event is not begin";
+            preorderStatus.disabled = true
+            preorderStatus.style.cursor = 'default';
+        } else {
+            console.log(e.status_event);
+            preorderStatus.textContent = "Event was complete";
+            preorderStatus.disabled = true
+        }
+    }
 
     const hargaAsli = 'Rp ' + parseInt(p.harga_jual || 0).toLocaleString('id-ID');
     const hargaPO   = 'Rp ' + parseInt(p.harga_event || 0).toLocaleString('id-ID');
@@ -273,10 +295,4 @@ function submitPreOrder() {
 
     document.getElementById('pop-up-preorder-overlay').style.display = 'none';
     document.getElementById('pop-up-preorder').style.display   = 'none';
-}
-
-const btnContent = document.getElementById('btn-content');
-
-if(!idPengguna){
-    btnContent.textContent = 'Login to buy product';
 }

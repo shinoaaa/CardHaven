@@ -5,6 +5,29 @@ const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
 var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 let eventButton; 
 
+function formatTanggal(dateInput) {
+    if (!dateInput) return '-';
+    
+    let targetDate;
+    
+    // Cek kalau datanya berupa objek dari PHP DateTime
+    if (typeof dateInput === 'object' && dateInput.date) {
+        targetDate = new Date(dateInput.date);
+    } else {
+        // Kalau datanya string biasa (misal: "2026-06-25")
+        targetDate = new Date(dateInput);
+    }
+
+    // Proteksi kalau date-nya invalid / ngaco
+    if (isNaN(targetDate.getTime())) return '-';
+
+    // Format ke Indonesia (Contoh: 25 Juni 2026)
+    return new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(targetDate);
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     
@@ -62,19 +85,34 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('ui-event-product').textContent = data.event.nama_produk;
             document.getElementById('ui-event-date').textContent = data.event.tanggal_sampai;
             document.getElementById('ui-event-desc').textContent = data.event.deskripsi;
+            document.getElementById('startDate').textContent = formatTanggal(data.event.tanggal_mulai);
+            document.getElementById('endDate').textContent = formatTanggal(data.event.tanggal_berakhir);
+            
             if(!data.event.foto){
                 document.getElementById('ui-event-image').src = `/cardhaven/image-profile/defaultProduct.jpg`;
             } else {
                 document.getElementById('ui-event-image').src = `/cardhaven/${data.event.foto}`;
             }
+            
             const eventTitle = document.getElementById('btn-title');
+            const isLogin = sessionStorage.getItem('token') || localStorage.getItem('token');
 
+            // SAKTI NYA DI SINI: Pakai .onclick supaya listener lama di-overwrite otomatis
+            eventTitle.onclick = () => {
+                openPreOrderEvent(data.event.id_event);
+            };
+
+            // Atur teks dan status tombol berdasarkan status_event
             if (data.event.status_event == 1) {
                 eventTitle.textContent = "Check detail";
+                eventTitle.disabled = false; 
             } else if (data.event.status_event == 2) {
                 eventTitle.textContent = "Upcoming event check detail";
+                eventTitle.disabled = false;
             } else {
-                eventTitle.textContent = "Event has complete";
+                eventTitle.textContent = "Event was complete";
+                eventTitle.disabled = true;  // Di-disable kalau event sudah selesai
+                eventTitle.onclick = null;   // Hapus fungsi klik sekalian biar aman
             }
         }
 
@@ -92,15 +130,24 @@ document.addEventListener("DOMContentLoaded", function() {
                     } else if (promo.status_event == 2) {
                         eventButton = "Upcoming event check detail";
                     } else {
-                        eventButton = "Event has complete";
+                        eventButton = "Event was complete";
                     }
+                    
+                    // --- PARSING & FORMAT TANGGAL DI SINI ---
+                    const tglMulai = formatTanggal(promo.tanggal_mulai);
+                    const tglBerakhir = formatTanggal(promo.tanggal_berakhir);
                     
                     const promoHTML = `
                     <div class="promo-card" style="background-image: url('${bannerSrc}');">
                         <div style="z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 0.75rem;">
                             <p style="color: #e4e4e4;"><span style="color: #90b3ff;">${gameName}</span>'s Event</p>
                             <h2 class="coolveticaa" style="text-align: center; width: 30rem;">${promo.nama_event}</h2>
-                            <button style="cursor:pointer; background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;" onclick="openPromoEvent(${promo.id_event})">
+                            <div class="date-event" style="display: flex; gap: 0.5rem; color: #fff;">
+                                <p>${tglMulai}</p>
+                                <span>to</span>
+                                <p>${tglBerakhir}</p>
+                            </div>
+                            <button style="cursor:pointer; background: var(--bg-gradient); color: white; padding: 0.75rem 2.5rem; border-radius: 9999px; margin-top:1rem;" onclick="openPromoEvent(${promo.id_event})">
                                 ${eventButton}
                             </button>
                         </div>
@@ -167,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const cardHTML = `
                     <div class="product-card">
                         <div style="width: 47%; display: flex; align-items: center; justify-content: center;">
-                            <div style="width: 100%; height: 85%; border-radius: 0.5rem; overflow: hidden;">
+                            <div style="width: 90%; height: 70%; border-radius: 0.5rem; overflow: hidden;">
                                 <img src="${fotoSrc}" style="height: 100%; object-fit: contain;">
                             </div>
                         </div>

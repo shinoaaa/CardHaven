@@ -20,11 +20,11 @@ else if ($segments[0] === 'dashboard') {
 else if ($segments[0] === 'settingaccount') {
     include '../CardHaven/interface/super-admin-page/account-setting.php';
 } 
+else if ($segments[0] === 'profilepage') {
+    include '../CardHaven/interface/page-profile/index.php';
+} 
 
 
-// else if ($segments[0] === 'owner') {
-//     include '../CardHaven/interface/owner-page/index.php';
-// } 
 else {
     http_response_code(404);
     echo "404 Not Found";

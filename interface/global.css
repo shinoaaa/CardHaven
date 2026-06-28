@@ -1547,6 +1547,7 @@ input:checked + .slider:before {
     margin-bottom: 1rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 1rem;
 }
 
 .promo-card {
@@ -1720,9 +1721,9 @@ input:checked + .slider:before {
     display: flex;
     border: 1px solid #584c4c;
     border-radius: 0.9rem;
-    padding: 0.25rem 0.85rem;
+    padding: 0.25rem 1.25rem;
     background-color: #fafcff;
-    height: 27rem;
+    height: 30rem;
 }
 
 /* Label kecil di dalam product card (Stock, Game, dll) */
@@ -1960,4 +1961,31 @@ p.product-paragraf {
     text-align: left;
     margin: 0;
     margin-bottom: 1rem;
+}
+
+.date-event{
+    gap: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}  
+.date-event span{
+    color: white;
+}
+
+.date-event p{
+    font-size: 0.75rem;
+    padding: 0.25rem 1rem;
+    background-color: white;
+    color: var(--primary-color);
+    border-radius: 999px;
+}
+
+.duration-preoder{
+    margin-top: 0.5rem;
+}
+
+.duration-preoder span{
+    color: var(--primary-color);
+    font-size: 1.15rem;
 }
