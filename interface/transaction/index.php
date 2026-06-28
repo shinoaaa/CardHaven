@@ -1,6 +1,7 @@
-<?php require 'apifetch.php'; ?>
+<?php 
+// 1. PERBAIKAN PATH: Gunakan __DIR__ agar file selalu ditemukan dari mana pun di-include
+require_once __DIR__ . '/apifetch.php'; 
 
-<?php
 $type = $_GET['type'] ?? 'sales';
 
 // Status mapping untuk PHP render (Khusus Sales)
@@ -28,10 +29,16 @@ $STATUS_COLOR = [
     8 => ['bg' => '#f3f4f6', 'color' => '#6b7280'],
 ];
 
-$activeStatus = $status; // dari apifetch.php
-$activeSearch = $search;
-?>
+// 2. PERBAIKAN VARIABEL: Ambil data dari variabel yang telah disiapkan apifetch.php
+$activeStatus = $status ?? null; 
+$activeSearch = $search ?? '';
 
+// Sesuaikan nama variabel untuk tabel HTML (karena kontroler baru memakai $data)
+$stmt_trx = $data ?? [];
+
+// Ambil jumlah angka per-status langsung dari controller yang sudah aktif di apifetch.php
+$count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
