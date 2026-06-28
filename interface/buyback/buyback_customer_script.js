@@ -219,9 +219,9 @@ function parseStatus(status) {
     return statuses[status] || "Unknown";
 }
 
-document.addEventListener('DOMContentLoaded', loadRiwayat);
 function openDetailModal(id_pembelian) {
-    fetch(`${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${id_pembelian}${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${id_pembelian}&role=${userRole}&id_pengguna=${idPengguna}`)
+    // Fix: URL yang benar (sebelumnya URL duplikat/rusak)
+    fetch(`${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${id_pembelian}&role=${userRole}&id_pengguna=${idPengguna}`)
     .then(res => res.json())
     .then(res => {
         if(res.status === 'success') {
@@ -231,34 +231,107 @@ function openDetailModal(id_pembelian) {
             document.getElementById('modalStatus').innerHTML = parseStatus(pem.status_pembelian);
             
             let htmlContent = '';
-            let allCardsAccepted = true;
+
+            // Status final: offer tidak relevan lagi
+            const FINAL_STATUSES = [8, 9, 10];
+            const isFinal = FINAL_STATUSES.includes(parseInt(pem.status_pembelian));
+            const isNegotiating = pem.status_pembelian == 2;
+
+            // Tracking per-kartu untuk logika footer
+            let allDecided = true;   // semua kartu sudah di-accept atau di-counter → aktifkan footer
+            let hasCounter = false;  // ada kartu yang di-counter → footer = Submit ke admin
+            // allDecided && !hasCounter → semua accept → Proceed to Shipping
+            // allDecided && hasCounter  → ada counter   → Submit Counter Offers
+            // !allDecided               → masih pending  → footer disable
 
             data.kartu.forEach(k => {
-                const isNegotiating = (pem.status_pembelian == 2 && k.penawaran_admin != null && k.penawaran_customer != k.penawaran_admin);
-                if (k.penawaran_customer != k.penawaran_admin) allCardsAccepted = false;
+                // Tiap kartu punya 3 kemungkinan state saat Negotiation:
+                // - AGREED   : penawaran_customer == penawaran_admin (accept atau counter yang sudah match)
+                // - PENDING  : penawaran_admin ada tapi customer belum merespons balik
+                //              cara deteksi: penawaran_admin != null && != penawaran_customer
+                //              TAPI kita tidak punya flag "sudah di-counter customer"-nya di DB secara eksplisit.
+                //              Konvensi yang kita pakai:
+                //              → setelah customer acceptItemOffer: penawaran_customer di-update = penawaran_admin (match)
+                //              → setelah customer counterItemOffer: penawaran_customer di-update = nilai baru (tidak match dengan penawaran_admin)
+                //              Jadi: mismatch = customer sudah counter tapi admin belum balas (status kembali ke 1)
+                //              Saat status == 2: mismatch = customer belum respond sama sekali (admin baru kirim counter)
+                const adminHasOffer = k.penawaran_admin != null;
+                const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
+                const isPending     = isNegotiating && adminHasOffer && !priceMatch; // perlu respons customer
+                const isAgreed      = adminHasOffer && priceMatch;
+                const maxAttempts   = k.percobaan_penawaran >= 3;
+
+                if (isNegotiating) {
+                    if (isPending) {
+                        allDecided = false; // kartu ini belum direspons
+                    }
+                    // Kalau agreed tapi penawaran_customer != nilai awal customer = sudah di-counter sebelumnya
+                    // Untuk deteksi hasCounter: kalau ada kartu yang penawaran_admin != null && tidak match awalnya
+                    // Kita track sederhana: jika ada kartu yang belum agreed, hasCounter jadi true setelah submit
+                    // Untuk sekarang: jika ada kartu yang isAgreed DAN penawaran_customer == penawaran_admin → accept
+                    // Kita tidak bisa bedakan "accept" vs "counter yang sudah match", tapi itu OK:
+                    // jika ada kartu yang masih pending setelah ini, allDecided = false
+                }
+
+                // Label Admin Offer
+                let adminOfferLabel;
+                if (!adminHasOffer) {
+                    adminOfferLabel = isFinal
+                        ? `<span style="color:#9ca3af;">-</span>`
+                        : `<span style="color:#9ca3af;">Waiting for admin...</span>`;
+                } else if (isAgreed) {
+                    adminOfferLabel = `<span style="color:#27AE60;font-weight:600;">Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
+                } else {
+                    adminOfferLabel = `<span style="color:#E74C3C;font-weight:600;">Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
+                }
+
+                // Border kuning = perlu aksi customer
+                const borderColor = isPending ? '#fbbf24' : '#e5e7eb';
 
                 htmlContent += `
-                <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: #fff;">
+                <div style="border: 1.5px solid ${borderColor}; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: #fff;">
                     <h3 style="margin:0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h3>
                     <div style="font-size: 0.9rem; margin-bottom: 12px;">
                         <p style="margin: 4px 0;"><strong>Your Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
-                        <p style="margin: 4px 0; color: #E74C3C;"><strong>Admin Offer:</strong> ${k.penawaran_admin ? 'Rp ' + parseInt(k.penawaran_admin).toLocaleString('id-ID') : 'Waiting...'}</p>
-                        <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${k.percobaan_penawaran} / 3</span></p>
+                        <p style="margin: 4px 0;"><strong>Admin Offer:</strong> ${adminOfferLabel}</p>
+                        <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color:#E67E22;font-weight:600;">${k.percobaan_penawaran} / 3</span></p>
                     </div>`;
-                
-                // Tampilkan tombol negosiasi seragam PER KARTU
-                if (isNegotiating) {
-                    htmlContent += `
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="acceptItemOffer(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_admin})" class="btn-confirm" style="width: auto; height: 32px; font-size: 0.8rem; padding: 0 15px; margin: 0; background: #27AE60;">Accept Price</button>
-                        ${k.percobaan_penawaran < 3 ? `<button onclick="counterItemOffer(${pem.id_pembelian}, ${k.id_kartu})" class="btn-cancel-outline" style="width: auto; height: 32px; font-size: 0.8rem; padding: 0 15px; margin: 0; border-width: 1.5px;">Counter Offer</button>` : '<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem; display:flex; align-items:center;">Max Attempts Reached</span>'}
+
+                if (isPending) {
+                    // Kartu ini perlu direspons customer
+                    htmlContent += `<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                        <button onclick="acceptItemOffer(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_admin})"
+                            class="btn-confirm" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; background:#27AE60;">
+                            ✓ Accept
+                        </button>
+                        ${!maxAttempts
+                            ? `<button onclick="counterItemOffer(${pem.id_pembelian}, ${k.id_kartu})"
+                                class="btn-cancel-outline" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; border-width:1.5px; color:#7c3aed; border-color:#7c3aed;">
+                                ⟳ Counter Offer
+                               </button>`
+                            : `<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem;">Max attempts reached — you can only Accept</span>`
+                        }
                     </div>`;
-                } else if (k.penawaran_admin && k.penawaran_customer == k.penawaran_admin) {
-                    htmlContent += `<p style="color: #27AE60; font-weight: bold; margin: 0;">✓ Price Agreed</p>`;
+                } else if (isAgreed) {
+                    htmlContent += `<p style="color:#27AE60; font-weight:bold; margin:0;">✓ Price Agreed</p>`;
                 }
 
                 htmlContent += `</div>`;
             });
+
+            // Hitung ulang hasCounter: ada kartu yang sudah respond tapi pending = 0 dan tidak semua agreed
+            // Sederhananya: jika allDecided = true, cek apakah ada yang tidak match awalnya
+            // Karena kita tidak ada flag terpisah, kita asumsikan: jika allDecided && ada setidaknya 1 kartu
+            // yang penawaran_customer != nilai original (kita tidak track ini), maka hasCounter = true.
+            // Solusi pragmatis: jika allDecided = true → selalu tampilkan "Submit Counter Offers"
+            // kecuali SEMUA kartu match antara penawaran_customer == penawaran_admin (semua accept murni).
+            // Ini sudah benar karena: Accept → update penawaran_customer = penawaran_admin (match)
+            //                         Counter → update penawaran_customer = nilai baru != penawaran_admin (tidak match)
+            // Tapi saat status = 2, setelah customer counter, status kembali ke 1 (di-handle SP).
+            // Jadi saat status == 2, SEMUA kartu yang sudah "respond" akan match (karena counter sudah di-submit round sebelumnya).
+            // Yang belum respond = isPending. Jika allDecided, berarti semua sudah accept di round ini.
+            // Jadi: allDecided && status == 2 → semua accept di round ini → Proceed to Shipping
+            hasCounter = !allDecided; // sudah tidak relevan di footer logic baru di bawah
 
             // Tampilkan foto bukti bayar jika ada (Status 7)
             if (pem.bukti_pembayaran) {
@@ -271,33 +344,49 @@ function openDetailModal(id_pembelian) {
                 </div>`;
             }
 
+            // Fix #2: Alamat retur HANYA muncul saat Rejected (9) yang terjadi SETELAH barang diterima (status >= 5)
+            // Jika reject di status 0 atau 1, tidak ada barang yang perlu dikembalikan
+            if (pem.status_pembelian == 9 && pem.no_resi) {
+                // Barang sudah pernah dikirim (ada resi), berarti perlu alamat retur
+                htmlContent += `
+                <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem;">
+                    <strong style="color: #c2410c;">📦 Card Return</strong><br>
+                    ${pem.alamat 
+                        ? `<span style="color: #065f46;">Return address submitted. Waiting for shipment.</span>`
+                        : `<span style="color: #9a3412;">Please provide your return address so we can send the card back.</span>`
+                    }
+                </div>`;
+            }
+
             document.getElementById('modalContent').innerHTML = htmlContent;
 
             let footerHtml = '';
             
-            // Jika status Negotiation (2), customer harus submit setelah memilih accept/counter per kartu
             if (pem.status_pembelian == 2) {
-                if (allCardsAccepted) {
-                    footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed!')">Proceed to Shipping</button>`;
+                if (!allDecided) {
+                    // Masih ada kartu yang belum direspons → footer disable
+                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
                 } else {
-                    footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px;" onclick="updateStatus(${pem.id_pembelian}, 1, 'Counters sent to Admin')">Submit Counter Offers</button>`;
+                    // Semua kartu sudah di-accept (semua match) → lanjut ke shipping
+                    // Jika ada yang di-counter, SP customer_negotiate_item sudah update penawaran_customer
+                    // dan status akan ke 1 (Under Review) otomatis via SP.
+                    // Jadi di sini yang tersisa hanya kasus semua accept.
+                    footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
                 }
             } else if (pem.status_pembelian == 3) {
                 footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #27AE60;" onclick="inputResi(${pem.id_pembelian})">Input Receipt</button>`;
             } else if (pem.status_pembelian == 7) {
                 footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #0088FF;" onclick="completeTransaction(${pem.id_pembelian})">Confirm Payment Received</button>`;
-            } else if (pem.status_pembelian == 9) {
-                // Tampilkan opsi input alamat retur JIKA admin menolak di tahap Quality Check
-                if (pem.status_pembelian == 9) {
-                    if (pem.alamat) {
-                        footerHtml += `<span style="color: #E67E22; font-weight: bold;">Return Address Submitted. Please wait for shipping.</span>`;
-                    } else {
-                        footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #E67E22;" onclick="inputAddress(${pem.id_pembelian})">Provide Return Address</button>`;
-                    }
+            } else if (pem.status_pembelian == 9 && pem.no_resi) {
+                // Fix #2: Alamat retur hanya jika barang sudah pernah dikirim (ada no_resi)
+                if (!pem.alamat) {
+                    footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #E67E22;" onclick="inputAddress(${pem.id_pembelian})">Provide Return Address</button>`;
+                } else {
+                    footerHtml += `<span style="color: #27AE60; font-weight: bold;">✓ Return Address Submitted</span>`;
                 }
             }
             
-            // Opsi Cancel untuk status awal
+            // Opsi Cancel untuk status awal (sebelum barang dikirim, status 0-2)
             if (pem.status_pembelian <= 2) {
                 footerHtml += `<button class="btn-cancel-outline" style="width: auto; padding: 10px 20px; border-color: #E74C3C; color: #E74C3C; border-width: 2px;" onclick="cancelBuyback(${pem.id_pembelian})">Cancel Submission</button>`;
             }
@@ -315,29 +404,52 @@ function counterItemOffer(idP, idK) {
     Swal.fire({
         title: 'Counter Offer for this Card',
         input: 'number',
-        showCancelButton: true
+        inputPlaceholder: 'Enter your counter price (Rp)',
+        showCancelButton: true,
+        confirmButtonText: 'Submit Counter',
+        inputValidator: (value) => {
+            if (!value || value <= 0) return 'Please enter a valid price!';
+        }
     }).then(res => {
-        if(res.isConfirmed && res.value) {
+        if (res.isConfirmed && res.value) {
             const formData = new URLSearchParams();
             formData.append('action', 'customer_negotiate_item');
-            formData.append('id_pembelian', idP); // Rujukan untuk verifikasi
+            formData.append('id_pembelian', idP);
             formData.append('id_kartu', idK);
             formData.append('penawaran_customer', res.value);
-            formData.append('id_pengguna', idPengguna); // Kredensial otorisasi
-            
-            fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData }).then(() => openDetailModal(idP));
+            formData.append('id_pengguna', idPengguna);
+
+            fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    // Refresh modal dan tabel — status mungkin berubah ke Under Review (1) via SP
+                    openDetailModal(idP);
+                    loadRiwayat();
+                } else {
+                    Swal.fire('Error', result.message || 'Failed to submit counter offer.', 'error');
+                }
+            });
         }
     });
 }
 function acceptItemOffer(idP, idK, price) {
     const formData = new URLSearchParams();
     formData.append('action', 'customer_accept_item');
-    formData.append('id_pembelian', idP); // Rujukan untuk verifikasi
+    formData.append('id_pembelian', idP);
     formData.append('id_kartu', idK);
     formData.append('harga_final', price);
-    formData.append('id_pengguna', idPengguna); // Kredensial otorisasi
-    
-    fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData }).then(() => openDetailModal(idP));
+    formData.append('id_pengguna', idPengguna);
+
+    fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(result => {
+        if (result.status === 'success') {
+            openDetailModal(idP); // Refresh modal, cek apakah semua sudah decide
+        } else {
+            Swal.fire('Error', result.message || 'Failed to accept offer.', 'error');
+        }
+    });
 }
 function cancelBuyback(id_pembelian) {
     closeDetailModal();
@@ -368,36 +480,6 @@ function cancelBuyback(id_pembelian) {
         .then(() => loadRiwayat());
     }, () => {
         document.getElementById('detailModal').style.display = 'flex';
-    });
-}
-
-function inputAddress(id_pembelian) {
-    closeDetailModal();
-    Swal.fire({
-        title: 'Input Return Address',
-        input: 'textarea',
-        inputPlaceholder: 'Enter your full address for card return shipment...',
-        showCancelButton: true,
-        confirmButtonText: 'Submit Address',
-        customClass: { confirmButton: "btn-confirm", cancelButton: "btn-cancel-outline" }
-    }).then(res => {
-        if(res.isConfirmed && res.value) {
-            const formData = new URLSearchParams();
-            formData.append('action', 'update_address');
-            formData.append('id_pembelian', id_pembelian);
-            formData.append('alamat_retur', res.value);
-            fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(result => {
-                if(result.status === 'success') {
-                    Swal.fire('Success', result.message, 'success').then(() => {
-                        openDetailModal(id_pembelian); // Refresh modal agar muncul pesannya
-                    });
-                }
-            });
-        } else {
-            document.getElementById('detailModal').style.display = 'flex';
-        }
     });
 }
 
