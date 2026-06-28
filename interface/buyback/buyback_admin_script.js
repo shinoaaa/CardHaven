@@ -156,20 +156,81 @@ function openDetailModal(id_pembelian) {
                 </div>
             `;
             
+            // Status final: offer admin tidak relevan lagi
+            const FINAL_STATUSES = [8, 9, 10]; // Completed, Rejected, Cancelled
+            const isFinal = FINAL_STATUSES.includes(parseInt(pem.status_pembelian));
+
+            // Setiap kartu harus punya keputusan: counter offer (penawaran_admin diisi)
+            // ATAU approve harga customer (ditandai dengan flag approved_by_admin di data kartu).
+            // Karena tidak ada kolom khusus, kita pakai konvensi:
+            // penawaran_admin == penawaran_customer → admin approve harga customer
+            // penawaran_admin != null && != penawaran_customer → admin counter
+            // penawaran_admin == null → belum ada keputusan
+            let allDecided = true; // untuk enable/disable Send Counter Offers
+
             data.kartu.forEach(k => {
+                const hasDecision = k.penawaran_admin != null; // admin sudah set sesuatu
+                const isApproved = hasDecision && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
+                const isCountered = hasDecision && !isApproved;
+
+                if (!hasDecision) allDecided = false;
+
+                // Label Admin Offer sesuai konteks
+                let adminOfferLabel;
+                if (!hasDecision) {
+                    if (isFinal) {
+                        adminOfferLabel = `<span style="color: #9ca3af;">-</span>`;
+                    } else {
+                        adminOfferLabel = `<span style="color: #E67E22; font-weight: 600;">Belum diputuskan</span>`;
+                    }
+                } else if (isApproved) {
+                    adminOfferLabel = `<span style="color: #27AE60; font-weight: 600;">✓ Approve — Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
+                } else {
+                    adminOfferLabel = `<span style="color: #7c3aed; font-weight: 600;">Counter — Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
+                }
+
+                // Tombol aksi per kartu (hanya saat Under Review)
+                let cardActionHtml = '';
+                if (pem.status_pembelian == 1) {
+                    if (!hasDecision) {
+                        // Belum ada keputusan: tampil dua tombol
+                        cardActionHtml = `
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button onclick="adminApproveCard(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_customer})" 
+                                    class="btn-confirm" style="width:auto; padding:5px 14px; font-size:0.8rem; margin:0; background:#27AE60;">
+                                    ✓ Approve Price
+                                </button>
+                                <button onclick="adminCounterItem(${pem.id_pembelian}, ${k.id_kartu})" 
+                                    class="btn-cancel-outline" style="width:auto; padding:5px 14px; font-size:0.8rem; margin:0;">
+                                    ✎ Set Counter Offer
+                                </button>
+                            </div>`;
+                    } else {
+                        // Sudah ada keputusan: tombol edit
+                        cardActionHtml = `
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                <span style="font-size:0.78rem; color:#6b7280;">Decision set.</span>
+                                <button onclick="adminApproveCard(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_customer})" 
+                                    class="btn-confirm" style="width:auto; padding:4px 12px; font-size:0.78rem; margin:0; background:#27AE60; opacity:${isApproved?1:0.5};">
+                                    ✓ Approve
+                                </button>
+                                <button onclick="adminCounterItem(${pem.id_pembelian}, ${k.id_kartu})" 
+                                    class="btn-cancel-outline" style="width:auto; padding:4px 12px; font-size:0.78rem; margin:0; opacity:${isCountered?1:0.5};">
+                                    ✎ Counter
+                                </button>
+                            </div>`;
+                    }
+                }
+
                 htmlContent += `
-                    <div style="border: 1px solid #e5e7eb; padding: 15px; margin-bottom: 15px; border-radius: 12px; background: #fff;">
+                    <div style="border: 1px solid ${!hasDecision && pem.status_pembelian == 1 ? '#fbbf24' : '#e5e7eb'}; padding: 15px; margin-bottom: 15px; border-radius: 12px; background: #fff;">
                         <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h4>
                         <div style="font-size: 0.9rem; margin-bottom: 12px;">
                             <p style="margin: 4px 0;"><strong>Customer Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
-                            <p style="margin: 4px 0;"><strong>Admin Offer:</strong> <span style="color: #E74C3C;">${k.penawaran_admin ? 'Rp ' + parseInt(k.penawaran_admin).toLocaleString('id-ID') : 'Pending'}</span></p>
+                            <p style="margin: 4px 0;"><strong>Admin Decision:</strong> ${adminOfferLabel}</p>
                             <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${k.percobaan_penawaran} / 3</span></p>
                         </div>
-                        <div id="admin-action-${k.id_kartu}">
-                            ${pem.status_pembelian == 1 ? 
-                                `<button onclick="adminCounterItem(${pem.id_pembelian}, ${k.id_kartu})" class="btn-cancel-outline" style="width: auto; padding: 6px 15px; font-size: 0.8rem; margin: 0; cursor: pointer;">Set Offer</button>` 
-                                : ``}
-                        </div>
+                        <div id="admin-action-${k.id_kartu}">${cardActionHtml}</div>
                     </div>`;
             });
             document.getElementById('modalContent').innerHTML = htmlContent;
@@ -178,12 +239,17 @@ function openDetailModal(id_pembelian) {
             const status = pem.status_pembelian;
             
             if (status == 0) {
-                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 9, 'Rejected')">Reject</button>`;
+                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')">Cancel Submission</button>`;
                 footerHtml += `<button class="btn-trx-action btn-process" onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')">Start Review</button>`;
             } else if (status == 1) {
-                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 9, 'Rejected')">Reject All</button>`;
-                footerHtml += `<button class="btn-trx-action btn-ship" onclick="updateStatus(${pem.id_pembelian}, 2, 'Sent to Customer')">Send Counter Offers</button>`;
-                footerHtml += `<button class="btn-trx-action btn-confirm" onclick="updateStatus(${pem.id_pembelian}, 3, 'Offer Accepted')">Approve All Prices</button>`;
+                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')">Cancel Submission</button>`;
+                // Send Counter Offers aktif hanya jika SEMUA kartu sudah ada keputusan (approve/counter)
+                if (allDecided) {
+                    footerHtml += `<button class="btn-trx-action btn-ship" onclick="updateStatus(${pem.id_pembelian}, 2, 'Counter offers sent to customer')">Send Counter Offers</button>`;
+                } else {
+                    footerHtml += `<button class="btn-trx-action btn-ship" disabled title="Harap tentukan Approve atau Counter untuk semua kartu terlebih dahulu" style="opacity: 0.4; cursor: not-allowed;">Send Counter Offers</button>`;
+                }
+                footerHtml += `<button class="btn-trx-action btn-confirm" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')">Approve All Prices</button>`;
             } else if (status == 4) {
                 footerHtml += `<button class="btn-trx-action btn-deliver" onclick="updateStatus(${pem.id_pembelian}, 5, 'Received')">Receive Package</button>`;
             } else if (status == 5) {
@@ -243,6 +309,26 @@ function adminCounterItem(idP, idK) {
                     Swal.fire('Error', res.message, 'error');
                 }
             });
+        }
+    });
+}
+
+// Approve harga customer: set penawaran_admin = penawaran_customer
+function adminApproveCard(idP, idK, hargaCustomer) {
+    const formData = new URLSearchParams();
+    formData.append('action', 'admin_negotiate');
+    formData.append('id_pembelian', idP);
+    formData.append('id_kartu', idK);
+    formData.append('penawaran_admin', hargaCustomer); // sama dengan harga customer = approve
+    formData.append('id_pengguna', idPengguna);
+
+    fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            openDetailModal(idP); // Refresh modal tanpa tutup
+        } else {
+            Swal.fire('Error', res.message, 'error');
         }
     });
 }
