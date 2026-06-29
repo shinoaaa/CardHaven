@@ -288,7 +288,15 @@ function adminCounterItem(idP, idK) {
         title: 'Input Offer for this Card',
         input: 'number',
         confirmButtonText: 'Save Price',
-        showCancelButton: true
+        showCancelButton: true,
+        inputValidator: (value) => {
+
+            const val = value ? value.toString().trim() : '';
+            
+            if (!val || isNaN(val) || Number(val) <= 0) {
+                return 'Harga tidak valid! Masukkan nominal lebih dari 0.';
+            }
+        }
     }).then(result => {
         if (result.isConfirmed && result.value) {
             const formData = new URLSearchParams();
