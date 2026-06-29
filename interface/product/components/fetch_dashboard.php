@@ -32,10 +32,10 @@ if (!isset($conn) || $conn === false) {
 
 // [FIX] COUNT: bungkus dengan error check, jangan langsung chain sqlsrv_fetch_array(sqlsrv_query())
 $sql_count  = "SELECT dbo.udf_CountDashboard('produk') AS cp,
-                      dbo.udf_CountDashboard('game')   AS cg,
-                      dbo.udf_CountDashboard('set')    AS cs,
-                      dbo.udf_CountDashboard('rarity') AS cr,
-                      dbo.udf_CountDashboard('metode') AS cm";
+                        dbo.udf_CountDashboard('game')   AS cg,
+                        dbo.udf_CountDashboard('set')    AS cs,
+                        dbo.udf_CountDashboard('rarity') AS cr,
+                        dbo.udf_CountDashboard('metode') AS cm";
 
 $stmt_count = sqlsrv_query($conn, $sql_count);
 if ($stmt_count !== false) {
