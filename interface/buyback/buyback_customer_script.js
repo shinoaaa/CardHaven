@@ -155,9 +155,16 @@ function submitBuyback() {
     // Validasi Rekening Bank
     const provider = document.getElementById('bankProvider');
     const noRek = document.getElementById('bankNoRek');
-    if (!provider.value.trim()) showError(provider, "Provider Bank/E-Wallet wajib diisi.");
-    if (!noRek.value.trim()) showError(noRek, "Nomor Rekening wajib diisi.");
+    const providerVal = provider.value.trim();
+    const noRekVal = noRek.value.trim();
 
+    if (!providerVal || providerVal.length < 2 || !/^[a-zA-Z0-9\s]+$/.test(providerVal)) {
+        showError(provider, "Please enter a valid provider.");
+    }
+
+    if (!noRekVal || noRekVal.length < 5 || !/^[0-9]+$/.test(noRekVal)) {
+        showError(noRek, "Please enter a valid account number.");
+    }
     // Validasi Per Kartu
     const cardNames = document.getElementsByName('nama_kartu[]');
     const cardPrices = document.getElementsByName('harga_beli[]');
@@ -259,7 +266,7 @@ function openDetailModal(id_pembelian) {
                 const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isPending     = isNegotiating && adminHasOffer && !priceMatch; // perlu respons customer
                 const isAgreed      = adminHasOffer && priceMatch;
-                const maxAttempts   = k.percobaan_penawaran >= 3;
+                const maxAttempts   = k.percobaan_penawaran > 3;
 
                 if (isNegotiating) {
                     if (isPending) {
@@ -406,9 +413,12 @@ function counterItemOffer(idP, idK) {
         input: 'number',
         inputPlaceholder: 'Enter your counter price (Rp)',
         showCancelButton: true,
-        confirmButtonText: 'Submit Counter',
+        confirmButtonText: 'Save Price',
         inputValidator: (value) => {
-            if (!value || value <= 0) return 'Please enter a valid price!';
+            const val = value ? value.toString().trim() : '';
+            if (!val || isNaN(val) || Number(val) <= 0) {
+                return 'Please enter a valid price!';
+            }
         }
     }).then(res => {
         if (res.isConfirmed && res.value) {
