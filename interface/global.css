@@ -873,7 +873,7 @@ input::placeholder {
 }
 
 .btn-confirm, .btn-cancel-outline {
-    width: 170px !important; /* Diubah dari flex: 1 menjadi fixed width agar bisa ke tengah saat sendiri */
+    width: 170px ; /* Diubah dari flex: 1 menjadi fixed width agar bisa ke tengah saat sendiri */
     margin: 0 auto !important; /* Menjaga tombol tetap di tengah */
     height: 48px !important; 
     display: flex !important;
