@@ -1,3 +1,49 @@
+<?php
+// =========================================================
+// 1. CONFIG GOOGLE OAUTH
+// =========================================================
+$client_id     = ***REMOVED_GOOGLE_ID***
+$redirect_uri  = "http://localhost/cardhaven/interface/login-page/google-callback.php"; 
+$scope         = "email profile openid";
+$response_type = "code";
+
+$google_login_url = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
+    'client_id'     => $client_id,
+    'redirect_uri'  => $redirect_uri,
+    'scope'         => $scope,
+    'response_type' => $response_type
+]); 
+
+// =========================================================
+// 2. CONFIG DISCORD OAUTH
+// =========================================================
+$client_id_discord     = ***REMOVED_DISCORD_ID***
+$redirect_uri_discord  = "http://localhost/cardhaven/interface/login-page/discord-callback.php"; 
+$scope_discord         = "identify email"; 
+$response_type_discord = "code";
+
+$discord_login_url = "https://discord.com/api/oauth2/authorize?" . http_build_query([
+    'client_id'     => $client_id_discord,
+    'redirect_uri'  => $redirect_uri_discord,
+    'scope'         => $scope_discord,
+    'response_type' => $response_type_discord
+]);
+
+// =========================================================
+// 3. CONFIG FACEBOOK OAUTH
+// =========================================================
+$client_id_facebook     = ***REMOVED_FACEBOOK_ID***
+$redirect_uri_facebook  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php"; 
+$scope_facebook         = "email";
+$response_type_facebook = "code";
+
+$facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_build_query([
+    'client_id'     => $client_id_facebook,
+    'redirect_uri'  => $redirect_uri_facebook,
+    'scope'         => $scope_facebook,
+    'response_type' => $response_type_facebook
+]);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,9 +66,20 @@
                     <h1 class="coolvetica">Sign Up</h1>
                     
                     <div class="social-login">
-                        <button class="social-btn"><img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google"></button>
-                        <button class="social-btn"><img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="Github"></button>
-                        <button class="social-btn"><img src="https://img.icons8.com/ios-filled/50/000000/mac-os.png" alt="Apple"></button>
+                        <!-- Tombol Login/Register Google -->
+                        <a href="<?php echo $google_login_url; ?>" class="social-btn" style="display: flex; justify-content: center; align-items: center; text-decoration: none;">
+                            <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
+                        </a>
+                        
+                        <!-- Tombol Discord -->
+                        <a href="<?php echo $discord_login_url; ?>" class="social-btn" style="display: flex; justify-content: center; align-items: center; text-decoration: none;">
+                            <img src="https://img.icons8.com/color/48/000000/discord-new-logo.png" alt="Discord">
+                        </a>
+                        
+                        <!-- Tombol Facebook -->
+                        <a href="<?php echo $facebook_login_url; ?>" class="social-btn" style="display: flex; justify-content: center; align-items: center; text-decoration: none;">
+                            <img src="https://img.icons8.com/color/48/000000/facebook-new.png" alt="Facebook">
+                        </a>
                     </div>
 
                     <div class="divider">
