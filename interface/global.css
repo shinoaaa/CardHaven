@@ -1286,7 +1286,7 @@ input:checked + .slider:before {
 }
 
 .nav-logo {
-    transform: scale(0.9);
+    transform: scale(1);
     height: 100%;
     object-fit: cover;
     display: flex;
@@ -1724,6 +1724,10 @@ input:checked + .slider:before {
     padding: 0.25rem 1.25rem;
     background-color: #fafcff;
     height: 30rem;
+}
+
+.detail-product:hover{
+    cursor: pointer;
 }
 
 /* Label kecil di dalam product card (Stock, Game, dll) */

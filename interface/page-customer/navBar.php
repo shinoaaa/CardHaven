@@ -1,17 +1,21 @@
 <div class="nav-bar">
     <div class="nav-content">
         <div class="nav-logo">
-            <img src="/cardhaven/assets/image/logo.svg" style="object-fit: cover; width: 100%; height: 100%;">
-        </div>
+                <a href="/CardHaven/home">
+                <img src="/cardhaven/assets/image/logo.svg" style="object-fit: cover; width: 100%; height: 100%;">
+            </a>
+            </div>
         <div class="nav-menu">
             <div class="nav-search">
                 <input type="text" style="height: 85%; width: 80%; border: 1px solid var(--primary-color); border-radius: 9999px;" placeholder="Type Product Name">
-                <div style="height: 85%; aspect-ratio: 1/1; background-color: var(--primary-color); border-radius: 9999px; display: flex; justify-content: center; align-items: center;">
-                    <img src="/cardhaven/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
-                </div>
+                    <div style="height: 85%; aspect-ratio: 1/1; background-color: var(--primary-color); border-radius: 9999px; display: flex; justify-content: center; align-items: center;">
+                        <img src="/cardhaven/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
+                    </div>
+                </a>
             </div>
-            <div class="nav-profile" style="position: relative;"> <button id="btn-sign" style="height: 60%; width: 35%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">
-                    <a class="coolveticaa" href="register" style="color: white; font-size: 1rem;">
+            <div class="nav-profile" style="position: relative;"> 
+                <button class="sign-in-button" id="btn-sign" style="height: 60%; width: 35%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">
+                    <a class="coolveticaa" href="/CardHaven/register" style="color: white; font-size: 1rem;">
                         Sign In
                     </a>
                 </button>
@@ -45,13 +49,13 @@
                         
                         <ul class="popup-menu-list">
                             <li>
-                                <a href="profilepage"> <img src="/cardhaven/assets/image/user-icon.svg" class="menu-icon" alt="icon">
+                                <a href="/CardHaven/profilepage"> <img src="/cardhaven/assets/image/user.svg" class="menu-icon" alt="icon">
                                     <span>My Profile</span>
                                 </a>
                             </li>
                             <li>
                                 <button id="btn-trigger-mailbox" class="menu-item-btn">
-                                    <img src="/cardhaven/assets/image/mail-icon.svg" class="menu-icon" alt="icon">
+                                    <img src="/cardhaven/assets/image/inbox.svg" class="menu-icon" alt="icon">
                                     <span>Mailbox</span>
                                     <span class="badge-notif">2</span> </button>
                             </li>
@@ -296,6 +300,10 @@
         font-size: 0.7rem;
         color: #999;
     }
+
+    .sign-in-button:hover{
+        cursor: pointer;
+    }
 </style>
 
 <script>
@@ -337,6 +345,36 @@
             popupProfile.style.display = 'block';
         }
     });
+
+    async function fetchUserData() {
+        const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+        if (!idPengguna) return;
+
+        try {
+            const response = await fetch(`/cardhaven/interface/page-customer/controller.php?id_pengguna=${idPengguna}`);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+            const result = await response.json();
+
+            if (result.status === 'success' && result.data) {
+                // ✅ Pakai variabel yang benar (result.data, bukan user)
+                const avatarSrc = result.data.foto_profil
+                    ? `/cardhaven/${result.data.foto_profil}`
+                    : '/cardhaven/assets/image/user.svg';
+
+                // ✅ Set ke semua elemen avatar di navbar
+                const avatarImgs = document.querySelectorAll('#avatar-trigger img, .profile-avatar-large img');
+                avatarImgs.forEach(img => img.src = avatarSrc);
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    }
+
+    // ✅ Panggil saat login
+    if (isUser) {
+        fetchUserData();
+    }
 
     btnTriggerMailbox.addEventListener('click', function(e) {
         e.stopPropagation();

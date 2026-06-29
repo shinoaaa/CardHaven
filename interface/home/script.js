@@ -246,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <span onclick="updateHomeQty(${prod.id_produk}, 1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">+</span>
                                 </div>
                             </div>
-                            <button style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
+                            <button class="detail-product" onclick="goToDetail(${prod.id_produk})" style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
                             <button class="btn-primary" 
                                     onclick="addToCart(${prod.id_produk}, ${prod.harga_jual})" 
                                     style="width: 100%; padding: 0.5rem 0; font-size: 1rem;">
@@ -412,3 +412,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
         }
     });
 };
+
+window.goToDetail = function(idProduk) {
+    window.location.href = `/CardHaven/home/productdetail?id_produk=${idProduk}`;
+}

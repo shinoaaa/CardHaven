@@ -1,0 +1,161 @@
+body {
+    background-color: #E8EDF9; /* Warna Light Blue background khas Figma */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Banner Atas */
+.profile-banner {
+    width: 100%;
+    height: 10rem;
+    background: #000;
+    overflow: hidden;
+}
+.profile-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Container Keseluruhan */
+.profile-page-wrapper {
+    max-width: 950px;
+    margin: -80px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Kartu Profile & Activity Umum */
+.profile-card, .transaction-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* --- Tampilan Section Profile --- */
+.profile-card {
+    padding: 12px 40px 30px 40px; 
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+.profile-left { display: flex; flex-direction: column; align-items: center; }
+.profile-avatar-wrapper {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    border: 4px solid #173C99;
+    padding: 2px; background: #fff;
+}
+.profile-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.profile-action-pill {
+    background: #173C99;
+    border-radius: 25px;
+    display: flex; gap: 15px;
+    padding: 8px 25px;
+    margin-top: 7.5rem;
+    position: absolute; z-index: 2;
+}
+.action-icon {
+    background: none; border: none; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.action-icon img { width: 18px; }
+.mail-btn { position: relative; }
+.mail-badge {
+    position: absolute; top: -2px; right: -5px;
+    width: 8px; height: 8px; background: #E11D48; border-radius: 50%;
+}
+
+.profile-center { flex: 1.2; padding-left: 20px; }
+.profile-name { color: #173C99; font-size: 22px; font-weight: 800; margin: 0 0 5px 0; }
+.profile-email { color: #888; font-size: 14px; margin: 0; }
+
+.profile-right { flex: 2; border-left: 1px solid transparent; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 10px; }
+.info-item { display: flex; align-items: center; gap: 10px; }
+.info-icon { width: 20px; height: 20px; }
+.info-text { color: #173C99; font-size: 12px; font-weight: 700; }
+.text-orange { color: #F97316; font-weight: 800; }
+.expenditure-item { align-items: flex-start; }
+.expenditure-text { display: flex; flex-direction: column; }
+
+
+/* --- Tampilan Section Activity --- */
+.transaction-card { padding: 30px; }
+.transaction-tabs {
+    display: flex; justify-content: center; gap: 30px; margin-bottom: 25px;
+}
+.tab-btn {
+    background: none; border: none; padding-bottom: 5px;
+    font-size: 14px; font-weight: 600; color: #6B7280; cursor: pointer;
+    transition: 0.2s;
+}
+.tab-btn.active { color: #173C99; border-bottom: 3px solid #173C99; font-weight: 800; }
+
+.transaction-toolbar {
+    display: flex; gap: 10px; margin-bottom: 20px; align-items: center;
+}
+.search-box {
+    display: flex; align-items: center;
+    border: 1px solid #173C99; border-radius: 20px;
+    width: 230px;
+}
+.search-box img { width: 20px; filter: invert(30%) sepia(75%) saturate(8090%) hue-rotate(173deg) brightness(64%) contrast(200%); margin-left: 15px;}
+.search-box input { border: none; outline: none; width: 100%; color: #173C99; font-size: 12px; }
+.search-box input::placeholder { color: #A0B0D0; }
+.filter-btn {
+    background: #173C99; color: #fff; font-size: 12px; font-weight: 600;
+    border: none; border-radius: 20px; padding: 6px 20px; cursor: pointer;
+}
+.sort-btn { background: none; border: none; cursor: pointer; font-size: 1.25rem;}
+
+/* Tabel */
+.table-responsive { overflow-x: auto; margin-bottom: 20px; }
+.cardhaven-table { width: 100%; border-collapse: collapse; text-align: center; }
+.cardhaven-table th {
+    border-top: 2px solid #173C99; border-bottom: 2px solid #173C99;
+    color: #173C99; font-size: 12px; font-weight: 700; padding: 12px 10px;
+}
+.cardhaven-table td {
+    border-bottom: 1px solid #E5E7EB; color: #173C99; font-size: 11px;
+    font-weight: 600; padding: 15px 10px;
+}
+.status-pill { padding: 4px 15px; border-radius: 20px; color: #fff; font-size: 10px; display: inline-block; }
+.status-red { background: #E11D48; }
+.action-menu-btn { background: #E11D48; border: none; border-radius: 6px; padding: 4px 12px; cursor: pointer; }
+.action-menu-btn img { filter: invert(1); width: 16px; }
+
+/* Pagination */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; }
+.page-num, .page-arrow {
+    background: none; border: none; color: #173C99; font-weight: 700;
+    font-size: 12px; cursor: pointer; padding: 5px 8px; border-radius: 4px;
+}
+.page-num.active { background: #173C99; color: #fff; }
+.page-dots { color: #173C99; font-weight: 700; font-size: 12px; }
+
+/* Modals General Style (Sama seperti yang Anda sediakan dengan sedikit penyesuaian padding) */
+.ch-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+.ch-modal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #fff; border-radius: 12px; width: 90%; max-width: 500px;
+    z-index: 1001; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 25px;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+.btn-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #888; font-weight: bold; }
+.btn-confirm { background: #0D47A1; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+.btn-cancel-outline { background: white; color: #0D47A1; border: 1px solid #0D47A1; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+.supp-form-group { margin-bottom: 15px; text-align: left; }
+.supp-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #173C99; }
+.supp-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+.supp-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.mail-item { padding: 15px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+.mail-item:hover { background: #f8f9fa; border-color: #ddd; }
+.mail-item.unread { border-left: 4px solid #173C99; font-weight: bold; background: #f0f7ff; }
+.mail-item-title { margin: 0 0 5px 0; font-size: 1rem; color: #173C99; }
+.mail-item-date { margin: 0; font-size: 0.75rem; color: #888; }
+.pagination-controls { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
