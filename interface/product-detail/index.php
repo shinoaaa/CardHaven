@@ -4,6 +4,9 @@
  * Halaman Product Detail
  */
 $pageTitle = 'Product Detail – CardHaven';
+
+// Penyesuaian XAMPP: Folder project utama Anda di htdocs
+$baseUrl = '/CardHaven'; 
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -16,14 +19,18 @@ $pageTitle = 'Product Detail – CardHaven';
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Global CSS & JS Alert -->
-    <link rel="stylesheet" href="/cardhaven/interface/global.css">
-    <script src="/cardhaven/interface/global_alert.js"></script>
+    <link rel="stylesheet" href="<?= $baseUrl ?>/interface/global.css">
+    <script src="<?= $baseUrl ?>/interface/global_alert.js"></script>
 
     <!-- Product Detail CSS -->
-    <link rel="stylesheet" href="/cardhaven/interface/product-detail/assets/css/style.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/interface/product-detail/assets/css/style.css">
+    
+    <script>
+        const BASE_URL = '<?= $baseUrl ?>';
+    </script>
 </head>
 <body>
-    <!-- Navbar Component (Placeholder sesuai permintaan) -->
+    <!-- Navbar Component -->
     <!-- <?php include __DIR__ . '/../components/navBar.php'; ?> -->
 
     <div class="pd-container">
@@ -31,7 +38,8 @@ $pageTitle = 'Product Detail – CardHaven';
         <div class="pd-main-section">
             <!-- Left: Image -->
             <div class="pd-image-box">
-                <img id="detailFoto" src="/cardhaven/assets/image/placeholder.png" alt="Product Image">
+                <!-- Penyesuaian: Menggunakan folder /assets/image/products/ -->
+                <img id="detailFoto" src="<?= $baseUrl ?>/assets/image/products/placeholder.png" alt="Product Image">
             </div>
 
             <!-- Right: Details -->
@@ -77,7 +85,6 @@ $pageTitle = 'Product Detail – CardHaven';
 
                 <div class="pd-actions">
                     <button class="btn-add-cart" onclick="addToCart()">Add To Cart</button>
-                    <!-- Tombol checkout product sesuai instruksi -->
                     <button class="btn-checkout" onclick="checkoutProduct()">Checkout Product</button>
                 </div>
             </div>
@@ -95,7 +102,7 @@ $pageTitle = 'Product Detail – CardHaven';
             </div>
 
             <div class="related-grid" id="relatedGrid">
-                <!-- Related products will be injected here via JS -->
+                <!-- Related products akan di-inject lewat JS -->
             </div>
 
             <div class="related-pagination">
@@ -106,6 +113,6 @@ $pageTitle = 'Product Detail – CardHaven';
     </div>
 
     <!-- Script -->
-    <script src="/cardhaven/interface/product-detail/assets/js/script.js"></script>
+    <script src="<?= $baseUrl ?>/interface/product-detail/assets/js/script.js"></script>
 </body>
 </html>

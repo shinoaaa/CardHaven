@@ -1,6 +1,6 @@
-// Dapatkan ID Produk dari URL (?id=...)
+// Dapatkan ID Produk dari URL (?id_produk=...) atau (?id=...)
 const urlParams = new URLSearchParams(window.location.search);
-const productId = urlParams.get('id_produk');
+const productId = urlParams.get('id_produk') || urlParams.get('id');
 
 // Mendapatkan ID Pengguna (User Session/Localstorage)
 const userId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
@@ -16,10 +16,13 @@ let allRelatedProducts = [];
 let currentRelatedPage = 1;
 const relatedLimit = 4;
 
+// Penyesuaian Base URL XAMPP secara dinamis dan aman
+const base = typeof BASE_URL !== 'undefined' ? BASE_URL : '/CardHaven';
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!productId) {
         cardhavenAlert('error', 'Error', 'Product ID is missing from URL!', () => {
-            window.location.href = '/cardhaven/home';
+            window.location.href = `${base}/home`;
         });
         return;
     }
@@ -28,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 1. Fetch Detail Product
 function fetchProductDetail() {
-    fetch(`/cardhaven/interface/product-detail/controller/ProductDetailController.php?action=get_detail&id_produk=${productId}`)
+    fetch(`${base}/interface/product-detail/controller/ProductDetailController.php?action=get_detail&id_produk=${productId}`)
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
@@ -36,17 +39,27 @@ function fetchProductDetail() {
                 currentProductPrice = parseFloat(prod.harga_jual);
                 currentIdGame = prod.id_game;
 
-                // Bind to DOM
+                // Bind ke DOM
                 document.getElementById('detailNama').innerText = prod.nama_produk;
                 document.getElementById('detailStok').innerText = prod.stok;
-                document.getElementById('detailGame').innerText = 'Game ' + prod.id_game; // Sesuaikan kalau ada text nama gamenya
+                document.getElementById('detailGame').innerText = 'Game ' + prod.id_game;
                 document.getElementById('detailType').innerText = prod.tipe_produk || 'Card';
                 document.getElementById('detailKondisi').innerText = prod.kondisi || 'Near Mint';
                 document.getElementById('detailDeskripsi').innerText = prod.deskripsi;
-                document.getElementById('detailHarga').innerText = '$' + currentProductPrice.toLocaleString('en-US'); // Figma reference uses $
+                document.getElementById('detailHarga').innerText = '$' + currentProductPrice.toLocaleString('en-US');
                 
                 if (prod.foto) {
-                    document.getElementById('detailFoto').src = `/cardhaven/${prod.foto}`;
+                    let fotoPath = prod.foto;
+                    // Jika foto mengandung path lengkap (image-profile atau assets)
+                    if (fotoPath.includes('image-profile/') || fotoPath.includes('assets/')) {
+                        document.getElementById('detailFoto').src = `${base}/${fotoPath}`;
+                    } else {
+                        // Jika hanya berupa nama file produk biasa, arahkan ke folder products
+                        document.getElementById('detailFoto').src = `${base}/assets/image/products/${fotoPath}`;
+                    }
+                } else {
+                    // Fallback jika produk tidak memiliki foto sama sekali
+                    document.getElementById('detailFoto').src = `${base}/image-profile/defaultProduct.jpg`;
                 }
 
                 // Panggil Related Product setelah tahu gamenya apa
@@ -60,7 +73,7 @@ function fetchProductDetail() {
 
 // 2. Fetch & Render Related Products
 function fetchRelatedProducts() {
-    fetch(`/cardhaven/interface/product-detail/controller/ProductDetailController.php?action=get_related&id_game=${currentIdGame}&id_produk=${productId}`)
+    fetch(`${base}/interface/product-detail/controller/ProductDetailController.php?action=get_related&id_game=${currentIdGame}&id_produk=${productId}`)
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
@@ -83,13 +96,23 @@ function renderRelatedProducts() {
     }
 
     itemsToShow.forEach(item => {
+        // Tentukan path gambar terkait secara dinamis dan aman
+        let relFotoPath = item.foto || 'image-profile/defaultProduct.jpg';
+        let relFotoSrc = '';
+        
+        if (relFotoPath.includes('image-profile/') || relFotoPath.includes('assets/')) {
+            relFotoSrc = `${base}/${relFotoPath}`;
+        } else {
+            relFotoSrc = `${base}/assets/image/products/${relFotoPath}`;
+        }
+
         const card = document.createElement('div');
         card.className = 'rel-card';
         card.innerHTML = `
             <div class="rel-icon-badge">
-                <img src="/cardhaven/assets/icon/cart.svg" alt="icon">
+                <img src="${base}/assets/image/cart.svg" alt="icon">
             </div>
-            <img src="/cardhaven/${item.foto || 'placeholder.png'}" class="rel-image" alt="Related">
+            <img src="${relFotoSrc}" class="rel-image" alt="Related">
             <div class="rel-title-row">
                 <h4 class="rel-title">${item.nama_produk}</h4>
                 <span class="rel-game">Pokemon</span>
@@ -118,7 +141,6 @@ function prevRelatedPage() {
 function updateQty(change) {
     currentQty += change;
     if (currentQty < 1) currentQty = 1;
-    // Cek batas stok jika diperlukan: if (currentQty > maxStok) ...
     document.getElementById('qtyValue').innerText = currentQty;
 }
 
@@ -135,27 +157,27 @@ function addToCart() {
     formData.append('harga', currentProductPrice);
     formData.append('qty', currentQty);
 
-    fetch('/cardhaven/interface/product-detail/controller/ProductDetailController.php?action=add_to_cart', {
+    fetch(`${base}/interface/product-detail/controller/ProductDetailController.php?action=add_to_cart`, {
         method: 'POST',
         body: formData
     })
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Product successfully added to your cart!');
+            cardhavenAlert('success', 'Berhasil', 'Produk berhasil ditambahkan ke keranjang!');
         } else {
-            cardhavenAlert('error', 'Error', res.msg || 'Failed to add product.');
+            cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }
     })
     .catch(err => {
         console.error(err);
-        cardhavenAlert('error', 'System Error', 'Something went wrong.');
+        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
     });
 }
 
 // 5. Global GoToDetail (Dideklarasikan di window sesuai prompt)
 window.goToDetail = function(idProduk) {
-    window.location.href = `/cardhaven/productdetail?id=${idProduk}`;
+    window.location.href = `${base}/home/productdetail?id_produk=${idProduk}`;
 }
 
 // 6. Checkout Product Placeholder
@@ -164,7 +186,5 @@ function checkoutProduct() {
         cardhavenAlert('error', 'Authentication Required', 'Please login to proceed.');
         return;
     }
-    // Karena idenya belum ada, lempar ke alert dulu
-    cardhavenAlert('info', 'Checkout Process', 'Proceeding to checkout with ' + currentQty + ' items. (Feature WIP)');
-    // Nanti bisa window.location.href = `/cardhaven/checkout?id_produk=${productId}&qty=${currentQty}`;
+    cardhavenAlert('info', 'Checkout Process', 'Melanjutkan ke checkout dengan ' + currentQty + ' item. (Fitur WIP)');
 }

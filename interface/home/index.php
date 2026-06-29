@@ -1,3 +1,8 @@
+<?php
+// Letakkan baris ini di bagian paling atas file index.php halaman Home Anda
+$baseUrl = '/CardHaven';
+?>
+
 <div class="home-container">
     <div class="hero-wrapper scroll-area">
         <div style="width: 5px; height: 3.5rem;"></div>
@@ -22,8 +27,8 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button type="button" class="nav-btn-circle" id="btn-prev-event"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
-                    <button type="button" class="nav-btn-circle" id="btn-next-event"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
+                    <button type="button" class="nav-btn-circle" id="btn-prev-event"><img src="<?= $baseUrl ?>/assets/image/left-arrow.svg"></button>
+                    <button type="button" class="nav-btn-circle" id="btn-next-event"><img src="<?= $baseUrl ?>/assets/image/right-arrow.svg"></button>
                     <button class="btn-primary" style="background: var(--bg-gradient);" id="btn-title">See detail</button>
                     <a href="#promo-section">
                         <button class="btn-secondary">Another Event</button>
@@ -32,9 +37,9 @@
             </div>
             
             <div class="hero-img">
-                <img src="/cardhaven/assets/image/kotak-depan.png" style="position: absolute; z-index: 999; width: 100%; height: 100%;">
+                <img src="<?= $baseUrl ?>/assets/image/kotak-depan.png" style="position: absolute; z-index: 999; width: 100%; height: 100%;">
                 <img id="ui-event-image" src="" style="position: absolute; z-index: 1; transform: translateX(-1.5rem) translateY(2.5rem) scale(0.92);">
-                <img src="/cardhaven/assets/image/garis-belakang.png" style="position: absolute; z-index: 0; width: 65.5%; height: 62%; transform: translateX(-3rem) translateY(-6.75rem);">
+                <img src="<?= $baseUrl ?>/assets/image/garis-belakang.png" style="position: absolute; z-index: 0; width: 65.5%; height: 62%; transform: translateX(-3rem) translateY(-6.75rem);">
             </div>
         </div>
         
@@ -58,21 +63,21 @@
         </div>
         <div class="promo-content"></div>
         <div class="promo-pagination">
-            <button class="nav-btn-circle" id="btn-prev-promo"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
+            <button class="nav-btn-circle" id="btn-prev-promo"><img src="<?= $baseUrl ?>/assets/image/left-arrow.svg"></button>
             <div id="promo-page-info">
                 <span>1</span>
                 <span>of</span>
                 <span>1</span>
             </div>
-            <button class="nav-btn-circle" id="btn-next-promo"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
+            <button class="nav-btn-circle" id="btn-next-promo"><img src="<?= $baseUrl ?>/assets/image/right-arrow.svg"></button>
         </div>
         <div style="width: 100%; height: 1px; background-color: var(--primary-color); margin: 2rem 0rem 1rem 0rem"></div>
     </div>
 
     <div class="game">
         <div class="game-button">
-            <button class="nav-btn-circle" id="btn-prev-game-card" style="border: 3px solid white;"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
-            <button class="nav-btn-circle" id="btn-next-game-card" style="border: 3px solid white;"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
+            <button class="nav-btn-circle" id="btn-prev-game-card" style="border: 3px solid white;"><img src="<?= $baseUrl ?>/assets/image/left-arrow.svg"></button>
+            <button class="nav-btn-circle" id="btn-next-game-card" style="border: 3px solid white;"><img src="<?= $baseUrl ?>/assets/image/right-arrow.svg"></button>
         </div>
         
         <div class="game-list" id="ui-game-card-list"></div>
@@ -85,7 +90,7 @@
                 <div class="nav-search" style="width: auto; height: 2.5rem;">
                     <input type="text" style="height: 100%; width: 20.5rem; border: 1px solid var(--primary-color); border-radius: 9999px;" placeholder="Type Product Name">
                     <div style="height: 100%; aspect-ratio: 1/1; background-color: var(--primary-color); border-radius: 9999px; display: flex; justify-content: center; align-items: center;">
-                        <img src="/cardhaven/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
+                        <img src="<?= $baseUrl ?>/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
                     </div>
                 </div>
             </div>
@@ -115,13 +120,13 @@
             <div class="product-card"></div>
         </div>
         <div class="promo-pagination">
-            <button class="nav-btn-circle" id="btn-prev-product"><img src="/cardhaven/assets/image/left-arrow.svg"></button>
+            <button class="nav-btn-circle" id="btn-prev-product"><img src="<?= $baseUrl ?>/assets/image/left-arrow.svg"></button>
             
             <div id="ui-product-page-info">
                 <span>1 of 1</span>
             </div>
             
-            <button class="nav-btn-circle" id="btn-next-product"><img src="/cardhaven/assets/image/right-arrow.svg"></button>
+            <button class="nav-btn-circle" id="btn-next-product"><img src="<?= $baseUrl ?>/assets/image/right-arrow.svg"></button>
         </div>
     </div>
 
@@ -145,10 +150,10 @@
                 Your cards are worth more than shelf spaGot extra cards collecting dust? Trade them in for fast cash or store credit — we make it simple and fair
             </p>
             <div class="buyback-list-btn">
-                <a href="/cardhaven/interface/buyback/customer.php" style="text-decoration: none;">
+                <a href="<?= $baseUrl ?>/interface/buyback/customer.php" style="text-decoration: none;">
                     <div class="btn-buyback" style="padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
                         <div style="width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center;">
-                            <img src="/cardhaven/assets/image/cash.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                            <img src="<?= $baseUrl ?>/assets/image/cash.svg" style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <h3>Get an offer</h3>
                     </div>
@@ -166,7 +171,7 @@
             <div class="foot-game">
                 <div class="list-header">
                     <div style="width: 2rem; height: 2rem;">
-                        <img src="/cardhaven/assets/image/games.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <img src="<?= $baseUrl ?>/assets/image/games.svg" style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                     <h1 style="font-size: 1.25rem;">Games</h1>
                 </div>
@@ -181,7 +186,7 @@
             <div class="foot-service">
                 <div class="list-header">
                     <div style="width: 2rem; height: 2rem;">
-                        <img src="/cardhaven/assets/image/service.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <img src="<?= $baseUrl ?>/assets/image/service.svg" style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                     <h1 style="font-size: 1.25rem;">Services</h1>
                 </div>
@@ -194,7 +199,7 @@
             <div class="foot-about">
                 <div class="list-header">
                     <div style="width: 2rem; height: 2rem;">
-                        <img src="/cardhaven/assets/image/product-foot.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <img src="<?= $baseUrl ?>/assets/image/product-foot.svg" style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                     <h1 style="font-size: 1.25rem;">About Us</h1>
                 </div>
@@ -209,13 +214,13 @@
                 <div style="height: 2px; background-color: var(--primary-color); width: 12rem;"></div>
                 <div style="display: flex; gap: 1rem;">
                     <div class="community-icon">
-                        <img src="/cardhaven/assets/image/instagram.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <img src="<?= $baseUrl ?>/assets/image/instagram.svg" style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                     <div class="community-icon">
-                        <img src="/cardhaven/assets/image/x.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <img src="<?= $baseUrl ?>/assets/image/x.svg" style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                     <div class="community-icon">
-                        <img src="/cardhaven/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                        <img src="<?= $baseUrl ?>/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
                     </div>
                 </div>
             </div>
@@ -232,7 +237,10 @@
     <?php include __DIR__ . '/../../interface/preorder-transaction/index.php' ?>
 </div>
 
-<script src="/cardhaven/interface/global_alert.js"></script>
-<script src="/cardhaven/interface/home/script.js"></script>
-<script src="/cardhaven/interface/event-transaction/script.js"></script>
-<script src="/cardhaven/interface/preorder-transaction/script.js"></script>
+<script>
+    const BASE_URL = '<?= $baseUrl ?>';
+</script>
+<script src="<?= $baseUrl ?>/interface/global_alert.js"></script>
+<script src="<?= $baseUrl ?>/interface/home/script.js"></script>
+<script src="<?= $baseUrl ?>/interface/event-transaction/script.js"></script>
+<script src="<?= $baseUrl ?>/interface/preorder-transaction/script.js"></script>

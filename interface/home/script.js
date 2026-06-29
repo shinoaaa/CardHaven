@@ -1,5 +1,5 @@
-// 1. Tambahkan path controller keranjang di bagian atas
-const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
+// 1. Tambahkan path controller keranjang di bagian atas (Menggunakan var agar aman dari crash redeclare)
+var CART_CONTROLLER = '/CardHaven/interface/cart/controller_keranjang.php';
 
 // 2. Fungsi untuk mengambil ID Pengguna (Pastikan ini ada)
 var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function loadData() {
-        // Update URL kirim semua parameter halaman termasuk halaman_promo
-        const urlController = `/cardhaven/interface/home/controller/getData.php?halaman_event=${currentEventPage}&halaman_game_bar=${currentGameBarPage}&halaman_game_card=${currentGameCardPage}&halaman_product=${currentProductPage}&halaman_promo=${currentPromoPage}`;
+        // Update URL kirim semua parameter halaman termasuk halaman_promo (Ganti ke /CardHaven/)
+        const urlController = `/CardHaven/interface/home/controller/getData.php?halaman_event=${currentEventPage}&halaman_game_bar=${currentGameBarPage}&halaman_game_card=${currentGameCardPage}&halaman_product=${currentProductPage}&halaman_promo=${currentPromoPage}`;
 
         fetch(urlController)
             .then(response => {
@@ -88,10 +88,15 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('startDate').textContent = formatTanggal(data.event.tanggal_mulai);
             document.getElementById('endDate').textContent = formatTanggal(data.event.tanggal_berakhir);
             
-            if(!data.event.foto){
-                document.getElementById('ui-event-image').src = `/cardhaven/image-profile/defaultProduct.jpg`;
+            if (!data.event.foto) {
+                document.getElementById('ui-event-image').src = `/CardHaven/image-profile/defaultProduct.jpg`;
             } else {
-                document.getElementById('ui-event-image').src = `/cardhaven/${data.event.foto}`;
+                // Jika isinya hanya nama file (misal 'mewtwo_ex_special_art.webp'), arahkan ke folder products
+                let eventPath = data.event.foto;
+                if (!eventPath.includes('/')) {
+                    eventPath = `assets/image/products/${eventPath}`;
+                }
+                document.getElementById('ui-event-image').src = `/CardHaven/${eventPath}`;
             }
             
             const eventTitle = document.getElementById('btn-title');
@@ -122,7 +127,12 @@ document.addEventListener("DOMContentLoaded", function() {
             promoContainer.innerHTML = '';
             if (data.list_promo && data.list_promo.length > 0) {
                 data.list_promo.forEach(promo => {
-                    const bannerSrc = promo.foto_banner ? `/cardhaven/${promo.foto_banner}` : '/cardhaven/image-profile/defaultEvent.jpg';
+                    // Jika ada banner, cek apakah itu path lengkap atau cuma nama file
+                    let promoPath = promo.foto_banner;
+                    if (promoPath && !promoPath.includes('/')) {
+                        promoPath = `assets/image/products/${promoPath}`;
+                    }
+                    const bannerSrc = promoPath ? `/CardHaven/${promoPath}` : '/CardHaven/image-profile/defaultEvent.jpg';
                     const gameName = promo.nama_game ? promo.nama_game : 'All Games';
 
                     if (promo.status_event == 1) {
@@ -185,7 +195,11 @@ document.addEventListener("DOMContentLoaded", function() {
             gameCardContainer.innerHTML = '';
             if (data.list_game_card && data.list_game_card.length > 0) {
                 data.list_game_card.forEach(game => {
-                    const bannerSrc = game.foto_banner ? `/cardhaven/${game.foto_banner}` : '/cardhaven/image-profile/defaultBanner.jpg';
+                    let gamePath = game.foto_banner;
+                    if (gamePath && !gamePath.includes('/')) {
+                        gamePath = `assets/image/products/${gamePath}`;
+                    }
+                    const bannerSrc = gamePath ? `/CardHaven/${gamePath}` : '/CardHaven/image-profile/defaultBanner.jpg';
                     const cardHTML = `
                     <a href="list.php?id=${game.id_game}">
                         <div class="game-card" style="background-image: url('${bannerSrc}');">
@@ -209,7 +223,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     const safeDesc = prod.deskripsi ? prod.deskripsi : '';
                     const limitDesc = safeDesc.length > 80 ? safeDesc.substring(0, 80) + '...' : safeDesc;
                     const gameName = prod.nama_game ? prod.nama_game : '-';
-                    const fotoSrc = prod.foto ? `/cardhaven/${prod.foto}` : '/cardhaven/image-profile/defaultProduct.jpg';
+                    
+                    // Jika data foto hanya berupa nama file, arahkan ke folder produk
+                    let prodPath = prod.foto;
+                    if (prodPath && !prodPath.includes('/')) {
+                        prodPath = `assets/image/products/${prodPath}`;
+                    }
+                    const fotoSrc = prodPath ? `/CardHaven/${prodPath}` : '/CardHaven/image-profile/defaultProduct.jpg';
 
                     const cardHTML = `
                     <div class="product-card">
@@ -336,7 +356,7 @@ window.addToCart = function(idProduk, harga) {
     // Cek Login
     if (!userId || userId === "0") {
         alert("Silahkan login terlebih dahulu!");
-        window.location.href = "/cardhaven/interface/login-page/";
+        window.location.href = "/CardHaven/interface/login-page/";
         return;
     }
 
@@ -398,7 +418,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     fd.append('jumlah', qty);               // Kirim jumlah yang dipilih
     fd.append('id_pengguna_js', userId);
 
-    fetch('/cardhaven/interface/cart/controller_keranjang.php', {
+    fetch('/CardHaven/interface/cart/controller_keranjang.php', {
         method: 'POST',
         body: fd
     })
