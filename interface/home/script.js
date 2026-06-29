@@ -174,8 +174,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             <div style="display: flex; align-items: center; justify-content: space-between; color: var(--primary-color); margin-top: 1.25rem;">
                                 <h2>Price: <span id="display-price-${prod.id_produk}">${formatRupiah(prod.harga_jual)}</span></h2>
                                 <div style="display: flex; align-items: center; gap: 10px; border: 1px solid #ccc; border-radius: 20px; padding: 2px 10px;">
-                                    <span onclick="updateHomeQty(${prod.id_produk}, -1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">-</span>
-                                    <span id="qty-val-${prod.id_produk}" style="font-weight:bold; min-width: 20px; text-align:center;">1</span>
+                                    <span id="negatif" onclick="updateHomeQty(${prod.id_produk}, -1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">-</span>
+                                    <span id="qty-val-${prod.id_produk}" data-stok="${prod.stok}"style="font-weight:bold; min-width: 20px; text-align:center;">1</span>
                                     <span onclick="updateHomeQty(${prod.id_produk}, 1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">+</span>
                                 </div>
                             </div>
@@ -298,21 +298,40 @@ window.addToCart = function(idProduk, harga) {
 };
 
 window.updateHomeQty = function(id, change, hargaSatuan) {
-    const qtyEl = document.getElementById(`qty-val-${id}`);
+    const qtyEl   = document.getElementById(`qty-val-${id}`);
     const priceEl = document.getElementById(`display-price-${id}`);
-    
+    const plusEl  = qtyEl.previousElementSibling; // span "+"... eh ini minus
+    // ambil tombol + lewat cara lebih aman:
+    const stok = parseInt(qtyEl.dataset.stok) || 1;
+
     let currentQty = parseInt(qtyEl.textContent);
     currentQty += change;
-    
-    if (currentQty < 1) currentQty = 1; // Minimal 1
-    
-    // Update teks quantity
-    qtyEl.textContent = currentQty;
-    
-    // Update teks harga (Harga Satuan * Quantity Baru)
-    priceEl.textContent = formatRupiah(currentQty * hargaSatuan);
-};
 
+    if (currentQty < 1)    currentQty = 1;
+    if (currentQty > stok) currentQty = stok;
+
+    qtyEl.textContent     = currentQty;
+    priceEl.textContent   = formatRupiah(currentQty * hargaSatuan);
+
+    // disable/enable tombol +
+    const plusBtn = qtyEl.nextElementSibling;
+    if (currentQty >= stok) {
+        plusBtn.style.opacity = '0.3';
+        plusBtn.style.cursor  = 'default';
+        plusBtn.onclick       = null;
+    } 
+    else if (currentQty == 1) {
+        plusBtn.style.opacity = '0.3';
+        plusBtn.style.cursor  = 'default';
+        plusBtn.onclick       = null;
+    } 
+    
+    else {
+        plusBtn.style.opacity = '1';
+        plusBtn.style.cursor  = 'pointer';
+        plusBtn.onclick       = () => updateHomeQty(id, 1, hargaSatuan);
+    }
+};
 // Update fungsi addToCart untuk mengambil nilai Qty terbaru
 window.addToCart = function(idProduk, hargaSatuan) {
     const userId = getUserId();
