@@ -5,8 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require __DIR__ . '/../../connection.php';
 
-$client_id     = "1362810682609400";
-$client_secret = "a3eaf880fde12a5ff611a239b6d141e7";
+
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php";
 
 if (isset($_GET['code'])) {
