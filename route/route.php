@@ -23,11 +23,11 @@ else if ($segments[0] === 'settingaccount') {
 else if ($segments[0] === 'checkout') {
     include '../CardHaven/interface/checkout/checkout.php';
 } 
+else if ($segments[0] === 'profilepage') {
+    include '../CardHaven/interface/page-profile/index.php';
+}
 
 
-// else if ($segments[0] === 'owner') {
-//     include '../CardHaven/interface/owner-page/index.php';
-// } 
 else {
     http_response_code(404);
     echo "404 Not Found";

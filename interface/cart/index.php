@@ -134,11 +134,7 @@ session_start();
     </style>
 </head>
 <body>
-    <!-- Simpan ID Session agar bisa dibaca JS -->
     <input type="hidden" id="session-id-pengguna" value="<?php echo $session_id_pengguna; ?>">
-
-    <!-- Path NavBar diperbaiki -->
-    <?php include '../page-customer/navBar.php'; ?>
 
     <main class="main-content">
         <div class="cart-page-wrapper">
