@@ -39,7 +39,7 @@
         }else if ($segments[1] == 'event'){
             include '../CardHaven/interface/event/index.php';
         }else if ($segments[1] == 'sales'){
-            echo 'Welcome to ', $segments[1] ;
+            include '../CardHaven/interface/report-sales/index.php';
         }else if ($segments[1] == 'user'){
             include '../CardHaven/interface/user/index.php';
         }else if ($segments[1] == 'settingaccount'){

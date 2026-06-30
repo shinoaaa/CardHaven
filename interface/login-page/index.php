@@ -2,7 +2,7 @@
 // =========================================================
 // 1. CONFIG GOOGLE OAUTH
 // =========================================================
-$client_id     = ***REMOVED_GOOGLE_ID***
+// $client_id     = ***REMOVED_GOOGLE_ID***
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/google-callback.php"; 
 $scope         = "email profile openid";
 $response_type = "code";
@@ -17,7 +17,7 @@ $google_login_url = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build
 // =========================================================
 // 2. CONFIG DISCORD OAUTH
 // =========================================================
-$client_id_discord     = ***REMOVED_DISCORD_ID***
+// $client_id_discord     = ***REMOVED_DISCORD_ID***
 $redirect_uri_discord  = "http://localhost/cardhaven/interface/login-page/discord-callback.php"; 
 $scope_discord         = "identify email"; 
 $response_type_discord = "code";
@@ -32,7 +32,7 @@ $discord_login_url = "https://discord.com/api/oauth2/authorize?" . http_build_qu
 // =========================================================
 // 3. CONFIG FACEBOOK OAUTH
 // =========================================================
-$client_id_facebook     = ***REMOVED_FACEBOOK_ID***
+// $client_id_facebook     = ***REMOVED_FACEBOOK_ID***
 $redirect_uri_facebook  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php"; 
 $scope_facebook         = "email";
 $response_type_facebook = "code";

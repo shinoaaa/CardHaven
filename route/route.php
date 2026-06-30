@@ -29,6 +29,7 @@ else if ($segments[0] === 'profilepage') {
 
 
 
+
 // else if ($segments[0] === 'owner') {
 //     include '../CardHaven/interface/owner-page/index.php';
 // } 
