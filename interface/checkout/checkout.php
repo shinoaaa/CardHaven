@@ -1,9 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['id_pengguna'])) {
-    header("Location: /cardhaven/interface/login-page/index.php?error=login_required");
-    exit;
-}
+// if (!isset($_SESSION['id_pengguna'])) {
+//     header("Location: /cardhaven/interface/login-page/index.php?error=login_required");
+//     exit;
+// }
 ?>
 <!DOCTYPE html>
 <html lang="id">

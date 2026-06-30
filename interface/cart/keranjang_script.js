@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) {
         btn.addEventListener('click', () => {
             if (!btn.disabled) {
-                window.location.href = '/cardhaven/interface/checkout/checkout.php';
+                window.location.href = '/CardHaven/checkout';
             }
         });
     }
