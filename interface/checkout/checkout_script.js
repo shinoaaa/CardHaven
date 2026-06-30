@@ -1,5 +1,6 @@
 const CHECKOUT_CONTROLLER = '/cardhaven/interface/checkout/controller_checkout.php';
 const BASE_IMG_URL        = '/cardhaven';
+const idPengguna          = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 const fmt = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
 
@@ -7,6 +8,7 @@ let selectedMethodId   = null;
 let selectedMethodFee  = 0;
 let currentOrderId     = null;
 let cartSubtotal       = 0;
+let cartTotalItems     = 0; // Diubah menjadi global agar bisa dibaca oleh placeOrder()
 let selectedFile       = null;
 
 // Anti-spam flags
@@ -37,15 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 
 function loadUserInfo() {
-    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_user_info`)
+    fetch(`${CHECKOUT_CONTROLLER}?action=get_checkout_data&idpengguna=${idPengguna}`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                document.getElementById('field-name').value  = data.username   || '';
-                document.getElementById('field-phone').value = data.no_telepon || '';
+                const userData = data.user || {};
+                document.getElementById('field-name').value  = userData.username || '';
+                document.getElementById('field-phone').value = userData.no_telepon || '';
                 checkCanOrder();
             } else {
-                showAlert('checkout', 'Gagal memuat info pengguna. Silakan login ulang.', 'error');
+                showAlert('checkout', data.message || 'Gagal memuat info pengguna.', 'error');
             }
         })
         .catch(err => {
@@ -58,7 +61,7 @@ function loadUserInfo() {
 }
 
 function loadCartItems() {
-    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_selected_items`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_checkout_data&idpengguna=${idPengguna}`)
         .then(r => r.json())
         .then(data => {
             const loading = document.getElementById('checkout-items-loading');
@@ -67,8 +70,7 @@ function loadCartItems() {
             loading.style.display = 'none';
             list.style.display    = 'flex';
 
-            // Tangani jika response adalah error object
-            if (data && !Array.isArray(data) && data.success === false) {
+            if (!data.success) {
                 list.innerHTML = `<p style="color:#dc2626;font-size:0.88rem;">
                     ${escapeHtml(data.message || 'Gagal memuat item.')}
                     <a href="/cardhaven/interface/cart/" style="color:#1a3a6b;font-weight:700;">Kembali ke keranjang</a>.
@@ -78,7 +80,9 @@ function loadCartItems() {
                 return;
             }
 
-            if (!data || data.length === 0) {
+            const items = data.items || [];
+
+            if (items.length === 0) {
                 list.innerHTML = `<p style="color:#888;font-size:0.88rem;">
                     No items selected. <a href="/cardhaven/interface/cart/">Return to cart</a>.
                 </p>`;
@@ -87,17 +91,17 @@ function loadCartItems() {
                 return;
             }
 
-            cartSubtotal = 0;
-            let totalItems = 0;
-            data.forEach(item => {
-                cartSubtotal += parseFloat(item.subtotal_harga) || 0;
-                totalItems   += parseInt(item.jumlah_barang)    || 0;
+            cartSubtotal   = 0;
+            cartTotalItems = 0;
+
+            items.forEach(item => {
+                cartSubtotal   += parseFloat(item.subtotal_harga) || 0;
+                cartTotalItems += parseInt(item.jumlah_barang)    || 0;
                 list.appendChild(renderCheckoutItem(item));
             });
 
             document.getElementById('summary-items-label').textContent =
-                `Items (${data.length} product${data.length > 1 ? 's' : ''}, ${totalItems} pcs)`;
-
+                `Items (${items.length} product${items.length > 1 ? 's' : ''}, ${cartTotalItems} pcs)`;
             updateSummary();
             checkCanOrder();
         })
@@ -115,7 +119,7 @@ function loadCartItems() {
                         <p style="font-weight:700;margin-bottom:8px;">⚠ ${msg}</p>
                         <button onclick="location.reload()"
                                 style="padding:8px 20px;background:#1a3a6b;color:white;
-                                       border:none;border-radius:6px;cursor:pointer;font-weight:700;">
+                                border:none;border-radius:6px;cursor:pointer;font-weight:700;">
                             🔄 Refresh
                         </button>
                     </div>`;
@@ -124,57 +128,33 @@ function loadCartItems() {
         });
 }
 
-function renderCheckoutItem(item) {
-    const div = document.createElement('div');
-    div.className = 'checkout-item';
-
-    const fotoSrc = item.foto
-        ? `${BASE_IMG_URL}/${item.foto}`
-        : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
-
-    div.innerHTML = `
-        <div class="checkout-item-img">
-            <img src="${fotoSrc}"
-                 alt="${escapeHtml(item.nama_produk)}"
-                 onerror="this.src='${BASE_IMG_URL}/image-profile/no-image.png'">
-        </div>
-        <div class="checkout-item-info">
-            <div class="checkout-item-name">${escapeHtml(item.nama_produk)}</div>
-            <div class="checkout-item-meta">
-                ${fmt(item.harga_produk)} × ${item.jumlah_barang}
-            </div>
-        </div>
-        <div class="checkout-item-subtotal">${fmt(item.subtotal_harga)}</div>
-    `;
-    return div;
-}
-
 function loadPaymentMethods() {
-    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_payment_methods`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_checkout_data&idpengguna=${idPengguna}`)
         .then(r => r.json())
-        .then(methods => {
+        .then(data => {
             const loading = document.getElementById('payment-method-loading');
             const list    = document.getElementById('payment-method-list');
 
             loading.style.display = 'none';
             list.style.display    = 'flex';
 
-            // Tangani jika response adalah error object
-            if (methods && !Array.isArray(methods) && methods.success === false) {
+            if (!data.success) {
                 list.innerHTML = `<p style="color:#dc2626;font-size:0.88rem;">
-                    ${escapeHtml(methods.message || 'Gagal memuat metode pembayaran.')}
+                    ${escapeHtml(data.message || 'Gagal memuat metode pembayaran.')}
                 </p>`;
                 return;
             }
 
-            if (!methods || methods.length === 0) {
+            const methods = data.methods || [];
+
+            if (methods.length === 0) {
                 list.innerHTML = `<p style="color:#888;font-size:0.88rem;">No payment methods available.</p>`;
                 return;
             }
 
             methods.forEach(m => {
                 const div = document.createElement('div');
-                div.className = 'payment-method-option';
+                div.className   = 'payment-method-option';
                 div.dataset.id  = m.id_metode;
                 div.dataset.fee = m.biaya_admin;
 
@@ -214,13 +194,37 @@ function loadPaymentMethods() {
                         <p style="font-weight:700;margin-bottom:8px;">⚠ ${msg}</p>
                         <button onclick="location.reload()"
                                 style="padding:8px 20px;background:#1a3a6b;color:white;
-                                       border:none;border-radius:6px;cursor:pointer;font-weight:700;">
+                                border:none;border-radius:6px;cursor:pointer;font-weight:700;">
                             🔄 Refresh
                         </button>
                     </div>`;
             }
             console.error(err);
         });
+}
+
+function renderCheckoutItem(item) {
+    const div = document.createElement('div');
+    div.className = 'checkout-item';
+    const fotoSrc = item.foto
+        ? `${BASE_IMG_URL}/${item.foto}`
+        : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
+        
+    div.innerHTML = `
+        <div class="checkout-item-img">
+            <img src="${fotoSrc}"
+                 alt="${escapeHtml(item.nama_produk)}"
+                 onerror="this.src='${BASE_IMG_URL}/image-profile/no-image.png'">
+        </div>
+        <div class="checkout-item-info">
+            <div class="checkout-item-name">${escapeHtml(item.nama_produk)}</div>
+            <div class="checkout-item-meta">
+                ${fmt(item.harga_produk)} × ${item.jumlah_barang}
+            </div>
+        </div>
+        <div class="checkout-item-subtotal">${fmt(item.subtotal_harga)}</div>
+    `;
+    return div;
 }
 
 function selectPaymentMethod(id, fee, el) {
@@ -234,7 +238,6 @@ function selectPaymentMethod(id, fee, el) {
 
 function updateSummary() {
     const grand = cartSubtotal + selectedMethodFee;
-
     document.getElementById('summary-subtotal').textContent    = fmt(cartSubtotal);
     document.getElementById('summary-grand-total').textContent = fmt(grand);
 
@@ -265,7 +268,6 @@ document.addEventListener('input', e => {
 
 function placeOrder() {
     if (isPlacingOrder) return;
-
     const alamat = document.getElementById('field-alamat').value.trim();
     if (!alamat)          { showAlert('checkout', 'Please enter your shipping address.', 'error'); return; }
     if (!selectedMethodId){ showAlert('checkout', 'Please select a payment method.', 'error');     return; }
@@ -274,11 +276,14 @@ function placeOrder() {
     const btn = document.getElementById('btn-place-order');
     btn.disabled    = true;
     btn.textContent = 'Processing...';
-
+    
     const fd = new FormData();
-    fd.append('action',    'place_order');
-    fd.append('alamat',    alamat);
-    fd.append('id_metode', selectedMethodId);
+    fd.append('action',       'place_order');
+    fd.append('idpengguna',   idPengguna); // Perbaikan kritis: ID diperlukan oleh PHP
+    fd.append('alamat',       alamat);
+    fd.append('id_metode',    selectedMethodId);
+    fd.append('total_harga',  cartSubtotal + selectedMethodFee); // Perbaikan: Dibutuhkan prosedur DB
+    fd.append('total_barang', cartTotalItems); // Perbaikan: Dibutuhkan prosedur DB
 
     fetchWithTimeout(CHECKOUT_CONTROLLER, { method: 'POST', body: fd }, 15000)
         .then(r => r.json())
@@ -382,7 +387,6 @@ function clearFile() {
 
 function submitPayment() {
     if (isSubmittingProof) return;
-
     if (!selectedFile) {
         showAlert('upload', 'Please upload your payment proof first.', 'error');
         return;
@@ -392,11 +396,12 @@ function submitPayment() {
     const btn = document.getElementById('btn-submit-payment');
     btn.disabled    = true;
     btn.textContent = 'Uploading...';
-
+    
     const fd = new FormData();
-    fd.append('action',       'upload_bukti');
-    fd.append('id_penjualan', currentOrderId);
-    fd.append('bukti',        selectedFile);
+    fd.append('action',           'upload_bukti');
+    fd.append('idpengguna',       idPengguna); // Perbaikan kritis: Otorisasi klien
+    fd.append('id_penjualan',     currentOrderId);
+    fd.append('bukti_pembayaran', selectedFile); // Perbaikan: Nama key disesuaikan dengan $_FILES di PHP
 
     fetchWithTimeout(CHECKOUT_CONTROLLER, { method: 'POST', body: fd }, 20000)
         .then(r => r.json())
@@ -435,7 +440,6 @@ function goToStep3() {
     document.getElementById('step3-content').style.display = 'block';
     document.getElementById('confirm-order-id').textContent = '#' + currentOrderId;
 
-    // Tombol navigasi
     const step3 = document.getElementById('step3-content');
     if (step3 && !document.getElementById('btn-back-home')) {
         const btnWrapper = document.createElement('div');

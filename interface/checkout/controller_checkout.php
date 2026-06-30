@@ -1,16 +1,22 @@
 <?php
-session_start();
+// Session start dihapus jika memang murni tidak digunakan di server
 header('Content-Type: application/json');
-if (!isset($_SESSION['id_pengguna'])) { echo json_encode(['success' => false, 'message' => 'Unauthorized. Please login first.']); exit; }
 
 require_once __DIR__ . '/../../connection.php';
-$id_pengguna = (int)$_SESSION['id_pengguna'];
+
 $action = $_REQUEST['action'] ?? '';
+// Mengambil ID secara eksplisit dari parameter klien
+$id_sekarang = (int)($_REQUEST['idpengguna'] ?? 0);
+
+if ($id_sekarang === 0) {
+    echo json_encode(['success' => false, 'message' => 'ID Pengguna tidak valid atau tidak ditemukan.']);
+    exit;
+}
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if ($action === 'get_checkout_data') {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetCheckoutData(?)}", [$id_pengguna]);
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetCheckoutData(?)}", [$id_sekarang]);
             if (!$stmt) throw new Exception(sqlsrv_errors()[0]['message']);
             
             $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -32,7 +38,7 @@ try {
 
             if (!$id_metode || empty($alamat)) throw new Exception("Please select a payment method and provide your full address.");
 
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_PlaceOrder(?, ?, ?, ?, ?)}", [$id_pengguna, $id_metode, $alamat, $total_harga, $total_barang]);
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_PlaceOrder(?, ?, ?, ?, ?)}", [$id_sekarang, $id_metode, $alamat, $total_harga, $total_barang]);
             if (!$stmt) throw new Exception(sqlsrv_errors()[0]['message']);
             
             $newId = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)['new_order_id'];
@@ -50,7 +56,7 @@ try {
             if (!move_uploaded_file($_FILES['bukti_pembayaran']['tmp_name'], $dir . $fileName)) throw new Exception("Failed to save the file on the server.");
 
             $dbPath = 'assets/image/receipt/' . $fileName;
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UploadPaymentProof(?, ?, ?)}", [$id_penjualan, $id_pengguna, $dbPath]);
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UploadPaymentProof(?, ?, ?)}", [$id_penjualan, $id_sekarang, $dbPath]);
             if (!$stmt) throw new Exception(sqlsrv_errors()[0]['message']);
 
             echo json_encode(['success' => true]); exit;

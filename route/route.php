@@ -20,6 +20,9 @@ else if ($segments[0] === 'dashboard') {
 else if ($segments[0] === 'settingaccount') {
     include '../CardHaven/interface/super-admin-page/account-setting.php';
 } 
+else if ($segments[0] === 'checkout') {
+    include '../CardHaven/interface/checkout/checkout.php';
+} 
 
 
 // else if ($segments[0] === 'owner') {
