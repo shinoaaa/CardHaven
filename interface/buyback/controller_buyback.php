@@ -180,8 +180,11 @@ switch ($action) {
             
             $pembelian = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
             if (!$pembelian) throw new Exception("Access Denied or Transaction not found.");
-            if ($pembelian['tanggal_pembelian'] instanceof DateTime) $pembelian['tanggal_pembelian'] = $pembelian['tanggal_pembelian']->format('Y-m-d H:i:s');
-
+            foreach ($pembelian as $key => $val) {
+                if ($val instanceof DateTime) {
+                    $pembelian[$key] = $val->format('Y-m-d H:i:s');
+                }
+            }
             sqlsrv_next_result($stmt);
             $kartu = [];
             while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $kartu[] = $row;
