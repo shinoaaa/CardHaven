@@ -120,12 +120,21 @@ function loadRiwayat() {
     .then(data => {
         const tbody = document.querySelector('#tableRiwayat tbody');
         tbody.innerHTML = '';
-        data.data.forEach((row, index) => { // Tambahkan index
+        data.data.forEach((row, index) => { 
+            let tanggal = 'N/A';
+            if (row.tanggal_pembelian) {
+                // Mengambil 10 karakter pertama (YYYY-MM-DD)
+                const tglMentah = row.tanggal_pembelian.substring(0, 10); 
+                
+                // Mengubah format menjadi DD-MM-YYYY
+                const [tahun, bulan, hari] = tglMentah.split('-');
+                tanggal = `${hari}-${bulan}-${tahun}`;
+            }
             let aksi = `<button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})" style="margin: 0 auto;">...</button>`;
             let tr = `<tr>
                 <td>${index + 1}</td>
                 <td>#${row.id_pembelian}</td>
-                <td>${row.tanggal_pembelian}</td>
+                <td>${tanggal}</td>
                 <td>Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
                 <td>${parseStatus(row.status_pembelian)}</td>
                 <td class="btn-action-group">${aksi}</td>
@@ -252,35 +261,16 @@ function openDetailModal(id_pembelian) {
             // !allDecided               → masih pending  → footer disable
 
             data.kartu.forEach(k => {
-                // Tiap kartu punya 3 kemungkinan state saat Negotiation:
-                // - AGREED   : penawaran_customer == penawaran_admin (accept atau counter yang sudah match)
-                // - PENDING  : penawaran_admin ada tapi customer belum merespons balik
-                //              cara deteksi: penawaran_admin != null && != penawaran_customer
-                //              TAPI kita tidak punya flag "sudah di-counter customer"-nya di DB secara eksplisit.
-                //              Konvensi yang kita pakai:
-                //              → setelah customer acceptItemOffer: penawaran_customer di-update = penawaran_admin (match)
-                //              → setelah customer counterItemOffer: penawaran_customer di-update = nilai baru (tidak match dengan penawaran_admin)
-                //              Jadi: mismatch = customer sudah counter tapi admin belum balas (status kembali ke 1)
-                //              Saat status == 2: mismatch = customer belum respond sama sekali (admin baru kirim counter)
                 const adminHasOffer = k.penawaran_admin != null;
                 const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
-                const isPending     = isNegotiating && adminHasOffer && !priceMatch; // perlu respons customer
+                const isPending     = isNegotiating && adminHasOffer && !priceMatch;
                 const isAgreed      = adminHasOffer && priceMatch;
                 const maxAttempts   = k.percobaan_penawaran > 3;
 
                 if (isNegotiating) {
-                    if (isPending) {
-                        allDecided = false; // kartu ini belum direspons
-                    }
-                    // Kalau agreed tapi penawaran_customer != nilai awal customer = sudah di-counter sebelumnya
-                    // Untuk deteksi hasCounter: kalau ada kartu yang penawaran_admin != null && tidak match awalnya
-                    // Kita track sederhana: jika ada kartu yang belum agreed, hasCounter jadi true setelah submit
-                    // Untuk sekarang: jika ada kartu yang isAgreed DAN penawaran_customer == penawaran_admin → accept
-                    // Kita tidak bisa bedakan "accept" vs "counter yang sudah match", tapi itu OK:
-                    // jika ada kartu yang masih pending setelah ini, allDecided = false
+                    if (isPending) allDecided = false; 
                 }
 
-                // Label Admin Offer
                 let adminOfferLabel;
                 if (!adminHasOffer) {
                     adminOfferLabel = isFinal
@@ -292,20 +282,34 @@ function openDetailModal(id_pembelian) {
                     adminOfferLabel = `<span style="color:#E74C3C;font-weight:600;">Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
                 }
 
-                // Border kuning = perlu aksi customer
                 const borderColor = isPending ? '#fbbf24' : '#e5e7eb';
 
                 htmlContent += `
                 <div style="border: 1.5px solid ${borderColor}; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: #fff;">
                     <h3 style="margin:0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h3>
-                    <div style="font-size: 0.9rem; margin-bottom: 12px;">
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Front Photo:</p>
+                            <a href="/CardHaven/${k.foto_depan}" target="_blank">
+                                <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                            </a>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Back Photo:</p>
+                            <a href="/CardHaven/${k.foto_belakang}" target="_blank">
+                                <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                         <p style="margin: 4px 0;"><strong>Your Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
                         <p style="margin: 4px 0;"><strong>Admin Offer:</strong> ${adminOfferLabel}</p>
                         <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color:#E67E22;font-weight:600;">${k.percobaan_penawaran} / 3</span></p>
                     </div>`;
 
                 if (isPending) {
-                    // Kartu ini perlu direspons customer
                     htmlContent += `<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                         <button onclick="acceptItemOffer(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_admin})"
                             class="btn-confirm" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; background:#27AE60;">
@@ -315,7 +319,7 @@ function openDetailModal(id_pembelian) {
                             ? `<button onclick="counterItemOffer(${pem.id_pembelian}, ${k.id_kartu})"
                                 class="btn-cancel-outline" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; border-width:1.5px; color:#7c3aed; border-color:#7c3aed;">
                                 ⟳ Counter Offer
-                               </button>`
+                                </button>`
                             : `<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem;">Max attempts reached — you can only Accept</span>`
                         }
                     </div>`;

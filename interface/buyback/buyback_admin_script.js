@@ -59,11 +59,20 @@ function loadDaftar() {
         } else {
             let startNo = (currentPage - 1) * 10 + 1;
             data.data.forEach((row) => {
+                let tanggal = 'N/A';
+                if (row.tanggal_pembelian) {
+                    // Mengambil 10 karakter pertama (YYYY-MM-DD)
+                    const tglMentah = row.tanggal_pembelian.substring(0, 10); 
+                    
+                    // Opsional: Jika ingin mengubah format menjadi DD-MM-YYYY (e.g., 30-06-2026)
+                    const [tahun, bulan, hari] = tglMentah.split('-');
+                    tanggal = `${hari}-${bulan}-${tahun}`;
+                }
                 let tr = `<tr class="trx-row" onclick="openDetailModal(${row.id_pembelian})">
                     <td>${startNo++}</td>
                     <td style="font-weight:700;color:var(--primary-color);">#${row.id_pembelian}</td>
                     <td><div style="font-weight:600;font-size:.85rem;">${row.username}</div></td>
-                    <td style="white-space:nowrap;font-size:.82rem;">${row.tanggal_pembelian}</td>
+                    <td style="white-space:nowrap;font-size:.82rem;">${tanggal}</td>
                     <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
                     <td>${parseStatus(row.status_pembelian)}</td>
                 </tr>`;
@@ -169,13 +178,12 @@ function openDetailModal(id_pembelian) {
             let allDecided = true; // untuk enable/disable Send Counter Offers
 
             data.kartu.forEach(k => {
-                const hasDecision = k.penawaran_admin != null; // admin sudah set sesuatu
+                const hasDecision = k.penawaran_admin != null; 
                 const isApproved = hasDecision && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isCountered = hasDecision && !isApproved;
 
                 if (!hasDecision) allDecided = false;
 
-                // Label Admin Offer sesuai konteks
                 let adminOfferLabel;
                 if (!hasDecision) {
                     if (isFinal) {
@@ -189,11 +197,9 @@ function openDetailModal(id_pembelian) {
                     adminOfferLabel = `<span style="color: #7c3aed; font-weight: 600;">Counter — Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
                 }
 
-                // Tombol aksi per kartu (hanya saat Under Review)
                 let cardActionHtml = '';
                 if (pem.status_pembelian == 1) {
                     if (!hasDecision) {
-                        // Belum ada keputusan: tampil dua tombol
                         cardActionHtml = `
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <button onclick="adminApproveCard(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_customer})" 
@@ -206,7 +212,6 @@ function openDetailModal(id_pembelian) {
                                 </button>
                             </div>`;
                     } else {
-                        // Sudah ada keputusan: tombol edit
                         cardActionHtml = `
                             <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                                 <span style="font-size:0.78rem; color:#6b7280;">Decision set.</span>
@@ -222,10 +227,27 @@ function openDetailModal(id_pembelian) {
                     }
                 }
 
+                // Tambahkan elemen foto depan dan belakang di sini
                 htmlContent += `
                     <div style="border: 1px solid ${!hasDecision && pem.status_pembelian == 1 ? '#fbbf24' : '#e5e7eb'}; padding: 15px; margin-bottom: 15px; border-radius: 12px; background: #fff;">
                         <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h4>
-                        <div style="font-size: 0.9rem; margin-bottom: 12px;">
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Front Photo:</p>
+                                <a href="/CardHaven/${k.foto_depan}" target="_blank">
+                                    <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                                </a>
+                            </div>
+                            <div style="flex: 1;">
+                                <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Back Photo:</p>
+                                <a href="/CardHaven/${k.foto_belakang}" target="_blank">
+                                    <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                                </a>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                             <p style="margin: 4px 0;"><strong>Customer Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
                             <p style="margin: 4px 0;"><strong>Admin Decision:</strong> ${adminOfferLabel}</p>
                             <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${k.percobaan_penawaran} / 3</span></p>
