@@ -23,6 +23,10 @@ else if ($segments[0] === 'settingaccount') {
 else if ($segments[0] === 'checkout') {
     include '../CardHaven/interface/checkout/checkout.php';
 } 
+else if ($segments[0] === 'profilepage') {
+    include '../CardHaven/interface/page-profile/index.php';
+}
+
 
 
 // else if ($segments[0] === 'owner') {

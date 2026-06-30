@@ -1,9 +1,33 @@
-// 1. Tambahkan path controller keranjang di bagian atas
-const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
+// 1. Tambahkan path controller keranjang di bagian atas (Menggunakan var agar aman dari crash redeclare)
+var CART_CONTROLLER = '/CardHaven/interface/cart/controller_keranjang.php';
 
 // 2. Fungsi untuk mengambil ID Pengguna (Pastikan ini ada)
 var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+let eventButton; 
 
+function formatTanggal(dateInput) {
+    if (!dateInput) return '-';
+    
+    let targetDate;
+    
+    // Cek kalau datanya berupa objek dari PHP DateTime
+    if (typeof dateInput === 'object' && dateInput.date) {
+        targetDate = new Date(dateInput.date);
+    } else {
+        // Kalau datanya string biasa (misal: "2026-06-25")
+        targetDate = new Date(dateInput);
+    }
+
+    // Proteksi kalau date-nya invalid / ngaco
+    if (isNaN(targetDate.getTime())) return '-';
+
+    // Format ke Indonesia (Contoh: 25 Juni 2026)
+    return new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(targetDate);
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     
@@ -26,8 +50,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function loadData() {
-        // Update URL kirim semua parameter halaman termasuk halaman_promo
-        const urlController = `/cardhaven/interface/home/controller/getData.php?halaman_event=${currentEventPage}&halaman_game_bar=${currentGameBarPage}&halaman_game_card=${currentGameCardPage}&halaman_product=${currentProductPage}&halaman_promo=${currentPromoPage}`;
+        // Update URL kirim semua parameter halaman termasuk halaman_promo (Ganti ke /CardHaven/)
+        const urlController = `/CardHaven/interface/home/controller/getData.php?halaman_event=${currentEventPage}&halaman_game_bar=${currentGameBarPage}&halaman_game_card=${currentGameCardPage}&halaman_product=${currentProductPage}&halaman_promo=${currentPromoPage}`;
 
         fetch(urlController)
             .then(response => {
@@ -61,36 +85,89 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('ui-event-product').textContent = data.event.nama_produk;
             document.getElementById('ui-event-date').textContent = data.event.tanggal_sampai;
             document.getElementById('ui-event-desc').textContent = data.event.deskripsi;
-            if(!data.event.foto){
-                document.getElementById('ui-event-image').src = `/cardhaven/image-profile/defaultProduct.jpg`;
+            document.getElementById('startDate').textContent = formatTanggal(data.event.tanggal_mulai);
+            document.getElementById('endDate').textContent = formatTanggal(data.event.tanggal_berakhir);
+            
+            if (!data.event.foto) {
+                document.getElementById('ui-event-image').src = `/CardHaven/image-profile/defaultProduct.jpg`;
             } else {
-                document.getElementById('ui-event-image').src = `/cardhaven/${data.event.foto}`;
+                // Jika isinya hanya nama file (misal 'mewtwo_ex_special_art.webp'), arahkan ke folder products
+                let eventPath = data.event.foto;
+                if (!eventPath.includes('/')) {
+                    eventPath = `assets/image/products/${eventPath}`;
+                }
+                document.getElementById('ui-event-image').src = `/CardHaven/${eventPath}`;
+            }
+            
+            const eventTitle = document.getElementById('btn-title');
+            const isLogin = sessionStorage.getItem('token') || localStorage.getItem('token');
+
+            // SAKTI NYA DI SINI: Pakai .onclick supaya listener lama di-overwrite otomatis
+            eventTitle.onclick = () => {
+                openPreOrderEvent(data.event.id_event);
+            };
+
+            // Atur teks dan status tombol berdasarkan status_event
+            if (data.event.status_event == 1) {
+                eventTitle.textContent = "Check detail";
+                eventTitle.disabled = false; 
+            } else if (data.event.status_event == 2) {
+                eventTitle.textContent = "Upcoming event check detail";
+                eventTitle.disabled = false;
+            } else {
+                eventTitle.textContent = "Event was complete";
+                eventTitle.disabled = true;  // Di-disable kalau event sudah selesai
+                eventTitle.onclick = null;   // Hapus fungsi klik sekalian biar aman
             }
         }
 
         // --- 2. RENDER EVENT (PROMO) - RENDER 4 ITEM ---
-        const promoContainer = document.querySelector('.promo-content'); // Pastikan HTML kamu pakai class ini untuk bungkus card promo
+        const promoContainer = document.querySelector('.promo-content');
         if (promoContainer) {
             promoContainer.innerHTML = '';
             if (data.list_promo && data.list_promo.length > 0) {
                 data.list_promo.forEach(promo => {
-                    const bannerSrc = promo.foto_banner ? `/cardhaven/${promo.foto_banner}` : '/cardhaven/image-profile/defaultEvent.jpg';
+                    // Jika ada banner, cek apakah itu path lengkap atau cuma nama file
+                    let promoPath = promo.foto_banner;
+                    if (promoPath && !promoPath.includes('/')) {
+                        promoPath = `assets/image/products/${promoPath}`;
+                    }
+                    const bannerSrc = promoPath ? `/CardHaven/${promoPath}` : '/CardHaven/image-profile/defaultEvent.jpg';
                     const gameName = promo.nama_game ? promo.nama_game : 'All Games';
+
+                    if (promo.status_event == 1) {
+                        eventButton = "Check detail";
+                    } else if (promo.status_event == 2) {
+                        eventButton = "Upcoming event check detail";
+                    } else {
+                        eventButton = "Event was complete";
+                    }
+                    
+                    // --- PARSING & FORMAT TANGGAL DI SINI ---
+                    const tglMulai = formatTanggal(promo.tanggal_mulai);
+                    const tglBerakhir = formatTanggal(promo.tanggal_berakhir);
                     
                     const promoHTML = `
                     <div class="promo-card" style="background-image: url('${bannerSrc}');">
                         <div style="z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 0.75rem;">
                             <p style="color: #e4e4e4;"><span style="color: #90b3ff;">${gameName}</span>'s Event</p>
                             <h2 class="coolveticaa" style="text-align: center; width: 30rem;">${promo.nama_event}</h2>
-                            <button style="background: var(--bg-gradient); color: white; padding: 0.5rem 2.5rem; border-radius: 9999px;">
-                                Join Now
+                            <div class="date-event" style="display: flex; gap: 0.5rem; color: #fff;">
+                                <p>${tglMulai}</p>
+                                <span>to</span>
+                                <p>${tglBerakhir}</p>
+                            </div>
+                            <button style="cursor:pointer; background: var(--bg-gradient); color: white; padding: 0.75rem 2.5rem; border-radius: 9999px; margin-top:1rem;" onclick="openPromoEvent(${promo.id_event})">
+                                ${eventButton}
                             </button>
                         </div>
                         <div style="background-color: black; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"></div>
                     </div>`;
+                    
                     promoContainer.innerHTML += promoHTML;
                 });
-            } else {
+            }
+            else {
                 promoContainer.innerHTML = '<span style="color: white; text-align: center; display: block; width: 100%;">Belum ada event promo saat ini</span>';
             }
         }
@@ -118,7 +195,11 @@ document.addEventListener("DOMContentLoaded", function() {
             gameCardContainer.innerHTML = '';
             if (data.list_game_card && data.list_game_card.length > 0) {
                 data.list_game_card.forEach(game => {
-                    const bannerSrc = game.foto_banner ? `/cardhaven/${game.foto_banner}` : '/cardhaven/image-profile/defaultBanner.jpg';
+                    let gamePath = game.foto_banner;
+                    if (gamePath && !gamePath.includes('/')) {
+                        gamePath = `assets/image/products/${gamePath}`;
+                    }
+                    const bannerSrc = gamePath ? `/CardHaven/${gamePath}` : '/CardHaven/image-profile/defaultBanner.jpg';
                     const cardHTML = `
                     <a href="list.php?id=${game.id_game}">
                         <div class="game-card" style="background-image: url('${bannerSrc}');">
@@ -141,13 +222,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 data.list_product.forEach(prod => {
                     const safeDesc = prod.deskripsi ? prod.deskripsi : '';
                     const limitDesc = safeDesc.length > 80 ? safeDesc.substring(0, 80) + '...' : safeDesc;
-                    const gameName = prod.nama_game ? prod.nama_game : '-';
-                    const fotoSrc = prod.foto ? `/cardhaven/${prod.foto}` : '/cardhaven/image-profile/defaultProduct.jpg';
+                    const gameName = prod.nama_game ? prod.nama_game : 'General';
+                    
+                    // Jika data foto hanya berupa nama file, arahkan ke folder produk
+                    let prodPath = prod.foto;
+                    if (prodPath && !prodPath.includes('/')) {
+                        prodPath = `assets/image/products/${prodPath}`;
+                    }
+                    const fotoSrc = prodPath ? `/CardHaven/${prodPath}` : '/CardHaven/image-profile/defaultProduct.jpg';
 
                     const cardHTML = `
                     <div class="product-card">
                         <div style="width: 47%; display: flex; align-items: center; justify-content: center;">
-                            <div style="width: 100%; height: 85%; border-radius: 0.5rem; overflow: hidden;">
+                            <div style="width: 15rem; height: 20rem; border-radius: 0.5rem; overflow: hidden;">
                                 <img src="${fotoSrc}" style="height: 100%; object-fit: contain;">
                             </div>
                         </div>
@@ -179,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <span onclick="updateHomeQty(${prod.id_produk}, 1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">+</span>
                                 </div>
                             </div>
-                            <button style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
+                            <button class="detail-product" onclick="goToDetail(${prod.id_produk})" style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
                             <button class="btn-primary" 
                                     onclick="addToCart(${prod.id_produk}, ${prod.harga_jual})" 
                                     style="width: 100%; padding: 0.5rem 0; font-size: 1rem;">
@@ -268,8 +355,8 @@ window.addToCart = function(idProduk, harga) {
 
     // Cek Login
     if (!userId || userId === "0") {
-        alert("Silahkan login terlebih dahulu!");
-        window.location.href = "/cardhaven/interface/login-page/";
+        cardhavenAlert('success', 'Berhasil', `${qty} item ditambahkan ke keranjang!`);
+        window.location.href = "/CardHaven/interface/login-page/";
         return;
     }
 
@@ -289,7 +376,7 @@ window.addToCart = function(idProduk, harga) {
     .then(res => {
         if (res.success) {
             // Jika pakai SweetAlert (cardhavenAlert)
-            cardhavenAlert('success', 'Berhasil', 'Produk ditambahkan ke keranjang!');
+            cardhavenAlert('success', 'Success', 'Produk added to cart!');
         } else {
             alert("Gagal: " + res.message);
         }
@@ -339,7 +426,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     const qty = parseInt(document.getElementById(`qty-val-${idProduk}`).textContent);
 
     if (!userId || userId === "0") {
-        alert("Silahkan login terlebih dahulu");
+        cardhavenAlert('error', 'Failed', `Failed to add product to cart, please login first!`);
         return;
     }
 
@@ -350,7 +437,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     fd.append('jumlah', qty);               // Kirim jumlah yang dipilih
     fd.append('id_pengguna_js', userId);
 
-    fetch('/cardhaven/interface/cart/controller_keranjang.php', {
+    fetch('/CardHaven/interface/cart/controller_keranjang.php', {
         method: 'POST',
         body: fd
     })
@@ -364,3 +451,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
         }
     });
 };
+
+window.goToDetail = function(idProduk) {
+    window.location.href = `/CardHaven/home/productdetail?id_produk=${idProduk}`;
+}
