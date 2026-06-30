@@ -18,10 +18,8 @@
         <tbody>
             <?php 
             $no_m = $offset_metode + 1;
-            $rowCountMetode = 0;
-            if ($stmt_metode): while ($rowMetode = sqlsrv_fetch_array($stmt_metode, SQLSRV_FETCH_ASSOC)):
-            $rowCountMetode++;
-            ?>
+            if (!empty($data_metode)):
+                foreach ($data_metode as $rowMetode): ?>
             <tr>
                 <td><?= $no_m++ ?></td>
                 <td><?= htmlspecialchars($rowMetode['nama_metode']) ?></td>
@@ -35,28 +33,28 @@
                     <?php endif; ?>
                 </td>
                 <td>
-    <div class="btn-action-group">
-        <button class="btn-view-icon" onclick="openDetailMetode(<?= $rowMetode['id_metode'] ?>)">...</button>
-        <button class="btn-edit-icon" onclick="openEditMetode(<?= $rowMetode['id_metode'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
-        <button class="btn-delete-icon" onclick="confirmDeleteMetode(<?= $rowMetode['id_metode'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
-        <label class="switch">
-            <input type="checkbox"
-                <?= $rowMetode['aktif'] == 1 ? 'checked' : '' ?>
-                onchange="toggleMetode(<?= $rowMetode['id_metode'] ?>, this.checked, this)">
-            <span class="slider"></span>
-        </label>
-    </div>
-</td>
+                    <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openDetailMetode(<?= $rowMetode['id_metode'] ?>)">...</button>
+                        <button class="btn-edit-icon" onclick="openEditMetode(<?= $rowMetode['id_metode'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                        <button class="btn-delete-icon" onclick="confirmDeleteMetode(<?= $rowMetode['id_metode'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
+                        <label class="switch">
+                            <input type="checkbox"
+                                <?= $rowMetode['aktif'] == 1 ? 'checked' : '' ?>
+                                onchange="toggleMetode(<?= $rowMetode['id_metode'] ?>, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </td>
             </tr>
-           <?php endwhile; endif; ?>
-            <?php if ($rowCountMetode === 0): ?>
+            <?php endforeach; ?>
+            <?php else: ?>
             <tr><td colspan="6" style="text-align:center; color:#aaa; padding:20px;">No payment methods found.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 </div>
+
 <div class="pagination-container">
-    <!-- Arrow Back -->
     <?php if ($page_metode > 1): ?>
         <a href="javascript:void(0)" onclick="loadMetodePage(<?= $page_metode - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
@@ -65,21 +63,17 @@
 
     <?php
     $range = 3;
-    
-    // Halaman Pertama & Dots
     if ($page_metode > ($range + 2)) {
         echo '<a href="javascript:void(0)" onclick="loadMetodePage(1)" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_metode > $range + 1) {
         echo '<a href="javascript:void(0)" onclick="loadMetodePage(1)" class="page-link">1</a>';
     }
 
-    // Loop Angka Halaman
     for ($i = max(1, $page_metode - $range); $i <= min($total_pages_metode, $page_metode + $range); $i++) {
         $activeClass = ($i == $page_metode) ? 'active' : '';
         echo '<a href="javascript:void(0)" onclick="loadMetodePage('.$i.')" class="page-link '.$activeClass.'">'.$i.'</a>';
     }
 
-    // Dots & Halaman Terakhir
     if ($page_metode < ($total_pages_metode - $range - 1)) {
         echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadMetodePage('.$total_pages_metode.')" class="page-link">'.$total_pages_metode.'</a>';
     } elseif ($page_metode < $total_pages_metode - $range) {
@@ -87,7 +81,6 @@
     }
     ?>
 
-    <!-- Arrow Next -->
     <?php if ($page_metode < $total_pages_metode): ?>
         <a href="javascript:void(0)" onclick="loadMetodePage(<?= $page_metode + 1 ?>)" class="page-link">&gt;</a>
     <?php else: ?>

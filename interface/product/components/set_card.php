@@ -17,10 +17,8 @@
         <tbody>
             <?php
             $no = $offset_set + 1;
-            $rowCount = 0;
-            if ($stmt_set): while ($rowSet = sqlsrv_fetch_array($stmt_set, SQLSRV_FETCH_ASSOC)): 
-            $rowCount++;
-            ?>
+            if (!empty($data_set)):
+                foreach ($data_set as $rowSet): ?>
             <tr>
                 <td><?= $no++ ?></td>
                 <td><?= htmlspecialchars($rowSet['nama_set']) ?></td>
@@ -33,21 +31,21 @@
                     <?php endif; ?>
                 </td>
                 <td>
-    <div class="btn-action-group">
-        <button class="btn-view-icon" onclick="openDetailSetModal(<?= $rowSet['id_set'] ?>)">...</button>
-        <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
-        <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
-        <label class="switch">
-            <input type="checkbox"
-                <?= $rowSet['aktif'] == 1 ? 'checked' : '' ?>
-                onchange="toggleSetStatus(<?= $rowSet['id_set'] ?>, this.checked, this)">
-            <span class="slider"></span>
-        </label>
-    </div>
-</td>
+                    <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openDetailSetModal(<?= $rowSet['id_set'] ?>)">...</button>
+                        <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                        <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
+                        <label class="switch">
+                            <input type="checkbox"
+                                <?= $rowSet['aktif'] == 1 ? 'checked' : '' ?>
+                                onchange="toggleSetStatus(<?= $rowSet['id_set'] ?>, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </td>
             </tr>
-           <?php endwhile; endif; ?>
-            <?php if ($rowCount === 0): ?>
+            <?php endforeach; ?>
+            <?php else: ?>
             <tr><td colspan="5" style="text-align:center; color:#aaa; padding:20px;">No sets found.</td></tr>
             <?php endif; ?>
         </tbody>
@@ -55,7 +53,6 @@
 </div>
 
 <div class="pagination-container">
-    <!-- Arrow Back -->
     <?php if ($page_set > 1): ?>
         <a href="javascript:void(0)" onclick="loadSetPage(<?= $page_set - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
@@ -64,21 +61,17 @@
 
     <?php
     $range = 3;
-    
-    // Halaman Pertama & Dots
     if ($page_set > ($range + 2)) {
         echo '<a href="javascript:void(0)" onclick="loadSetPage(1)" class="page-link">1</a><span class="dots">...</span>';
     } elseif ($page_set > $range + 1) {
         echo '<a href="javascript:void(0)" onclick="loadSetPage(1)" class="page-link">1</a>';
     }
 
-    // Loop Angka Halaman
     for ($i = max(1, $page_set - $range); $i <= min($total_pages_set, $page_set + $range); $i++) {
         $activeClass = ($i == $page_set) ? 'active' : '';
         echo '<a href="javascript:void(0)" onclick="loadSetPage('.$i.')" class="page-link '.$activeClass.'">'.$i.'</a>';
     }
 
-    // Dots & Halaman Terakhir
     if ($page_set < ($total_pages_set - $range - 1)) {
         echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadSetPage('.$total_pages_set.')" class="page-link">'.$total_pages_set.'</a>';
     } elseif ($page_set < $total_pages_set - $range) {
@@ -86,7 +79,6 @@
     }
     ?>
 
-    <!-- Arrow Next -->
     <?php if ($page_set < $total_pages_set): ?>
         <a href="javascript:void(0)" onclick="loadSetPage(<?= $page_set + 1 ?>)" class="page-link">&gt;</a>
     <?php else: ?>

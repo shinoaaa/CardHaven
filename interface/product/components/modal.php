@@ -94,8 +94,6 @@
                 <div class="error-message"></div>
             </div>
 
-
-
             <div id="pLogSection" style="display:none; margin-top:15px;">
                 <div class="modal-form-group">
                     <label>Created By</label>
@@ -141,8 +139,6 @@
         </div>
         
         <div class="detail-container" style="display: flex; gap: 30px; margin-top: 20px; align-items: flex-start;">
-            
-            <!-- SISI KIRI: Foto Produk -->
             <div class="detail-left" style="flex: 1; text-align: center;">
                 <div style="border: 1.5px solid #eee; border-radius: 12px; padding: 15px; background: #fdfdfd; min-height: 300px; display: flex; align-items: center; justify-content: center;">
                     <img id="detProdImg" src="" style="max-width: 100%; max-height: 350px; border-radius: 8px; object-fit: contain; display: none;">
@@ -153,7 +149,6 @@
                 </div>
             </div>
 
-            <!-- SISI KANAN: Informasi Detail -->
             <div class="detail-right" style="flex: 1.5;">
                 <table class="detail-table" style="width: 100%; border-collapse: collapse;">
                     <tr>
@@ -169,13 +164,11 @@
                         <td style="padding: 8px 0;" id="detProdGame"></td>
                     </tr>
                     
-                    <!-- Kondisional: Muncul jika Single Card, Booster Pack, Booster Box -->
                     <tr id="detRowSet" style="display: none;">
                         <td style="padding: 8px 0; color: #888;">Card Set</td>
                         <td style="padding: 8px 0;" id="detProdSet"></td>
                     </tr>
 
-                    <!-- Kondisional: Muncul HANYA jika Single Card -->
                     <tr id="detRowRarity" style="display: none;">
                         <td style="padding: 8px 0; color: #888;">Rarity</td>
                         <td style="padding: 8px 0;" id="detProdRarity"></td>
@@ -328,14 +321,15 @@
                 <input type="text" id="inputKodeRarity" name="kode_rarity" class="modal-input" placeholder="e.g. SR, UR, SEC" maxlength="20">
                 <div class="error-message"></div>
             </div>
-                <div class="modal-form-group">
-                    <label>Rarity Status</label>
-                    <input type="text" id="rarityStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
-                </div>
+            <div class="modal-form-group">
+                <label>Rarity Status</label>
+                <input type="text" id="rarityStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+            </div>
             <button type="submit" class="btn-confirm">Save Rarity</button>
         </form> 
     </div>
 </div>
+
 <div id="rarityDetailModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -403,10 +397,10 @@
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
             </div>
-                <div class="modal-form-group">
-                    <label>Set Status</label>
-                    <input type="text" id="setStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
-                </div>
+            <div class="modal-form-group">
+                <label>Set Status</label>
+                <input type="text" id="setStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+            </div>
             <button type="submit" class="btn-confirm">Save Set</button>
         </form>
     </div>
@@ -499,10 +493,10 @@
                 <input type="number" name="biaya_admin" id="metodeBiaya" class="modal-input" placeholder="e.g. 2000" min="0" value="0">
                 <div class="error-message"></div>
             </div>
-                <div class="modal-form-group">
-                    <label>Method Status</label>
-                    <input type="text" id="metodeStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
-                </div>
+            <div class="modal-form-group">
+                <label>Method Status</label>
+                <input type="text" id="metodeStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+            </div>
             <button type="submit" class="btn-confirm">Save Method</button>
         </form>
     </div>
@@ -546,47 +540,5 @@
         </div>
 
         <button class="btn-confirm" onclick="document.getElementById('metodeDetailModal').style.display='none'">Close</button>
-    </div>
-</div>
-
-<div id="productDetailModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h2>PRODUCT <span class="blue-text">DETAIL</span></h2>
-            <span id="detProdID" class="game-id"></span>
-        </div>
-
-        <div class="modal-form-group">
-            <label>Product Name</label>
-            <div class="detail-field" id="detProdNama">-</div>
-        </div>
-
-        <div class="modal-form-group">
-            <label>Type</label>
-            <div class="detail-field" id="detProdTipe">-</div>
-        </div>
-
-        <div class="modal-form-group">
-            <label>Game</label>
-            <div class="detail-field" id="detProdGame">-</div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="modal-form-group">
-                <label>Stock</label>
-                <div class="detail-field" id="detProdStok">0</div>
-            </div>
-            <div class="modal-form-group">
-                <label>Price</label>
-                <div class="detail-field" id="detProdHarga">Rp 0</div>
-            </div>
-        </div>
-
-        <div class="modal-form-group">
-            <label>Status</label>
-            <div class="detail-field" id="detProdStatus">-</div>
-        </div>
-
-        <button class="btn-confirm" onclick="document.getElementById('productDetailModal').style.display='none'">Close</button>
     </div>
 </div>

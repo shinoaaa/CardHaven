@@ -1,138 +1,72 @@
 <?php
 session_start();
 ini_set('display_errors', 0);
+error_reporting(0);
 header('Content-Type: application/json');
-
 require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/connection.php';
 
-$raw_id_js = $_POST['id_pengguna_js'] ?? '';
-if ($raw_id_js === '' || $raw_id_js === 'undefined' || $raw_id_js === 'null') {
-    $id_user = $_SESSION['id_pengguna'] ?? 1;
-} else {
-    $id_user = $raw_id_js;
-}
-$id_user = (int)$id_user;
+ob_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action     = $_POST['action'] ?? '';
-    $nama       = trim($_POST['nama_metode']  ?? '');
-    $provider   = trim($_POST['provider']     ?? '');
-    $no_rek     = trim($_POST['no_rekening']  ?? '');
-    $atas_nama  = trim($_POST['atas_nama']    ?? '');
-    $biaya      = (float)($_POST['biaya_admin'] ?? 0);
-    $id_metode  = isset($_POST['id_metode']) ? (int)$_POST['id_metode'] : null;
+try {
+    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 1));
 
-    if ($action === 'add' || $action === 'edit') {
-    if ($nama === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Method name is required!']); exit;
-    }
-    if ($provider === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Provider is required!']); exit;
-    }
-    if ($no_rek === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Account number is required!']); exit;
-    }
-    if (!ctype_digit($no_rek)) {
-        echo json_encode(['status' => 'error', 'message' => 'Account number must contain numbers only!']); exit;
-    }
-    if (strlen($no_rek) < 5) {
-        echo json_encode(['status' => 'error', 'message' => 'Account number must be at least 5 digits!']); exit;
-    }
-    if (strlen($no_rek) > 20) {
-        echo json_encode(['status' => 'error', 'message' => 'Account number must not exceed 20 digits!']); exit;
-    }
-    if ($atas_nama === '') {
-        echo json_encode(['status' => 'error', 'message' => 'Account name is required!']); exit;
-    }
-    if ($biaya < 0) {
-        echo json_encode(['status' => 'error', 'message' => 'Admin fee cannot be negative!']); exit;
-    }
-}
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action    = $_POST['action'] ?? '';
+        $id_metode = isset($_POST['id_metode']) && $_POST['id_metode'] !== '' ? (int)$_POST['id_metode'] : null;
+        $nama      = trim($_POST['nama_metode'] ?? '');
+        $provider  = trim($_POST['provider'] ?? '');
+        $no_rek    = trim($_POST['no_rekening'] ?? '');
+        $atas_nama = trim($_POST['atas_nama'] ?? '');
+        $biaya     = (float)($_POST['biaya_admin'] ?? 0);
 
-    if ($action === 'add' || $action === 'edit') {
-        $check_sql    = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE nama_metode = ? AND is_deleted = 0";
-        $params_check = [$nama];
-        if ($action === 'edit') {
-            $check_sql   .= " AND id_metode <> ?";
-            $params_check[] = $id_metode;
+        if ($action === 'add' || $action === 'edit') {
+            $stmt_cek = sqlsrv_query($conn, 'SELECT dbo.udf_CheckDuplicateMetode(?, ?) AS total', [$nama, $id_metode]);
+            if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
+            $row_cek = sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC);
+            if ($row_cek && $row_cek['total'] > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => "Method '$nama' already exists!"]);
+                exit;
+            }
         }
-        $check_stmt = sqlsrv_query($conn, $check_sql, $params_check);
-        $check_row  = sqlsrv_fetch_array($check_stmt, SQLSRV_FETCH_ASSOC);
-        if ((int)$check_row['total'] > 0) {
-            echo json_encode(['status' => 'error', 'message' => "Method name '$nama' already exists!"]);
-            exit;
+
+        $params = [$action, $id_metode, $nama, $provider, $no_rek, $atas_nama, $biaya, $id_user];
+        $stmt   = sqlsrv_query($conn, '{CALL dbo.sp_ManageMetode(?, ?, ?, ?, ?, ?, ?, ?)}', $params);
+
+        ob_clean();
+        if ($stmt === false) {
+            $err = sqlsrv_errors();
+            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Database error.']);
+        } else {
+            echo json_encode(['status' => 'success', 'message' => '']);
         }
-    }
-
-    $stmt = false;
-
-    if ($action === 'add') {
-        $sql  = "INSERT INTO dbo.metode_pembayaran 
-                    (nama_metode, provider, no_rekening, atas_nama, biaya_admin, created_by, created_date, aktif, is_deleted) 
-                 VALUES (?, ?, ?, ?, ?, ?, GETDATE(), 1, 0)";
-        $stmt = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user]);
-    }
-    else if ($action === 'edit') {
-        // PERBAIKAN: Kolom aktif tidak lagi disentuh saat edit
-        $sql   = "UPDATE dbo.metode_pembayaran 
-                  SET nama_metode=?, provider=?, no_rekening=?, atas_nama=?, biaya_admin=?, 
-                      modified_by=?, modified_date=GETDATE() 
-                  WHERE id_metode=?";
-        $stmt  = sqlsrv_query($conn, $sql, [$nama, $provider, $no_rek, $atas_nama, $biaya, $id_user, $id_metode]);
-    }
-    else if ($action === 'delete') {
-        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=1, aktif=0, deleted_by=?, deleted_date=GETDATE() WHERE id_metode=?";
-        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_metode]);
-    }
-    else if ($action === 'restore') {
-        $sql  = "UPDATE dbo.metode_pembayaran SET is_deleted=0, aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
-        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_metode]);
-    }
-    else if ($action === 'activate' || $action === 'deactivate') {
-        $aktif = $action === 'activate' ? 1 : 0;
-        $sql   = "UPDATE dbo.metode_pembayaran SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_metode=?";
-        $stmt  = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_metode]);
-    }
-
-    if ($stmt) {
-        echo json_encode(['status' => 'success', 'message' => '']);
-    } else {
-        $errors    = sqlsrv_errors();
-        $error_msg = $errors != null ? $errors[0]['message'] : 'Database query failed.';
-        echo json_encode(['status' => 'error', 'message' => 'SQL ERROR: ' . $error_msg]);
-    }
-    exit;
-}
-
-if (isset($_GET['get_detail'])) {
-    $sql  = "SELECT 
-                m.id_metode, m.nama_metode, m.provider, m.no_rekening, 
-                m.atas_nama, m.biaya_admin, m.aktif,
-                m.created_date, m.modified_date,
-                k1.username AS creator,
-                k2.username AS modifier
-             FROM dbo.metode_pembayaran m
-             LEFT JOIN dbo.pengguna k1 ON m.created_by  = k1.id_pengguna
-             LEFT JOIN dbo.pengguna k2 ON m.modified_by = k2.id_pengguna
-             WHERE m.id_metode = ? AND m.is_deleted = 0";
-    $stmt = sqlsrv_query($conn, $sql, [(int)$_GET['get_detail']]);
-
-    if ($stmt === false) {
-        $errors    = sqlsrv_errors();
-        $error_msg = $errors != null ? $errors[0]['message'] : 'Failed to fetch detail.';
-        echo json_encode(['error' => 'SQL ERROR: ' . $error_msg]);
         exit;
     }
 
-    $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-    if ($data) {
-        $data['created_date']  = (isset($data['created_date'])  && is_a($data['created_date'],  'DateTime')) ? $data['created_date']->format('d-M-Y H:i')  : '-';
-        $data['modified_date'] = (isset($data['modified_date']) && is_a($data['modified_date'], 'DateTime')) ? $data['modified_date']->format('d-M-Y H:i') : '-';
-        $data['biaya_admin']   = (float)$data['biaya_admin'];
-        echo json_encode($data);
-    } else {
-        echo json_encode(['error' => 'Payment method not found.']);
+    // [FIX] GET: get_detail
+    if (isset($_GET['get_detail'])) {
+        $id   = (int)$_GET['get_detail'];
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetMetodeDetail(?)}', [$id]);
+        if ($stmt === false) throw new Exception('Query sp_GetMetodeDetail failed.');
+
+        $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        ob_clean();
+        if ($data) {
+            // [FIX] Konversi DateTime sebelum json_encode
+            $data['created_date']  = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
+            $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
+            // [FIX] biaya_admin harus float bukan string
+            $data['biaya_admin']   = (float)($data['biaya_admin'] ?? 0);
+            echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode(['error' => 'Not found.']);
+        }
+        exit;
     }
+
+} catch (Throwable $e) {
+    ob_clean();
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     exit;
 }
 ?>

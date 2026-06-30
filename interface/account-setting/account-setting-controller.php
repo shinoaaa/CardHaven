@@ -8,191 +8,98 @@ function jsonResponse(array $arr): void
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'get') {
-    $id_pengguna = trim($_GET['id_pengguna'] ?? '');
+$method = $_SERVER['REQUEST_METHOD'];
+$action = $_REQUEST['action'] ?? '';
 
-    if ($id_pengguna === '') {
-        jsonResponse([
-            "status" => "error",
-            "message" => "ID pengguna tidak ditemukan"
-        ]);
+// ==========================================
+// MENGAMBIL DATA PENGGUNA
+// ==========================================
+if ($method === 'GET' && $action === 'get') {
+    $id_pengguna = (int)($_GET['id_pengguna'] ?? 0);
+
+    if ($id_pengguna === 0) {
+        jsonResponse(["status" => "error", "message" => "User ID not found."]);
     }
 
-    $sql = "SELECT id_pengguna, username, email, role, foto_profil, status_akun
-            FROM pengguna
-            WHERE id_pengguna = ?";
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetAccountSetting(?)}", [$id_pengguna]);
 
-    $stmt = sqlsrv_prepare($conn, $sql, [$id_pengguna]);
-
-    if (!$stmt || !sqlsrv_execute($stmt)) {
+    if ($stmt === false) {
         $errors = sqlsrv_errors();
-        jsonResponse([
-            "status" => "error",
-            "message" => $errors[0]['message'] ?? "Gagal mengambil data"
-        ]);
+        jsonResponse(["status" => "error", "message" => $errors[0]['message'] ?? "Failed to retrieve data."]);
     }
 
     $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
 
     if (!$user) {
-        jsonResponse([
-            "status" => "error",
-            "message" => "Data tidak ditemukan"
-        ]);
+        jsonResponse(["status" => "error", "message" => "Data not found."]);
     }
 
     jsonResponse([
         "status" => "success",
-        "data" => $user
+        "data" => [
+            "id_pengguna" => $user['id_pengguna'],
+            "username"    => $user['username'],
+            "email"       => $user['email'],
+            "role"        => $user['role'],
+            "foto_profil" => $user['foto_profil'] ?? '/cardhaven/assets/image/default-profile.png',
+            "status_akun" => $user['status_akun']
+        ]
     ]);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $id_pengguna = trim($_POST['id_pengguna'] ?? '');
+// ==========================================
+// MENGUBAH DATA ATAU STATUS AKUN
+// ==========================================
+if ($method === 'POST') {
+    $id_pengguna = (int)($_POST['id_pengguna'] ?? 0);
 
-    if ($id_pengguna === '') {
-        jsonResponse([
-            "status" => "error",
-            "message" => "ID pengguna tidak ditemukan"
-        ]);
+    if ($id_pengguna === 0) {
+        jsonResponse(["status" => "error", "message" => "User ID not found."]);
     }
 
-    if ($action === 'update') {
-        $nama = trim($_POST['nama'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        $confirm_password = trim($_POST['confirm_password'] ?? '');
-
-        if ($nama === '' || $email === '') {
-            jsonResponse([
-                "status" => "error",
-                "message" => "Nama dan email wajib diisi"
-            ]);
-        }
-
-        if ($password !== '' || $confirm_password !== '') {
-            if ($password !== $confirm_password) {
-                jsonResponse([
-                    "status" => "error",
-                    "message" => "Password dan konfirmasi password tidak sama"
-                ]);
-            }
-        }
-
-        $sqlCheck = "SELECT id_pengguna
-                     FROM pengguna
-                     WHERE email = ? AND id_pengguna <> ?";
-
-        $stmtCheck = sqlsrv_prepare($conn, $sqlCheck, [$email, $id_pengguna]);
-
-        if (!$stmtCheck || !sqlsrv_execute($stmtCheck)) {
-            $errors = sqlsrv_errors();
-            jsonResponse([
-                "status" => "error",
-                "message" => $errors[0]['message'] ?? "Validasi email gagal"
-            ]);
-        }
-
-        $emailExists = sqlsrv_fetch_array($stmtCheck, SQLSRV_FETCH_ASSOC);
-
-        if ($emailExists) {
-            jsonResponse([
-                "status" => "error",
-                "message" => "Email sudah dipakai akun lain"
-            ]);
-        }
-
-        if ($password !== '') {
-            $sql = "UPDATE pengguna
-                    SET username = ?, email = ?, password = ?
-                    WHERE id_pengguna = ?";
-
-            $params = [$nama, $email, $password, $id_pengguna];
-        } else {
-            $sql = "UPDATE pengguna
-                    SET username = ?, email = ?
-                    WHERE id_pengguna = ?";
-
-            $params = [$nama, $email, $id_pengguna];
-        }
-
-        $stmt = sqlsrv_prepare($conn, $sql, $params);
-
-        if (!$stmt || !sqlsrv_execute($stmt)) {
-            $errors = sqlsrv_errors();
-            jsonResponse([
-                "status" => "error",
-                "message" => $errors[0]['message'] ?? "Update gagal"
-            ]);
-        }
-
-        jsonResponse([
-            "status" => "success",
-            "message" => "Data berhasil diupdate"
-        ]);
-    }
+    // --- UBAH KATA SANDI ---
     if ($action === 'change_password') {
-        $cur_pw = $_POST['current_password'] ?? '';
+        $old_pw = $_POST['old_password'] ?? '';
         $new_pw = $_POST['new_password'] ?? '';
 
-        // 1. Verifikasi Password Lama
-        $sqlCheck = "SELECT password FROM pengguna WHERE id_pengguna = ?";
-        $stmtCheck = sqlsrv_prepare($conn, $sqlCheck, [$id_pengguna]);
-        sqlsrv_execute($stmtCheck);
-        $user = sqlsrv_fetch_array($stmtCheck, SQLSRV_FETCH_ASSOC);
-
-        if (!$user || $user['password'] !== $cur_pw) {
-            jsonResponse([
-                "status" => "error",
-                "message" => "Current password is incorrect!"
-            ]);
+        if ($old_pw === '' || $new_pw === '') {
+            jsonResponse(["status" => "error", "message" => "Please fill in all password fields."]);
         }
 
-        // 2. Update ke Password Baru
-        $sqlUp = "UPDATE pengguna SET password = ? WHERE id_pengguna = ?";
-        $stmtUp = sqlsrv_prepare($conn, $sqlUp, [$new_pw, $id_pengguna]);
+        // 1. Cek kecocokan password lama
+        $stmtCheck = sqlsrv_query($conn, "{CALL dbo.sp_GetAccountPassword(?)}", [$id_pengguna]);
+        if ($stmtCheck === false) {
+            jsonResponse(["status" => "error", "message" => "Database error checking password."]);
+        }
 
-        if (sqlsrv_execute($stmtUp)) {
-            jsonResponse([
-                "status" => "success",
-                "message" => "Password updated successfully"
-            ]);
+        $row = sqlsrv_fetch_array($stmtCheck, SQLSRV_FETCH_ASSOC);
+        if (!$row || $old_pw !== $row['password']) { 
+            jsonResponse(["status" => "error", "message" => "Old password is incorrect!"]);
+        }
+
+        // 2. Eksekusi pembaruan password baru
+        $stmtUp = sqlsrv_query($conn, "{CALL dbo.sp_UpdateAccountPassword(?, ?)}", [$id_pengguna, $new_pw]);
+        if ($stmtUp !== false) {
+            jsonResponse(["status" => "success", "message" => "Password updated successfully!"]);
         } else {
-            jsonResponse([
-                "status" => "error",
-                "message" => "Failed to update database"
-            ]);
+            jsonResponse(["status" => "error", "message" => "Failed to update password in database."]);
         }
     }
+    
+    // --- NONAKTIFKAN ATAU HAPUS AKUN ---
     if ($action === 'deactivate' || $action === 'delete') {
-        $sql = "UPDATE pengguna
-                SET status_akun = 0
-                WHERE id_pengguna = ?";
-
-        $stmt = sqlsrv_prepare($conn, $sql, [$id_pengguna]);
-
-        if (!$stmt || !sqlsrv_execute($stmt)) {
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_ManageAccountStatus(?, ?)}", [$id_pengguna, $action]);
+        if ($stmt === false) {
             $errors = sqlsrv_errors();
-            jsonResponse([
-                "status" => "error",
-                "message" => $errors[0]['message'] ?? "Gagal menonaktifkan akun"
-            ]);
+            jsonResponse(["status" => "error", "message" => $errors[0]['message'] ?? "Failed to update account status."]);
         }
 
-        jsonResponse([
-            "status" => "success",
-            "message" => "Akun berhasil dinonaktifkan"
-        ]);
+        $msg = ($action === 'delete') ? "Account successfully deleted." : "Account successfully deactivated.";
+        jsonResponse(["status" => "success", "message" => $msg]);
     }
 
-    jsonResponse([
-        "status" => "error",
-        "message" => "Action tidak valid"
-    ]);
+    jsonResponse(["status" => "error", "message" => "Invalid POST action."]);
 }
 
-jsonResponse([
-    "status" => "error",
-    "message" => "Request tidak valid"
-]);
+jsonResponse(["status" => "error", "message" => "Invalid request method."]);
+?>

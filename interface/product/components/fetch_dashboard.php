@@ -1,123 +1,119 @@
 <?php
-// Pastikan file ini dipanggil SETELAH connection.php
-
-
-$limit_produk = 7;
-$limit_game   = 3;
-$limit_set    = 3;
-$limit_rarity = 3;
-$limit_metode = 3;
-
 /**
- * GET CURRENT PAGES FROM URL
- * Menggunakan logic agar state halaman tersimpan di URL
+ * fetch_dashboard.php
+ * Di-include oleh halaman utama product dashboard.
+ * Mengambil semua data paginasi untuk ditampilkan di card-card.
  */
-$page_produk = isset($_GET['pp']) ? max(1, (int)$_GET['pp']) : 1;
-$page_game   = isset($_GET['pg']) ? max(1, (int)$_GET['pg']) : 1;
-$page_set    = isset($_GET['ps']) ? max(1, (int)$_GET['ps']) : 1;
-$page_rarity = isset($_GET['pr']) ? max(1, (int)$_GET['pr']) : 1;
-$page_metode = isset($_GET['pm']) ? max(1, (int)$_GET['pm']) : 1;
 
-/**
- * CALCULATE OFFSETS
- */
+$limit_produk = 7; $limit_game = 3; $limit_set = 3; $limit_rarity = 3; $limit_metode = 3;
+
+$page_produk = max(1, (int)($_GET['pp'] ?? 1));
+$page_game   = max(1, (int)($_GET['pg'] ?? 1));
+$page_set    = max(1, (int)($_GET['ps'] ?? 1));
+$page_rarity = max(1, (int)($_GET['pr'] ?? 1));
+$page_metode = max(1, (int)($_GET['pm'] ?? 1));
+
 $offset_produk = ($page_produk - 1) * $limit_produk;
 $offset_game   = ($page_game - 1) * $limit_game;
 $offset_set    = ($page_set - 1) * $limit_set;
 $offset_rarity = ($page_rarity - 1) * $limit_rarity;
 $offset_metode = ($page_metode - 1) * $limit_metode;
 
-// ==========================================
-// 1. DATA PRODUK
-// ==========================================
-// Hitung Total
-$sql_count_produk = "SELECT COUNT(*) as total FROM dbo.produk WHERE is_deleted = 0";
-$stmt_count_produk = sqlsrv_query($conn, $sql_count_produk);
-$total_rows_produk = sqlsrv_fetch_array($stmt_count_produk, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
-$total_pages_produk = max(1, ceil($total_rows_produk / $limit_produk));
+// [FIX] Inisialisasi default semua variabel agar card tidak crash jika query gagal
+$data_produk = []; $data_game = []; $data_set = []; $data_rarity = []; $data_metode = [];
+$total_pages_produk = 1; $total_pages_game = 1; $total_pages_set = 1;
+$total_pages_rarity = 1; $total_pages_metode = 1;
 
-// Ambil Data
-$sql_produk = "SELECT p.*, g.nama_game, s.nama_set 
-                FROM dbo.produk p
-                LEFT JOIN dbo.game g ON p.id_game = g.id_game
-                LEFT JOIN dbo.set_kartu s ON p.id_set = s.id_set
-                WHERE p.is_deleted = 0
-                ORDER BY p.status DESC, p.id_produk DESC 
-                OFFSET $offset_produk ROWS FETCH NEXT $limit_produk ROWS ONLY";
-$stmt_produk = sqlsrv_query($conn, $sql_produk);
+// [FIX] Guard: pastikan $conn tersedia sebelum query
+if (!isset($conn) || $conn === false) {
+    // Koneksi belum siap, biarkan variabel default di atas
+    return;
+}
 
-// ==========================================
-// 2. DATA GAME
-// ==========================================
-// Hitung Total
-$sql_count_game = "SELECT COUNT(*) as total FROM dbo.game WHERE is_deleted = 0";
-$stmt_count_game = sqlsrv_query($conn, $sql_count_game);
-$total_rows_game = sqlsrv_fetch_array($stmt_count_game, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
-$total_pages_game = max(1, ceil($total_rows_game / $limit_game));
+// [FIX] COUNT: bungkus dengan error check, jangan langsung chain sqlsrv_fetch_array(sqlsrv_query())
+$sql_count  = "SELECT dbo.udf_CountDashboard('produk') AS cp,
+                        dbo.udf_CountDashboard('game')   AS cg,
+                        dbo.udf_CountDashboard('set')    AS cs,
+                        dbo.udf_CountDashboard('rarity') AS cr,
+                        dbo.udf_CountDashboard('metode') AS cm";
 
-// Ambil Data
-$sql_game = "SELECT * FROM dbo.game 
-             WHERE is_deleted = 0 
-             ORDER BY aktif DESC, id_game DESC 
-             OFFSET $offset_game ROWS FETCH NEXT $limit_game ROWS ONLY";
-$stmt_game = sqlsrv_query($conn, $sql_game);
+$stmt_count = sqlsrv_query($conn, $sql_count);
+if ($stmt_count !== false) {
+    $counts = sqlsrv_fetch_array($stmt_count, SQLSRV_FETCH_ASSOC);
+    if ($counts) {
+        $total_pages_produk = max(1, (int)ceil(($counts['cp'] ?? 0) / $limit_produk));
+        $total_pages_game   = max(1, (int)ceil(($counts['cg'] ?? 0) / $limit_game));
+        $total_pages_set    = max(1, (int)ceil(($counts['cs'] ?? 0) / $limit_set));
+        $total_pages_rarity = max(1, (int)ceil(($counts['cr'] ?? 0) / $limit_rarity));
+        $total_pages_metode = max(1, (int)ceil(($counts['cm'] ?? 0) / $limit_metode));
+    }
+}
 
-// ==========================================
-// 3. DATA SET KARTU
-// ==========================================
-// Hitung Total
-$sql_count_set = "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE is_deleted = 0";
-$stmt_count_set = sqlsrv_query($conn, $sql_count_set);
-$total_rows_set = sqlsrv_fetch_array($stmt_count_set, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
-$total_pages_set = max(1, ceil($total_rows_set / $limit_set));
+// [FIX] Clamp halaman aktif agar tidak melebihi total halaman
+$page_produk = min($page_produk, $total_pages_produk);
+$page_game   = min($page_game,   $total_pages_game);
+$page_set    = min($page_set,    $total_pages_set);
+$page_rarity = min($page_rarity, $total_pages_rarity);
+$page_metode = min($page_metode, $total_pages_metode);
 
-// Ambil Data
-$sql_set = "SELECT s.*, g.nama_game
-            FROM dbo.set_kartu s
-            LEFT JOIN dbo.game g ON s.id_game = g.id_game
-            WHERE s.is_deleted = 0
-            ORDER BY s.aktif DESC, s.id_set DESC
-            OFFSET $offset_set ROWS FETCH NEXT $limit_set ROWS ONLY";
-$stmt_set = sqlsrv_query($conn, $sql_set);
+// Hitung ulang offset setelah clamp
+$offset_produk = ($page_produk - 1) * $limit_produk;
+$offset_game   = ($page_game - 1) * $limit_game;
+$offset_set    = ($page_set - 1) * $limit_set;
+$offset_rarity = ($page_rarity - 1) * $limit_rarity;
+$offset_metode = ($page_metode - 1) * $limit_metode;
 
-// ==========================================
-// 4. DATA RARITY
-// ==========================================
-// Hitung Total
-$sql_count_rarity = "SELECT COUNT(*) as total FROM dbo.rarity WHERE is_deleted = 0";
-$stmt_count_rarity = sqlsrv_query($conn, $sql_count_rarity);
-$total_rows_rarity = sqlsrv_fetch_array($stmt_count_rarity, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
-$total_pages_rarity = max(1, ceil($total_rows_rarity / $limit_rarity));
+// [FIX] Eksekusi sp_FetchDashboard dengan error check
+$stmt_all = sqlsrv_query(
+    $conn,
+    '{CALL dbo.sp_FetchDashboard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}',
+    [
+        $limit_produk, $offset_produk,
+        $limit_game,   $offset_game,
+        $limit_set,    $offset_set,
+        $limit_rarity, $offset_rarity,
+        $limit_metode, $offset_metode,
+    ]
+);
 
-// Ambil Data
-$sql_rarity = "SELECT r.*, g.nama_game
-               FROM dbo.rarity r
-               LEFT JOIN dbo.game g ON r.id_game = g.id_game
-               WHERE r.is_deleted = 0
-               ORDER BY r.aktif DESC, r.id_rarity DESC
-               OFFSET $offset_rarity ROWS FETCH NEXT $limit_rarity ROWS ONLY";
-$stmt_rarity = sqlsrv_query($conn, $sql_rarity);
+// [FIX] Jika SP gagal, log error tapi JANGAN die() agar halaman tetap tampil
+if ($stmt_all === false) {
+    // Log ke PHP error log, jangan tampil ke user
+    error_log('[CardHaven] sp_FetchDashboard error: ' . print_r(sqlsrv_errors(), true));
+    // Variabel default (array kosong) sudah di-set di atas, cukup return
+    return;
+}
 
-// ==========================================
-// 5. DATA METODE PEMBAYARAN
-// ==========================================
-// Hitung Total
-$sql_count_metode = "SELECT COUNT(*) as total FROM dbo.metode_pembayaran WHERE is_deleted = 0";
-$stmt_count_metode = sqlsrv_query($conn, $sql_count_metode);
-$total_rows_metode = sqlsrv_fetch_array($stmt_count_metode, SQLSRV_FETCH_ASSOC)['total'] ?? 0;
-$total_pages_metode = max(1, ceil($total_rows_metode / $limit_metode));
+// Ekstraksi ResultSet 1: Produk
+while ($row = sqlsrv_fetch_array($stmt_all, SQLSRV_FETCH_ASSOC)) {
+    $data_produk[] = $row;
+}
 
-// Ambil Data
-$sql_metode = "SELECT * FROM dbo.metode_pembayaran
-               WHERE is_deleted = 0
-               ORDER BY aktif DESC, id_metode ASC
-               OFFSET $offset_metode ROWS FETCH NEXT $limit_metode ROWS ONLY";
-$stmt_metode = sqlsrv_query($conn, $sql_metode);
+// ResultSet 2: Game
+if (sqlsrv_next_result($stmt_all) !== false) {
+    while ($row = sqlsrv_fetch_array($stmt_all, SQLSRV_FETCH_ASSOC)) {
+        $data_game[] = $row;
+    }
+}
 
-/**
- * ERROR HANDLING (Optional)
- */
-if ($stmt_produk === false || $stmt_game === false || $stmt_set === false || $stmt_rarity === false || $stmt_metode === false) {
-    die(print_r(sqlsrv_errors(), true));
+// ResultSet 3: Set
+if (sqlsrv_next_result($stmt_all) !== false) {
+    while ($row = sqlsrv_fetch_array($stmt_all, SQLSRV_FETCH_ASSOC)) {
+        $data_set[] = $row;
+    }
+}
+
+// ResultSet 4: Rarity
+if (sqlsrv_next_result($stmt_all) !== false) {
+    while ($row = sqlsrv_fetch_array($stmt_all, SQLSRV_FETCH_ASSOC)) {
+        $data_rarity[] = $row;
+    }
+}
+
+// ResultSet 5: Metode
+if (sqlsrv_next_result($stmt_all) !== false) {
+    while ($row = sqlsrv_fetch_array($stmt_all, SQLSRV_FETCH_ASSOC)) {
+        $data_metode[] = $row;
+    }
 }
 ?>

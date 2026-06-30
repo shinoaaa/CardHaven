@@ -1,129 +1,94 @@
 <?php
 session_start();
+ini_set('display_errors', 0);
+error_reporting(0);
 require_once '../../connection.php';
 header('Content-Type: application/json');
 
-$id_user = $_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0);
+// [FIX] Pastikan tidak ada output PHP error yang merusak JSON
+ob_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $nama = trim($_POST['nama_game'] ?? '');
-    $dev = trim($_POST['developer'] ?? '');
-    $id_game = $_POST['id_game'] ?? null;
+try {
+    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0));
 
-    // 1. Validasi Kosong
-    if (($action == 'add' || $action == 'edit') && ($nama == "" || $dev == "")) {
-        echo json_encode(['status' => 'error', 'message' => 'All fields are required.']); exit;
-    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action   = $_POST['action'] ?? '';
+        $nama     = trim($_POST['nama_game'] ?? '');
+        $dev      = trim($_POST['developer'] ?? '');
+        $id_game  = isset($_POST['id_game']) && $_POST['id_game'] !== '' ? (int)$_POST['id_game'] : null;
 
-    // 2. Validasi Duplikat Nama
-    if ($action == 'add' || $action == 'edit') {
-        $sql_cek = "SELECT COUNT(*) as total FROM dbo.game WHERE nama_game = ? AND is_deleted = 0";
-        $params_cek = [$nama];
-        if ($action == 'edit') { $sql_cek .= " AND id_game <> ?"; $params_cek[] = $id_game; }
-        
-        $stmt_cek = sqlsrv_query($conn, $sql_cek, $params_cek);
-        if (sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC)['total'] > 0) {
-            echo json_encode(['status' => 'error', 'message' => 'Game name is already registered.']); exit;
+        if (($action === 'add' || $action === 'edit') && ($nama === '' || $dev === '')) {
+            ob_clean();
+            echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
+            exit;
         }
-    }
-    $path_foto_simpan = null;
-    if (isset($_FILES['foto_banner']) && $_FILES['foto_banner']['error'] === UPLOAD_ERR_OK) {
-        $file_tmp = $_FILES['foto_banner']['tmp_name'];
-        $file_name = $_FILES['foto_banner']['name'];
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        
-        // Buat nama file unik
-        $new_file_name = "GAME_" . time() . "_" . uniqid() . "." . $file_ext;
-        $target_dir = "../../image-profile/"; 
-        
-        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
-        if (move_uploaded_file($file_tmp, $target_dir . $new_file_name)) {
-            $path_foto_simpan = "image-profile/" . $new_file_name;
+        if ($action === 'add' || $action === 'edit') {
+            $stmt_cek = sqlsrv_query($conn, "SELECT dbo.udf_CheckDuplicateGame(?, ?) AS total", [$nama, $id_game]);
+            if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
+            $row_cek = sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC);
+            if ($row_cek && $row_cek['total'] > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => 'Game name is already registered.']);
+                exit;
+            }
+        }
 
-            // Jika sedang EDIT, hapus file foto lama agar folder tidak penuh
-            if ($action === 'edit' && $id_game) {
-                $sql_old = "SELECT foto_banner FROM dbo.game WHERE id_game = ?";
-                $stmt_old = sqlsrv_query($conn, $sql_old, [$id_game]);
-                $row_old = sqlsrv_fetch_array($stmt_old, SQLSRV_FETCH_ASSOC);
-                if ($row_old && $row_old['foto_banner']) {
-                    $old_file_path = "../../" . $row_old['foto_banner'];
-                    if (file_exists($old_file_path)) unlink($old_file_path);
+        $path_foto_simpan = null;
+        if (isset($_FILES['foto_banner']) && $_FILES['foto_banner']['error'] === UPLOAD_ERR_OK) {
+            $ext          = strtolower(pathinfo($_FILES['foto_banner']['name'], PATHINFO_EXTENSION));
+            $new_file_name = 'GAME_' . time() . '_' . uniqid() . '.' . $ext;
+            $target_dir   = '../../image-profile/';
+            if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+
+            if (move_uploaded_file($_FILES['foto_banner']['tmp_name'], $target_dir . $new_file_name)) {
+                $path_foto_simpan = 'image-profile/' . $new_file_name;
+                if ($action === 'edit' && $id_game) {
+                    $stmt_old = sqlsrv_query($conn, "SELECT dbo.udf_GetGamePhoto(?) AS foto", [$id_game]);
+                    if ($stmt_old) {
+                        $row_old = sqlsrv_fetch_array($stmt_old, SQLSRV_FETCH_ASSOC);
+                        if ($row_old && !empty($row_old['foto'])) @unlink('../../' . $row_old['foto']);
+                    }
                 }
             }
         }
-    }
 
-    // 3. Eksekusi Action
-    if ($action === 'add') {
-        $sql = "INSERT INTO dbo.game (nama_game, developer, created_by, created_date, aktif, is_deleted, foto_banner) VALUES (?, ?, ?, GETDATE(), 1, 0, ?)";
-        $stmt = sqlsrv_query($conn, $sql, [$nama, $dev, $id_user, $path_foto_simpan]);
-    } else if ($action === 'edit') {
-        $sql = "UPDATE dbo.game SET nama_game=?, developer=?, modified_by=?, modified_date=GETDATE()";
-        $params = [$nama, $dev, $id_user];
-        
-    
-        if ($path_foto_simpan) {
-            $sql .= ", foto_banner = ?";
-            $params[] = $path_foto_simpan;
+        $params = [$action, $id_game, $nama, $dev, $path_foto_simpan, $id_user];
+        $stmt   = sqlsrv_query($conn, '{CALL dbo.sp_ManageGame(?, ?, ?, ?, ?, ?)}', $params);
+
+        ob_clean();
+        if ($stmt === false) {
+            $err = sqlsrv_errors();
+            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Database error.']);
+        } else {
+            echo json_encode(['status' => 'success', 'message' => '']);
         }
-        
-        $sql .= " WHERE id_game = ?";
-        $params[] = $id_game;
-        
-        $stmt = sqlsrv_query($conn, $sql, $params);
-    } else if ($action === 'aktifkan' || $action === 'nonaktifkan') {
-        $aktif = $action === 'aktifkan' ? 1 : 0;
-        $sql = "UPDATE dbo.game SET aktif=?, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
-        $stmt = sqlsrv_query($conn, $sql, [$aktif, $id_user, $id_game]);
-    } else if ($action === 'delete') {
-        $totalSet    = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.set_kartu WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
-        $totalRarity = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT COUNT(*) as total FROM dbo.rarity WHERE id_game = ? AND is_deleted = 0", [$id_game]), SQLSRV_FETCH_ASSOC)['total'];
-        if ($totalSet > 0 || $totalRarity > 0) {
-            echo json_encode(['status' => 'error', 'message' => "Cannot delete: this game is still used by {$totalSet} set(s) and {$totalRarity} rarity(s)."]);
-            exit;
+        exit;
+    }
+
+    // [FIX] GET: get_detail
+    if (isset($_GET['get_detail'])) {
+        $id   = (int)$_GET['get_detail'];
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetGameDetail(?)}', [$id]);
+        if ($stmt === false) throw new Exception('Query sp_GetGameDetail failed.');
+
+        $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        ob_clean();
+        if ($data) {
+            // [FIX] Konversi DateTime ke string sebelum json_encode
+            $data['created_date']  = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
+            $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
+            // [FIX] Tambahkan JSON_UNESCAPED_UNICODE agar karakter tidak rusak
+            echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode(['error' => 'Data not found']);
         }
-        $sql = "UPDATE dbo.game SET is_deleted=1, aktif=0, deleted_by=?, deleted_date=GETDATE() WHERE id_game=?";
-        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
-    } else if ($action === 'restore') {
-        $sql = "UPDATE dbo.game SET is_deleted=0, aktif=1, modified_by=?, modified_date=GETDATE() WHERE id_game=?";
-        $stmt = sqlsrv_query($conn, $sql, [$id_user, $id_game]);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid action.']);
-        exit;   
+        exit;
     }
 
-    echo json_encode(['status' => $stmt ? 'success' : 'error', 'message' => $stmt ? '' : 'A database error occurred.']);
-    exit;
-}
-
-// Fetch Detail
-if (isset($_GET['get_detail'])) {
-    $id = $_GET['get_detail'];
-    
-    $sql = "SELECT g.*, u1.username as creator_name, u2.username as modifier_name 
-        FROM dbo.game g 
-        LEFT JOIN dbo.pengguna u1 ON g.created_by = u1.id_pengguna 
-        LEFT JOIN dbo.pengguna u2 ON g.modified_by = u2.id_pengguna 
-        WHERE g.id_game = ?";
-    $stmt = sqlsrv_query($conn, $sql, [$id]);
-
-    if ($stmt === false) {
-        die(json_encode(['error' => sqlsrv_errors()]));
-    }
-
-    $data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-
-    if ($data) {
-        $data['created_date'] = ($data['created_date'] instanceof DateTime) ? $data['created_date']->format('d-M-Y H:i') : '-';
-        $data['modified_date'] = ($data['modified_date'] instanceof DateTime) ? $data['modified_date']->format('d-M-Y H:i') : '-';
-        $data['creator'] = $data['creator_name'] ?? '-';
-        $data['modifier'] = $data['modifier_name'] ?? '-';
-        echo json_encode($data);
-    } else {
-        echo json_encode(['error' => 'Data not found']);
-    }
+} catch (Throwable $e) {
+    ob_clean();
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     exit;
 }
 ?>

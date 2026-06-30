@@ -146,11 +146,19 @@ function updateSummary(total, selectedCount, totalItems) {
             : 'No items selected';
     }
 }
- 
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btn-checkout-main');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            if (!btn.disabled) {
+                window.location.href = '/CardHaven/checkout';
+            }
+        });
+    }
+});
 function setCheckoutState(enabled) {
     const btn = document.getElementById('btn-checkout-main');
-    if (!btn) return;
-    btn.disabled = !enabled;
+    if (btn) btn.disabled = !enabled;
 }
  
 // ---- Aksi POST dengan id_pengguna_js ----

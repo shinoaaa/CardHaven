@@ -2,7 +2,7 @@
 
 <div>
     <div class="card-title-row">
-        <h2 class="coolveticaa"></h2>
+        <h2 class="coolveticaa">Admin</h2>
         <button class="btn-add-green" onclick="openAddAdminModal()">+ Add Admin</button>
     </div>
     <div class="userList">
@@ -22,56 +22,39 @@
                 <th>Action</th>
             </tr>
         </thead>
-
         <tbody>
             <?php if (!empty($data)): ?>
                 <?php
-                    $limit = 7;
-                    $no = (($page - 1) * $limit) + 1;
+                    $no = (($page - 1) * 7) + 1;
+                    foreach ($data as $row): 
                 ?>
-                <?php foreach ($data as $row): ?>
                     <tr>
                         <td><?= $no++ ?></td>
                         <td>
                             <?php if (!empty($row['foto_profil'])): ?>
                                 <img src="/cardhaven/image-profile/<?= htmlspecialchars($row['foto_profil']) ?>" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                             <?php else: ?>
-                                <img src="/cardhaven/assets/image/user.svg" alt="Default Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                <img src="/cardhaven/assets/image/user.svg" alt="Default Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background-color: #f1f5f9; padding: 5px;">
                             <?php endif; ?>
                         </td>
-                        <td style="font-weight: 600; text-align: center;">
-                            <?= htmlspecialchars($row['username'] ?? '-') ?>
-                        </td>
-                        <td><?= htmlspecialchars($row['email'] ?? '-') ?></td>
-                        <td><?= htmlspecialchars($row['no_telepon'] ?? '-') ?></td>
+                        <td style="font-weight: 600; text-align: center;"><?= htmlspecialchars($row['username']) ?></td>
+                        <td><?= htmlspecialchars($row['email']) ?></td>
+                        <td><?= htmlspecialchars($row['no_telepon']) ?></td>
+                        <td><?= ($row['created_date'] instanceof DateTime) ? $row['created_date']->format('d M Y') : '-' ?></td>
                         <td>
-                            <?= isset($row['created_date']) && $row['created_date'] instanceof DateTime
-                                ? $row['created_date']->format('d-m-Y')
-                                : '-' ?>
-                        </td>
-                        <td>
-                            <?php if (($row['status_akun'] ?? 0) == 1): ?>
-                                <span class="status-badge" style="color: #27AE60; font-weight: bold;">Active</span>
+                            <?php if ($row['status_akun'] == 1): ?>
+                                <span style="color: #27AE60; font-weight: bold;">Active</span>
                             <?php else: ?>
-                                <span class="status-badge" style="color: #E74C3C; font-weight: bold;">Inactive</span>
+                                <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <div class="btn-action-group">
-                                <button class="btn-view-icon" onclick="openAdminModal(<?= (int)$row['id_pengguna'] ?>)" title="View Detail">
-                                    ...
-                                </button>
-
-                                <button class="btn-edit-icon" onclick="openAdminEdit(<?= (int)$row['id_pengguna'] ?>)" title="Edit Admin">
-                                    <img src="/cardhaven/assets/image/edit.svg" alt="">
-                                </button>
-
-                                <button class="btn-delete-icon" onclick="deleteAdmin(<?= (int)$row['id_pengguna'] ?>)" title="Delete Admin">
-                                    <img src="/cardhaven/assets/image/delete.svg" alt="">
-                                </button>
-
-                                <label class="switch" title="Toggle Status">
-                                    <input type="checkbox" <?= ($row['status_akun'] ?? 0) == 1 ? 'checked' : '' ?> onchange="toggleAdmin(<?= (int)$row['id_pengguna'] ?>, this.checked, this)">
+                                <button class="btn-view-icon" onclick="openDetailAdminModal(<?= $row['id_pengguna'] ?>)">...</button>
+                                <button class="btn-edit-icon" onclick="openEditAdminModal(<?= $row['id_pengguna'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                                <button class="btn-delete-icon" onclick="deleteAdmin(<?= $row['id_pengguna'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
+                                <label class="switch">
+                                    <input type="checkbox" <?= $row['status_akun'] == 1 ? 'checked' : '' ?> onchange="toggleAdminStatus(<?= $row['id_pengguna'] ?>, this)">
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -79,25 +62,14 @@
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
-                <tr>
-                    <td colspan="7">No admins found.</td>
-                </tr>
+                <tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">No admins found.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>
 
     <div class="pagination-container">
-        <?php 
-        // Bikin fungsi kecil buat nge-keep query string yang udah ada
-        function getPageUrl($pageNum) {
-            $queries = $_GET; // Ambil semua parameter URL saat ini
-            $queries['page'] = $pageNum; // Update atau tambah parameter page
-            return '?' . http_build_query($queries); // Build ulang jadi URL string
-        }
-        ?>
-
         <?php if ($page > 1): ?>
-            <a href="<?= getPageUrl($page - 1) ?>" class="page-link">&lt;</a>
+            <a href="?page=<?= $page - 1 ?>" class="page-link">&lt;</a>
         <?php else: ?>
             <span class="page-link disabled">&lt;</span>
         <?php endif; ?>
@@ -106,36 +78,24 @@
         $start = max(1, $page - 1);
         $end   = min($total_pages, $page + 1);
 
-        if ($start > 1):
-        ?>
-            <a href="<?= getPageUrl(1) ?>" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
-            <?php if ($start > 2): ?>
-                <span class="dots">...</span>
-            <?php endif; ?>
+        if ($start > 1): ?>
+            <a href="?page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
+            <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
         <?php endif; ?>
 
         <?php for ($i = $start; $i <= $end; $i++): ?>
-            <a href="<?= getPageUrl($i) ?>" class="page-link <?= $i == $page ? 'active' : '' ?>">
-                <?= $i ?>
-            </a>
+            <a href="?page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
         <?php endfor; ?>
 
         <?php if ($end < $total_pages): ?>
-            <?php if ($end < $total_pages - 1): ?>
-                <span class="dots">...</span>
-            <?php endif; ?>
-            <a href="<?= getPageUrl($total_pages) ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>">
-                <?= $total_pages ?>
-            </a>
+            <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
+            <a href="?page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
         <?php endif; ?>
 
         <?php if ($page < $total_pages): ?>
-            <a href="<?= getPageUrl($page + 1) ?>" class="page-link">&gt;</a>
+            <a href="?page=<?= $page + 1 ?>" class="page-link">&gt;</a>
         <?php else: ?>
             <span class="page-link disabled">&gt;</span>
         <?php endif; ?>
     </div>
 </div>
-
-<?php include __DIR__ . '/../../interface/user/components/modalAdmin.php' ?>
-<script src="/cardhaven/interface/user/scriptAdmin.js"></script>

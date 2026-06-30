@@ -1,12 +1,14 @@
 const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php';
 
-// Mengambil dari sessionStorage atau localStorage
 const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
 const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
 let cardIndexCounter = 1;
 
-function openSubmitModal() {
-    // 1. Tarik data Rekening & Provider dari tabel pengguna saat modal dibuka
+if (!idPengguna || userRole != '0') {
+    window.location.href = '../login-page/index.php';
+}
+
+function fetchBankDetails() {
     fetch(`${BUYBACK_CONTROLLER}?action=get_user_bank&id_pengguna=${idPengguna}`)
     .then(res => res.json())
     .then(res => {
@@ -14,9 +16,41 @@ function openSubmitModal() {
             document.getElementById('bankProvider').value = res.data.provider || '';
             document.getElementById('bankNoRek').value = res.data.no_rekening || '';
         }
-        document.getElementById('submitModal').style.display = 'flex';
     });
 }
+
+// Fungsi untuk me-render gambar ke tag <img> saat user memilih file
+function previewImage(input, imgId) {
+    const imgElement = document.getElementById(imgId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imgElement.src = e.target.result;
+            imgElement.style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        imgElement.src = '';
+        imgElement.style.display = 'none';
+    }
+}
+
+function resetForm() {
+    const form = document.getElementById('formBuyback');
+    if (form) {
+        form.reset();
+        form.querySelectorAll('.error-message').forEach(el => el.innerText = '');
+        form.querySelectorAll('.modal-input').forEach(el => el.style.borderColor = '#ccc');
+        // Sembunyikan semua preview gambar
+        form.querySelectorAll('img[id^="preview"]').forEach(img => {
+            img.src = '';
+            img.style.display = 'none';
+        });
+    }
+    resetCardFields();
+    fetchBankDetails(); // Kembalikan data rekening bawaan
+}
+
 function addCardField() {
     cardIndexCounter++;
     const container = document.getElementById('cardInputsContainer');
@@ -24,25 +58,33 @@ function addCardField() {
         <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
             <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
             <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
-            <div class="form-group">
-                <label>Card Name <span class="required">*</span></label>
-                <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Charizard Base Set">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Card Name <span class="required">*</span></label>
+                    <input type="text" name="nama_kartu[]" class="modal-input" placeholder="e.g., Charizard Base Set">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Your Offer Price (Rp) <span class="required">*</span></label>
+                    <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 500000">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                <input type="number" name="harga_beli[]" class="modal-input" placeholder="e.g., 500000">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
-            </div>
-            <div class="form-group">
-                <label>Front Photo <span class="required">*</span></label>
-                <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
-            </div>
-            <div class="form-group">
-                <label>Back Photo <span class="required">*</span></label>
-                <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*">
-                <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div class="form-group">
+                    <label>Front Photo <span class="required">*</span></label>
+                    <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewFront${cardIndexCounter}')">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                    <img id="previewFront${cardIndexCounter}" src="" style="max-width: 100%; max-height: 200px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
+                <div class="form-group">
+                    <label>Back Photo <span class="required">*</span></label>
+                    <input type="file" name="foto_belakang[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewBack${cardIndexCounter}')">
+                    <div class="error-message" style="color: #E74C3C; font-size: 0.75rem; margin-top: 4px;"></div>
+                    <img id="previewBack${cardIndexCounter}" src="" style="max-width: 100%; max-height: 200px; display: none; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
             </div>
         </div>
     `;
@@ -55,33 +97,6 @@ function closeSubmitModal() {
     resetCardFields();
 }
 
-function addCardField() {
-    cardIndexCounter++;
-    const container = document.getElementById('cardInputsContainer');
-    const html = `
-        <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
-            <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
-            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
-            <div class="form-group">
-                <label>Card Name <span class="required">*</span></label>
-                <input type="text" name="nama_kartu[]" required placeholder="e.g., Charizard Base Set">
-            </div>
-            <div class="form-group">
-                <label>Your Offer Price (Rp) <span class="required">*</span></label>
-                <input type="number" name="harga_beli[]" required placeholder="e.g., 500000">
-            </div>
-            <div class="form-group">
-                <label>Front Photo <span class="required">*</span></label>
-                <input type="file" name="foto_depan[]" class="file-input-custom" accept="image/*" required>
-            </div>
-            <div class="form-group">
-                <label>Back Photo <span class="required">*</span></label>
-                <input type="file" name="foto_belakang[]" class="file-input-custom" accept="image/*" required>
-            </div>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', html);
-}
 
 function removeCardField(id) {
     document.getElementById(`cardGroup${id}`).remove();
@@ -105,12 +120,21 @@ function loadRiwayat() {
     .then(data => {
         const tbody = document.querySelector('#tableRiwayat tbody');
         tbody.innerHTML = '';
-        data.data.forEach((row, index) => { // Tambahkan index
+        data.data.forEach((row, index) => { 
+            let tanggal = 'N/A';
+            if (row.tanggal_pembelian) {
+                // Mengambil 10 karakter pertama (YYYY-MM-DD)
+                const tglMentah = row.tanggal_pembelian.substring(0, 10); 
+                
+                // Mengubah format menjadi DD-MM-YYYY
+                const [tahun, bulan, hari] = tglMentah.split('-');
+                tanggal = `${hari}-${bulan}-${tahun}`;
+            }
             let aksi = `<button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})" style="margin: 0 auto;">...</button>`;
             let tr = `<tr>
                 <td>${index + 1}</td>
                 <td>#${row.id_pembelian}</td>
-                <td>${row.tanggal_pembelian}</td>
+                <td>${tanggal}</td>
                 <td>Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
                 <td>${parseStatus(row.status_pembelian)}</td>
                 <td class="btn-action-group">${aksi}</td>
@@ -140,9 +164,16 @@ function submitBuyback() {
     // Validasi Rekening Bank
     const provider = document.getElementById('bankProvider');
     const noRek = document.getElementById('bankNoRek');
-    if (!provider.value.trim()) showError(provider, "Provider Bank/E-Wallet wajib diisi.");
-    if (!noRek.value.trim()) showError(noRek, "Nomor Rekening wajib diisi.");
+    const providerVal = provider.value.trim();
+    const noRekVal = noRek.value.trim();
 
+    if (!providerVal || providerVal.length < 2 || !/^[a-zA-Z0-9\s]+$/.test(providerVal)) {
+        showError(provider, "Please enter a valid provider.");
+    }
+
+    if (!noRekVal || noRekVal.length < 5 || !/^[0-9]+$/.test(noRekVal)) {
+        showError(noRek, "Please enter a valid account number.");
+    }
     // Validasi Per Kartu
     const cardNames = document.getElementsByName('nama_kartu[]');
     const cardPrices = document.getElementsByName('harga_beli[]');
@@ -150,10 +181,11 @@ function submitBuyback() {
     const cardBacks = document.getElementsByName('foto_belakang[]');
 
     for (let i = 0; i < cardNames.length; i++) {
-        if (!cardNames[i].value.trim()) showError(cardNames[i], "Nama kartu tidak boleh kosong.");
-        if (!cardPrices[i].value || cardPrices[i].value <= 0) showError(cardPrices[i], "Harga tidak valid (harus > 0).");
-        if (cardFronts[i].files.length === 0) showError(cardFronts[i], "Foto depan wajib diunggah.");
-        if (cardBacks[i].files.length === 0) showError(cardBacks[i], "Foto belakang wajib diunggah.");
+        if (!cardNames[i].value.trim()) showError(cardNames[i], "Please enter the card name!");
+        if (!cardPrices[i].value) showError(cardPrices[i], "Please enter the price!");
+        if (cardPrices[i].value <= 0) showError(cardPrices[i], "Please enter a valid price!");
+        if (cardFronts[i].files.length === 0) showError(cardFronts[i], "Please upload the front side photo of the card!");
+        if (cardBacks[i].files.length === 0) showError(cardBacks[i], "Please upload the back side photo of the card!");
     }
 
     if (!isValid) return; // Hentikan proses jika ada error
@@ -166,7 +198,7 @@ function submitBuyback() {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            closeSubmitModal();
+            resetForm();
             cardhavenAlert('success', 'Success', res.message, () => loadRiwayat());
         } else {
             cardhavenAlert('error', 'Failed', res.message);
@@ -203,9 +235,9 @@ function parseStatus(status) {
     return statuses[status] || "Unknown";
 }
 
-document.addEventListener('DOMContentLoaded', loadRiwayat);
 function openDetailModal(id_pembelian) {
-    fetch(`${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${id_pembelian}${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${id_pembelian}&role=${userRole}&id_pengguna=${idPengguna}`)
+    // Fix: URL yang benar (sebelumnya URL duplikat/rusak)
+    fetch(`${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${id_pembelian}&role=${userRole}&id_pengguna=${idPengguna}`)
     .then(res => res.json())
     .then(res => {
         if(res.status === 'success') {
@@ -215,34 +247,102 @@ function openDetailModal(id_pembelian) {
             document.getElementById('modalStatus').innerHTML = parseStatus(pem.status_pembelian);
             
             let htmlContent = '';
-            let allCardsAccepted = true;
+
+            // Status final: offer tidak relevan lagi
+            const FINAL_STATUSES = [8, 9, 10];
+            const isFinal = FINAL_STATUSES.includes(parseInt(pem.status_pembelian));
+            const isNegotiating = pem.status_pembelian == 2;
+
+            // Tracking per-kartu untuk logika footer
+            let allDecided = true;   // semua kartu sudah di-accept atau di-counter → aktifkan footer
+            let hasCounter = false;  // ada kartu yang di-counter → footer = Submit ke admin
+            // allDecided && !hasCounter → semua accept → Proceed to Shipping
+            // allDecided && hasCounter  → ada counter   → Submit Counter Offers
+            // !allDecided               → masih pending  → footer disable
 
             data.kartu.forEach(k => {
-                const isNegotiating = (pem.status_pembelian == 2 && k.penawaran_admin != null && k.penawaran_customer != k.penawaran_admin);
-                if (k.penawaran_customer != k.penawaran_admin) allCardsAccepted = false;
+                const adminHasOffer = k.penawaran_admin != null;
+                const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
+                const isPending     = isNegotiating && adminHasOffer && !priceMatch;
+                const isAgreed      = adminHasOffer && priceMatch;
+                const maxAttempts   = k.percobaan_penawaran > 3;
+
+                if (isNegotiating) {
+                    if (isPending) allDecided = false; 
+                }
+
+                let adminOfferLabel;
+                if (!adminHasOffer) {
+                    adminOfferLabel = isFinal
+                        ? `<span style="color:#9ca3af;">-</span>`
+                        : `<span style="color:#9ca3af;">Waiting for admin...</span>`;
+                } else if (isAgreed) {
+                    adminOfferLabel = `<span style="color:#27AE60;font-weight:600;">Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
+                } else {
+                    adminOfferLabel = `<span style="color:#E74C3C;font-weight:600;">Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
+                }
+
+                const borderColor = isPending ? '#fbbf24' : '#e5e7eb';
 
                 htmlContent += `
-                <div style="border: 1px solid #ddd; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: #fff;">
+                <div style="border: 1.5px solid ${borderColor}; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: #fff;">
                     <h3 style="margin:0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h3>
-                    <div style="font-size: 0.9rem; margin-bottom: 12px;">
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Front Photo:</p>
+                            <a href="/CardHaven/${k.foto_depan}" target="_blank">
+                                <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                            </a>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Back Photo:</p>
+                            <a href="/CardHaven/${k.foto_belakang}" target="_blank">
+                                <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                         <p style="margin: 4px 0;"><strong>Your Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
-                        <p style="margin: 4px 0; color: #E74C3C;"><strong>Admin Offer:</strong> ${k.penawaran_admin ? 'Rp ' + parseInt(k.penawaran_admin).toLocaleString('id-ID') : 'Waiting...'}</p>
-                        <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${k.percobaan_penawaran} / 3</span></p>
+                        <p style="margin: 4px 0;"><strong>Admin Offer:</strong> ${adminOfferLabel}</p>
+                        <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color:#E67E22;font-weight:600;">${k.percobaan_penawaran} / 3</span></p>
                     </div>`;
-                
-                // Tampilkan tombol negosiasi seragam PER KARTU
-                if (isNegotiating) {
-                    htmlContent += `
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="acceptItemOffer(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_admin})" class="btn-confirm" style="width: auto; height: 32px; font-size: 0.8rem; padding: 0 15px; margin: 0; background: #27AE60;">Accept Price</button>
-                        ${k.percobaan_penawaran < 3 ? `<button onclick="counterItemOffer(${pem.id_pembelian}, ${k.id_kartu})" class="btn-cancel-outline" style="width: auto; height: 32px; font-size: 0.8rem; padding: 0 15px; margin: 0; border-width: 1.5px;">Counter Offer</button>` : '<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem; display:flex; align-items:center;">Max Attempts Reached</span>'}
+
+                if (isPending) {
+                    htmlContent += `<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                        <button onclick="acceptItemOffer(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_admin})"
+                            class="btn-confirm" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; background:#27AE60;">
+                            ✓ Accept
+                        </button>
+                        ${!maxAttempts
+                            ? `<button onclick="counterItemOffer(${pem.id_pembelian}, ${k.id_kartu})"
+                                class="btn-cancel-outline" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; border-width:1.5px; color:#7c3aed; border-color:#7c3aed;">
+                                ⟳ Counter Offer
+                                </button>`
+                            : `<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem;">Max attempts reached — you can only Accept</span>`
+                        }
                     </div>`;
-                } else if (k.penawaran_admin && k.penawaran_customer == k.penawaran_admin) {
-                    htmlContent += `<p style="color: #27AE60; font-weight: bold; margin: 0;">✓ Price Agreed</p>`;
+                } else if (isAgreed) {
+                    htmlContent += `<p style="color:#27AE60; font-weight:bold; margin:0;">✓ Price Agreed</p>`;
                 }
 
                 htmlContent += `</div>`;
             });
+
+            // Hitung ulang hasCounter: ada kartu yang sudah respond tapi pending = 0 dan tidak semua agreed
+            // Sederhananya: jika allDecided = true, cek apakah ada yang tidak match awalnya
+            // Karena kita tidak ada flag terpisah, kita asumsikan: jika allDecided && ada setidaknya 1 kartu
+            // yang penawaran_customer != nilai original (kita tidak track ini), maka hasCounter = true.
+            // Solusi pragmatis: jika allDecided = true → selalu tampilkan "Submit Counter Offers"
+            // kecuali SEMUA kartu match antara penawaran_customer == penawaran_admin (semua accept murni).
+            // Ini sudah benar karena: Accept → update penawaran_customer = penawaran_admin (match)
+            //                         Counter → update penawaran_customer = nilai baru != penawaran_admin (tidak match)
+            // Tapi saat status = 2, setelah customer counter, status kembali ke 1 (di-handle SP).
+            // Jadi saat status == 2, SEMUA kartu yang sudah "respond" akan match (karena counter sudah di-submit round sebelumnya).
+            // Yang belum respond = isPending. Jika allDecided, berarti semua sudah accept di round ini.
+            // Jadi: allDecided && status == 2 → semua accept di round ini → Proceed to Shipping
+            hasCounter = !allDecided; // sudah tidak relevan di footer logic baru di bawah
 
             // Tampilkan foto bukti bayar jika ada (Status 7)
             if (pem.bukti_pembayaran) {
@@ -255,33 +355,49 @@ function openDetailModal(id_pembelian) {
                 </div>`;
             }
 
+            // Fix #2: Alamat retur HANYA muncul saat Rejected (9) yang terjadi SETELAH barang diterima (status >= 5)
+            // Jika reject di status 0 atau 1, tidak ada barang yang perlu dikembalikan
+            if (pem.status_pembelian == 9 && pem.no_resi) {
+                // Barang sudah pernah dikirim (ada resi), berarti perlu alamat retur
+                htmlContent += `
+                <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem;">
+                    <strong style="color: #c2410c;">📦 Card Return</strong><br>
+                    ${pem.alamat 
+                        ? `<span style="color: #065f46;">Return address submitted. Waiting for shipment.</span>`
+                        : `<span style="color: #9a3412;">Please provide your return address so we can send the card back.</span>`
+                    }
+                </div>`;
+            }
+
             document.getElementById('modalContent').innerHTML = htmlContent;
 
             let footerHtml = '';
             
-            // Jika status Negotiation (2), customer harus submit setelah memilih accept/counter per kartu
             if (pem.status_pembelian == 2) {
-                if (allCardsAccepted) {
-                    footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed!')">Proceed to Shipping</button>`;
+                if (!allDecided) {
+                    // Masih ada kartu yang belum direspons → footer disable
+                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
                 } else {
-                    footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px;" onclick="updateStatus(${pem.id_pembelian}, 1, 'Counters sent to Admin')">Submit Counter Offers</button>`;
+                    // Semua kartu sudah di-accept (semua match) → lanjut ke shipping
+                    // Jika ada yang di-counter, SP customer_negotiate_item sudah update penawaran_customer
+                    // dan status akan ke 1 (Under Review) otomatis via SP.
+                    // Jadi di sini yang tersisa hanya kasus semua accept.
+                    footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
                 }
             } else if (pem.status_pembelian == 3) {
                 footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #27AE60;" onclick="inputResi(${pem.id_pembelian})">Input Receipt</button>`;
             } else if (pem.status_pembelian == 7) {
                 footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #0088FF;" onclick="completeTransaction(${pem.id_pembelian})">Confirm Payment Received</button>`;
-            } else if (pem.status_pembelian == 9) {
-                // Tampilkan opsi input alamat retur JIKA admin menolak di tahap Quality Check
-                if (pem.status_pembelian == 9) {
-                    if (pem.alamat) {
-                        footerHtml += `<span style="color: #E67E22; font-weight: bold;">Return Address Submitted. Please wait for shipping.</span>`;
-                    } else {
-                        footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #E67E22;" onclick="inputAddress(${pem.id_pembelian})">Provide Return Address</button>`;
-                    }
+            } else if (pem.status_pembelian == 9 && pem.no_resi) {
+                // Fix #2: Alamat retur hanya jika barang sudah pernah dikirim (ada no_resi)
+                if (!pem.alamat) {
+                    footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #E67E22;" onclick="inputAddress(${pem.id_pembelian})">Provide Return Address</button>`;
+                } else {
+                    footerHtml += `<span style="color: #27AE60; font-weight: bold;">✓ Return Address Submitted</span>`;
                 }
             }
             
-            // Opsi Cancel untuk status awal
+            // Opsi Cancel untuk status awal (sebelum barang dikirim, status 0-2)
             if (pem.status_pembelian <= 2) {
                 footerHtml += `<button class="btn-cancel-outline" style="width: auto; padding: 10px 20px; border-color: #E74C3C; color: #E74C3C; border-width: 2px;" onclick="cancelBuyback(${pem.id_pembelian})">Cancel Submission</button>`;
             }
@@ -299,29 +415,55 @@ function counterItemOffer(idP, idK) {
     Swal.fire({
         title: 'Counter Offer for this Card',
         input: 'number',
-        showCancelButton: true
+        inputPlaceholder: 'Enter your counter price (Rp)',
+        showCancelButton: true,
+        confirmButtonText: 'Save Price',
+        inputValidator: (value) => {
+            const val = value ? value.toString().trim() : '';
+            if (!val || isNaN(val) || Number(val) <= 0) {
+                return 'Please enter a valid price!';
+            }
+        }
     }).then(res => {
-        if(res.isConfirmed && res.value) {
+        if (res.isConfirmed && res.value) {
             const formData = new URLSearchParams();
             formData.append('action', 'customer_negotiate_item');
-            formData.append('id_pembelian', idP); // Rujukan untuk verifikasi
+            formData.append('id_pembelian', idP);
             formData.append('id_kartu', idK);
             formData.append('penawaran_customer', res.value);
-            formData.append('id_pengguna', idPengguna); // Kredensial otorisasi
-            
-            fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData }).then(() => openDetailModal(idP));
+            formData.append('id_pengguna', idPengguna);
+
+            fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    // Refresh modal dan tabel — status mungkin berubah ke Under Review (1) via SP
+                    openDetailModal(idP);
+                    loadRiwayat();
+                } else {
+                    Swal.fire('Error', result.message || 'Failed to submit counter offer.', 'error');
+                }
+            });
         }
     });
 }
 function acceptItemOffer(idP, idK, price) {
     const formData = new URLSearchParams();
     formData.append('action', 'customer_accept_item');
-    formData.append('id_pembelian', idP); // Rujukan untuk verifikasi
+    formData.append('id_pembelian', idP);
     formData.append('id_kartu', idK);
     formData.append('harga_final', price);
-    formData.append('id_pengguna', idPengguna); // Kredensial otorisasi
-    
-    fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData }).then(() => openDetailModal(idP));
+    formData.append('id_pengguna', idPengguna);
+
+    fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(result => {
+        if (result.status === 'success') {
+            openDetailModal(idP); // Refresh modal, cek apakah semua sudah decide
+        } else {
+            Swal.fire('Error', result.message || 'Failed to accept offer.', 'error');
+        }
+    });
 }
 function cancelBuyback(id_pembelian) {
     closeDetailModal();
@@ -370,36 +512,6 @@ function inputAddress(id_pembelian) {
             formData.append('action', 'update_address');
             formData.append('id_pembelian', id_pembelian);
             formData.append('alamat_retur', res.value);
-            fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(result => {
-                if(result.status === 'success') {
-                    Swal.fire('Success', result.message, 'success').then(() => {
-                        openDetailModal(id_pembelian); // Refresh modal agar muncul pesannya
-                    });
-                }
-            });
-        } else {
-            document.getElementById('detailModal').style.display = 'flex';
-        }
-    });
-}
-
-function inputAddress(id_pembelian) {
-    closeDetailModal();
-    Swal.fire({
-        title: 'Input Return Address',
-        input: 'textarea',
-        inputPlaceholder: 'Enter your full address for card return shipment...',
-        showCancelButton: true,
-        confirmButtonText: 'Submit Address',
-        customClass: { confirmButton: "btn-confirm", cancelButton: "btn-cancel-outline" }
-    }).then(res => {
-        if(res.isConfirmed && res.value) {
-            const formData = new URLSearchParams();
-            formData.append('action', 'update_address');
-            formData.append('id_pembelian', id_pembelian);
-            formData.append('alamat_retur', res.value);
             formData.append('id_pengguna', idPengguna); // INI WAJIB DITAMBAHKAN UNTUK KEAMANAN
 
             fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
@@ -419,3 +531,8 @@ function inputAddress(id_pembelian) {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadRiwayat();
+    fetchBankDetails(); // Agar provider dan rekening muncul seketika saat halaman dimuat
+});

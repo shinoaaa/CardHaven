@@ -8,7 +8,7 @@
                 
                 <div class="hero-subtitle-container">
                     <h3 id="ui-event-product">-</h3>
-                    <div class="divider"></div>
+                    <div class="divider divider-hero"></div>
                     <p>Release Date: <span id="ui-event-date">-</span></p>
                 </div>
                 

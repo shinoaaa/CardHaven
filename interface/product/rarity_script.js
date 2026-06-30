@@ -1,7 +1,7 @@
 const modalRarity = document.getElementById('rarityModal');
 const rarityForm = document.getElementById('rarityForm');
 const API_URL = '/CardHaven/interface/product/controller_rarity.php'; // Pastikan path sesuai dengan foldermu
-var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+// var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
 
 async function isDuplicate(idGame, nama, kode, excludeId) {
     const resp = await fetch(`${API_URL}?check_duplicate=1&id_game=${idGame}&nama_rarity=${encodeURIComponent(nama)}&kode_rarity=${encodeURIComponent(kode)}&exclude_id=${excludeId}`);

@@ -12,15 +12,15 @@ require_once 'components/fetch_dashboard.php';
     <title>Product Management - Super Admin</title>
 </head>
 <body>
-        <button id="scrollBottomBtn" class="scroll-bottom-btn" title="Ke Paling Bawah">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <polyline points="19 12 12 19 5 12"></polyline>
-    </svg>
-</button>
-        <div class="main-content">
-            <h1 class="coolveticaa" style="color: #a0beff;font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
-            <div class="content-card" id="container-produk">
+    <button id="scrollBottomBtn" class="scroll-bottom-btn" title="Ke Paling Bawah">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <polyline points="19 12 12 19 5 12"></polyline>
+        </svg>
+    </button>
+    <div class="main-content">
+        <h1 class="coolveticaa" style="color: #a0beff;font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
+        <div class="content-card" id="container-produk">
             <div class="card-title-row">
                 <h2 class="coolveticaa">Products</h2>
                 <button class="btn-add-green" onclick="openAddProductModal()">+ Add Product</button>
@@ -40,10 +40,10 @@ require_once 'components/fetch_dashboard.php';
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (sqlsrv_has_rows($stmt_produk)): ?>
+                    <?php if (!empty($data_produk)): ?>
                         <?php 
                             $no = $offset_produk + 1;
-                            while ($row = sqlsrv_fetch_array($stmt_produk, SQLSRV_FETCH_ASSOC)): ?>
+                            foreach ($data_produk as $row): ?>
                         <tr>
                             <td><?= $no++ ?></td>
                             <td style="font-weight: 600; text-align: left;">
@@ -62,34 +62,31 @@ require_once 'components/fetch_dashboard.php';
                                     <span style="color: #E74C3C; font-weight: bold;">Inactive</span>
                                 <?php endif; ?>
                             </td>
-                                <td>
-                                    <div class="btn-action-group">
-                                        <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
-                                        <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
-                                        <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
-                                        <label class="switch">
-                                            <input type="checkbox" 
-                                                <?= ($row['status'] == 1) ? 'checked' : '' ?> 
-                                                onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </td>
+                            <td>
+                                <div class="btn-action-group">
+                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
+                                    <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                                    <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
+                                    <label class="switch">
+                                        <input type="checkbox" 
+                                            <?= ($row['status'] == 1) ? 'checked' : '' ?> 
+                                            onchange="toggleProductStatus(<?= $row['id_produk'] ?>, this.checked, this)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </td>
                         </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="8">No products found.</td></tr>
+                        <tr><td colspan="8" style="text-align:center; color:#aaa; padding:20px;">No products found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
-            <!-- PAGINATION PRODUK -->
+            
             <div class="pagination-container">
-                <!-- Arrow Back -->
                 <?php if ($page_produk > 1): ?>
-                    <!-- Jika halaman lebih dari 1, tampilkan link yang bisa diklik -->
                     <a href="javascript:void(0)" onclick="loadProductPage(<?= $page_produk-1 ?>)" class="page-link">&lt;</a>
                 <?php else: ?>
-                    <!-- Jika halaman 1, tampilkan span disabled agar tombol tetap ada tapi tidak bisa diklik -->
                     <span class="page-link disabled">&lt;</span>
                 <?php endif; ?>
 
@@ -117,7 +114,6 @@ require_once 'components/fetch_dashboard.php';
                 }
                 ?>
 
-                <!-- Arrow Next -->
                 <?php if ($page_produk < $total_pages_produk): ?>
                     <a href="javascript:void(0)" onclick="loadProductPage(<?= $page_produk+1 ?>)" class="page-link">&gt;</a>
                 <?php else: ?>
@@ -126,28 +122,27 @@ require_once 'components/fetch_dashboard.php';
             </div>
         </div>
 
-            <div class="master-data-wrapper">
-                <div class="master-table-card" id="container-game">
-                    <?php include 'components/game_card.php'; ?>
-                </div>
+        <div class="master-data-wrapper">
+            <div class="master-table-card" id="container-game">
+                <?php include 'components/game_card.php'; ?>
+            </div>
 
-                <div class="master-table-card" id="container-set">
-                    <?php include 'components/set_card.php'; ?>
-                </div>
+            <div class="master-table-card" id="container-set">
+                <?php include 'components/set_card.php'; ?>
+            </div>
 
-                <div class="master-table-card" id="container-rarity">
-                    <?php include 'components/rarity_card.php'; ?>
-                </div>
+            <div class="master-table-card" id="container-rarity">
+                <?php include 'components/rarity_card.php'; ?>
+            </div>
 
-                <div class="master-table-card" id="container-metode">
-                    <?php include 'components/metode_card.php'; ?>
-                    </div>
+            <div class="master-table-card" id="container-metode">
+                <?php include 'components/metode_card.php'; ?>
             </div>
         </div>
+    </div>
 
     <?php include 'components/modal.php'; ?>
 
-    <!-- PENGGUNAAN TRIK CACHE BUSTING (?v=waktu_saat_ini) -->
     <script src="/cardhaven/interface/product/produk_script.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/set_script.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/rarity_script.js?v=<?= time() ?>"></script>
