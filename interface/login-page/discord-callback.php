@@ -4,8 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require __DIR__ . '/../../connection.php';
 
-$client_id     = ***REMOVED_DISCORD_ID***
-$client_secret = ***REMOVED_DISCORD_SECRET***
+
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/discord-callback.php";
 
 if (isset($_GET['code'])) {
