@@ -14,10 +14,9 @@
                 </a>
             </div>
             <div class="nav-profile" style="position: relative;"> 
-                <button class="sign-in-button" id="btn-sign" style="height: 60%; width: 35%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">
-                    <a class="coolveticaa" href="/CardHaven/register" style="color: white; font-size: 1rem;">
-                        Sign In
-                    </a>
+                <button onclick="window.location.replace('/CardHaven/register')" 
+                class="sign-in-button coolveticaa" id="btn-sign" style="height: 70%; width: 30%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
+                    Sign In
                 </button>
                 <div style="height: 100%; display: flex; align-items: center; gap: 0.75rem;">
                     <h3 class="coolveticaa" id="namaUser" style="color: var(--primary-color); font-size: 1.25rem; margin-right: 0.75rem;"></h3>
@@ -27,7 +26,7 @@
                     </div>
                     
                     <div style="height: 80%; aspect-ratio: 1/1; display: flex; align-items: center;">
-                        <a href="/cardhaven/interface/cart/index.php" style="height: 60%; aspect-ratio: 1/1; display: block;">
+                        <a href="/CardHaven/home/cart" style="height: 60%; aspect-ratio: 1/1; display: block;">
                             <img src="/cardhaven/assets/image/cart.svg" style="object-fit: cover; width: 100%; height: 100%; cursor: pointer;" title="Keranjang Belanja">
                         </a>
                     </div>

@@ -30,15 +30,10 @@ $baseUrl = '/CardHaven';
     </script>
 </head>
 <body>
-    <!-- Navbar Component -->
-    <!-- <?php include __DIR__ . '/../components/navBar.php'; ?> -->
-
+    <div style="height: 10rem;"></div>
     <div class="pd-container">
-        <!-- Main Product Section -->
         <div class="pd-main-section">
-            <!-- Left: Image -->
             <div class="pd-image-box">
-                <!-- Penyesuaian: Menggunakan folder /assets/image/products/ -->
                 <img id="detailFoto" src="<?= $baseUrl ?>/assets/image/products/placeholder.png" alt="Product Image">
             </div>
 
@@ -77,9 +72,9 @@ $baseUrl = '/CardHaven';
                     </div>
                     
                     <div class="pd-qty-selector">
-                        <button onclick="updateQty(-1)">−</button>
+                        <button id="subNumber" onclick="updateQty(-1)">−</button>
                         <span id="qtyValue">1</span>
-                        <button onclick="updateQty(1)">+</button>
+                        <button id="addNumber" onclick="updateQty(1)">+</button>
                     </div>
                 </div>
 
@@ -106,10 +101,11 @@ $baseUrl = '/CardHaven';
             </div>
 
             <div class="related-pagination">
-                <button class="page-arrow" onclick="prevRelatedPage()">‹</button>
-                <button class="page-arrow" onclick="nextRelatedPage()">›</button>
+                <button class="page-arrow" id="btnPrevRelated" onclick="prevRelatedPage()">‹</button>
+                <button class="page-arrow" id="btnNextRelated" onclick="nextRelatedPage()">›</button>
             </div>
         </div>
+        <?php include __DIR__ . '/../page-customer/footer.php' ?>
     </div>
 
     <!-- Script -->

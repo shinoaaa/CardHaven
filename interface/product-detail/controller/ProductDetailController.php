@@ -27,7 +27,12 @@ if ($action === 'get_detail') {
     }
 }
 elseif ($action === 'get_related') {
-    $id_game = $_GET['id_game'] ?? 0;
+    // Tangkap parameter, ubah teks 'null' dari fetch API jadi benar-benar nilai null/0
+    $id_game = $_GET['id_game'] ?? null;
+    if ($id_game === 'null' || $id_game === '') {
+        $id_game = null;
+    }
+    
     $id_produk = $_GET['id_produk'] ?? 0;
     
     // Panggil Stored Procedure

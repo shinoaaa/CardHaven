@@ -44,7 +44,6 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
     'response_type' => $response_type_facebook
 ]);
 ?>
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,17 +65,17 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
                     <div class="social-login">
                         <!-- Tombol Login Google -->
                         <a href="<?php echo $google_login_url; ?>" class="social-btn" style="display: flex; justify-content: center; align-items: center; text-decoration: none;">
-                            <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
+                            <img src="/cardhaven/assets/image/google.svg" alt="Google">
                         </a>
                         
                         <!-- Tombol Discord -->
                         <a href="<?php echo $discord_login_url; ?>" class="social-btn" style="display: flex; justify-content: center; align-items: center; text-decoration: none;">
-                            <img src="https://img.icons8.com/color/48/000000/discord-new.png" alt="Discord">
+                            <img src="/cardhaven/assets/image/discord.svg" alt="Discord">
                         </a>
                         
                         <!-- Tombol Facebook -->
                         <a href="<?php echo $facebook_login_url; ?>" class="social-btn" style="display: flex; justify-content: center; align-items: center; text-decoration: none;">
-                            <img src="https://img.icons8.com/color/48/000000/facebook-new.png" alt="Facebook">
+                            <img src="/cardhaven/assets/image/facebook.svg" alt="Facebook">
                         </a>
                     </div>
 

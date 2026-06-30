@@ -1902,6 +1902,7 @@ p.product-paragraf {
 .footer-community {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
 }
 
 .footer-community > h1 {

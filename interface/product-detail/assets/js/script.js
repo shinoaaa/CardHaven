@@ -10,6 +10,7 @@ console.log(productId);
 let currentProductPrice = 0;
 let currentQty = 1;
 let currentIdGame = null;
+let currentProductStock = 0;
 
 // State untuk Related Product
 let allRelatedProducts = [];
@@ -38,31 +39,34 @@ function fetchProductDetail() {
                 const prod = data.data;
                 currentProductPrice = parseFloat(prod.harga_jual);
                 currentIdGame = prod.id_game;
+                
+                // SIMPAN STOK KE VARIABEL GLOBAL (Pastikan di-parse ke Integer)
+                currentProductStock = parseInt(prod.stok) || 0;
+
+                // Jika stoknya 0, set currentQty jadi 0, jika tidak minimal 1
+                currentQty = currentProductStock > 0 ? 1 : 0;
+                document.getElementById('qtyValue').innerText = currentQty;
 
                 // Bind ke DOM
                 document.getElementById('detailNama').innerText = prod.nama_produk;
                 document.getElementById('detailStok').innerText = prod.stok;
-                document.getElementById('detailGame').innerText = 'Game ' + prod.id_game;
+                document.getElementById('detailGame').innerText = prod.nama_game || 'General';
                 document.getElementById('detailType').innerText = prod.tipe_produk || 'Card';
                 document.getElementById('detailKondisi').innerText = prod.kondisi || 'Near Mint';
                 document.getElementById('detailDeskripsi').innerText = prod.deskripsi;
-                document.getElementById('detailHarga').innerText = '$' + currentProductPrice.toLocaleString('en-US');
+                document.getElementById('detailHarga').innerText = 'Rp.' + currentProductPrice.toLocaleString('en-US');
                 
                 if (prod.foto) {
                     let fotoPath = prod.foto;
-                    // Jika foto mengandung path lengkap (image-profile atau assets)
                     if (fotoPath.includes('image-profile/') || fotoPath.includes('assets/')) {
                         document.getElementById('detailFoto').src = `${base}/${fotoPath}`;
                     } else {
-                        // Jika hanya berupa nama file produk biasa, arahkan ke folder products
                         document.getElementById('detailFoto').src = `${base}/assets/image/products/${fotoPath}`;
                     }
                 } else {
-                    // Fallback jika produk tidak memiliki foto sama sekali
                     document.getElementById('detailFoto').src = `${base}/image-profile/defaultProduct.jpg`;
                 }
 
-                // Panggil Related Product setelah tahu gamenya apa
                 fetchRelatedProducts();
             } else {
                 cardhavenAlert('error', 'Not Found', 'Product not found.');
@@ -77,7 +81,9 @@ function fetchRelatedProducts() {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                allRelatedProducts = data.data;
+                // DOUBLE PROTECTION: Filter out produk ini sendiri dari array (Pastikan tipe datanya sama dengan == )
+                allRelatedProducts = data.data.filter(item => item.id_produk != productId);
+                
                 renderRelatedProducts();
             }
         });
@@ -86,6 +92,34 @@ function fetchRelatedProducts() {
 function renderRelatedProducts() {
     const grid = document.getElementById('relatedGrid');
     grid.innerHTML = '';
+
+    // Hitung total halaman
+    const totalPages = Math.ceil(allRelatedProducts.length / relatedLimit);
+
+    // --- LOGIKA OPACITY TOMBOL PAGINATION ---
+    const btnPrev = document.getElementById('btnPrevRelated');
+    const btnNext = document.getElementById('btnNextRelated');
+
+    if (btnPrev && btnNext) {
+        // Cek Tombol Prev (Jika di page 1)
+        if (currentRelatedPage <= 1) {
+            btnPrev.style.opacity = '0.3';
+            btnPrev.style.cursor = 'default';
+        } else {
+            btnPrev.style.opacity = '1';
+            btnPrev.style.cursor = 'pointer';
+        }
+
+        // Cek Tombol Next (Jika di page terakhir atau datanya kosong)
+        if (currentRelatedPage >= totalPages || totalPages === 0) {
+            btnNext.style.opacity = '0.3';
+            btnNext.style.cursor = 'default';
+        } else {
+            btnNext.style.opacity = '1';
+            btnNext.style.cursor = 'pointer';
+        }
+    }
+    // ----------------------------------------
 
     const startIndex = (currentRelatedPage - 1) * relatedLimit;
     const itemsToShow = allRelatedProducts.slice(startIndex, startIndex + relatedLimit);
@@ -96,7 +130,6 @@ function renderRelatedProducts() {
     }
 
     itemsToShow.forEach(item => {
-        // Tentukan path gambar terkait secara dinamis dan aman
         let relFotoPath = item.foto || 'image-profile/defaultProduct.jpg';
         let relFotoSrc = '';
         
@@ -109,13 +142,10 @@ function renderRelatedProducts() {
         const card = document.createElement('div');
         card.className = 'rel-card';
         card.innerHTML = `
-            <div class="rel-icon-badge">
-                <img src="${base}/assets/image/cart.svg" alt="icon">
-            </div>
             <img src="${relFotoSrc}" class="rel-image" alt="Related">
             <div class="rel-title-row">
                 <h4 class="rel-title">${item.nama_produk}</h4>
-                <span class="rel-game">Pokemon</span>
+                <span class="rel-game">${item.nama_game || 'General'}</span>
             </div>
             <p class="rel-price">Price: Rp${parseFloat(item.harga_jual).toLocaleString('id-ID')}</p>
             <button class="btn-check-detail" onclick="window.goToDetail(${item.id_produk})">Check Detail</button>
@@ -137,10 +167,28 @@ function prevRelatedPage() {
     }
 }
 
-// 3. Logic Quantity
+// 3. Logic Quantity dengan Limit Stok
 function updateQty(change) {
-    currentQty += change;
-    if (currentQty < 1) currentQty = 1;
+    // Jika stok sedang kosong, tidak bisa nambah atau kurang
+    if (currentProductStock === 0) {
+        cardhavenAlert('warning', 'Out of Stock', 'Maaf, stok produk ini sedang kosong.');
+        return;
+    }
+
+    let newQty = currentQty + change;
+
+    // Cek batas bawah (minimal 1)
+    if (newQty < 1) {
+        newQty = 1;
+    }
+    
+    // Cek batas atas (maksimal = stok)
+    if (newQty > currentProductStock) {
+        newQty = currentProductStock;
+        cardhavenAlert('info', 'Stock Limit', `You can only add ${currentProductStock} product.`);
+    }
+
+    currentQty = newQty;
     document.getElementById('qtyValue').innerText = currentQty;
 }
 
@@ -164,7 +212,7 @@ function addToCart() {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Berhasil', 'Produk berhasil ditambahkan ke keranjang!');
+            cardhavenAlert('success', 'Success', 'Successfully add product to cart!');
         } else {
             cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }

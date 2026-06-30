@@ -5,7 +5,6 @@ $baseUrl = '/CardHaven';
 
 <div class="home-container">
     <div class="hero-wrapper scroll-area">
-        <div style="width: 5px; height: 3.5rem;"></div>
 
         <div class="hero-section">
             <div class="hero-desc">

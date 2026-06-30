@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 data.list_product.forEach(prod => {
                     const safeDesc = prod.deskripsi ? prod.deskripsi : '';
                     const limitDesc = safeDesc.length > 80 ? safeDesc.substring(0, 80) + '...' : safeDesc;
-                    const gameName = prod.nama_game ? prod.nama_game : '-';
+                    const gameName = prod.nama_game ? prod.nama_game : 'General';
                     
                     // Jika data foto hanya berupa nama file, arahkan ke folder produk
                     let prodPath = prod.foto;
@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const cardHTML = `
                     <div class="product-card">
                         <div style="width: 47%; display: flex; align-items: center; justify-content: center;">
-                            <div style="width: 90%; height: 70%; border-radius: 0.5rem; overflow: hidden;">
+                            <div style="width: 15rem; height: 20rem; border-radius: 0.5rem; overflow: hidden;">
                                 <img src="${fotoSrc}" style="height: 100%; object-fit: contain;">
                             </div>
                         </div>
@@ -355,7 +355,7 @@ window.addToCart = function(idProduk, harga) {
 
     // Cek Login
     if (!userId || userId === "0") {
-        alert("Silahkan login terlebih dahulu!");
+        cardhavenAlert('success', 'Berhasil', `${qty} item ditambahkan ke keranjang!`);
         window.location.href = "/CardHaven/interface/login-page/";
         return;
     }
@@ -376,7 +376,7 @@ window.addToCart = function(idProduk, harga) {
     .then(res => {
         if (res.success) {
             // Jika pakai SweetAlert (cardhavenAlert)
-            cardhavenAlert('success', 'Berhasil', 'Produk ditambahkan ke keranjang!');
+            cardhavenAlert('success', 'Success', 'Produk added to cart!');
         } else {
             alert("Gagal: " + res.message);
         }
@@ -407,7 +407,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     const qty = parseInt(document.getElementById(`qty-val-${idProduk}`).textContent);
 
     if (!userId || userId === "0") {
-        alert("Silahkan login terlebih dahulu");
+        cardhavenAlert('error', 'Failed', `Failed to add product to cart, please login first!`);
         return;
     }
 

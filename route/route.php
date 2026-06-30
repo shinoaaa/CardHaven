@@ -22,10 +22,7 @@ else if ($segments[0] === 'settingaccount') {
 } 
 else if ($segments[0] === 'profilepage') {
     include '../CardHaven/interface/page-profile/index.php';
-} 
-else if ($segments[0] === 'productdetail') {
-    include '../CardHaven/interface/page-customer/index.php';
-} 
+}
 
 
 else {
