@@ -27,7 +27,7 @@ function loadCart() {
             renderCart(data);
         })
         .catch(err => {
-            console.error('Gagal memuat keranjang:', err);
+            console.error('Failed to load cart:', err);
             showError();
             cardhavenAlert('error', 'Connection Error', 'Failed to load cart items from server.');
         });

@@ -391,7 +391,7 @@ window.addToCart = function(idProduk, harga) {
             // Jika pakai SweetAlert (cardhavenAlert)
             cardhavenAlert('success', 'Success', 'Product added to cart!');
         } else {
-            alert("Gagal: " + res.message);
+            alert("Failed: " + res.message);
         }
     })
     .catch(err => console.error("Error add to cart:", err));

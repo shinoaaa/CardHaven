@@ -23,7 +23,7 @@ if ($action !== '') {
                 case 'kirim':
                     $no_resi = trim($body['no_resi'] ?? '');
                     if ($no_resi === '') { 
-                        echo json_encode(['status' => 'error', 'message' => 'No resi wajib diisi']); exit; 
+                        echo json_encode(['status' => 'error', 'message' => 'Tracking number is required']); exit;
                     }
                     $ok = $ctrl->kirimOrder($id, $modified_by, $no_resi);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;

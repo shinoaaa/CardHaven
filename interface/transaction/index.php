@@ -299,7 +299,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                 </div>
 
                 <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" placeholder="Cari username or ID order..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
+                    <input class="trx-search-input" type="text" placeholder="Search username or order ID..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
                 </div>
 
                 <table class="styled-table">

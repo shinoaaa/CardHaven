@@ -9,7 +9,7 @@ $action = $_REQUEST['action'] ?? '';
 $id_sekarang = (int)($_REQUEST['idpengguna'] ?? 0);
 
 if ($id_sekarang === 0) {
-    echo json_encode(['success' => false, 'message' => 'ID Pengguna tidak valid atau tidak ditemukan.']);
+    echo json_encode(['success' => false, 'message' => 'Invalid or missing user ID.']);
     exit;
 }
 

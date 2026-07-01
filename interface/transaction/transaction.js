@@ -119,7 +119,7 @@ async function openDetailModal(id_penjualan) {
                 <img src="/CardHaven/image-profile/${h.bukti_pembayaran}"
                     style="max-width:180px;max-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,.15);object-fit:cover;cursor:pointer;">
                </a>`
-            : `<span style="opacity:.45;font-size:.8rem;">Belum ada bukti</span>`;
+            : `<span style="opacity:.45;font-size:.8rem;">No proof yet</span>`;
 
         // Item rows
         const itemsHtml = (data.items || []).map(item => `

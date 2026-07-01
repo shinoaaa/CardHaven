@@ -78,7 +78,7 @@ function isValidPhone(phone) {
 function submitEditCustomer() {
     const phone = (document.getElementById('editNoTelp')?.value || '').trim();
     if (phone && !isValidPhone(phone)) {
-        Swal.fire('Invalid Phone', 'Nomor telepon tidak valid. Gunakan hanya angka (8–15 digit).', 'error');
+        Swal.fire('Invalid Phone', 'Invalid phone number. Use digits only (8–15 digits).', 'error');
         return;
     }
 

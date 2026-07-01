@@ -65,13 +65,13 @@ function loadUserInfo() {
                 document.getElementById('field-phone').value = userData.no_telepon || '';
                 checkCanOrder();
             } else {
-                showAlert('checkout', data.message || 'Gagal memuat info pengguna.', 'error');
+                showAlert('checkout', data.message || 'Failed to load user info.', 'error');
             }
         })
         .catch(err => {
             const msg = err.name === 'AbortError'
-                ? 'Koneksi timeout saat memuat info pengguna. Coba refresh halaman.'
-                : 'Gagal memuat info pengguna. Coba refresh halaman.';
+                ? 'Connection timed out while loading user info. Please refresh the page.'
+                : 'Failed to load user info. Please refresh the page.';
             showAlert('checkout', msg, 'error');
             console.error(err);
         });

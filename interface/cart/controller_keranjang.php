@@ -9,14 +9,14 @@ ob_start();
 try {
     require_once '../../connection.php';
     if (!isset($conn) || !is_resource($conn)) {
-        throw new Exception("Koneksi database tidak valid.");
+        throw new Exception("Invalid database connection.");
     }
 
     $id_pengguna = (int)($_POST['id_pengguna_js'] ?? ($_GET['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0)));
     $action      = $_POST['action'] ?? ($_GET['action'] ?? '');
 
     if ($id_pengguna === 0) {
-        throw new Exception("Unauthorized access. Sesi tidak ditemukan.");
+        throw new Exception("Unauthorized access. Session not found.");
     }
 
     // =====================================
@@ -50,7 +50,7 @@ try {
         $id_produk = (int)($_POST['id_produk'] ?? 0);
         $harga     = (float)($_POST['harga_produk'] ?? 0);
         $qty       = max(1, (int)($_POST['jumlah'] ?? 1));
-        if ($id_produk <= 0) throw new Exception("Produk tidak valid.");
+        if ($id_produk <= 0) throw new Exception("Invalid product.");
 
         // Ambil / buat header keranjang
         $rk = sqlsrv_query($conn, "SELECT id_keranjang FROM dbo.keranjang WHERE id_pengguna = ?", [$id_pengguna]);
@@ -68,9 +68,9 @@ try {
         $rp = sqlsrv_query($conn, "SELECT stok, harga_jual FROM dbo.produk WHERE id_produk = ?", [$id_produk]);
         if ($rp === false) throw new Exception(sqlsrv_errors()[0]['message']);
         $prod = sqlsrv_fetch_array($rp, SQLSRV_FETCH_ASSOC);
-        if (!$prod) throw new Exception("Produk tidak ditemukan.");
+        if (!$prod) throw new Exception("Product not found.");
         $stok = (int)$prod['stok'];
-        if ($stok <= 0) throw new Exception("Produk sedang habis.");
+        if ($stok <= 0) throw new Exception("This product is out of stock.");
         if ($qty > $stok) $qty = $stok;
         if ($harga <= 0) $harga = (float)$prod['harga_jual'];
 
@@ -127,7 +127,7 @@ try {
         exit;
     }
 
-    throw new Exception("Action tidak dikenali.");
+    throw new Exception("Unrecognized action.");
 
 } catch (Throwable $e) {
     ob_clean();

@@ -49,12 +49,12 @@ elseif ($action === 'updateProfile') {
         $allowed  = ['jpg', 'jpeg', 'png', 'webp'];
 
         if (!in_array($ext, $allowed)) {
-            echo json_encode(['status' => 'error', 'msg' => 'Format foto tidak didukung (jpg/png/webp)']);
+            echo json_encode(['status' => 'error', 'msg' => 'Unsupported photo format (jpg/png/webp)']);
             exit;
         }
 
         if ($file['size'] > 2 * 1024 * 1024) { // Maks 2MB
-            echo json_encode(['status' => 'error', 'msg' => 'Ukuran foto maksimal 2MB']);
+            echo json_encode(['status' => 'error', 'msg' => 'Maximum photo size is 2MB']);
             exit;
         }
 
@@ -68,7 +68,7 @@ elseif ($action === 'updateProfile') {
         }
 
         if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            echo json_encode(['status' => 'error', 'msg' => 'Gagal menyimpan foto']);
+            echo json_encode(['status' => 'error', 'msg' => 'Failed to save photo']);
             exit;
         }
 

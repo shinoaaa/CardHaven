@@ -101,7 +101,7 @@ switch ($action) {
                 $errors = sqlsrv_errors();
                 echo json_encode([
                     "status" => "error", 
-                    "message" => "Terjadi kesalahan pada Database.", 
+                    "message" => "A database error occurred.",
                     "debug" => $errors // Ini akan membantu melacak penyebab pasti error
                 ]);
                 exit;
@@ -114,7 +114,7 @@ switch ($action) {
             
             echo json_encode(["status" => "success", "data" => $data]);
         } catch (Exception $e) {
-            echo json_encode(["status" => "error", "message" => "Gagal memuat detail: " . $e->getMessage()]);
+            echo json_encode(["status" => "error", "message" => "Failed to load details: " . $e->getMessage()]);
         }
         break;
     case 'export_excel':
@@ -126,7 +126,7 @@ switch ($action) {
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
         
         echo "<table border='1'>";
-        echo "<tr><th>No</th><th>Tanggal</th><th>Customer</th><th>Daftar Kartu</th><th>Total Pcs</th><th>Total Harga</th></tr>";
+        echo "<tr><th>No</th><th>Date</th><th>Customer</th><th>Card List</th><th>Total Pcs</th><th>Total Price</th></tr>";
         
         $no = 1;
         foreach ($data as $row) {
@@ -149,7 +149,7 @@ switch ($action) {
         if (file_exists($tcpdf_path)) {
             require_once($tcpdf_path);
         } else {
-            die("Error: File TCPDF tidak ditemukan di " . $tcpdf_path);
+            die("Error: TCPDF file not found at " . $tcpdf_path);
         }
 
         if (ob_get_length()) ob_end_clean();
