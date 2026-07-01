@@ -194,16 +194,12 @@ function changePage(page) {
 }
 
 function exportReport(type) {
-    let tahunRaw = document.getElementById('filterTahun').value;
-    const tahun = tahunRaw ? parseInt(tahunRaw) : 0;
-    const bulan = document.getElementById('filterBulan').value;
-    
-
+    const tahun = document.getElementById('filterTahun').value || 0;
+    const bulan = document.getElementById('filterBulan').value || 0;
     const search = document.getElementById('searchReport').value.trim();
     
-    const activeSortOrder = sortBy === 'DATE' ? sortOrderDate : sortOrderPrice;
-    
-    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${sortBy}&sort_order=${activeSortOrder}&role=${userRole}`;
+    // Gunakan variabel urutan yang baru
+    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${currentSortBy}&sort_order=${currentSortOrder}&role=${userRole}`;
     
     window.open(url, '_blank');
 }
