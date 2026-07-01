@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Login Gagal',
+                            title: 'Login Failed',
                             text: data.message,
                             confirmButtonColor: '#E74C3C',
                             customClass: { title: 'coolveticaa' }
@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         } else if (data.target === "confirm_password") {
                             showError(forgotConfirmPasswordInput, forgotErrorConfirmPassword, data.message);
                         } else {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
+                            Swal.fire({ icon: 'error', title: 'Failed', text: data.message, confirmButtonColor: '#E74C3C', customClass: { title: 'coolveticaa' } });
                         }
                     }
                 } catch (jsonError) {

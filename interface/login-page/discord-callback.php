@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require __DIR__ . '/../../connection.php';
 
-$client_id     = ***REMOVED_DISCORD_ID***
-$client_secret = ***REMOVED_DISCORD_SECRET***
+$client_id;
+$client_secret;
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/discord-callback.php";
 
 if (isset($_GET['code'])) {
@@ -65,7 +65,7 @@ if (isset($_GET['code'])) {
             $stmt = sqlsrv_prepare($conn, $sql, $params);
             
             if (!$stmt || !sqlsrv_execute($stmt)) {
-                die("Gagal mengeksekusi pemeriksaan akun.");
+                die("Failed to perform the account check.");
             }
 
             $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -88,7 +88,7 @@ if (isset($_GET['code'])) {
                     $inserted_user = sqlsrv_fetch_array($insert_stmt, SQLSRV_FETCH_ASSOC);
                     $id_pengguna = $inserted_user['id_pengguna'];
                 } else {
-                    die("Pendaftaran otomatis akun Discord gagal.");
+                    die("Automatic Discord account registration failed.");
                 }
             }
 
@@ -144,12 +144,12 @@ if (isset($_GET['code'])) {
             <?php
             exit;
         } else {
-            echo "Email Discord Anda tidak ditemukan atau belum terverifikasi. Silakan verifikasi email Anda terlebih dahulu di aplikasi Discord.";
+            echo "Your Discord email address was not found or has not been verified. Please verify your email address first in the Discord app.";
         }
     } else {
-        echo "Gagal menukar kode autentikasi dari Discord.";
+        echo "Failed to exchange the authentication code from Discord.";
     }
 } else {
-    echo "Callback tidak valid.";
+    echo "Invalid callback.";
 }
 ?>

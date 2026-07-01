@@ -27,7 +27,7 @@
                     
                     <div style="height: 80%; aspect-ratio: 1/1; display: flex; align-items: center;">
                         <a href="/CardHaven/home/cart" style="height: 60%; aspect-ratio: 1/1; display: block;">
-                            <img src="/cardhaven/assets/image/cart.svg" style="object-fit: cover; width: 100%; height: 100%; cursor: pointer;" title="Keranjang Belanja">
+                            <img src="/cardhaven/assets/image/cart.svg" style="object-fit: cover; width: 100%; height: 100%; cursor: pointer;" title="Shopping Cart">
                         </a>
                     </div>
                 </div>

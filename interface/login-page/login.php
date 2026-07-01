@@ -41,7 +41,7 @@ try {
 
         if (!sqlsrv_execute($stmt)) {
             $errors = sqlsrv_errors();
-            echo json_encode(["status" => "error", "target" => "general", "message" => "Eksekusi Query Gagal: " . $errors[0]['message']]);
+            echo json_encode(["status" => "error", "target" => "general", "message" => "Query Execution Failed: " . $errors[0]['message']]);
             exit;
         }
 

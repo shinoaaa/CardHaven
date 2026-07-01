@@ -111,7 +111,7 @@
             <!-- meta row -->
             <div style="display:flex; gap:48px; margin-bottom:12px; font-family:Inter,sans-serif;">
                 <div>
-                    <p style="color:#7e7e7e; font-size:16px; margin:0 0 2px;">Stok:</p>
+                    <p style="color:#7e7e7e; font-size:16px; margin:0 0 2px;">Stock:</p>
                     <p id="detail-stok" style="color:#0f3891; font-size:20px; font-weight:700; margin:0;"></p>
                 </div>
                 <div>
@@ -126,7 +126,7 @@
 
             <!-- kondisi -->
             <p style="font-family:Inter,sans-serif; font-size:16px; margin:0 0 6px;">
-                <strong style="color:#0f3891;">Kondisi :</strong>
+                <strong style="color:#0f3891;">Condition :</strong>
                 <span id="detail-kondisi" style="color:#7e7e7e;"></span>
             </p>
 

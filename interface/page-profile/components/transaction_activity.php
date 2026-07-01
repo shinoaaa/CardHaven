@@ -105,7 +105,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="7" style="text-align: center;">No Buy Back records yet.</td></tr>
+                    <tr><td colspan="7" style="text-align: center;">No BuyBack records yet.</td></tr>
                 </tbody>
             </table>
         </div>

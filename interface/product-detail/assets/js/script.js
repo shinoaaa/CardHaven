@@ -171,7 +171,7 @@ function prevRelatedPage() {
 function updateQty(change) {
     // Jika stok sedang kosong, tidak bisa nambah atau kurang
     if (currentProductStock === 0) {
-        cardhavenAlert('warning', 'Out of Stock', 'Maaf, stok produk ini sedang kosong.');
+        cardhavenAlert('warning', 'Out of Stock', 'This product is currently out of stock.');
         return;
     }
 
@@ -214,12 +214,12 @@ function addToCart() {
         if (res.status === 'success') {
             cardhavenAlert('success', 'Success', 'Successfully add product to cart!');
         } else {
-            cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
+            cardhavenAlert('error', 'Error', res.msg || 'Failed to add product to cart.');
         }
     })
     .catch(err => {
         console.error(err);
-        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
+        cardhavenAlert('error', 'System Error', 'A system error has occurred.');
     });
 }
 
@@ -234,5 +234,5 @@ function checkoutProduct() {
         cardhavenAlert('error', 'Authentication Required', 'Please login to proceed.');
         return;
     }
-    cardhavenAlert('info', 'Checkout Process', 'Melanjutkan ke checkout dengan ' + currentQty + ' item. (Fitur WIP)');
+    cardhavenAlert('info', 'Checkout Process', 'Proceeding to checkout with ' + currentQty + ' item(s). (Feature under development)');
 }

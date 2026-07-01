@@ -150,7 +150,7 @@ if (!kode.value.trim()) {
 };
 
 function toggleSetStatus(id, isActive, el) {
-    const action = isActive ? 'aktifkan' : 'nonaktifkan';
+    const action = isActive ? 'activate' : 'deactivate';
     const label  = isActive ? 'activated' : 'deactivated';
 
     cardhavenConfirm(

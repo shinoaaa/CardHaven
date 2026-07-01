@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         fetch(urlController)
             .then(response => {
-                if (!response.ok) throw new Error("Gagal terhubung ke server");
+                if (!response.ok) throw new Error("Failed to connect to the server");
                 return response.json();
             })
             .then(data => {
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 updateTampilan(data);
             })
-            .catch(error => console.error("Waduh, gagal fetch data:", error));
+            .catch(error => console.error("Failed to fetch data", error));
     }
 
     function updateTampilan(data) {
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             }
             else {
-                promoContainer.innerHTML = '<span style="color: white; text-align: center; display: block; width: 100%;">Belum ada event promo saat ini</span>';
+                promoContainer.innerHTML = '<span style="color: white; text-align: center; display: block; width: 100%;">There are no promotional events at this time</span>';
             }
         }
 
@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     gameBarContainer.appendChild(aNav);
                 });
             } else {
-                gameBarContainer.innerHTML = '<span>Tidak ada game</span>';
+                gameBarContainer.innerHTML = '<span>There are no games here</span>';
             }
         }
 
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     gameCardContainer.innerHTML += cardHTML;
                 });
             } else {
-                gameCardContainer.innerHTML = '<span style="color: white;">Tidak ada game tersedia</span>';
+                gameCardContainer.innerHTML = '<span style="color: white;">No games are available</span>';
             }
         }
 
@@ -355,7 +355,7 @@ window.addToCart = function(idProduk, harga) {
 
     // Cek Login
     if (!userId || userId === "0") {
-        cardhavenAlert('success', 'Berhasil', `${qty} item ditambahkan ke keranjang!`);
+        cardhavenAlert('success', 'Success', `${qty} the item has been added to your cart!`);
         window.location.href = "/CardHaven/interface/login-page/";
         return;
     }
@@ -376,7 +376,7 @@ window.addToCart = function(idProduk, harga) {
     .then(res => {
         if (res.success) {
             // Jika pakai SweetAlert (cardhavenAlert)
-            cardhavenAlert('success', 'Success', 'Produk added to cart!');
+            cardhavenAlert('success', 'Success', 'Product added to cart!');
         } else {
             alert("Gagal: " + res.message);
         }
@@ -444,7 +444,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     .then(res => res.json())
     .then(res => {
         if (res.success) {
-            cardhavenAlert('success', 'Berhasil', `${qty} item ditambahkan ke keranjang!`);
+            cardhavenAlert('success', 'Success', `${qty} Product added to cart!`);
             // Reset qty ke 1 setelah berhasil
             document.getElementById(`qty-val-${idProduk}`).textContent = 1;
             document.getElementById(`display-price-${idProduk}`).textContent = formatRupiah(hargaSatuan);

@@ -14,7 +14,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keranjang Belanja - CardHaven</title>
+    <title>Shopping Cart - CardHaven</title>
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <style>
         .main-content {
