@@ -130,8 +130,8 @@ function renderTable() {
             <td style="white-space:nowrap;">${tanggal}</td>
             <td style="font-weight:600;">${row.nama_customer}</td>
             <td><div class="card-list-cell">${row.daftar_kartu || '-'}</div></td>
-            <td style="text-align:center; font-weight:600;">${row.total_barang} Pcs</td>
-            <td style="text-align:right; font-weight:700; color:var(--primary-color);">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
+            <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
+            <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
         </tr>`;
         tbody.innerHTML += tr;
     });
