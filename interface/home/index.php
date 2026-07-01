@@ -241,5 +241,6 @@ $baseUrl = '/CardHaven';
 </script>
 <script src="<?= $baseUrl ?>/interface/global_alert.js"></script>
 <script src="<?= $baseUrl ?>/interface/home/script.js"></script>
+<script src="<?= $baseUrl ?>/interface/home/swipe.js"></script>
 <script src="<?= $baseUrl ?>/interface/event-transaction/script.js"></script>
 <script src="<?= $baseUrl ?>/interface/preorder-transaction/script.js"></script>

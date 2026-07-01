@@ -110,6 +110,13 @@ session_start();
         .summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: var(--text-gray, #666); }
         .summary-row .summary-value { font-weight: 700; color: var(--text-dark, #111); }
         .summary-row .summary-value.free { color: #16a34a; }
+        /* Itemized breakdown in order summary */
+        .summary-items { display: flex; flex-direction: column; gap: 10px; max-height: 260px; overflow-y: auto; }
+        .summary-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-size: 0.82rem; }
+        .summary-item-name { color: var(--text-dark, #111); font-weight: 600; line-height: 1.3; }
+        .summary-item-qty { color: var(--text-gray, #888); font-weight: 500; }
+        .summary-item-price { font-weight: 700; color: var(--primary-color, #1a3a6b); white-space: nowrap; }
+        .summary-items-empty { font-size: 0.82rem; color: #888; text-align: center; padding: 6px 0; }
         .summary-divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
         .summary-total-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #f0f4ff; border-top: 1.5px solid #dde4f8; }
         .summary-total-label { font-size: 0.9rem; font-weight: 800; color: var(--text-dark, #111); text-transform: uppercase; }
@@ -184,9 +191,9 @@ session_start();
                     <div class="order-summary-box">
                         <div class="summary-header"><h2>Order Summary</h2></div>
                         <div class="summary-body">
-                            <div class="summary-row"><span>Subtotal</span><span class="summary-value" id="subtotal-display">Rp 0</span></div>
+                            <div id="summary-items" class="summary-items"></div>
                             <div class="summary-divider"></div>
-                            <div class="summary-row"><span>Shipping</span><span class="summary-value free">Free</span></div>
+                            <div class="summary-row"><span>Subtotal</span><span class="summary-value" id="subtotal-display">Rp 0</span></div>
                         </div>
                         <div class="summary-total-row">
                             <span class="summary-total-label">Total</span>

@@ -253,25 +253,27 @@ function openDetailModal(id_pembelian) {
             const isFinal = FINAL_STATUSES.includes(parseInt(pem.status_pembelian));
             const isNegotiating = pem.status_pembelian == 2;
 
-            // Tracking per-kartu untuk logika footer
-            let allDecided = true;   // semua kartu sudah di-accept atau di-counter → aktifkan footer
-            let hasCounter = false;  // ada kartu yang di-counter → footer = Submit ke admin
-            // allDecided && !hasCounter → semua accept → Proceed to Shipping
-            // allDecided && hasCounter  → ada counter   → Submit Counter Offers
-            // !allDecided               → masih pending  → footer disable
+            // Tracking per-kartu untuk logika footer (status Price Negotiation)
+            let anyPending      = false; // admin sudah menawar → menunggu keputusan customer (accept/counter)
+            let anyWaitingAdmin = false; // customer sudah counter / admin belum menawar → menunggu admin
+            let allAgreed       = true;  // semua kartu harganya sudah disepakati
 
             data.kartu.forEach(k => {
                 const adminHasOffer = k.penawaran_admin != null;
                 const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isPending     = isNegotiating && adminHasOffer && !priceMatch;
                 const isAgreed      = adminHasOffer && priceMatch;
-                
+                // Setelah customer counter, SP meng-set penawaran_admin = NULL → menunggu admin
+                const isWaitingAdmin = isNegotiating && !adminHasOffer;
+
                 // Menghitung percobaan murni (Submit awal tidak dihitung)
                 let actualAttempts = Math.max(0, parseInt(k.percobaan_penawaran) - 1);
                 const maxAttempts  = actualAttempts >= 3;
 
                 if (isNegotiating) {
-                    if (isPending) allDecided = false; 
+                    if (isPending)      anyPending = true;
+                    if (isWaitingAdmin) anyWaitingAdmin = true;
+                    if (!isAgreed)      allAgreed = false;
                 }
 
                 let adminOfferLabel;
@@ -345,7 +347,6 @@ function openDetailModal(id_pembelian) {
             // Jadi saat status == 2, SEMUA kartu yang sudah "respond" akan match (karena counter sudah di-submit round sebelumnya).
             // Yang belum respond = isPending. Jika allDecided, berarti semua sudah accept di round ini.
             // Jadi: allDecided && status == 2 → semua accept di round ini → Proceed to Shipping
-            hasCounter = !allDecided; // sudah tidak relevan di footer logic baru di bawah
 
             // Tampilkan foto bukti bayar jika ada (Status 7)
             if (pem.bukti_pembayaran) {
@@ -377,14 +378,14 @@ function openDetailModal(id_pembelian) {
             let footerHtml = '';
             
             if (pem.status_pembelian == 2) {
-                if (!allDecided) {
-                    // Masih ada kartu yang belum direspons → footer disable
+                if (anyPending) {
+                    // Masih ada tawaran admin yang belum direspons customer → footer disable
                     footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
-                } else {
-                    // Semua kartu sudah di-accept (semua match) → lanjut ke shipping
-                    // Jika ada yang di-counter, SP customer_negotiate_item sudah update penawaran_customer
-                    // dan status akan ke 1 (Under Review) otomatis via SP.
-                    // Jadi di sini yang tersisa hanya kasus semua accept.
+                } else if (anyWaitingAdmin) {
+                    // Customer sudah counter offer → harus menunggu jawaban admin dulu
+                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.5; cursor:not-allowed;" title="Please wait for the admin to respond to your counter offer">⏳ Waiting for Admin Response</button>`;
+                } else if (allAgreed) {
+                    // Semua kartu sudah disepakati harganya → lanjut ke shipping
                     footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
                 }
             } else if (pem.status_pembelian == 3) {

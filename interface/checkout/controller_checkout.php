@@ -9,7 +9,7 @@ $action = $_REQUEST['action'] ?? '';
 $id_sekarang = (int)($_REQUEST['idpengguna'] ?? 0);
 
 if ($id_sekarang === 0) {
-    echo json_encode(['success' => false, 'message' => 'ID Pengguna tidak valid atau tidak ditemukan.']);
+    echo json_encode(['success' => false, 'message' => 'Invalid or missing user ID.']);
     exit;
 }
 
@@ -37,6 +37,22 @@ try {
             $total_barang = (int)($_POST['total_barang'] ?? 0);
 
             if (!$id_metode || empty($alamat)) throw new Exception("Please select a payment method and provide your full address.");
+
+            // Guard: pastikan keranjang punya item terpilih. Tanpa ini, menekan
+            // "Place Order" ulang (mis. setelah back/undo) akan membuat order kosong
+            // ("bisa bayar lagi") karena sp_PlaceOrder tetap meng-INSERT header penjualan.
+            $chk = sqlsrv_query(
+                $conn,
+                "SELECT COUNT(*) AS n
+                   FROM dbo.detail_keranjang dk
+                   INNER JOIN dbo.keranjang k ON dk.id_keranjang = k.id_keranjang
+                  WHERE k.id_pengguna = ? AND dk.is_selected = 1",
+                [$id_sekarang]
+            );
+            $selectedCount = $chk ? (int)(sqlsrv_fetch_array($chk, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+            if ($selectedCount === 0) {
+                throw new Exception("Your cart is empty or this order was already placed.");
+            }
 
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_PlaceOrder(?, ?, ?, ?, ?)}", [$id_sekarang, $id_metode, $alamat, $total_harga, $total_barang]);
             if (!$stmt) throw new Exception(sqlsrv_errors()[0]['message']);

@@ -16,7 +16,7 @@ const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem
 
 function openPreOrderEvent(id_event) {
     if (!id_event) {
-        console.error("ID Event tidak ditemukan!");
+        console.error("Event ID not found!");
         return;
     }
     

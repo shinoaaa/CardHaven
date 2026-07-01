@@ -68,7 +68,20 @@ function closeEditModal() {
     document.getElementById('editFoto').value = '';
 }
 
+// Nomor telepon valid: hanya angka/spasi/+ - ( ), diawali angka atau '+',
+// dan minimal 8 digit. Menolak input yang hanya karakter unik/spesial.
+function isValidPhone(phone) {
+    const digits = (phone.match(/\d/g) || []).length;
+    return /^\+?[0-9][0-9\s\-()]*$/.test(phone) && digits >= 8 && digits <= 15;
+}
+
 function submitEditCustomer() {
+    const phone = (document.getElementById('editNoTelp')?.value || '').trim();
+    if (phone && !isValidPhone(phone)) {
+        Swal.fire('Invalid Phone', 'Invalid phone number. Use digits only (8–15 digits).', 'error');
+        return;
+    }
+
     cardhavenConfirm(
         "Update Account",
         "Are you sure you want to update your profile data?",
