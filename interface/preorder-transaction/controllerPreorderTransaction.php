@@ -172,7 +172,7 @@ switch ($action) {
         $alreadyBought = (int)($countRow['total_beli'] ?? 0);
 
         if ($alreadyBought + $itemQty > $maksPembelian) {
-            echo json_encode(['success' => false, 'message' => "Limit tercapai. Maksimal $maksPembelian."]); exit;
+            echo json_encode(['success' => false, 'message' => "Limit reached. Maximum $maksPembelian."]); exit;
         }
 
         // Metode Pembayaran & Biaya Admin

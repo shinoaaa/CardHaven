@@ -6,7 +6,7 @@ $id   = isset($_GET['id'])   ? (int)$_GET['id']   : 0;
 $type = isset($_GET['type']) ? trim($_GET['type']) : 'detail';
 
 if ($id <= 0) {
-    echo '<p style="text-align:center;color:#E74C3C;padding:20px;">ID Event tidak valid.</p>';
+    echo '<p style="text-align:center;color:#E74C3C;padding:20px;">Invalid event ID.</p>';
     exit;
 }
 
@@ -14,7 +14,7 @@ $controller = new controllerEvent($conn);
 $row = $controller->fetchEventById($id);
 
 if (!$row) {
-    echo '<p style="text-align:center;color:#E74C3C;padding:20px;">Event tidak ditemukan.</p>';
+    echo '<p style="text-align:center;color:#E74C3C;padding:20px;">Event not found.</p>';
     exit;
 }
 
