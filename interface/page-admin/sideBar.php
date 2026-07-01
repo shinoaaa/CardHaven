@@ -60,7 +60,7 @@
         <div class="menuOption unselected" id="nav-sales">
             <a href="sales" style="display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit;">
                 <img src="/cardhaven/assets/image/sales-report.svg">
-                <h2 class="coolveticaa" style="color: var(--highlight)">Sales Report</h2>
+                <h2 class="coolveticaa" style="color: var(--highlight)">Report</h2>
             </a>
         </div>
         <div class="menuOption unselected" id="nav-user">

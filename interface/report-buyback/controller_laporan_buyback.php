@@ -10,28 +10,28 @@ $role = (int)($_GET['role'] ?? 0);
 if ($role !== 2 && $role !== 3) {
     die(json_encode(["status" => "error", "message" => "Unauthorized access."]));
 }
-
 $tahun = (int)($_GET['tahun'] ?? 0);
 $bulan = (int)($_GET['bulan'] ?? 0);
 $search = trim(strtolower($_GET['search'] ?? ''));
-$sort = strtoupper($_GET['sort'] ?? 'DESC');
+$sortBy = strtoupper($_GET['sort_by'] ?? 'DATE');
+$sortOrder = strtoupper($_GET['sort_order'] ?? 'DESC');
 
-// FUNGSI HELPER: Menyaring dan Mengurutkan Data PHP (Meniru JS)
-function getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sort) {
+// 2. TIMPA FUNGSI getFilteredAndSortedData DENGAN YANG BARU INI
+function getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder) {
     $sqlData = "SELECT * FROM dbo.udf_LaporanBuyback(?, ?)";
     $stmtData = sqlsrv_query($conn, $sqlData, [$tahun, $bulan]);
     $data = [];
 
     while ($row = sqlsrv_fetch_array($stmtData, SQLSRV_FETCH_ASSOC)) {
-        // Bulletproof Date Validation di sisi PHP
+        // Validasi Bulan & Tahun
         $rowYear = ($row['tanggal_pembelian'] instanceof DateTime) ? (int)$row['tanggal_pembelian']->format('Y') : 0;
         $rowMonth = ($row['tanggal_pembelian'] instanceof DateTime) ? (int)$row['tanggal_pembelian']->format('n') : 0;
 
         if ($tahun !== 0 && $rowYear !== $tahun) continue;
         if ($bulan !== 0 && $rowMonth !== $bulan) continue;
 
+        // Pencarian Teks Terintegrasi
         $tglStr = ($row['tanggal_pembelian'] instanceof DateTime) ? $row['tanggal_pembelian']->format('d-m-Y') : '';
-        
         if ($search !== '') {
             $match = false;
             if (stripos((string)$row['nama_customer'], $search) !== false) $match = true;
@@ -45,10 +45,23 @@ function getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sort) {
         $data[] = $row;
     }
 
-    usort($data, function($a, $b) use ($sort) {
-        $t1 = ($a['tanggal_pembelian'] instanceof DateTime) ? $a['tanggal_pembelian']->getTimestamp() : 0;
-        $t2 = ($b['tanggal_pembelian'] instanceof DateTime) ? $b['tanggal_pembelian']->getTimestamp() : 0;
-        return $sort === 'DESC' ? $t2 - $t1 : $t1 - $t2;
+    // Engine Sorting Ganda (Date vs Price)
+    usort($data, function($a, $b) use ($sortBy, $sortOrder) {
+        if ($sortBy === 'DATE') {
+            $t1 = ($a['tanggal_pembelian'] instanceof DateTime) ? $a['tanggal_pembelian']->getTimestamp() : 0;
+            $t2 = ($b['tanggal_pembelian'] instanceof DateTime) ? $b['tanggal_pembelian']->getTimestamp() : 0;
+            return $sortOrder === 'DESC' ? $t2 - $t1 : $t1 - $t2;
+        } else { // PRICE
+            $p1 = (float)$a['total_harga'];
+            $p2 = (float)$b['total_harga'];
+            
+            if ($p1 == $p2) return 0;
+            if ($sortOrder === 'DESC') {
+                return ($p1 < $p2) ? 1 : -1;
+            } else {
+                return ($p1 < $p2) ? -1 : 1;
+            }
+        }
     });
 
     return $data;
@@ -110,7 +123,7 @@ switch ($action) {
         header("Pragma: no-cache");
         header("Expires: 0");
         
-        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sort);
+        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
         
         echo "<table border='1'>";
         echo "<tr><th>No</th><th>Tanggal</th><th>Customer</th><th>Daftar Kartu</th><th>Total Pcs</th><th>Total Harga</th></tr>";
@@ -140,7 +153,7 @@ switch ($action) {
         }
 
         if (ob_get_length()) ob_end_clean();
-        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sort);
+        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
         
         // Inisialisasi TCPDF Landscape (L)
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
