@@ -53,6 +53,7 @@ function renderCart(data) {
         emptyMsg.style.display = 'block';
         setCheckoutState(false);
         updateSummary(0, 0, 0);
+        renderSummaryBreakdown([]);
         return;
     }
  
@@ -62,16 +63,20 @@ function renderCart(data) {
  
     let totalHarga    = 0;
     let selectedCount = 0;
- 
+    const selectedItems = [];
+
     data.forEach(item => {
         const tr = renderRow(item);
         tbody.appendChild(tr);
- 
+
         if (parseInt(item.is_selected) === 1) {
             totalHarga    += parseFloat(item.subtotal_harga) || 0;
             selectedCount += 1;
+            selectedItems.push(item);
         }
     });
+
+    renderSummaryBreakdown(selectedItems);
  
     itemCount.textContent = `${data.length} item${data.length > 1 ? 's' : ''}`;
  
@@ -135,6 +140,28 @@ function renderRow(item) {
     return tr;
 }
  
+// Rincian total: tampilkan tiap item terpilih beserta subtotalnya
+function renderSummaryBreakdown(items) {
+    const box = document.getElementById('summary-items');
+    if (!box) return;
+    const fmt = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
+
+    if (!items || items.length === 0) {
+        box.innerHTML = '<div class="summary-items-empty">No items selected.</div>';
+        return;
+    }
+
+    box.innerHTML = items.map(it => `
+        <div class="summary-item">
+            <div>
+                <div class="summary-item-name">${escapeHtml(it.nama_produk)}</div>
+                <div class="summary-item-qty">${fmt(it.harga_produk)} × ${it.jumlah_barang}</div>
+            </div>
+            <div class="summary-item-price">${fmt(it.subtotal_harga)}</div>
+        </div>
+    `).join('');
+}
+
 function updateSummary(total, selectedCount, totalItems) {
     const fmt = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
     document.getElementById('subtotal-display').textContent    = fmt(total);

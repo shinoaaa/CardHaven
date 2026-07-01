@@ -518,6 +518,20 @@ session_start();
         .main-content {
             margin-top: 80px;
         }
+
+        /* ---- Itemized order summary ---- */
+        .summary-items-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-gray, #888);
+        }
+        .summary-items { display: flex; flex-direction: column; gap: 10px; max-height: 260px; overflow-y: auto; }
+        .summary-line { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-size: 0.82rem; }
+        .summary-line-name { color: var(--text-dark, #111); font-weight: 600; line-height: 1.3; }
+        .summary-line-qty { color: var(--text-gray, #888); font-weight: 500; font-size: 0.76rem; }
+        .summary-line-price { font-weight: 700; color: var(--primary-color, #1a3a6b); white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -554,6 +568,21 @@ session_start();
 
                     <!-- LEFT: Form -->
                     <div class="checkout-form-section">
+
+                        <!-- Order Items (moved to top for better UX) -->
+                        <div class="checkout-card">
+                            <div class="checkout-card-header">
+                                <span class="header-icon">🃏</span>
+                                <h2>Order Items</h2>
+                            </div>
+                            <div class="checkout-card-body">
+                                <div id="checkout-items-loading" class="checkout-loading" style="padding:30px 0;">
+                                    <div class="loading-spinner"></div>
+                                    <span class="loading-text">Loading items...</span>
+                                </div>
+                                <div id="checkout-item-list" class="checkout-item-list" style="display:none;"></div>
+                            </div>
+                        </div>
 
                         <!-- Shipping Address -->
                         <div class="checkout-card">
@@ -597,21 +626,6 @@ session_start();
                             </div>
                         </div>
 
-                        <!-- Order Items -->
-                        <div class="checkout-card">
-                            <div class="checkout-card-header">
-                                <span class="header-icon">🃏</span>
-                                <h2>Order Items</h2>
-                            </div>
-                            <div class="checkout-card-body">
-                                <div id="checkout-items-loading" class="checkout-loading" style="padding:30px 0;">
-                                    <div class="loading-spinner"></div>
-                                    <span class="loading-text">Loading items...</span>
-                                </div>
-                                <div id="checkout-item-list" class="checkout-item-list" style="display:none;"></div>
-                            </div>
-                        </div>
-
                     </div>
 
                     <!-- RIGHT: Summary -->
@@ -621,14 +635,12 @@ session_start();
                                 <h2>Order Summary</h2>
                             </div>
                             <div class="summary-body">
-                                <div class="summary-row">
-                                    <span id="summary-items-label">Items</span>
-                                    <span class="val" id="summary-subtotal">Rp 0</span>
-                                </div>
+                                <div id="summary-items-label" class="summary-items-label">Items</div>
+                                <div id="summary-items" class="summary-items"></div>
                                 <div class="summary-divider"></div>
                                 <div class="summary-row">
-                                    <span>Shipping</span>
-                                    <span class="val free">Free</span>
+                                    <span>Subtotal</span>
+                                    <span class="val" id="summary-subtotal">Rp 0</span>
                                 </div>
                                 <div class="summary-row" id="summary-fee-row" style="display:none;">
                                     <span>Payment Fee</span>

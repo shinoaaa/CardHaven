@@ -126,6 +126,8 @@ function loadCartItems() {
             document.getElementById('summary-items-label').textContent =
                 `Items (${items.length} product${items.length > 1 ? 's' : ''}, ${cartTotalItems} pcs)`;
 
+            renderSummaryItems(items);
+
             if (hasStockIssue) {
                 showAlert('checkout',
                     'Some products do not have enough stock. Reduce the quantity in your cart before paying.',
@@ -310,6 +312,21 @@ function selectPaymentMethod(id, fee, el) {
     selectedMethodFee = parseFloat(fee) || 0;
     updateSummary();
     checkCanOrder();
+}
+
+// Rincian total di Order Summary: tampilkan tiap barang beserta subtotalnya
+function renderSummaryItems(items) {
+    const box = document.getElementById('summary-items');
+    if (!box) return;
+    box.innerHTML = (items || []).map(it => `
+        <div class="summary-line">
+            <div>
+                <div class="summary-line-name">${escapeHtml(it.nama_produk)}</div>
+                <div class="summary-line-qty">${fmt(it.harga_produk)} × ${it.jumlah_barang}</div>
+            </div>
+            <div class="summary-line-price">${fmt(it.subtotal_harga)}</div>
+        </div>
+    `).join('');
 }
 
 function updateSummary() {
