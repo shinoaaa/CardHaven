@@ -28,6 +28,11 @@ else if ($segments[0] === 'profilepage') {
 }
 
 
+
+
+// else if ($segments[0] === 'owner') {
+//     include '../CardHaven/interface/owner-page/index.php';
+// } 
 else {
     http_response_code(404);
     echo "404 Not Found";

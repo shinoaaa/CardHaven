@@ -1,0 +1,78 @@
+.filter-container {
+    display: flex;
+    gap: 15px;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.filter-dropdown {
+    width: auto;
+    min-width: 140px;
+    cursor: pointer;
+}
+
+.filter-search {
+    flex-grow: 1;
+}
+
+.export-group {
+    display: flex;
+    gap: 10px;
+}
+
+.card-list-cell {
+    font-size: 0.8rem;
+    /* color: #475569; */
+    /* background: #f8faff; */
+    padding: 8px 12px;
+    border-radius: 8px;
+    line-height: 1.6;
+    max-height: 65px;
+    overflow-y: auto;
+    text-align: left;
+    font-weight: bold;
+    /* border: 1px solid #d1d9e6; */
+}
+
+.btn-sort-small {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1.5px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 0 15px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    height: 38px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    min-width: 90px;
+    flex-shrink: 0;
+}
+
+.btn-sort-small:hover {
+    background: rgba(15, 56, 145, 0.08);
+}
+
+/* Custom Scrollbar khusus untuk sel nama kartu agar tidak memakan tempat */
+.card-list-cell::-webkit-scrollbar {
+    width: 6px;
+}
+.card-list-cell::-webkit-scrollbar-track {
+    background: transparent;
+}
+.card-list-cell::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
+
+#filterTahun::-webkit-inner-spin-button, 
+#filterTahun::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+#filterTahun {
+    -moz-appearance: textfield; 
+}

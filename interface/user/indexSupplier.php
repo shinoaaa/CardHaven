@@ -42,11 +42,11 @@
                         </td>
                         <td>
                             <div class="btn-action-group">
-                                <button class="btn-view-icon" onclick="openDetailSupplierModal(<?= $row['id_supplier'] ?>)">...</button>
-                                <button class="btn-edit-icon" onclick="openEditSupplierModal(<?= $row['id_supplier'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                                <button class="btn-view-icon" onclick="openSupplierEdit(<?= $row['id_supplier'] ?>)">...</button>
+                                <button class="btn-edit-icon" onclick="openSupplierEdit(<?= $row['id_supplier'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
                                 <button class="btn-delete-icon" onclick="deleteSupplier(<?= $row['id_supplier'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
                                 <label class="switch">
-                                    <input type="checkbox" <?= $row['aktif'] == 1 ? 'checked' : '' ?> onchange="toggleSupplierStatus(<?= $row['id_supplier'] ?>, this)">
+                                    <input type="checkbox" <?= $row['aktif'] == 1 ? 'checked' : '' ?> onchange="toggleSupplier(<?= $row['id_supplier'] ?>, this.checked, this)">
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -90,4 +90,7 @@
             <span class="page-link disabled">&gt;</span>
         <?php endif; ?>
     </div>
+    <?php include __DIR__ . '/../../interface/user/components/modalSupplier.php' ?>
+
+    <script src="/cardhaven/interface/user/scriptSupplier.js"></script>
 </div>

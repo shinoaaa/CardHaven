@@ -309,6 +309,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             <th>Order ID</th>
                             <th>Customer</th>
                             <th>Date</th>
+                            <th>Payment Metode</th>
                             <th>Items</th>
                             <th>Total</th>
                             <th>Payment Method</th>
@@ -331,14 +332,14 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                                         <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
                                     </td>
                                     <td style="white-space:nowrap;font-size:.82rem;"><?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?></td>
-                                    <td style="text-align:center;"><?= (int)$row['total_barang'] ?></td>
-                                    <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
                                     <td style="font-size:.8rem;">
                                         <?= htmlspecialchars($row['nama_metode'] ?? '-') ?>
                                         <?php if (!empty($row['provider'])): ?>
                                             <span style="opacity:.5;"> · <?= htmlspecialchars($row['provider']) ?></span>
                                         <?php endif; ?>
                                     </td>
+                                    <td style="text-align:right;"><?= (int)$row['total_barang'] ?></td>
+                                    <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
                                     <td>
                                         <span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>; color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>; white-space:nowrap;">
                                             <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
