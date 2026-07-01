@@ -81,7 +81,7 @@ $type = $_GET['type'] ?? 'sales';
                             <th width="18%">Customer</th>
                             <th width="40%">Cards Purchased</th>
                             <th width="10%">Items</th>
-                            <th width="15%">Total Paid</th>
+                            <th width="15%">Paid</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -101,6 +101,19 @@ $type = $_GET['type'] ?? 'sales';
                             <span style="color: #64748b; font-size: 0.85rem;">Total Paid:</span>
                             <span id="summaryTotalPaid" style="color: #27AE60; font-size: 1.1rem;">Rp 0</span>
                         </div>
+                    </div>
+                </div>
+                <div id="detailModal" class="event-modal-overlay" style="display: none;" onclick="closeDetailModal()">
+                    <div class="modal-box" style="width: 650px; max-width: 95vw;" onclick="event.stopPropagation()">
+                        <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
+                        
+                        <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Buyback ID: <span class="blue-text" id="modalTxId"></span></h2>
+                            <span style="font-weight: 600; color: #15803d; background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">Completed</span>
+                        </div>
+                        
+                        <div id="modalContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;">
+                            </div>
                     </div>
                 </div>
             <?php endif; ?>
