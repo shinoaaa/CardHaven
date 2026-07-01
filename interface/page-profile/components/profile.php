@@ -19,7 +19,7 @@
     
     <div class="profile-center">
         <h2 id="displayUsername" class="profile-name">Loading...</h2>
-        <p id="displayEmail" class="profile-email">loading...</p>
+        <p id="displayEmail" class="profile-email">Loading...</p>
     </div>
 
     <div class="profile-right">
@@ -34,12 +34,12 @@
             </div>
             <div class="info-item">
                 <img src="/cardhaven/assets/image/cart.svg" alt="Cart" class="info-icon">
-                <span class="info-text"><span id="displayCartCount" class="text-orange">0</span> Products in Cart</span>
+                <span class="info-text"><span id="displayCartCount" class="text-orange">0</span> Product in Cart</span>
             </div>
             <div class="info-item expenditure-item">
-                <img src="/cardhaven/assets/image/rupiah.svg" alt="Dollar" class="info-icon">
+                <img src="/cardhaven/assets/image/rupiah.svg" alt="Rupiah" class="info-icon">
                 <div class="expenditure-text">
-                    <span class="info-text">Total expenditure</span>
+                    <span class="info-text">Total Spent</span>
                     <span id="displayExpenditure" class="text-orange">Rp. 0</span>
                 </div>
             </div>

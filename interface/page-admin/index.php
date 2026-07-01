@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DashBoard</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <script>
         (function() {
@@ -27,7 +27,7 @@
 
         <?php
         if ($segments[1] == 'activity') {
-            echo 'Welcome to activity';
+            echo 'Welcome to the Activity Dashboard';
         } else if ($segments[1] == 'product') {
             include '../CardHaven/interface/product/index.php';
         } else if ($segments[1] == 'transaction'){

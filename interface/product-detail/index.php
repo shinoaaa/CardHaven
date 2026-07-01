@@ -43,7 +43,7 @@ $baseUrl = '/CardHaven';
                 
                 <div class="pd-specs">
                     <div class="spec-item">
-                        <span class="spec-label">Stok:</span>
+                        <span class="spec-label">Stock:</span>
                         <span class="spec-value" id="detailStok">-</span>
                     </div>
                     <div class="spec-item">
@@ -57,7 +57,7 @@ $baseUrl = '/CardHaven';
                 </div>
 
                 <div class="pd-condition">
-                    <strong>Kondisi :</strong> <span id="detailKondisi">-</span>
+                    <strong>Condition :</strong> <span id="detailKondisi">-</span>
                 </div>
 
                 <div class="pd-description">
@@ -93,7 +93,7 @@ $baseUrl = '/CardHaven';
                 <div class="line"></div>
             </div>
             <div class="related-link-wrapper">
-                <a href="#" class="see-all-link">See All Product</a>
+                <a href="#" class="see-all-link">See All Products</a>
             </div>
 
             <div class="related-grid" id="relatedGrid">

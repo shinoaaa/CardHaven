@@ -86,15 +86,15 @@ async function openDetailModal(id_penjualan) {
         if (st === 0) {
             actionBtns = `
                 <button class="btn-trx-action btn-confirm" onclick="doAction('konfirmasi_bayar', ${id_penjualan})">
-                    ✅ Konfirmasi Pembayaran
+                    ✅ Confirm Payment
                 </button>
                 <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
-                    ❌ Tolak / Cancel
+                    ❌ Reject / Cancel
                 </button>`;
         } else if (st === 1 || st === 2) {
             actionBtns = `
                 <button class="btn-trx-action btn-process" onclick="doAction('proses', ${id_penjualan})">
-                    ⚙️ Proses Order
+                    ⚙️ Process Order
                 </button>
                 <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
                     ❌ Cancel
@@ -102,7 +102,7 @@ async function openDetailModal(id_penjualan) {
         } else if (st === 3) {
             actionBtns = `
                 <button class="btn-trx-action btn-ship" onclick="openShipModal(${id_penjualan})">
-                    🚚 Kirim Paket
+                    🚚 Ship Order
                 </button>`;
         } else if (st === 4) {
             actionBtns = `
@@ -151,30 +151,30 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-section-title">Customer</div>
                     <div class="trx-info-row"><span>Username</span><b>${h.username ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Email</span><b>${h.email ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>No. Telepon</span><b>${h.no_telepon ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Alamat</span><b>${h.alamat ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Phone Number</span><b>${h.no_telepon ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Address</span><b>${h.alamat ?? '-'}</b></div>
                 </div>
 
-                <!-- Pembayaran -->
+                <!-- Payment -->
                 <div class="trx-modal-section">
-                    <div class="trx-section-title">Pembayaran</div>
-                    <div class="trx-info-row"><span>Metode</span><b>${h.nama_metode ?? '-'}</b></div>
+                    <div class="trx-section-title">Payment</div>
+                    <div class="trx-info-row"><span>Method</span><b>${h.nama_metode ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>No. Rekening</span><b>${h.no_rekening ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Atas Nama</span><b>${h.atas_nama ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Biaya Admin</span><b>Rp ${h.biaya_admin}</b></div>
+                    <div class="trx-info-row"><span>Account Number</span><b>${h.no_rekening ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin}</b></div>
                 </div>
 
-                <!-- Pengiriman -->
+                <!-- Shipping -->
                 <div class="trx-modal-section">
-                    <div class="trx-section-title">Pengiriman</div>
-                    <div class="trx-info-row"><span>No. Resi</span><b>${h.no_resi ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Tgl Kirim</span><b>${h.tanggal_pengiriman ?? '-'}</b></div>
+                    <div class="trx-section-title">Shipping</div>
+                    <div class="trx-info-row"><span>Tracking Number</span><b>${h.no_resi ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Shipping Date</span><b>${h.tanggal_pengiriman ?? '-'}</b></div>
                 </div>
 
-                <!-- Bukti Bayar -->
+                <!-- Proof of payment -->
                 <div class="trx-modal-section">
-                    <div class="trx-section-title">Bukti Pembayaran</div>
+                    <div class="trx-section-title">Proof of payment</div>
                     ${buktiHtml}
                 </div>
             </div>
@@ -184,9 +184,9 @@ async function openDetailModal(id_penjualan) {
             <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
                 <thead>
                     <tr style="border-bottom:1px solid rgba(255,255,255,.1);opacity:.55;">
-                        <th style="text-align:left;padding-bottom:.4rem;">Produk</th>
-                        <th style="text-align:right;">Harga</th>
-                        <th style="text-align:center;">Qty</th>
+                        <th style="text-align:left;padding-bottom:.4rem;">Product</th>
+                        <th style="text-align:right;">Price</th>
+                        <th style="text-align:center;">Quantity</th>
                         <th style="text-align:right;">Subtotal</th>
                     </tr>
                 </thead>
@@ -201,7 +201,7 @@ async function openDetailModal(id_penjualan) {
             ${actionBtns ? `<div class="trx-action-row">${actionBtns}</div>` : ''}
         `;
     } catch (e) {
-        body.innerHTML = `<p style="color:red;">Gagal memuat data.</p>`;
+        body.innerHTML = `<p style="color:red;">Failed to load data.</p>`;
         console.error(e);
     }
 }
@@ -224,18 +224,18 @@ function openShipModal(id_penjualan) {
 
     body.innerHTML = `
         <div class="trx-modal-header">
-            <div class="trx-modal-id">Kirim Order #${id_penjualan}</div>
+            <div class="trx-modal-id">Ship Order #${id_penjualan}</div>
         </div>
         <div class="trx-modal-section" style="margin-top:1rem;">
-            <div class="trx-section-title">Detail Pengiriman</div>
+            <div class="trx-section-title">Shipping Details</div>
             <div style="margin-bottom:.85rem;">
-                <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">No. Resi *</label>
-                <input id="inputResi" type="text" placeholder="Contoh: JNE1234567890"
+                <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Tracking Number *</label>
+                <input id="inputResi" type="text" placeholder="Example: JNE1234567890
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
             </div>
             <div>
-                <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Tanggal Pengiriman</label>
+                <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Shipping Date</label>
                 <input id="inputTglKirim" type="date" value="${today}"
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
@@ -243,10 +243,10 @@ function openShipModal(id_penjualan) {
         </div>
         <div class="trx-action-row">
             <button class="btn-trx-action btn-ship" onclick="submitKirim(${id_penjualan})">
-                🚚 Konfirmasi Kirim
+                🚚 Confirm Shipment
             </button>
             <button class="btn-trx-action" style="background:rgba(255,255,255,.08);" onclick="openDetailModal(${id_penjualan})">
-                ← Kembali
+                ← Back
             </button>
         </div>
     `;
@@ -257,17 +257,17 @@ async function submitKirim(id_penjualan) {
     const tgl_kirim = document.getElementById('inputTglKirim').value;
 
     if (!no_resi) {
-        cardhavenAlert('Peringatan', 'No. Resi wajib diisi!', 'warning');
+        cardhavenAlert('Alert', 'Tracking number is required!', 'warning');
         return;
     }
 
     const res  = await postAction('kirim', id_penjualan, { no_resi, tanggal_pengiriman: tgl_kirim });
     if (res.status === 'success') {
-        cardhavenAlert('Berhasil', 'Paket berhasil dikonfirmasi dikirim.', 'success');
+        cardhavenAlert('Success', 'Package shipment has been confirmed.', 'success');
         closeTrxModal();
         setTimeout(() => location.reload(), 1200);
     } else {
-        cardhavenAlert('Error', res.message ?? 'Gagal update status.', 'error');
+        cardhavenAlert('Error', res.message ?? 'Failed to update status.', 'error');
     }
 }
 
@@ -287,10 +287,10 @@ async function postAction(action, id_penjualan, extra = {}) {
 
 async function doAction(action, id_penjualan) {
     const CONFIRM_MSG = {
-        konfirmasi_bayar: ['Konfirmasi Pembayaran?', 'Pembayaran akan ditandai sudah diterima.', 'Ya, Konfirmasi'],
-        proses:           ['Proses Order?', 'Order akan dipindahkan ke status Processing.', 'Ya, Proses'],
-        delivered:        ['Set Delivered?', 'Order akan ditandai sebagai sudah tiba di customer.', 'Ya, Set'],
-        cancel:           ['Cancel Order?', 'Stok produk akan dikembalikan. Tindakan ini tidak bisa diubah.', 'Ya, Cancel'],
+        konfirmasi_bayar: ['Confirm Payment?', 'The payment will be marked as received.', 'Yes, Confirm'],
+        proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Processs'],
+        delivered:        ['Mark as Delivered?', 'The order will be marked as delivered to the customer.', 'Yes, Mark as Delivered'],
+        cancel:           ['Cancel Order?', 'The product stock will be restored. This action cannot be undone.', 'Yes, Cancel'],
     };
 
     const [title, text, btnText] = CONFIRM_MSG[action] ?? ['Konfirmasi?', '', 'Ya'];
@@ -298,11 +298,11 @@ async function doAction(action, id_penjualan) {
     cardhavenConfirm(title, text, btnText, async () => {
         const res = await postAction(action, id_penjualan);
         if (res.status === 'success') {
-            cardhavenAlert('Berhasil', 'Status berhasil diperbarui.', 'success');
+            cardhavenAlert('Success', 'Status has been updated successfully.', 'success');
             closeTrxModal();
             setTimeout(() => location.reload(), 1200);
         } else {
-            cardhavenAlert('Error', res.message ?? 'Gagal update status.', 'error');
+            cardhavenAlert('Error', res.message ?? 'Failed to update status.', 'error');
         }
     }, null);
 }

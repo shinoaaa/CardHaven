@@ -59,7 +59,7 @@ try {
         ob_clean();
         if ($stmt === false) {
             $err = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'Database error.']);
+            echo json_encode(['status' => 'error', 'message' => $err[0]['message'] ?? 'An unexpected database error occurred.']);
         } else {
             echo json_encode(['status' => 'success', 'message' => '']);
         }

@@ -5,7 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require __DIR__ . '/../../connection.php';
 
-
+$client_id;
+$client_secret;
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php";
 
 if (isset($_GET['code'])) {
@@ -54,7 +55,7 @@ if (isset($_GET['code'])) {
             $stmt = sqlsrv_prepare($conn, $sql, $params);
             
             if (!$stmt || !sqlsrv_execute($stmt)) {
-                die("Gagal mengeksekusi pemeriksaan akun.");
+                die("Failed to carry out the account check.");
             }
 
             $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -77,7 +78,7 @@ if (isset($_GET['code'])) {
                     $inserted_user = sqlsrv_fetch_array($insert_stmt, SQLSRV_FETCH_ASSOC);
                     $id_pengguna = $inserted_user['id_pengguna'];
                 } else {
-                    die("Pendaftaran otomatis akun Facebook gagal.");
+                    die("Automatic registration of a Facebook account has failed.");
                 }
             }
 
@@ -133,12 +134,12 @@ if (isset($_GET['code'])) {
             <?php
             exit;
         } else {
-            echo "Email Facebook tidak ditemukan atau tidak diizinkan. Silakan pastikan akun Facebook Anda sudah menyertakan alamat email aktif.";
+            echo "The Facebook email address could not be found or is not permitted. Please ensure your Facebook account includes a valid email address.";
         }
     } else {
-        echo "Gagal menukar kode autentikasi dari Facebook.";
+        echo "Failed to exchange the authentication code from Facebook.";
     }
 } else {
-    echo "Callback tidak valid.";
+    echo "Invalid callback.";
 }
 ?>

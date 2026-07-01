@@ -2,7 +2,6 @@
 // =========================================================
 // 1. CONFIG GOOGLE OAUTH
 // =========================================================
-$client_id     = ***REMOVED_GOOGLE_ID***
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/google-callback.php"; 
 $scope         = "email profile openid";
 $response_type = "code";
@@ -17,13 +16,12 @@ $google_login_url = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build
 // =========================================================
 // 2. CONFIG DISCORD OAUTH
 // =========================================================
-$client_id_discord     = ***REMOVED_DISCORD_ID***
 $redirect_uri_discord  = "http://localhost/cardhaven/interface/login-page/discord-callback.php"; 
 $scope_discord         = "identify email"; 
 $response_type_discord = "code";
 
 $discord_login_url = "https://discord.com/api/oauth2/authorize?" . http_build_query([
-    'client_id'     => $client_id_discord,
+    'client_id'     => $client_id,
     'redirect_uri'  => $redirect_uri_discord,
     'scope'         => $scope_discord,
     'response_type' => $response_type_discord
@@ -32,13 +30,12 @@ $discord_login_url = "https://discord.com/api/oauth2/authorize?" . http_build_qu
 // =========================================================
 // 3. CONFIG FACEBOOK OAUTH
 // =========================================================
-$client_id_facebook     = ***REMOVED_FACEBOOK_ID***
 $redirect_uri_facebook  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php"; 
 $scope_facebook         = "email";
 $response_type_facebook = "code";
 
 $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_build_query([
-    'client_id'     => $client_id_facebook,
+    'client_id'     => $client_id,
     'redirect_uri'  => $redirect_uri_facebook,
     'scope'         => $scope_facebook,
     'response_type' => $response_type_facebook
@@ -49,7 +46,7 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Akun</title>
+    <title>Sign Up</title>
     <link rel="stylesheet" href="/CardHaven/interface/global.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/CardHaven/interface/register-page/script_register.js" defer></script>

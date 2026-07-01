@@ -17,7 +17,7 @@ $baseUrl = '/CardHaven';
                 </div>
 
                 <div class="duration-preoder">
-                    <p>Event duration: <span id="startDate">Tanggal Mulai</span> to <span id="endDate">Tanggal Selesai</span></p>
+                    <p>Event duration: <span id="startDate">Starting from</span> to <span id="endDate">Until</span></p>
                 </div>
                 
                 <div class="hero-text">
