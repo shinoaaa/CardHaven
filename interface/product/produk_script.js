@@ -282,7 +282,13 @@ function openEditProductModal(id) {
         const preview = document.getElementById('pPreview');
         const placeholder = document.getElementById('pPlaceholder');
         if (data.foto) {
-            preview.src = '/CardHaven/' + data.foto; 
+            let prodPath = data.foto;
+            if (prodPath && !prodPath.includes('/')) {
+                prodPath = `/CardHaven/assets/image/products/${prodPath}`;
+            }else{
+                prodPath = `/CardHaven/${prodPath}`;
+            }
+            preview.src = prodPath;
             preview.style.display = 'block';
             placeholder.style.display = 'none';
         } else {
@@ -338,7 +344,13 @@ function openDetailProductModal(id) {
             const placeholderEl = document.getElementById('detProdImgPlaceholder');
             if (imgEl && placeholderEl) {
                 if (data.foto) {
-                    imgEl.src = '/CardHaven/' + data.foto; 
+                    let prodPath = data.foto;
+                    if (prodPath && !prodPath.includes('/')) {
+                        prodPath = `/CardHaven/assets/image/products/${prodPath}`;
+                    }else{
+                        prodPath = `/CardHaven/${prodPath}`;
+                    }
+                    imgEl.src = prodPath;
                     imgEl.style.display = 'block';
                     placeholderEl.style.display = 'none';
                 } else {

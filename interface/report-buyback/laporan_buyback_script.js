@@ -6,7 +6,8 @@ let allData = [];         // Menyimpan semua data mentah dari server
 let filteredData = [];    // Menyimpan data hasil pencarian & sorting
 let currentPage = 1;
 const itemsPerPage = 10;
-let sortOrder = 'DESC';
+let currentSortBy = 'DATE';
+let currentSortOrder = 'DESC';
 let typingTimer;
 
 if (!idPengguna || (userRole != '2' && userRole != '3')) {
@@ -37,9 +38,22 @@ function fetchReportData() {
     .catch(err => console.error("Error fetching data:", err));
 }
 
-function toggleSort() {
-    sortOrder = sortOrder === 'DESC' ? 'ASC' : 'DESC';
-    document.getElementById('btnSort').innerHTML = sortOrder === 'DESC' ? 'Newest' : 'Oldest';
+function changeSortCriterion() {
+    const val = document.getElementById('sortCriterion').value;
+    
+    // Jika user memilih 'None', kembalikan sistem ke pengurutan default (DATE)
+    if (val === 'NONE' || val === '') {
+        currentSortBy = 'DATE';
+    } else {
+        currentSortBy = val;
+    }
+    
+    applyFilterAndSort();
+}
+
+function toggleSortOrder() {
+    currentSortOrder = currentSortOrder === 'DESC' ? 'ASC' : 'DESC';
+    document.getElementById('btnSortOrder').innerHTML = currentSortOrder === 'DESC' ? 'Descending ↓' : 'Ascending ↑';
     applyFilterAndSort();
 }
 
@@ -89,9 +103,25 @@ function applyFilterAndSort() {
     });
 
     filteredData.sort((a, b) => {
-        const dateA = new Date(a.tanggal_pembelian || 0).getTime();
-        const dateB = new Date(b.tanggal_pembelian || 0).getTime();
-        return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
+        let valA, valB;
+        
+        if (currentSortBy === 'DATE') {
+            valA = new Date(a.tanggal_pembelian || 0).getTime();
+            valB = new Date(b.tanggal_pembelian || 0).getTime();
+        } else if (currentSortBy === 'PRICE') {
+            valA = parseFloat(a.total_harga || 0);
+            valB = parseFloat(b.total_harga || 0);
+        } else if (currentSortBy === 'QTY') {
+            valA = parseInt(a.total_barang || 0);
+            valB = parseInt(b.total_barang || 0);
+        }
+
+        if (valA === valB) return 0;
+        if (currentSortOrder === 'DESC') {
+            return valA < valB ? 1 : -1;
+        } else {
+            return valA < valB ? -1 : 1;
+        }
     });
     let totalItems = 0;
     let totalPaid = 0;
@@ -125,13 +155,19 @@ function renderTable() {
     pageData.forEach(row => {
         const tanggal = row.tanggal_pembelian ? row.tanggal_pembelian.substring(0, 10).split('-').reverse().join('-') : 'N/A';
         
-        let tr = `<tr class="trx-row" style="cursor: pointer;" onclick="openDetailModal(${row.id_pembelian})">
+        let tr = `<tr class="trx-row">
             <td style="text-align:center;">${startNo++}</td>
             <td style="white-space:nowrap;">${tanggal}</td>
             <td style="font-weight:600;">${row.nama_customer}</td>
             <td><div class="card-list-cell">${row.daftar_kartu || '-'}</div></td>
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
+            <td style="text-align:center; padding:0.5rem 0;">
+                <div width="100%" style="display:flex; justify-content:center; align-items:center;">
+                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})">...</button>
+                </div>
+                
+            </td>
         </tr>`;
         tbody.innerHTML += tr;
     });
@@ -161,9 +197,14 @@ function exportReport(type) {
     let tahunRaw = document.getElementById('filterTahun').value;
     const tahun = tahunRaw ? parseInt(tahunRaw) : 0;
     const bulan = document.getElementById('filterBulan').value;
-    const search = document.getElementById('searchReport').value;
     
-    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort=${sortOrder}&role=${userRole}`;
+
+    const search = document.getElementById('searchReport').value.trim();
+    
+    const activeSortOrder = sortBy === 'DATE' ? sortOrderDate : sortOrderPrice;
+    
+    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${sortBy}&sort_order=${activeSortOrder}&role=${userRole}`;
+    
     window.open(url, '_blank');
 }
 

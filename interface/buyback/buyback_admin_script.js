@@ -165,25 +165,22 @@ function openDetailModal(id_pembelian) {
                 </div>
             `;
             
-            // Status final: offer admin tidak relevan lagi
-            const FINAL_STATUSES = [8, 9, 10]; // Completed, Rejected, Cancelled
+            const FINAL_STATUSES = [8, 9, 10]; 
             const isFinal = FINAL_STATUSES.includes(parseInt(pem.status_pembelian));
 
-            // Setiap kartu harus punya keputusan: counter offer (penawaran_admin diisi)
-            // ATAU approve harga customer (ditandai dengan flag approved_by_admin di data kartu).
-            // Karena tidak ada kolom khusus, kita pakai konvensi:
-            // penawaran_admin == penawaran_customer → admin approve harga customer
-            // penawaran_admin != null && != penawaran_customer → admin counter
-            // penawaran_admin == null → belum ada keputusan
-            let allDecided = true; // untuk enable/disable Send Counter Offers
+            let allDecided = true; 
             let allApproved = true;
             let hasCounter = false;
+            let anyDecided = false; // FLAG BARU: Cek apakah admin sudah mulai memberi keputusan
 
             data.kartu.forEach(k => {
                 const hasDecision = k.penawaran_admin != null; 
                 const isApproved = hasDecision && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isCountered = hasDecision && !isApproved;
 
+                let actualAttempts = Math.max(0, parseInt(k.percobaan_penawaran) - 1);
+
+                if (hasDecision) anyDecided = true; // Set true jika ada minimal 1 kartu yg diklik
                 if (!hasDecision) allDecided = false;
                 if (!isApproved) allApproved = false;
                 if (isCountered) hasCounter = true;
@@ -201,7 +198,6 @@ function openDetailModal(id_pembelian) {
                     adminOfferLabel = `<span style="color: #7c3aed; font-weight: 600;">Counter — Rp ${parseInt(k.penawaran_admin).toLocaleString('id-ID')}</span>`;
                 }
 
-                // 2. Kunci tombol edit. Jika sudah memutuskan, tampilkan label terkunci.
                 let cardActionHtml = '';
                 if (pem.status_pembelian == 1) {
                     if (!hasDecision) {
@@ -217,22 +213,19 @@ function openDetailModal(id_pembelian) {
                                 </button>
                             </div>`;
                     } else {
-                        // MENGUNCI INPUT AGAR ADMIN TIDAK BISA EDIT LAGI
                         cardActionHtml = `
                             <div style="padding: 6px 10px; background: #f8fafc; border-left: 3px solid #E67E22; border-radius: 4px;">
                                 <span style="font-size:0.8rem; color:#E67E22; font-weight:700;">Offer Saved.</span>
-                                <span style="font-size:0.75rem; color:#64748b;"> Click 'Send Counter' / 'Approve' below when done.</span>
+                                <span style="font-size:0.75rem; color:#64748b;"> Ready for final submission.</span>
                             </div>`;
                     }
                 } else if (pem.status_pembelian == 2) {
-                    // Tampilan khusus saat menunggu customer
                     cardActionHtml = `
                         <div style="padding: 6px 10px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 4px;">
                             <span style="font-size:0.8rem; color:#d97706; font-weight:700;">Waiting for the Customer's Response...</span>
                         </div>`;
                 }
 
-                // Append HTML template seperti biasa (pastikan tag gambar depan/belakang Anda tetap ada)
                 htmlContent += `
                     <div style="border: 1px solid ${!hasDecision && pem.status_pembelian == 1 ? '#fbbf24' : '#e5e7eb'}; padding: 15px; margin-bottom: 15px; border-radius: 12px; background: #fff;">
                         <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h4>
@@ -255,7 +248,7 @@ function openDetailModal(id_pembelian) {
                         <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                             <p style="margin: 4px 0;"><strong>Customer Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
                             <p style="margin: 4px 0;"><strong>Admin Decision:</strong> ${adminOfferLabel}</p>
-                            <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${k.percobaan_penawaran} / 3</span></p>
+                            <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${actualAttempts} / 3</span></p>
                         </div>
                         <div id="admin-action-${k.id_kartu}">${cardActionHtml}</div>
                     </div>`;
@@ -263,38 +256,52 @@ function openDetailModal(id_pembelian) {
 
             document.getElementById('modalContent').innerHTML = htmlContent;
 
-            // 3. Perbaikan Logika Footer & Status Button 
+            // 3. LOGIKA FOOTER SATU PINTU & KONSISTENSI STYLE TOMBOL
             let footerHtml = '';
             const status = pem.status_pembelian;
             
+            // Variabel Style CSS Tombol
+            const btnBase = "border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.2s;";
+            const btnCancel = `background: #b91c1c; color: white; ${btnBase}`;
+            const btnBlue = `background: #1d4ed8; color: white; ${btnBase}`;
+            const btnPurple = `background: #7c3aed; color: white; ${btnBase}`;
+            const btnGreen = `background: #065f46; color: white; ${btnBase}`;
+            const btnDisabled = `background: #7c3aed; color: white; opacity: 0.4; cursor: not-allowed; ${btnBase}`;
+
             if (status == 0) {
-                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')">Cancel Submission</button>`;
-                footerHtml += `<button class="btn-trx-action btn-process" onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')">Start Review</button>`;
-            } else if (status == 1) {
-                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')">Cancel Submission</button>`;
+                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
+                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')" style="${btnBlue}">Start Review</button>`;
+            } 
+            else if (status == 1) {
+                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
                 
-                if (allDecided) {
+                if (!anyDecided) {
+                    // MODE 1: Muncul pertama kali (Langsung bisa Approve All)
+                    footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
+                } else if (allDecided) {
+                    // MODE 2: Semua kartu sudah diklik manual
                     if (hasCounter) {
-                        // HANYA muncul jika admin melakukan setidaknya 1 Counter
-                        footerHtml += `<button class="btn-trx-action btn-ship" onclick="updateStatus(${pem.id_pembelian}, 2, 'Counter offers sent to customer')" style="background: #7c3aed; color: #fff; border:none; padding:10px 20px; font-weight:bold; border-radius:8px;">Send Counter Offers</button>`;
-                    } else if (allApproved) {
-                        // HANYA muncul jika admin Murni Approve seluruh kartu
-                        footerHtml += `<button class="btn-trx-action btn-confirm" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')">Approve All Prices</button>`;
+                        footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 2, 'Counter offers sent to customer')" style="${btnPurple}">Send Counter Offers</button>`;
+                    } else {
+                        footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
                     }
                 } else {
-                    // Terkunci jika belum menentukan keputusan pada setiap kartu
-                    footerHtml += `<button class="btn-trx-action btn-ship" disabled style="opacity: 0.4; cursor: not-allowed; background: #7c3aed; color: #fff; border:none; padding:10px 20px; font-weight:bold; border-radius:8px;">Send Counter Offers</button>`;
+                    // MODE 3: Sedang memproses kartu (tombol dikunci sementara)
+                    footerHtml += `<button disabled style="${btnDisabled}">Send Counter Offers</button>`;
                 }
-            } else if (status == 2) {
-                // Notifikasi visual Status 2 agar admin sadar bahwa proses terkunci menunggu customer
+            } 
+            else if (status == 2) {
                 footerHtml += `<div style="text-align: center; width: 100%; color: #d97706; font-weight: bold; padding: 12px; background: #fef3c7; border-radius: 8px;">Waiting for the Customer's Response...</div>`;
-            } else if (status == 4) {
-                footerHtml += `<button class="btn-trx-action btn-deliver" onclick="updateStatus(${pem.id_pembelian}, 5, 'Received')">Receive Package</button>`;
-            } else if (status == 5) {
-                footerHtml += `<button class="btn-trx-action btn-cancel" onclick="updateStatus(${pem.id_pembelian}, 9, 'Rejected')">Reject & Return</button>`;
-                footerHtml += `<button class="btn-trx-action btn-confirm" onclick="updateStatus(${pem.id_pembelian}, 6, 'Verified')">Quality Match (Proceed)</button>`;
-            } else if (status == 6) {
-                footerHtml += `<button class="btn-trx-action btn-process" onclick="uploadPayment(${pem.id_pembelian})">Upload Payment Proof</button>`;
+            } 
+            else if (status == 4) {
+                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 5, 'Received')" style="${btnGreen}">Receive Package</button>`;
+            } 
+            else if (status == 5) {
+                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 9, 'Rejected')" style="${btnCancel}">Reject & Return</button>`;
+                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 6, 'Verified')" style="${btnGreen}">Quality Match (Proceed)</button>`;
+            } 
+            else if (status == 6) {
+                footerHtml += `<button onclick="uploadPayment(${pem.id_pembelian})" style="${btnBlue}">Upload Payment Proof</button>`;
             } 
 
             document.getElementById('modalFooter').innerHTML = footerHtml;
