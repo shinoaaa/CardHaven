@@ -79,7 +79,7 @@ $type = $_GET['type'] ?? 'sales';
                             <th width="5%">No</th>
                             <th width="12%">Date</th>
                             <th width="18%">Customer</th>
-                            <th width="40%">Cards Purchased</th>
+                            <th width="30%">Cards Purchased</th>
                             <th width="10%">Items</th>
                             <th width="15%">Paid</th>
                         </tr>

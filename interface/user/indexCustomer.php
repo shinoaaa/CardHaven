@@ -2,7 +2,9 @@
 
 <div>
     <div class="card-title-row">
+        
         <h2 class="coolveticaa">Customer</h2>
+        <button class="btn-add-green" onclick="openAddCustomerModal()">+ Add Customer</button>
     </div>
     <div class="userList">
         <div></div>
@@ -51,10 +53,13 @@
                         </td>
                         <td>
                             <div class="btn-action-group">
-                                <button class="btn-view-icon" onclick="openDetailCustomerModal(<?= $row['id_pengguna'] ?>)">...</button>
+                                <button class="btn-view-icon" onclick="openCustomerModal(<?= $row['id_pengguna'] ?>)">...</button>
+                                <button class="btn-edit-icon" onclick="openCustomerEdit(<?= (int)$row['id_pengguna'] ?>)" title="Edit Customer">
+                                    <img src="/cardhaven/assets/image/edit.svg" alt="">
+                                </button>
                                 <button class="btn-delete-icon" onclick="deleteCustomer(<?= $row['id_pengguna'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
                                 <label class="switch">
-                                    <input type="checkbox" <?= $row['status_akun'] == 1 ? 'checked' : '' ?> onchange="toggleCustomerStatus(<?= $row['id_pengguna'] ?>, this)">
+                                    <input type="checkbox" <?= $row['status_akun'] == 1 ? 'checked' : '' ?> onchange="toggleCustomer(<?= $row['id_pengguna'] ?>, this.checked, this)">
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -98,4 +103,6 @@
             <span class="page-link disabled">&gt;</span>
         <?php endif; ?>
     </div>
+    <?php include __DIR__ . '/../../interface/user/components/modalCustomer.php' ?>
+    <script src="/cardhaven/interface/user/scriptCustomer.js"></script>
 </div>
