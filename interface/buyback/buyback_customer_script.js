@@ -265,7 +265,10 @@ function openDetailModal(id_pembelian) {
                 const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isPending     = isNegotiating && adminHasOffer && !priceMatch;
                 const isAgreed      = adminHasOffer && priceMatch;
-                const maxAttempts   = k.percobaan_penawaran > 3;
+                
+                // Menghitung percobaan murni (Submit awal tidak dihitung)
+                let actualAttempts = Math.max(0, parseInt(k.percobaan_penawaran) - 1);
+                const maxAttempts  = actualAttempts >= 3;
 
                 if (isNegotiating) {
                     if (isPending) allDecided = false; 
@@ -306,7 +309,7 @@ function openDetailModal(id_pembelian) {
                     <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                         <p style="margin: 4px 0;"><strong>Your Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
                         <p style="margin: 4px 0;"><strong>Admin Offer:</strong> ${adminOfferLabel}</p>
-                        <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color:#E67E22;font-weight:600;">${k.percobaan_penawaran} / 3</span></p>
+                        <p style="margin: 4px 0;"><strong>Attempts:</strong> <span style="color:#E67E22;font-weight:600;">${actualAttempts} / 3</span></p>
                     </div>`;
 
                 if (isPending) {
@@ -320,7 +323,7 @@ function openDetailModal(id_pembelian) {
                                 class="btn-cancel-outline" style="width:auto; height:32px; font-size:0.8rem; padding:0 15px; margin:0; border-width:1.5px; color:#7c3aed; border-color:#7c3aed;">
                                 ⟳ Counter Offer
                                 </button>`
-                            : `<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem;">Max attempts reached — you can only Accept</span>`
+                            : `<span style="color:#E74C3C; font-weight:bold; font-size:0.8rem;">Max attempts reached. You can only Accept.</span>`
                         }
                     </div>`;
                 } else if (isAgreed) {

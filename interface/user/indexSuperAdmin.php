@@ -50,11 +50,11 @@
                         </td>
                         <td>
                             <div class="btn-action-group">
-                                <button class="btn-view-icon" onclick="openDetailAdminModal(<?= $row['id_pengguna'] ?>)">...</button>
-                                <button class="btn-edit-icon" onclick="openEditAdminModal(<?= $row['id_pengguna'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
+                                <button class="btn-view-icon" onclick="openAdminModal(<?= $row['id_pengguna'] ?>)">...</button>
+                                <button class="btn-edit-icon" onclick="openAdminEdit(<?= $row['id_pengguna'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
                                 <button class="btn-delete-icon" onclick="deleteAdmin(<?= $row['id_pengguna'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
                                 <label class="switch">
-                                    <input type="checkbox" <?= $row['status_akun'] == 1 ? 'checked' : '' ?> onchange="toggleAdminStatus(<?= $row['id_pengguna'] ?>, this)">
+                                    <input type="checkbox" <?= $row['status_akun'] == 1 ? 'checked' : '' ?> onchange="toggleAdmin(<?= $row['id_pengguna'] ?>, this.checked, this)">
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -98,4 +98,6 @@
             <span class="page-link disabled">&gt;</span>
         <?php endif; ?>
     </div>
+    <?php include __DIR__ . '/../../interface/user/components/modalSuperAdmin.php' ?>
+    <script src="/cardhaven/interface/user/scriptSuperAdmin.js"></script>
 </div>
