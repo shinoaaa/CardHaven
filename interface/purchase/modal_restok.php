@@ -65,4 +65,6 @@
 .badge-pending  { display:inline-block; padding:5px 18px; background:#FFF3CD; color:#856404; border-radius:9999px; font-weight:700; font-size:0.82rem; }
 .badge-approved { display:inline-block; padding:5px 18px; background:#D2FFE5; color:#0E6E36; border-radius:9999px; font-weight:700; font-size:0.82rem; }
 .badge-rejected { display:inline-block; padding:5px 18px; background:#FDECEA; color:#E74C3C; border-radius:9999px; font-weight:700; font-size:0.82rem; }
+.badge-received { display:inline-block; padding:5px 18px; background:#DBEAFE; color:#1E40AF; border-radius:9999px; font-weight:700; font-size:0.82rem; }
+.badge-paid     { display:inline-block; padding:5px 18px; background:#D1FAE5; color:#065F46; border-radius:9999px; font-weight:700; font-size:0.82rem; }
 </style>

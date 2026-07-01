@@ -10,8 +10,10 @@ function statusLabel(s) {
         0: '<span class="badge-pending">Pending</span>',
         1: '<span class="badge-approved">Approved</span>',
         2: '<span class="badge-rejected">Rejected</span>',
+        3: '<span class="badge-received">Received</span>',
+        4: '<span class="badge-paid">Paid</span>',
     };
-    return map[s] ?? '-';
+    return map[parseInt(s)] ?? '-';
 }
 
 function formatRupiah(n) {
@@ -38,7 +40,7 @@ function loadRestok(page = 1) {
     fetch(`${API}?${params}`)
         .then(r => r.json())
         .then(res => {
-            if (!res.success) {
+            if (res.status !== 'success') {
                 tbody.innerHTML = `<tr><td colspan="8" style="color:#E74C3C;">${res.message}</td></tr>`;
                 return;
             }
@@ -119,7 +121,7 @@ function openRestokModal(id) {
     fetch(`${API}?action=getDetail&id=${id}&actor_id=${ACTOR_ID}`)
         .then(r => r.json())
         .then(res => {
-            if (!res.success) {
+            if (res.status !== 'success') {
                 cardhavenAlert('error', 'Error', res.message);
                 closeRestokModal();
                 return;
@@ -158,13 +160,29 @@ function openRestokModal(id) {
             document.getElementById('modalItemsBody').innerHTML = itemHtml || '<tr><td colspan="4">No items.</td></tr>';
             document.getElementById('modalTotal').textContent = formatRupiah(h.total_harga);
 
-            // Tombol approve/reject — hanya Superadmin (role=3) dan hanya kalau status masih pending
+          // Tombol approve/reject — hanya Owner (role=3) dan hanya kalau status masih pending
             if (parseInt(res.data.can_approve) === 1 && parseInt(h.status_restok) === 0) {
                 document.getElementById('modalFooter').innerHTML = `
                     <button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>
                     <button class="btn-cancel-outline" style="color:#E74C3C; border-color:#E74C3C;"
                         onclick="confirmAction(${h.id_restok}, 'reject')">Reject</button>
                     <button class="btn-confirm" onclick="confirmAction(${h.id_restok}, 'approve')">Approve</button>
+                `;
+            }
+
+            // Tombol Received — Owner (role=3), hanya kalau status sudah Approved
+            if (parseInt(res.data.can_receive) === 1 && parseInt(h.status_restok) === 1) {
+                document.getElementById('modalFooter').innerHTML = `
+                    <button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>
+                    <button class="btn-confirm" onclick="confirmAction(${h.id_restok}, 'receive')">Mark as Received</button>
+                `;
+            }
+
+            // Tombol Paid — Owner (role=3), hanya kalau status sudah Received
+            if (parseInt(res.data.can_pay) === 1 && parseInt(h.status_restok) === 3) {
+                document.getElementById('modalFooter').innerHTML = `
+                    <button class="btn-cancel-outline" onclick="closeRestokModal()">Close</button>
+                    <button class="btn-confirm" onclick="confirmAction(${h.id_restok}, 'pay')">Mark as Paid</button>
                 `;
             }
         });
@@ -174,17 +192,19 @@ function closeRestokModal() {
     document.getElementById('restokDetailModal').style.display = 'none';
 }
 
-// ─── APPROVE / REJECT ─────────────────────────────────────────────────────────
+// ─── APPROVE / REJECT / RECEIVE / PAY ──────────────────────────────────────────
 function confirmAction(id, action) {
-const ACTOR_ID = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
-const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
-    const isApprove = action === 'approve';
+    const config = {
+        approve: { title: 'Approve this PO?', desc: 'This will mark the PO as approved.', btn: 'Yes, Approve' },
+        reject:  { title: 'Reject this PO?', desc: 'This will reject the PO. Admin will need to create a new one.', btn: 'Yes, Reject' },
+        receive: { title: 'Mark this PO as Received?', desc: 'Confirm the goods have been physically checked and match the PO.', btn: 'Yes, Received' },
+        pay:     { title: 'Mark this PO as Paid?', desc: 'This confirms payment to the supplier and will automatically add items to stock.', btn: 'Yes, Paid' },
+    };
+    const c = config[action];
     cardhavenConfirm(
-        isApprove ? 'Approve this PO?' : 'Reject this PO?',
-        isApprove
-            ? 'This will mark the PO as approved. Admin will proceed with the purchase.'
-            : 'This will reject the PO. The admin will need to create a new one.',
-        isApprove ? 'Yes, Approve' : 'Yes, Reject',
+        c.title,
+        c.desc,
+        c.btn,
         () => {
           const body = new FormData();
             body.append('action', action);
@@ -195,7 +215,7 @@ const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getIte
             fetch(API, { method: 'POST', body })
                 .then(r => r.json())
                 .then(res => {
-                    if (res.success) {
+                    if (res.status === 'success') {
                         cardhavenAlert('success', 'Done!', res.message, () => {
                             closeRestokModal();
                             loadRestok(currentPage);
@@ -241,7 +261,7 @@ function openAddRestokModal() {
         .then(r => r.json())
         .then(res => {
             const sel = document.getElementById('addSupplierSelect');
-            if (!res.success) {
+            if (res.status !== 'success') {
                 sel.innerHTML = '<option value="">Failed to load suppliers</option>';
                 return;
             }
@@ -256,7 +276,7 @@ function openAddRestokModal() {
     fetch(`${API}?action=getProduk&actor_id=${ACTOR_ID}`)
         .then(r => r.json())
         .then(res => {
-            produkList = res.success ? res.data.rows : [];
+            produkList = res.status === 'success' ? res.data.rows : [];
             addItemRow(); // langsung kasih 1 baris kosong waktu modal kebuka
         })
         .catch(() => { produkList = []; addItemRow(); });
@@ -327,34 +347,53 @@ function recalcAddTotal() {
 
 // ─── ADD PO: submit ──────────────────────────────────────────────────────────
 function submitAddRestok() {
-    // Tambahkan di paling atas file, setelah baris const API = ...
-const ACTOR_ID = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
-const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
-    const id_supplier = document.getElementById('addSupplierSelect').value;
-    if (!id_supplier) {
-        cardhavenAlert('error', 'Validation', 'Please select a supplier.');
-        return;
-    }
+   const suppSel = document.getElementById('addSupplierSelect');
+const id_supplier = suppSel.value;
+let errors = [];
 
-    const items = [];
-    let valid = true;
-    document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
-        const idNum = tr.id.replace('itemRow', '');
-        const id_produk = document.getElementById(`produk${idNum}`).value;
-        const jumlah_barang = parseInt(document.getElementById(`qty${idNum}`).value) || 0;
-        const harga_beli = parseFloat(document.getElementById(`harga${idNum}`).value) || 0;
+// Reset semua border dulu
+suppSel.style.border = '';
+document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
+    tr.querySelectorAll('select, input').forEach(el => el.style.border = '');
+});
 
-        if (!id_produk || jumlah_barang < 1 || harga_beli <= 0) {
-            valid = false;
-            return;
-        }
+if (!id_supplier) {
+    suppSel.style.border = '2px solid #E74C3C';
+    errors.push('Supplier is required.');
+}
+
+const rows = document.querySelectorAll('#addItemsBody tr.item-row');
+if (rows.length === 0) {
+    errors.push('Add at least one item.');
+}
+
+const items = [];
+rows.forEach((tr, idx) => {
+    const n = tr.id.replace('itemRow', '');
+    const selProduk  = document.getElementById(`produk${n}`);
+    const inputQty   = document.getElementById(`qty${n}`);
+    const inputHarga = document.getElementById(`harga${n}`);
+
+    const id_produk     = selProduk.value;
+    const jumlah_barang = parseInt(inputQty.value) || 0;
+    const harga_beli    = parseFloat(inputHarga.value) || 0;
+
+    let rowErrors = [];
+    if (!id_produk)        { selProduk.style.border  = '2px solid #E74C3C'; rowErrors.push('product'); }
+    if (jumlah_barang < 1) { inputQty.style.border   = '2px solid #E74C3C'; rowErrors.push('quantity'); }
+    if (harga_beli <= 0)   { inputHarga.style.border = '2px solid #E74C3C'; rowErrors.push('price'); }
+
+    if (rowErrors.length > 0) {
+        errors.push(`Row ${idx + 1}: ${rowErrors.join(', ')} is required.`);
+    } else {
         items.push({ id_produk, jumlah_barang, harga_beli });
-    });
-
-    if (!valid || items.length === 0) {
-        cardhavenAlert('error', 'Validation', 'Please complete all item fields (product, quantity, price).');
-        return;
     }
+});
+
+if (errors.length > 0) {
+    cardhavenAlert('error', 'Please fix the following:', errors.join('\n'));
+    return;
+}
 
     const body = new FormData();
     body.append('action', 'create');
@@ -365,7 +404,7 @@ const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getIte
     fetch(API, { method: 'POST', body })
         .then(r => r.json())
         .then(res => {
-            if (res.success) {
+            if (res.status === 'success') {
                 cardhavenAlert('success', 'Done!', res.message, () => {
                     closeAddRestokModal();
                     loadRestok(1);

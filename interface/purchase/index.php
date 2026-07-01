@@ -37,6 +37,8 @@ $role = (int)($_SESSION['role'] ?? 0);
                     <option value="0">Pending</option>
                     <option value="1">Approved</option>
                     <option value="2">Rejected</option>
+                    <option value="3">Received</option>
+                    <option value="4">Paid</option>
                 </select>
             </div>
 
