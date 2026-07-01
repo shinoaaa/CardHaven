@@ -299,7 +299,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                 </div>
 
                 <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" placeholder="Cari username atau ID order..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
+                    <input class="trx-search-input" type="text" placeholder="Cari username or ID order..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
                 </div>
 
                 <table class="styled-table">
@@ -311,7 +311,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             <th>Date</th>
                             <th>Items</th>
                             <th>Total</th>
-                            <th>Payment Metode</th>
+                            <th>Payment Method</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -347,7 +347,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="8" style="text-align:center;padding:2rem 0;opacity:.5;">Tidak ada transaksi ditemukan.</td></tr>
+                            <tr><td colspan="8" style="text-align:center;padding:2rem 0;opacity:.5;">No transactions found.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -387,7 +387,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                 <div class="trx-tabs" id="buybackTabs"></div>
 
                 <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" id="buybackSearch" placeholder="Cari username atau ID order..." oninput="handleBuybackSearch(this.value)">
+                    <input class="trx-search-input" type="text" id="buybackSearch" placeholder="Search username or Order ID..." oninput="handleBuybackSearch(this.value)">
                 </div>
 
                 <table class="styled-table" id="tableAdmin">

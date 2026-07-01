@@ -53,7 +53,7 @@ function closeEventModal(e) {
         modalEl.classList.remove('show');
         cardhavenConfirm(
             'Cancel Add Event?',
-            'Data yang sudah diisi akan hilang.',
+            'Any data you have already entered will be lost.',
             'Yes, Exit',
             () => { _aeForceClose(); },
             () => { modalEl.classList.add('show'); }
@@ -108,7 +108,7 @@ async function openEventModal(id) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         showModal(await res.text());
     } catch (err) {
-        showModal('<p style="text-align:center;color:#E74C3C;">Gagal memuat data detail.</p>');
+        showModal('<p style="text-align:center;color:#E74C3C;">Failed to load detailed data.</p>');
         console.error('[Event System]', err);
     }
 }
@@ -125,7 +125,7 @@ async function openEditModal(id) {
         setBatasTanggalMinimal();
         
     } catch (err) {
-        showModal('<p style="text-align:center;color:#E74C3C;">Gagal memuat form edit.</p>'); // [cite: 19]
+        showModal('<p style="text-align:center;color:#E74C3C;">Failed to load the edit form.</p>'); // [cite: 19]
         console.error('[Event System]', err); // [cite: 20]
     }
 }
@@ -152,7 +152,7 @@ async function openAddEventModal() {
         setBatasTanggalMinimal(); 
         
     } catch (err) {
-        showModal('<p style="text-align:center;color:#e74c3c;">Gagal memuat form.</p>'); // 
+        showModal('<p style="text-align:center;color:#e74c3c;">Failed to load the form.</p>'); // 
         console.error('[Add Event]', err); // [cite: 24]
     }
 }
@@ -359,28 +359,28 @@ function aeAddProductToList() {
     if (errProduk) errProduk.textContent = '';
     
     if (isNaN(diskon)) {
-        if (errProduk) errProduk.textContent = 'Isi Discount (%) di form atas terlebih dahulu!';
+        if (errProduk) errProduk.textContent = 'Fill in the "Discount (%)" field in the form above first!';
         return;
     }
 
     if (!idProduk) {
-        if (errProduk) errProduk.textContent = 'Pilih produk dari pencarian terlebih dahulu.';
+        if (errProduk) errProduk.textContent = 'Select a product from the search results first.';
         return;
     }
     if (isNaN(stok) || stok < 1) {
-        if (errProduk) errProduk.textContent = 'Stock harus lebih dari 0.';
+        if (errProduk) errProduk.textContent = 'The stock must be greater than 0.';
         return;
     }
     if (stok > aeSelectedMaxStok) {
-        if (errProduk) errProduk.textContent = `Stock tidak boleh melebihi sisa di database (${aeSelectedMaxStok}).`;
+        if (errProduk) errProduk.textContent = `Stock should not exceed the remaining quantity in the database (${aeSelectedMaxStok}).`;
         return;
     }
     if (aeProductList.some(p => p.id_produk == idProduk)) {
-        if (errProduk) errProduk.textContent = 'Produk ini sudah ada di daftar.';
+        if (errProduk) errProduk.textContent = 'This product is already on the list.';
         return;
     }
     if (tipe === 'preorder' && aeProductList.length >= 1) {
-        if (errProduk) errProduk.textContent = 'Event Pre-Order hanya boleh memiliki 1 produk.';
+        if (errProduk) errProduk.textContent = 'A pre-order event may only feature 1 product.';
         return;
     }
 
@@ -698,25 +698,25 @@ async function eeAddProductToList(idEvent) {
     if (errProduk) errProduk.textContent = '';
 
     if (isNaN(diskon)) {
-        if (errProduk) errProduk.textContent = 'Isi Discount (%) di form atas terlebih dahulu!';
+        if (errProduk) errProduk.textContent = 'Fill in the "Discount (%)" field in the form above first!';
         return;
     }
     if (!idProduk) {
-        if (errProduk) errProduk.textContent = 'Pilih produk dari pencarian terlebih dahulu.';
+        if (errProduk) errProduk.textContent = 'First, select a product from the search results.';
         return;
     }
     if (isNaN(stok) || stok < 1) {
-        if (errProduk) errProduk.textContent = 'Stock harus lebih dari 0.';
+        if (errProduk) errProduk.textContent = 'The stock must be greater than 0.';
         return;
     }
     if (stok > eeSelectedMaxStok) {
-        if (errProduk) errProduk.textContent = `Stock tidak boleh melebihi sisa di database (${eeSelectedMaxStok}).`;
+        if (errProduk) errProduk.textContent = `Stock should not exceed the remaining quantity in the database (${eeSelectedMaxStok}).`;
         return;
     }
     if (tipe === 'preorder') {
         const rows = document.querySelectorAll('#ee_product_tbody tr');
         if (rows.length >= 1) {
-            if (errProduk) errProduk.textContent = 'Event Pre-Order hanya boleh memiliki 1 produk.';
+            if (errProduk) errProduk.textContent = 'A pre-order event may only feature 1 product.';
             return;
         }
     }
@@ -764,7 +764,7 @@ async function eeEditStock(idProdukEvent, currentStok) {
         confirmButtonText: 'Save',
         cancelButtonText: 'Cancel',
         inputValidator: (value) => {
-            if (!value || parseInt(value) <= 0) return 'Stock harus lebih dari 0.';
+            if (!value || parseInt(value) <= 0) return 'The stock must be greater than 0.';
             return null;
         }
     });
@@ -851,10 +851,10 @@ async function eeSubmitEvent(idEvent) {
     if (!tipe)                                { eeSetError('ee_tipe_event',       'ee_err_tipe_event',       'Select event type.'); valid = false; }
     if (!mulai)                               { eeSetError('ee_tanggal_mulai',    'ee_err_tanggal_mulai',    'Start date is required.'); valid = false; }
     if (!berakhir)                            { eeSetError('ee_tanggal_berakhir', 'ee_err_tanggal_berakhir', 'End date is required.'); valid = false; }
-    if (mulai && berakhir && berakhir < mulai) { eeSetError('ee_tanggal_berakhir', 'ee_err_tanggal_berakhir', 'End date tidak boleh sebelum start date.'); valid = false; }
-    if (diskon === '')                        { eeSetError('ee_persen_diskon',    'ee_err_persen_diskon',    'Discount wajib diisi.'); valid = false; }
+    if (mulai && berakhir && berakhir < mulai) { eeSetError('ee_tanggal_berakhir', 'ee_err_tanggal_berakhir', 'The end date cannot be earlier than the start date.'); valid = false; }
+    if (diskon === '')                        { eeSetError('ee_persen_diskon',    'ee_err_persen_diskon',    'The "Discount" field is required.'); valid = false; }
     if (!maks || parseInt(maks) <= 0)         { eeSetError('ee_maks_pembelian',   'ee_err_maks_pembelian',   'Max purchase.'); valid = false; }
-    if (tipe === 'preorder' && !sampai)       { eeSetError('ee_tanggal_sampai',   'ee_err_tanggal_sampai',   'Estimated arrival wajib diisi untuk Pre-Order.'); valid = false; }
+    if (tipe === 'preorder' && !sampai)       { eeSetError('ee_tanggal_sampai',   'ee_err_tanggal_sampai',   'The "Estimated Arrival" field must be filled out for pre-orders.'); valid = false; }
 
     if (!valid) return;
 

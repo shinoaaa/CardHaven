@@ -25,16 +25,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'getProfileImage') {
                     'image' => $row['foto_profil']
                 ]);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'User nggak ketemu di database']);
+                echo json_encode(['status' => 'error', 'message' => 'User not found.']);
             }
             sqlsrv_free_stmt($stmt);
         } else {
             // Kalau query gagal, tangkap error dari SQL Server
             $errors = sqlsrv_errors();
-            echo json_encode(['status' => 'error', 'message' => 'Query gagal: ' . $errors[0]['message']]);
+            echo json_encode(['status' => 'error', 'message' => 'Failed to retrieve profile image: ' . $errors[0]['message']]);
         }
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'ID kosong coy']);
+        echo json_encode(['status' => 'error', 'message' => 'User ID is required']);
     }
     
     exit(); 

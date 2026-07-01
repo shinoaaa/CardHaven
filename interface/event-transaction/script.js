@@ -441,7 +441,7 @@ function submitOrder() {
             const prod = eventProducts.find(function (p) { return p.id_produk == item.id_produk; });
             Swal.fire(
                 'Purchase Limit Exceeded',
-                'You can only buy ' + maxAllowed + ' of "' + (prod ? prod.nama_produk : 'this product') + '" total (including previous purchases).',
+                'You can only buy ' + maxAllowed + ' of "' + (prod ? prod.nama_produk : 'this product') + '" Total (including previous purchases).',
                 'warning'
             );
             return;

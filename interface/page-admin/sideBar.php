@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     // [FIX] Kalau gagal atau user tidak punya foto, biarkan default.jpg tetap tampil
                 } catch (e) {
                     // [FIX] Bukan JSON = PHP error / file tidak ketemu, biarkan default foto saja
-                    console.error("Response bukan JSON:", textData);
+                    console.error("The response is not JSON:", textData);
                 }
             })
             .catch(error => {

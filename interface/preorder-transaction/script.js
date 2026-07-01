@@ -94,7 +94,7 @@ function loadPreOrderData(id) {
             if(preorderProduct) {
                 renderPreOrderDetail();
             } else {
-                Swal.fire('Error', 'Produk tidak ditemukan di event ini.', 'error');
+                Swal.fire('Error', 'No products were found for this event.', 'error');
             }
         })
         .catch(err => console.error('loadPreOrderData error:', err));
@@ -192,7 +192,7 @@ function changePreorderQty(delta, maxRemaining) {
     if (next > maxRemaining) {
         Swal.fire({
             title: 'Limit Reached',
-            text: 'Maksimal pembelian untuk event ini sudah tercapai.',
+            text: 'The purchase limit for this event has been reached.',
             icon: 'warning'
         });
         return;
@@ -242,9 +242,9 @@ function submitPreOrder() {
     const address    = document.getElementById('preorder-address').value.trim();
     const idMetode   = document.getElementById('preorder-payment').value;
 
-    if (!address)    { Swal.fire('Warning', 'Alamat pengiriman wajib diisi.', 'warning'); return; }
-    if (!idMetode)   { Swal.fire('Warning', 'Metode pembayaran wajib dipilih.', 'warning'); return; }
-    if (preorderQty <= 0) { Swal.fire('Warning', 'Tentukan jumlah produk yang akan di pre-order.', 'warning'); return; }
+    if (!address)    { Swal.fire('Warning', 'The shipping address must be filled in.', 'warning'); return; }
+    if (!idMetode)   { Swal.fire('Warning', 'You must select a payment method.', 'warning'); return; }
+    if (preorderQty <= 0) { Swal.fire('Warning', 'Specify the number of products to be pre-ordered.', 'warning'); return; }
 
     cardhavenConfirm(
         'Confirm Pre-Order',
@@ -274,7 +274,7 @@ function submitPreOrder() {
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Success!', 'Pre-order berhasil dibuat. Silakan lakukan pembayaran.', 'success');
+                    Swal.fire('Success!', 'Your pre-order has been successfully placed. Please proceed to checkout.', 'success');
                 } else {
                     Swal.fire('Error', data.message, 'error');
                     document.getElementById('pop-up-preorder-overlay').style.display = 'block';
@@ -282,7 +282,7 @@ function submitPreOrder() {
                 }
             })
             .catch(err => {
-                Swal.fire('Error', 'Gagal terhubung ke server.', 'error');
+                Swal.fire('Error', 'Failed to connect to the server.', 'error');
                 document.getElementById('pop-up-preorder-overlay').style.display = 'block';
                 document.getElementById('pop-up-preorder').style.display   = 'block';
             });

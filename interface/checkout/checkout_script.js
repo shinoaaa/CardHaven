@@ -72,8 +72,8 @@ function loadCartItems() {
 
             if (!data.success) {
                 list.innerHTML = `<p style="color:#dc2626;font-size:0.88rem;">
-                    ${escapeHtml(data.message || 'Gagal memuat item.')}
-                    <a href="/cardhaven/interface/cart/" style="color:#1a3a6b;font-weight:700;">Kembali ke keranjang</a>.
+                    ${escapeHtml(data.message || 'Failed to load items.')}
+                    <a href="/cardhaven/interface/cart/" style="color:#1a3a6b;font-weight:700;">Return to Card</a>.
                 </p>`;
                 updateSummary();
                 checkCanOrder();
@@ -112,8 +112,8 @@ function loadCartItems() {
             if (list) {
                 list.style.display = 'block';
                 const msg = err.name === 'AbortError'
-                    ? 'Koneksi timeout. Periksa internet Anda.'
-                    : 'Gagal memuat item. Coba refresh halaman.';
+                    ? 'Connection Failed. Check your connection.'
+                    : 'Failed to load items. Try to refresh the page.';
                 list.innerHTML = `
                     <div style="padding:16px;text-align:center;color:#dc2626;">
                         <p style="font-weight:700;margin-bottom:8px;">⚠ ${msg}</p>
@@ -140,7 +140,7 @@ function loadPaymentMethods() {
 
             if (!data.success) {
                 list.innerHTML = `<p style="color:#dc2626;font-size:0.88rem;">
-                    ${escapeHtml(data.message || 'Gagal memuat metode pembayaran.')}
+                    ${escapeHtml(data.message || 'Failed to load the payment method.')}
                 </p>`;
                 return;
             }
@@ -187,8 +187,8 @@ function loadPaymentMethods() {
             if (list) {
                 list.style.display = 'block';
                 const msg = err.name === 'AbortError'
-                    ? 'Koneksi timeout. Periksa internet Anda.'
-                    : 'Gagal memuat metode pembayaran. Coba refresh halaman.';
+                    ? 'Connection Failed. Check your connection.'
+                    : 'Failed to load items. Try to refresh the page.';
                 list.innerHTML = `
                     <div style="padding:16px;text-align:center;color:#dc2626;">
                         <p style="font-weight:700;margin-bottom:8px;">⚠ ${msg}</p>
@@ -302,7 +302,7 @@ function placeOrder() {
         })
         .catch(err => {
             const msg = err.name === 'AbortError'
-                ? 'Koneksi timeout. Coba lagi.'
+                ? 'Connection failed. Please try again.'
                 : 'Network error. Please try again.';
             showAlert('checkout', msg, 'error');
             isPlacingOrder  = false;
@@ -418,7 +418,7 @@ function submitPayment() {
         })
         .catch(err => {
             const msg = err.name === 'AbortError'
-                ? 'Upload timeout. File mungkin terlalu besar atau koneksi lambat.'
+                ? 'Upload timeout. The file may be too large or the network connection may be slow.'
                 : 'Network error. Please try again.';
             showAlert('upload', msg, 'error');
             isSubmittingProof = false;

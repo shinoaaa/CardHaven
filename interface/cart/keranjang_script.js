@@ -118,18 +118,18 @@ function renderRow(item) {
             <div class="cart-qty-control">
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, -1)"
-                        title="Kurangi">−</button>
+                        title="Subtract">−</button>
                 <span class="cart-qty-val">${item.jumlah_barang}</span>
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, 1)"
-                        title="Tambah">+</button>
+                        title="Add">+</button>
             </div>
         </td>
         <td class="cart-total">${formatIDR(item.subtotal_harga)}</td>
         <td>
             <button class="cart-btn-remove"
                     onclick="deleteItem(${item.id_detail_keranjang})"
-                    title="Hapus dari keranjang">✕</button>
+                    title="Delete form cart">✕</button>
         </td>
     `;
     return tr;
@@ -240,7 +240,7 @@ function deleteItem(id) {
 function showError() {
     const tbody = document.getElementById('cart-table-body');
     if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #dc2626; font-weight:bold;">Gagal memuat keranjang. Silahkan refresh halaman.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color: #dc2626; font-weight:bold;">Unable to load the basket. Please refresh the page.</td></tr>`;
     }
 }
  

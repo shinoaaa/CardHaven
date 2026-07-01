@@ -42,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmtInsert) {
             echo json_encode(['status' => 'success', 'message' => 'Registration successful']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan data ke database']);
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save data to the database.']);
         }
 
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => 'Detail Error: ' . $e->getMessage()]);
     }
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Akses tidak diizinkan']);
+    echo json_encode(['status' => 'error', 'message' => 'Access denied.']);
 }
 ?>

@@ -12,7 +12,7 @@ require_once 'components/fetch_dashboard.php';
     <title>Product Management - Super Admin</title>
 </head>
 <body>
-    <button id="scrollBottomBtn" class="scroll-bottom-btn" title="Ke Paling Bawah">
+    <button id="scrollBottomBtn" class="scroll-bottom-btn" title="Scroll to Bottom">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <polyline points="19 12 12 19 5 12"></polyline>
@@ -35,7 +35,7 @@ require_once 'components/fetch_dashboard.php';
                         <th>Product Type</th>
                         <th>Stock</th>
                         <th>Price</th>
-                        <th>status</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
