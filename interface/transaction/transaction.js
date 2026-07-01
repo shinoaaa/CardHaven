@@ -44,6 +44,13 @@ function getUserId() {
     return sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0;
 }
 
+// Resolusi path foto produk yang konsisten: path lengkap dipakai apa adanya,
+// nama file polos diarahkan ke folder produk.
+function productImg(foto) {
+    if (!foto) return '/CardHaven/image-profile/defaultProduct.jpg';
+    return foto.includes('/') ? `/CardHaven/${foto}` : `/CardHaven/assets/image/products/${foto}`;
+}
+
 function statusBadge(status) {
     const s = parseInt(status);
     return `<span style="
@@ -125,7 +132,8 @@ async function openDetailModal(id_penjualan) {
         const itemsHtml = (data.items || []).map(item => `
             <tr>
                 <td style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;">
-                    <img src="/CardHaven/image-profile/${item.foto || 'defaultProduct.jpg'}"
+                    <img src="${productImg(item.foto)}"
+                        onerror="this.src='/CardHaven/image-profile/defaultProduct.jpg'"
                         style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;">
                     <div>
                         <div style="font-weight:600;font-size:.85rem;">${item.nama_produk ?? '-'}</div>

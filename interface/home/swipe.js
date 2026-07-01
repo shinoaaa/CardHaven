@@ -1,67 +1,78 @@
 /**
- * Swipe / drag navigation for the home carousels.
- * Carousel-carousel di homepage memakai paginasi server (klik panah untuk
- * ganti halaman). Modul ini menambah gestur geser (mouse drag / swipe sentuh)
- * pada area carousel: geser ke kiri = halaman berikutnya, ke kanan = sebelumnya.
- * Ini praktik UX yang umum & mempermudah, dan tetap memakai tombol panah yang ada.
+ * Smooth drag-to-scroll untuk carousel/tabel yang bisa digeser horizontal —
+ * seperti tabel di dashboard admin: tahan lalu geser dengan mouse, tanpa perlu
+ * klik tombol panah dulu. Sentuh/trackpad tetap jalan lewat overflow-x native.
  */
 (function () {
-    const THRESHOLD = 60; // jarak minimum (px) agar dianggap swipe
+    function enableDragScroll(el) {
+        if (!el) return;
 
-    function enableSwipeNav(container, prevSel, nextSel) {
-        if (!container) return;
+        let isDown = false;
+        let startX = 0;
+        let startScroll = 0;
+        let moved = false;
 
-        let startX = 0, startY = 0, dragging = false, moved = false;
+        el.style.cursor = 'grab';
+        el.style.userSelect = 'none';
 
-        container.style.touchAction = 'pan-y'; // biarkan scroll vertikal tetap jalan
-        container.style.cursor = 'grab';
-
-        container.addEventListener('pointerdown', (e) => {
+        el.addEventListener('pointerdown', (e) => {
+            // Jangan bajak interaksi pada input/tekstarea di dalam container
+            if (e.target.closest('input, textarea, select')) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
-            dragging = true;
+            isDown = true;
             moved = false;
             startX = e.clientX;
-            startY = e.clientY;
-            container.style.cursor = 'grabbing';
+            startScroll = el.scrollLeft;
+            el.classList.add('dragging');
+            el.style.cursor = 'grabbing';
         });
 
-        window.addEventListener('pointermove', (e) => {
-            if (!dragging) return;
-            const dx = Math.abs(e.clientX - startX);
-            const dy = Math.abs(e.clientY - startY);
-            if (dx > 10 && dx > dy) moved = true;
-        });
-
-        window.addEventListener('pointerup', (e) => {
-            if (!dragging) return;
-            dragging = false;
-            container.style.cursor = 'grab';
-
+        el.addEventListener('pointermove', (e) => {
+            if (!isDown) return;
             const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-
-            if (Math.abs(dx) > THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
-                const btn = document.querySelector(dx < 0 ? nextSel : prevSel);
-                if (btn) btn.click();
-
-                // Cegah klik "tembus" ke tombol di dalam kartu (mis. Add To Cart)
-                // setelah gestur geser.
-                if (moved) {
-                    const stop = (ev) => {
-                        ev.stopPropagation();
-                        ev.preventDefault();
-                        window.removeEventListener('click', stop, true);
-                    };
-                    window.addEventListener('click', stop, true);
-                    setTimeout(() => window.removeEventListener('click', stop, true), 350);
+            if (Math.abs(dx) > 4) {
+                moved = true;
+                if (el.setPointerCapture && e.pointerId != null) {
+                    try { el.setPointerCapture(e.pointerId); } catch (_) {}
                 }
             }
+            el.scrollLeft = startScroll - dx;
         });
+
+        const release = () => {
+            if (!isDown) return;
+            isDown = false;
+            el.classList.remove('dragging');
+            el.style.cursor = 'grab';
+        };
+        el.addEventListener('pointerup', release);
+        el.addEventListener('pointerleave', release);
+        el.addEventListener('pointercancel', release);
+
+        // Cegah klik "tembus" ke tombol kartu (Add To Cart, dll) sesudah menggeser
+        el.addEventListener('click', (e) => {
+            if (moved) {
+                e.preventDefault();
+                e.stopPropagation();
+                moved = false;
+            }
+        }, true);
+
+        // Konversi scroll roda vertikal → horizontal supaya mudah dijelajah
+        el.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                el.scrollLeft += e.deltaY;
+                e.preventDefault();
+            }
+        }, { passive: false });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        enableSwipeNav(document.querySelector('.product-list'),   '#btn-prev-product',   '#btn-next-product');
-        enableSwipeNav(document.getElementById('ui-game-card-list'), '#btn-prev-game-card', '#btn-next-game-card');
-        enableSwipeNav(document.querySelector('.promo-content'),  '#btn-prev-promo',     '#btn-next-promo');
+        enableDragScroll(document.querySelector('.product-list'));
+        // Terapkan juga ke elemen lain yang ditandai perlu geser horizontal
+        document.querySelectorAll('.drag-scroll').forEach(enableDragScroll);
     });
+
+    // Ekspos supaya bisa dipakai halaman lain jika perlu
+    window.enableDragScroll = enableDragScroll;
 })();

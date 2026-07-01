@@ -38,31 +38,34 @@ session_start();
         /* ---- Step Indicator ---- */
         .checkout-steps {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0;
             margin-bottom: 2.5rem;
             padding: 1.25rem 0;
             border-bottom: 2px solid #eef2ff;
         }
 
+        /* Circle di atas, label di bawah, dan garis penghubung sejajar dengan
+           tengah lingkaran (lewat di BAWAH lingkaran) supaya tidak menembus teks. */
         .step-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 10px;
             flex: 1;
             position: relative;
+            text-align: center;
         }
 
         .step-item:not(:last-child)::after {
             content: '';
             position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: calc(100% - 130px);
+            top: 18px;               /* tengah lingkaran 36px */
+            left: 50%;
+            width: 100%;             /* dari tengah circle ini ke tengah circle berikutnya */
             height: 2px;
             background: #e0e7ff;
-            margin-left: 130px;
+            z-index: 0;
         }
 
         .step-item.active::after { background: var(--highlight); }
@@ -81,6 +84,8 @@ session_start();
             justify-content: center;
             flex-shrink: 0;
             transition: all 0.3s;
+            position: relative;
+            z-index: 1;              /* di atas garis penghubung */
         }
 
         .step-item.active .step-circle {
@@ -349,13 +354,20 @@ session_start();
         }
 
         /* ---- Order Summary (Sidebar) ---- */
+        /* Kolom kanan: Order Summary di atas, Payment Method di bawahnya */
+        .checkout-aside {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 100px;
+        }
+
         .checkout-summary-card {
             background: white;
             border: 1.5px solid #dde4f8;
             border-radius: 12px;
             overflow: hidden;
-            position: sticky;
-            top: 100px;
         }
 
         .summary-header {
@@ -507,11 +519,10 @@ session_start();
 
         @media (max-width: 900px) {
             .checkout-layout { grid-template-columns: 1fr; }
-            .checkout-summary-card { position: static; }
+            .checkout-aside { position: static; }
             .checkout-page-wrapper { padding: 1.5rem 1rem 3rem; }
             .form-row { grid-template-columns: 1fr; }
-            .step-item .step-label { display: none; }
-            .step-item::after { width: calc(100% - 46px); }
+            .step-label { font-size: 0.68rem; }
         }
 
         /* ---- Offset navbar ---- */
@@ -610,26 +621,10 @@ session_start();
                             </div>
                         </div>
 
-                        <!-- Payment Method -->
-                        <div class="checkout-card">
-                            <div class="checkout-card-header">
-                                <span class="header-icon">💳</span>
-                                <h2>Payment Method</h2>
-                            </div>
-                            <div class="checkout-card-body">
-                                <div id="payment-method-loading" class="checkout-loading" style="padding:30px 0;">
-                                    <div class="loading-spinner"></div>
-                                    <span class="loading-text">Loading payment methods...</span>
-                                </div>
-                                <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
-                                <div id="payment-method-pagination" class="payment-method-pagination"></div>
-                            </div>
-                        </div>
-
                     </div>
 
-                    <!-- RIGHT: Summary -->
-                    <aside>
+                    <!-- RIGHT: Summary + Payment -->
+                    <aside class="checkout-aside">
                         <div class="checkout-summary-card">
                             <div class="summary-header">
                                 <h2>Order Summary</h2>
@@ -659,6 +654,22 @@ session_start();
                                     By placing your order, you agree to CardHaven's<br>
                                     terms and conditions.
                                 </p>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method (di kolom kanan, sejajar dengan Shipping Address) -->
+                        <div class="checkout-card">
+                            <div class="checkout-card-header">
+                                <span class="header-icon">💳</span>
+                                <h2>Payment Method</h2>
+                            </div>
+                            <div class="checkout-card-body">
+                                <div id="payment-method-loading" class="checkout-loading" style="padding:30px 0;">
+                                    <div class="loading-spinner"></div>
+                                    <span class="loading-text">Loading payment methods...</span>
+                                </div>
+                                <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
+                                <div id="payment-method-pagination" class="payment-method-pagination"></div>
                             </div>
                         </div>
                     </aside>
