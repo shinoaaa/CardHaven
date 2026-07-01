@@ -231,11 +231,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                     const fotoSrc = prodPath ? `/CardHaven/${prodPath}` : '/CardHaven/image-profile/defaultProduct.jpg';
 
+                    const soldOut = (parseInt(prod.stok) || 0) <= 0;
+
                     const cardHTML = `
                     <div class="product-card">
                         <div style="width: 47%; display: flex; align-items: center; justify-content: center;">
-                            <div style="width: 15rem; height: 20rem; border-radius: 0.5rem; overflow: hidden;">
-                                <img src="${fotoSrc}" style="height: 100%; object-fit: contain;">
+                            <div style="position: relative; width: 15rem; height: 20rem; border-radius: 0.5rem; overflow: hidden;">
+                                <img src="${fotoSrc}" style="height: 100%; object-fit: contain; ${soldOut ? 'filter: grayscale(1) brightness(0.7);' : ''}">
+                                ${soldOut ? `
+                                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35);">
+                                    <span style="background:#dc2626; color:#fff; font-weight:800; letter-spacing:1px; padding:0.4rem 1rem; border-radius:0.4rem; transform:rotate(-12deg); font-size:1.1rem;">SOLD OUT</span>
+                                </div>` : ''}
                             </div>
                         </div>
                         <div style="width: 50%; display: flex; flex-direction: column; justify-content: center;">
@@ -260,17 +266,24 @@ document.addEventListener("DOMContentLoaded", function() {
                             </div>
                             <div style="display: flex; align-items: center; justify-content: space-between; color: var(--primary-color); margin-top: 1.25rem;">
                                 <h2>Price: <span id="display-price-${prod.id_produk}">${formatRupiah(prod.harga_jual)}</span></h2>
-                                <div style="display: flex; align-items: center; gap: 10px; border: 1px solid #ccc; border-radius: 20px; padding: 2px 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px; border: 1px solid #ccc; border-radius: 20px; padding: 2px 10px; ${soldOut ? 'opacity:0.4; pointer-events:none;' : ''}">
                                     <span id="negatif" onclick="updateHomeQty(${prod.id_produk}, -1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">-</span>
                                     <span id="qty-val-${prod.id_produk}" data-stok="${prod.stok}"style="font-weight:bold; min-width: 20px; text-align:center;">1</span>
                                     <span onclick="updateHomeQty(${prod.id_produk}, 1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">+</span>
                                 </div>
                             </div>
                             <button class="detail-product" onclick="goToDetail(${prod.id_produk})" style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
-                            <button class="btn-primary" 
-                                    onclick="addToCart(${prod.id_produk}, ${prod.harga_jual})" 
-                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem;">
-                                Add To Cart
+                            <button class="btn-primary"
+                                    onclick="addToCart(${prod.id_produk}, ${prod.harga_jual})"
+                                    ${soldOut ? 'disabled' : ''}
+                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin-bottom: 0.5rem; ${soldOut ? 'opacity:0.5; cursor:not-allowed;' : ''}">
+                                ${soldOut ? 'Out of Stock' : 'Add To Cart'}
+                            </button>
+                            <button class="btn-primary"
+                                    onclick="buyNow(${prod.id_produk}, ${prod.harga_jual})"
+                                    ${soldOut ? 'disabled' : ''}
+                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem; background: var(--bg-gradient); ${soldOut ? 'opacity:0.5; cursor:not-allowed;' : ''}">
+                                Checkout
                             </button>
                         </div>
                     </div>`;
@@ -423,7 +436,14 @@ window.updateHomeQty = function(id, change, hargaSatuan) {
 window.addToCart = function(idProduk, hargaSatuan) {
     const userId = getUserId();
     // Ambil jumlah barang dari elemen quantity
-    const qty = parseInt(document.getElementById(`qty-val-${idProduk}`).textContent);
+    const qtyEl = document.getElementById(`qty-val-${idProduk}`);
+    const qty   = parseInt(qtyEl.textContent);
+    const stok  = parseInt(qtyEl.dataset.stok) || 0;
+
+    if (stok <= 0) {
+        cardhavenAlert('error', 'Out of Stock', 'This product is currently out of stock.');
+        return;
+    }
 
     if (!userId || userId === "0") {
         cardhavenAlert('error', 'Failed', `Failed to add product to cart, please login first!`);
@@ -449,6 +469,48 @@ window.addToCart = function(idProduk, hargaSatuan) {
             document.getElementById(`qty-val-${idProduk}`).textContent = 1;
             document.getElementById(`display-price-${idProduk}`).textContent = formatRupiah(hargaSatuan);
         }
+    });
+};
+
+// Checkout langsung (buy now): set item ini sebagai satu-satunya item terpilih
+// di keranjang, lalu pindah ke halaman checkout.
+window.buyNow = function(idProduk, hargaSatuan) {
+    const userId = getUserId();
+    const qtyEl  = document.getElementById(`qty-val-${idProduk}`);
+    const qty    = parseInt(qtyEl.textContent) || 1;
+    const stok   = parseInt(qtyEl.dataset.stok) || 0;
+
+    if (!userId || userId === "0") {
+        cardhavenAlert('error', 'Failed', 'Please login first to checkout!');
+        return;
+    }
+    if (stok <= 0) {
+        cardhavenAlert('error', 'Out of Stock', 'This product is currently out of stock.');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'buy_now');
+    fd.append('id_produk', idProduk);
+    fd.append('harga_produk', hargaSatuan);
+    fd.append('jumlah', qty);
+    fd.append('id_pengguna_js', userId);
+
+    fetch('/CardHaven/interface/cart/controller_keranjang.php', {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            window.location.href = res.redirect || '/CardHaven/checkout';
+        } else {
+            cardhavenAlert('error', 'Failed', res.message || 'Failed to proceed to checkout.');
+        }
+    })
+    .catch(err => {
+        console.error('buyNow error:', err);
+        cardhavenAlert('error', 'System Error', 'A system error occurred.');
     });
 };
 

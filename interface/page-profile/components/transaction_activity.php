@@ -96,7 +96,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Item Name</th>
+                        <th>Transaction ID</th>
                         <th>Deal Date</th>
                         <th>Total Product</th>
                         <th>Status</th>
@@ -104,8 +104,8 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr><td colspan="7" style="text-align: center;">No BuyBack records yet.</td></tr>
+                <tbody id="buyback-history-body">
+                    <tr><td colspan="7" style="text-align: center;">Loading buyback history...</td></tr>
                 </tbody>
             </table>
         </div>

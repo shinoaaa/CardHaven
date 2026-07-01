@@ -28,12 +28,12 @@ session_start();
             font-weight: 800;
             margin-bottom: 0.5rem;
             color: var(--primary-color, #1a3a6b);
-            font-family: 'Coolvetica', sans-serif;
+            font-family: coolvetica, sans-serif;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .checkout-page-title .accent { color: #2563EB; }
+        .checkout-page-title .accent { color: var(--highlight); }
 
         /* ---- Step Indicator ---- */
         .checkout-steps {
@@ -65,7 +65,7 @@ session_start();
             margin-left: 130px;
         }
 
-        .step-item.active::after { background: #2563EB; }
+        .step-item.active::after { background: var(--highlight); }
         .step-item.done::after   { background: #16a34a; }
 
         .step-circle {
@@ -84,7 +84,7 @@ session_start();
         }
 
         .step-item.active .step-circle {
-            background: #2563EB;
+            background: var(--highlight);
             color: white;
             box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
         }
@@ -103,7 +103,7 @@ session_start();
             white-space: nowrap;
         }
 
-        .step-item.active .step-label { color: #2563EB; }
+        .step-item.active .step-label { color: var(--highlight); }
         .step-item.done  .step-label  { color: #16a34a; }
 
         /* ---- Layout ---- */
@@ -198,7 +198,7 @@ session_start();
         .form-input:focus,
         .form-select:focus,
         .form-textarea:focus {
-            border-color: #2563EB;
+            border-color: var(--highlight);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
@@ -281,15 +281,15 @@ session_start();
             transition: all 0.2s;
         }
 
-        .payment-method-option:hover { border-color: #2563EB; background: #fafbff; }
+        .payment-method-option:hover { border-color: var(--highlight); background: #fafbff; }
 
         .payment-method-option.selected {
-            border-color: #2563EB;
+            border-color: var(--highlight);
             background: #eef2ff;
         }
 
         .payment-method-option input[type="radio"] {
-            accent-color: #2563EB;
+            accent-color: var(--highlight);
             width: 16px;
             height: 16px;
             flex-shrink: 0;
@@ -316,6 +316,37 @@ session_start();
         }
 
         .payment-method-fee.free { color: #16a34a; }
+
+        /* ---- Payment Method Pagination ---- */
+        .payment-method-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .pm-page-btn {
+            padding: 7px 16px;
+            border: 1.5px solid #dde4f8;
+            background: white;
+            color: var(--primary-color, #0F3891);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pm-page-btn:hover:not(:disabled) {
+            border-color: var(--highlight);
+            background: #f0f4ff;
+        }
+
+        .pm-page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
 
         /* ---- Order Summary (Sidebar) ---- */
         .checkout-summary-card {
@@ -398,7 +429,7 @@ session_start();
         }
 
         .btn-place-order:hover:not(:disabled) {
-            background: #2563EB;
+            background: var(--highlight);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(37,99,235,0.28);
         }
@@ -432,7 +463,7 @@ session_start();
             width: 36px;
             height: 36px;
             border: 3px solid #dde4f8;
-            border-top-color: #2563EB;
+            border-top-color: var(--highlight);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -472,7 +503,7 @@ session_start();
             transition: color 0.2s;
         }
 
-        .back-link:hover { color: #2563EB; }
+        .back-link:hover { color: var(--highlight); }
 
         @media (max-width: 900px) {
             .checkout-layout { grid-template-columns: 1fr; }
@@ -495,7 +526,7 @@ session_start();
     <main class="main-content">
         <div class="checkout-page-wrapper">
 
-            <a href="/cardhaven/interface/cart/" class="back-link">← Back to Cart</a>
+            <a href="/CardHaven/home/cart" class="back-link">← Back to Cart</a>
 
             <h1 class="checkout-page-title">CHECK<span class="accent">OUT</span></h1>
 
@@ -562,6 +593,7 @@ session_start();
                                     <span class="loading-text">Loading payment methods...</span>
                                 </div>
                                 <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
+                                <div id="payment-method-pagination" class="payment-method-pagination"></div>
                             </div>
                         </div>
 
@@ -658,7 +690,7 @@ session_start();
                                         cursor: pointer;
                                         transition: border-color 0.2s, background 0.2s;
                                     " onclick="document.getElementById('bukti-file-input').click()"
-                                       ondragover="event.preventDefault();this.style.borderColor='#2563EB';this.style.background='#eef2ff'"
+                                       ondragover="event.preventDefault();this.style.borderColor='var(--highlight)';this.style.background='#eef2ff'"
                                        ondragleave="this.style.borderColor='#dde4f8';this.style.background=''"
                                        ondrop="handleFileDrop(event)">
                                         <div style="font-size:2.5rem;margin-bottom:8px;">🖼️</div>
@@ -737,7 +769,7 @@ session_start();
                 </div>
 
                 <br>
-                <a href="/cardhaven/interface/orders/" style="
+                <a href="/cardhaven/interface/orders/orders.php" style="
                     display:inline-block;
                     padding:14px 32px;
                     background:#1a3a6b;
@@ -750,10 +782,10 @@ session_start();
                     text-decoration:none;
                     transition:all 0.2s;
                     margin-right:12px;
-                " onmouseover="this.style.background='#2563EB'" onmouseout="this.style.background='#1a3a6b'">
+                " onmouseover="this.style.background='var(--highlight)'" onmouseout="this.style.background='#1a3a6b'">
                     View My Orders
                 </a>
-                <a href="/cardhaven/interface/shop/" style="
+                <a href="/CardHaven/home" style="
                     display:inline-block;
                     padding:14px 32px;
                     background:transparent;

@@ -10,10 +10,19 @@ let currentOrderId     = null;
 let cartSubtotal       = 0;
 let cartTotalItems     = 0; // Diubah menjadi global agar bisa dibaca oleh placeOrder()
 let selectedFile       = null;
+let hasStockIssue      = false; // true jika ada item yang stoknya tidak cukup/habis
+
+// Pagination metode pembayaran
+let allMethods         = [];
+let methodPage         = 1;
+const METHODS_PER_PAGE = 4;
 
 // Anti-spam flags
 let isPlacingOrder    = false;
 let isSubmittingProof = false;
+// Sekali order berhasil dibuat, halaman ini tidak boleh membuat order lagi
+// (mencegah "bayar lagi" saat user menekan back / restore dari bfcache).
+let orderPlaced       = false;
 
 // ============================================================
 // FETCH WITH TIMEOUT
@@ -32,6 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserInfo();
     loadCartItems();
     loadPaymentMethods();
+});
+
+// Jika halaman dipulihkan dari bfcache (user menekan tombol back setelah
+// meninggalkan halaman), muat ulang agar state order tidak bisa dipakai lagi.
+window.addEventListener('pageshow', (e) => {
+    if (e.persisted && orderPlaced) {
+        window.location.reload();
+    }
 });
 
 // ============================================================
@@ -93,15 +110,27 @@ function loadCartItems() {
 
             cartSubtotal   = 0;
             cartTotalItems = 0;
+            hasStockIssue  = false;
 
             items.forEach(item => {
+                const qty  = parseInt(item.jumlah_barang) || 0;
+                const stok = parseInt(item.stok);
+                const outOfStock = !isNaN(stok) && qty > stok;
+                if (outOfStock) hasStockIssue = true;
+
                 cartSubtotal   += parseFloat(item.subtotal_harga) || 0;
-                cartTotalItems += parseInt(item.jumlah_barang)    || 0;
-                list.appendChild(renderCheckoutItem(item));
+                cartTotalItems += qty;
+                list.appendChild(renderCheckoutItem(item, outOfStock, stok));
             });
 
             document.getElementById('summary-items-label').textContent =
                 `Items (${items.length} product${items.length > 1 ? 's' : ''}, ${cartTotalItems} pcs)`;
+
+            if (hasStockIssue) {
+                showAlert('checkout',
+                    'Some products do not have enough stock. Reduce the quantity in your cart before paying.',
+                    'error');
+            }
             updateSummary();
             checkCanOrder();
         })
@@ -145,39 +174,15 @@ function loadPaymentMethods() {
                 return;
             }
 
-            const methods = data.methods || [];
+            allMethods = data.methods || [];
 
-            if (methods.length === 0) {
+            if (allMethods.length === 0) {
                 list.innerHTML = `<p style="color:#888;font-size:0.88rem;">No payment methods available.</p>`;
                 return;
             }
 
-            methods.forEach(m => {
-                const div = document.createElement('div');
-                div.className   = 'payment-method-option';
-                div.dataset.id  = m.id_metode;
-                div.dataset.fee = m.biaya_admin;
-
-                const feeText = parseFloat(m.biaya_admin) > 0
-                    ? `<span class="payment-method-fee">+${fmt(m.biaya_admin)} fee</span>`
-                    : `<span class="payment-method-fee free">No fee</span>`;
-
-                div.innerHTML = `
-                    <input type="radio" name="payment_method" value="${m.id_metode}"
-                           onchange="selectPaymentMethod(${m.id_metode}, ${m.biaya_admin}, this.closest('.payment-method-option'))">
-                    <div class="payment-method-info">
-                        <div class="payment-method-name">${escapeHtml(m.nama_metode)}</div>
-                        <div class="payment-method-detail">
-                            ${escapeHtml(m.provider || '')}
-                            ${m.no_rekening ? '· ' + escapeHtml(m.no_rekening) : ''}
-                            ${m.atas_nama   ? '· a/n ' + escapeHtml(m.atas_nama) : ''}
-                        </div>
-                    </div>
-                    ${feeText}
-                `;
-                list.appendChild(div);
-            });
-
+            methodPage = 1;
+            renderPaymentMethods();
             checkCanOrder();
         })
         .catch(err => {
@@ -203,28 +208,99 @@ function loadPaymentMethods() {
         });
 }
 
-function renderCheckoutItem(item) {
+function renderCheckoutItem(item, outOfStock = false, stok = null) {
     const div = document.createElement('div');
     div.className = 'checkout-item';
     const fotoSrc = item.foto
         ? `${BASE_IMG_URL}/${item.foto}`
         : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
-        
+
+    const stockWarn = outOfStock
+        ? `<div style="color:#dc2626; font-size:0.72rem; font-weight:700; margin-top:2px;">
+               ⚠ Only ${stok ?? 0} left in stock, reduce the quantity in your cart.
+           </div>`
+        : '';
+
     div.innerHTML = `
         <div class="checkout-item-img">
             <img src="${fotoSrc}"
                  alt="${escapeHtml(item.nama_produk)}"
-                 onerror="this.src='${BASE_IMG_URL}/image-profile/no-image.png'">
+                 onerror="this.src='${BASE_IMG_URL}/image-profile/no-image.png'"
+                 style="${outOfStock ? 'filter: grayscale(1) brightness(0.75);' : ''}">
         </div>
         <div class="checkout-item-info">
             <div class="checkout-item-name">${escapeHtml(item.nama_produk)}</div>
             <div class="checkout-item-meta">
                 ${fmt(item.harga_produk)} × ${item.jumlah_barang}
             </div>
+            ${stockWarn}
         </div>
         <div class="checkout-item-subtotal">${fmt(item.subtotal_harga)}</div>
     `;
     return div;
+}
+
+// Render metode pembayaran per halaman (pagination) supaya list tidak kepanjangan.
+function renderPaymentMethods() {
+    const list = document.getElementById('payment-method-list');
+    if (!list) return;
+    list.innerHTML = '';
+    list.style.display = 'flex';
+
+    const totalPages = Math.max(1, Math.ceil(allMethods.length / METHODS_PER_PAGE));
+    if (methodPage > totalPages) methodPage = totalPages;
+    const start = (methodPage - 1) * METHODS_PER_PAGE;
+    const pageItems = allMethods.slice(start, start + METHODS_PER_PAGE);
+
+    pageItems.forEach(m => {
+        const div = document.createElement('div');
+        div.className   = 'payment-method-option';
+        div.dataset.id  = m.id_metode;
+        div.dataset.fee = m.biaya_admin;
+        if (String(selectedMethodId) === String(m.id_metode)) div.classList.add('selected');
+
+        const feeText = parseFloat(m.biaya_admin) > 0
+            ? `<span class="payment-method-fee">+${fmt(m.biaya_admin)} fee</span>`
+            : `<span class="payment-method-fee free">No fee</span>`;
+
+        div.innerHTML = `
+            <input type="radio" name="payment_method" value="${m.id_metode}"
+                   ${String(selectedMethodId) === String(m.id_metode) ? 'checked' : ''}
+                   onchange="selectPaymentMethod(${m.id_metode}, ${m.biaya_admin}, this.closest('.payment-method-option'))">
+            <div class="payment-method-info">
+                <div class="payment-method-name">${escapeHtml(m.nama_metode)}</div>
+                <div class="payment-method-detail">
+                    ${escapeHtml(m.provider || '')}
+                    ${m.no_rekening ? '· ' + escapeHtml(m.no_rekening) : ''}
+                    ${m.atas_nama   ? '· a/n ' + escapeHtml(m.atas_nama) : ''}
+                </div>
+            </div>
+            ${feeText}
+        `;
+        list.appendChild(div);
+    });
+
+    renderPaymentPagination(totalPages);
+}
+
+function renderPaymentPagination(totalPages) {
+    let bar = document.getElementById('payment-method-pagination');
+    if (!bar) return;
+    if (totalPages <= 1) { bar.innerHTML = ''; return; }
+
+    bar.innerHTML = `
+        <button type="button" class="pm-page-btn" ${methodPage <= 1 ? 'disabled' : ''}
+                onclick="changeMethodPage(-1)">‹ Prev</button>
+        <span style="font-size:0.8rem;color:#64748b;font-weight:600;">Page ${methodPage} of ${totalPages}</span>
+        <button type="button" class="pm-page-btn" ${methodPage >= totalPages ? 'disabled' : ''}
+                onclick="changeMethodPage(1)">Next ›</button>
+    `;
+}
+
+function changeMethodPage(delta) {
+    const totalPages = Math.max(1, Math.ceil(allMethods.length / METHODS_PER_PAGE));
+    methodPage = Math.min(totalPages, Math.max(1, methodPage + delta));
+    renderPaymentMethods();
 }
 
 function selectPaymentMethod(id, fee, el) {
@@ -253,9 +329,18 @@ function updateSummary() {
 function checkCanOrder() {
     const name   = (document.getElementById('field-name')?.value   || '').trim();
     const alamat = (document.getElementById('field-alamat')?.value  || '').trim();
-    const ready  = name.length > 0 && alamat.length > 0 && selectedMethodId !== null && cartSubtotal > 0;
+    const phone  = (document.getElementById('field-phone')?.value   || '').trim();
+    const ready  = name.length > 0 && alamat.length > 0 && isValidPhone(phone) &&
+                   selectedMethodId !== null && cartSubtotal > 0 && !hasStockIssue;
     const btn    = document.getElementById('btn-place-order');
-    if (btn) btn.disabled = !ready || isPlacingOrder;
+    if (btn) btn.disabled = !ready || isPlacingOrder || orderPlaced;
+}
+
+// Nomor telepon valid: hanya angka/spasi/+ - ( ), diawali angka atau '+',
+// dan 8–15 digit. Menolak input yang hanya karakter unik/spesial.
+function isValidPhone(phone) {
+    const digits = (phone.match(/\d/g) || []).length;
+    return /^\+?[0-9][0-9\s\-()]*$/.test(phone) && digits >= 8 && digits <= 15;
 }
 
 document.addEventListener('input', e => {
@@ -267,10 +352,18 @@ document.addEventListener('input', e => {
 // ============================================================
 
 function placeOrder() {
-    if (isPlacingOrder) return;
+    if (isPlacingOrder || orderPlaced) return;
     const alamat = document.getElementById('field-alamat').value.trim();
+    const phone  = document.getElementById('field-phone').value.trim();
     if (!alamat)          { showAlert('checkout', 'Please enter your shipping address.', 'error'); return; }
+    if (!phone)           { showAlert('checkout', 'Please enter your phone number.', 'error'); return; }
+    if (!isValidPhone(phone)) {
+        showAlert('checkout', 'Invalid phone number. Use digits only (8–15 digits).', 'error');
+        document.getElementById('field-phone').focus();
+        return;
+    }
     if (!selectedMethodId){ showAlert('checkout', 'Please select a payment method.', 'error');     return; }
+    if (hasStockIssue)    { showAlert('checkout', 'Some products do not have enough stock. Update your cart first.', 'error'); return; }
 
     isPlacingOrder = true;
     const btn = document.getElementById('btn-place-order');
@@ -290,7 +383,7 @@ function placeOrder() {
         .then(json => {
             if (json.success) {
                 currentOrderId = json.id_penjualan;
-                isPlacingOrder = false;
+                orderPlaced    = true; // kunci: order sudah dibuat, tidak boleh submit lagi
                 goToStep2(json);
             } else {
                 showAlert('checkout', json.message || 'Failed to place order.', 'error');
@@ -446,13 +539,13 @@ function goToStep3() {
         btnWrapper.style.cssText = 'display:flex;gap:12px;margin-top:28px;justify-content:center;flex-wrap:wrap;';
         btnWrapper.innerHTML = `
             <a id="btn-back-home"
-               href="/cardhaven/interface/home/"
+               href="/CardHaven/home"
                style="padding:12px 28px;background:#1a3a6b;color:white;border-radius:6px;
                       font-weight:800;text-decoration:none;font-size:0.85rem;
                       text-transform:uppercase;letter-spacing:1px;">
                 🏠 Back to Home
             </a>
-            <a href="/cardhaven/interface/cart/"
+            <a href="/CardHaven/home/cart"
                style="padding:12px 28px;background:white;color:#1a3a6b;border-radius:6px;
                       font-weight:800;text-decoration:none;font-size:0.85rem;
                       text-transform:uppercase;letter-spacing:1px;

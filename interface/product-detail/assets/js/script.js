@@ -50,6 +50,30 @@ function fetchProductDetail() {
                 // Bind ke DOM
                 document.getElementById('detailNama').innerText = prod.nama_produk;
                 document.getElementById('detailStok').innerText = prod.stok;
+
+                // Tampilan habis: badge SOLD OUT + nonaktifkan tombol beli
+                const soldOut = currentProductStock <= 0;
+                const btnCart = document.querySelector('.btn-add-cart');
+                const btnCheckout = document.querySelector('.btn-checkout');
+                [btnCart, btnCheckout].forEach(btn => {
+                    if (!btn) return;
+                    btn.disabled = soldOut;
+                    btn.style.opacity = soldOut ? '0.5' : '';
+                    btn.style.cursor = soldOut ? 'not-allowed' : '';
+                });
+                if (btnCart) btnCart.innerText = soldOut ? 'Out of Stock' : 'Add To Cart';
+                const imgBox = document.querySelector('.pd-image-box');
+                const oldBadge = document.getElementById('pd-soldout-badge');
+                if (oldBadge) oldBadge.remove();
+                if (soldOut && imgBox) {
+                    imgBox.style.position = 'relative';
+                    const badge = document.createElement('div');
+                    badge.id = 'pd-soldout-badge';
+                    badge.style.cssText = 'position:absolute; top:1rem; left:1rem; background:#dc2626; color:#fff; font-weight:800; letter-spacing:1px; padding:0.4rem 1rem; border-radius:0.4rem; z-index:2;';
+                    badge.innerText = 'SOLD OUT';
+                    imgBox.appendChild(badge);
+                }
+
                 document.getElementById('detailGame').innerText = prod.nama_game || 'General';
                 document.getElementById('detailType').innerText = prod.tipe_produk || 'Card';
                 document.getElementById('detailKondisi').innerText = prod.kondisi || 'Near Mint';
@@ -199,6 +223,11 @@ function addToCart() {
         return;
     }
 
+    if (currentProductStock <= 0 || currentQty < 1) {
+        cardhavenAlert('warning', 'Out of Stock', 'This product is currently out of stock.');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('id_pengguna', userId);
     formData.append('id_produk', productId);
@@ -228,11 +257,38 @@ window.goToDetail = function(idProduk) {
     window.location.href = `${base}/home/productdetail?id_produk=${idProduk}`;
 }
 
-// 6. Checkout Product Placeholder
+// 6. Checkout Product — langsung ke halaman checkout (buy now)
 function checkoutProduct() {
     if (!userId) {
         cardhavenAlert('error', 'Authentication Required', 'Please login to proceed.');
         return;
     }
-    cardhavenAlert('info', 'Checkout Process', 'Proceeding to checkout with ' + currentQty + ' item(s). (Feature under development)');
+    if (currentProductStock <= 0 || currentQty < 1) {
+        cardhavenAlert('warning', 'Out of Stock', 'This product is currently out of stock.');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'buy_now');
+    fd.append('id_produk', productId);
+    fd.append('harga_produk', currentProductPrice);
+    fd.append('jumlah', currentQty);
+    fd.append('id_pengguna_js', userId);
+
+    fetch(`${base}/interface/cart/controller_keranjang.php`, {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            window.location.href = res.redirect || `${base}/checkout`;
+        } else {
+            cardhavenAlert('error', 'Failed', res.message || 'Failed to proceed to checkout.');
+        }
+    })
+    .catch(err => {
+        console.error('checkoutProduct error:', err);
+        cardhavenAlert('error', 'System Error', 'A system error has occurred.');
+    });
 }

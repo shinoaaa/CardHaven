@@ -41,6 +41,60 @@ try {
     }
 
     // =====================================
+    // 1b. BUY NOW (Checkout langsung 1 produk)
+    // =====================================
+    // Menyiapkan keranjang agar HANYA produk ini yang terpilih (is_selected=1),
+    // lalu front-end mengarahkan ke halaman checkout. Reuse alur checkout yang
+    // sudah ada (sp_GetCheckoutData & sp_PlaceOrder membaca item is_selected).
+    if ($action === 'buy_now') {
+        $id_produk = (int)($_POST['id_produk'] ?? 0);
+        $harga     = (float)($_POST['harga_produk'] ?? 0);
+        $qty       = max(1, (int)($_POST['jumlah'] ?? 1));
+        if ($id_produk <= 0) throw new Exception("Produk tidak valid.");
+
+        // Ambil / buat header keranjang
+        $rk = sqlsrv_query($conn, "SELECT id_keranjang FROM dbo.keranjang WHERE id_pengguna = ?", [$id_pengguna]);
+        if ($rk === false) throw new Exception(sqlsrv_errors()[0]['message']);
+        $rowK = sqlsrv_fetch_array($rk, SQLSRV_FETCH_ASSOC);
+        if ($rowK) {
+            $id_keranjang = (int)$rowK['id_keranjang'];
+        } else {
+            sqlsrv_query($conn, "INSERT INTO dbo.keranjang (id_pengguna) VALUES (?)", [$id_pengguna]);
+            $rk2 = sqlsrv_query($conn, "SELECT id_keranjang FROM dbo.keranjang WHERE id_pengguna = ?", [$id_pengguna]);
+            $id_keranjang = (int)sqlsrv_fetch_array($rk2, SQLSRV_FETCH_ASSOC)['id_keranjang'];
+        }
+
+        // Validasi stok & ambil harga acuan
+        $rp = sqlsrv_query($conn, "SELECT stok, harga_jual FROM dbo.produk WHERE id_produk = ?", [$id_produk]);
+        if ($rp === false) throw new Exception(sqlsrv_errors()[0]['message']);
+        $prod = sqlsrv_fetch_array($rp, SQLSRV_FETCH_ASSOC);
+        if (!$prod) throw new Exception("Produk tidak ditemukan.");
+        $stok = (int)$prod['stok'];
+        if ($stok <= 0) throw new Exception("Produk sedang habis.");
+        if ($qty > $stok) $qty = $stok;
+        if ($harga <= 0) $harga = (float)$prod['harga_jual'];
+
+        // Upsert qty PERSIS (bukan menambah) untuk produk ini
+        $rex = sqlsrv_query($conn, "SELECT id_detail_keranjang FROM dbo.detail_keranjang WHERE id_keranjang = ? AND id_produk = ?", [$id_keranjang, $id_produk]);
+        $ex  = $rex ? sqlsrv_fetch_array($rex, SQLSRV_FETCH_ASSOC) : null;
+        if ($ex) {
+            sqlsrv_query($conn, "UPDATE dbo.detail_keranjang SET jumlah_barang = ?, harga_produk = ?, subtotal_harga = ? * ? WHERE id_detail_keranjang = ?",
+                [$qty, $harga, $qty, $harga, (int)$ex['id_detail_keranjang']]);
+        } else {
+            sqlsrv_query($conn, "INSERT INTO dbo.detail_keranjang (id_keranjang, id_produk, jumlah_barang, harga_produk, subtotal_harga, is_selected) VALUES (?, ?, ?, ?, ? * ?, 1)",
+                [$id_keranjang, $id_produk, $qty, $harga, $qty, $harga]);
+        }
+
+        // Pilih HANYA produk ini
+        sqlsrv_query($conn, "UPDATE dbo.detail_keranjang SET is_selected = 0 WHERE id_keranjang = ?", [$id_keranjang]);
+        sqlsrv_query($conn, "UPDATE dbo.detail_keranjang SET is_selected = 1 WHERE id_keranjang = ? AND id_produk = ?", [$id_keranjang, $id_produk]);
+
+        ob_clean();
+        echo json_encode(['success' => true, 'redirect' => '/CardHaven/checkout']);
+        exit;
+    }
+
+    // =====================================
     // 2. MANIPULASI DATA KERANJANG (DML)
     // =====================================
     $id_detail = isset($_POST['id']) ? (int)$_POST['id'] : null;

@@ -77,7 +77,9 @@ async function openDetailModal(id_penjualan) {
             return;
         }
 
-        const h = data.header;
+        // apifetch (sp_GetSalesDetail) mengembalikan field header di level teratas,
+        // bukan di dalam properti `header`. Ambil langsung dari `data`.
+        const h = data;
         const st = parseInt(h.status_penjualan);
 
         // Tentukan tombol aksi yang tampil
@@ -160,9 +162,9 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-section-title">Payment</div>
                     <div class="trx-info-row"><span>Method</span><b>${h.nama_metode ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Account Number</span><b>${h.no_rekening ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Account Number</span><b>${h.rek_tujuan ?? h.no_rekening ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin}</b></div>
+                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin ?? 0}</b></div>
                 </div>
 
                 <!-- Shipping -->
