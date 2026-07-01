@@ -12,7 +12,7 @@ class controllerTransaction {
         sqlsrv_next_result($stmt);
         $data = [];
         while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            if ($row['tanggal_penjualan'] instanceof DateTime) $row['tanggal_penjualan'] = $row['tanggal_penjualan']->format('Y-m-d H:i:s');
+            if ($row['tanggal_penjualan'] instanceof DateTime) $row['tanggal_penjualan'] = $row['tanggal_penjualan']->format('d-m-Y H:i');
             $data[] = $row;
         }
         return ['data' => $data, 'total_pages' => max(1, ceil($total / $limit))];

@@ -41,7 +41,7 @@ function setBuybackPage(page) {
     loadDaftar();
 }
 
-if (!idPengguna || userRole != '2') {
+if (!idPengguna || (userRole != '2' && userRole != '3')) {
     window.location.href = '../login-page/index.php';
 }
 function loadDaftar() {

@@ -74,7 +74,36 @@ switch ($action) {
             echo json_encode(["status" => "error", "message" => "System Error."]);
         }
         break;
-
+    case 'get_detail':
+        header('Content-Type: application/json');
+        try {
+            $id = (int)($_GET['id'] ?? 0);
+            
+            // Eksekusi UDF yang baru saja dibuat
+            $sql = "SELECT * FROM dbo.udf_GetDetailKartuBuyback(?)";
+            $stmt = sqlsrv_query($conn, $sql, [$id]);
+            
+            // Validasi jika query ke UDF gagal
+            if ($stmt === false) {
+                $errors = sqlsrv_errors();
+                echo json_encode([
+                    "status" => "error", 
+                    "message" => "Terjadi kesalahan pada Database.", 
+                    "debug" => $errors // Ini akan membantu melacak penyebab pasti error
+                ]);
+                exit;
+            }
+            
+            $data = [];
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $data[] = $row;
+            }
+            
+            echo json_encode(["status" => "success", "data" => $data]);
+        } catch (Exception $e) {
+            echo json_encode(["status" => "error", "message" => "Gagal memuat detail: " . $e->getMessage()]);
+        }
+        break;
     case 'export_excel':
         header("Content-Type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename=Buyback_Report.xls");
@@ -102,45 +131,96 @@ switch ($action) {
         break;
 
     case 'export_pdf':
-        require_once('/cardhaven/TCPDF-main/tcpdf.php');
+        $tcpdf_path = __DIR__ . '/../../TCPDF-main/tcpdf.php';
+        
+        if (file_exists($tcpdf_path)) {
+            require_once($tcpdf_path);
+        } else {
+            die("Error: File TCPDF tidak ditemukan di " . $tcpdf_path);
+        }
+
+        if (ob_get_length()) ob_end_clean();
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sort);
+        
+        // Inisialisasi TCPDF Landscape (L)
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        
+        // Pengaturan Dokumen
         $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetTitle('Laporan Buyback Completed');
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
+        $pdf->SetTitle('Buyback Report');
+        $pdf->setPrintHeader(false); // Header kustom nonaktif
+        
+        // --- PERBAIKAN MULTI-PAGE: Aktifkan Footer & Penomoran Halaman ---
+        $pdf->setPrintFooter(true); 
+        $pdf->setFooterFont(Array('helvetica', '', 9));
+        $pdf->SetFooterMargin(10);
+        
+        // Atur Margin dan Auto Page Break agar tidak menabrak batas kertas
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(TRUE, 15);
+        
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 10);
 
-        $html = '<h2 style="text-align:center;">Completed Buyback Transaction Report</h2><hr><br/>';
-        $html .= '<table border="1" cellpadding="5">
-                    <tr style="background-color:#f2f2f2; font-weight:bold; text-align:center;">
-                        <th width="5%">No</th>
-                        <th width="12%">Date</th>
-                        <th width="18%">Customer</th>
-                        <th width="40%">Cards Purchased</th>
-                        <th width="10%">Total Item</th>
-                        <th width="15%">Nominal (Rp)</th>
-                    </tr>';
+        // Header Judul Laporan di dalam PDF
+        $html = '<h2 style="text-align:center; color:#0F3891; margin-bottom:0;">Buyback Transaction Report</h2>';
+        $html .= '<p style="text-align:center; font-size:9px; color:#666;">Generated on: ' . date('d-m-Y H:i') . '</p><br/>';
+        
+        // --- PERBAIKAN STRUKTUR TABEL: Menggunakan THEAD agar otomatis berulang di halaman baru ---
+        $html .= '<table border="1" cellpadding="6" style="border-collapse:collapse; border:1px solid #7491ca; width:100%;">
+                    <thead>
+                        <tr style="background-color:#0F3891; color:#ffffff; font-weight:bold; text-align:center;">
+                            <th width="5%">No</th>
+                            <th width="12%">Date</th>
+                            <th width="18%">Customer</th>
+                            <th width="40%">Cards Purchased</th>
+                            <th width="10%">Items</th>
+                            <th width="15%">Paid (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
         
         $no = 1;
+        $totalQty = 0;      
+        $totalNominal = 0;
+        
         foreach ($data as $row) {
             $tgl = ($row['tanggal_pembelian'] instanceof DateTime) ? $row['tanggal_pembelian']->format('d-m-Y') : '-';
-            $html .= '<tr>
-                        <td align="center">'.$no++.'</td>
-                        <td align="center">'.$tgl.'</td>
-                        <td>'.$row['nama_customer'].'</td>
-                        <td>'.$row['daftar_kartu'].'</td>
-                        <td align="center">'.$row['total_barang'].'</td>
-                        <td align="right">'.number_format($row['total_harga'], 0, ',', '.').'</td>
+            $totalQty += (int)$row['total_barang'];
+            $totalNominal += (float)$row['total_harga'];
+            
+            // Warna baris selang-seling biar mudah dibaca (zebra style) sesuai global.css
+            $bgColor = ($no % 2 == 0) ? '#dee8fc' : '#ffffff';
+            
+            // --- PERBAIKAN NOBR: Mencegah satu baris terpotong split antar halaman ---
+            $html .= '<tr bgcolor="'.$bgColor.'" nobr="true">
+                        <td width="5%" align="center">'.$no++.'</td>
+                        <td width="12%" align="center" style="white-space:nowrap;">'.$tgl.'</td>
+                        <td width="18%"><b>'.htmlspecialchars($row['nama_customer']).'</b></td>
+                        <td width="40%">'.htmlspecialchars($row['daftar_kartu']).'</td>
+                        <td width="10%" align="right">'.$row['total_barang'].' Pcs</td>
+                        <td width="15%" align="right">Rp'.number_format($row['total_harga'], 0, ',', '.').'</td>
                     </tr>';
         }
-        $html .= '</table>';
+        
+        // Baris Grand Total di dalam TBODY
+        $html .= '<tr style="background-color:#f2f2f2; font-weight:bold;" nobr="true">
+                    <td align="center" colspan="4" align="right">GRAND TOTAL</td>
+                    <td align="right">'.number_format($totalQty, 0, ',', '.').' Pcs</td>
+                    <td align="right">Rp'.number_format($totalNominal, 0, ',', '.').'</td>
+                  </tr>';
+                  
+        $html .= '</tbody></table>';
 
-        $tanggalSekarang = date('Y-m-d'); 
+        // Penamaan file menggunakan tanggal dinamis
+        $tanggalSekarang = date('d-m-Y'); 
         $namaFile = 'Laporan_Buyback_' . $tanggalSekarang . '.pdf';
+        
+        // Render HTML ke PDF
         $pdf->writeHTML($html, true, false, true, false, '');
-        $pdf->Output('Laporan_Buyback.pdf', 'I');
+        
+        // Output mode 'I' (View inline tanpa otomatis download)
+        $pdf->Output($namaFile, 'I');
         break;
 }
 ?>

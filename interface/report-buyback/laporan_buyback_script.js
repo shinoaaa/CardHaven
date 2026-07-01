@@ -125,13 +125,13 @@ function renderTable() {
     pageData.forEach(row => {
         const tanggal = row.tanggal_pembelian ? row.tanggal_pembelian.substring(0, 10).split('-').reverse().join('-') : 'N/A';
         
-        let tr = `<tr>
+        let tr = `<tr class="trx-row" style="cursor: pointer;" onclick="openDetailModal(${row.id_pembelian})">
             <td style="text-align:center;">${startNo++}</td>
             <td style="white-space:nowrap;">${tanggal}</td>
             <td style="font-weight:600;">${row.nama_customer}</td>
             <td><div class="card-list-cell">${row.daftar_kartu || '-'}</div></td>
-            <td style="text-align:right; font-weight:600; padding-right: 1rem">${row.total_barang} Pcs</td>
-            <td style="text-align:right; font-weight:700; color:var(--primary-color); padding-right: 1.5rem">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
+            <td style="text-align:center; font-weight:600;">${row.total_barang} Pcs</td>
+            <td style="text-align:right; font-weight:700; color:var(--primary-color);">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
         </tr>`;
         tbody.innerHTML += tr;
     });
@@ -167,4 +167,111 @@ function exportReport(type) {
     window.open(url, '_blank');
 }
 
+function openDetailModal(id) {
+    const headerTitle = document.querySelector('#detailModal .modal-header h2');
+    if (headerTitle) {
+        headerTitle.innerHTML = `BUYBACK ID: <span class="blue-text">#${id}</span>`;
+    }
+    
+    const modalStatus = document.getElementById('modalStatus');
+    if (modalStatus) {
+        modalStatus.innerHTML = `<span style="background: #dcfce7; color: #15803d; padding: 4px 15px; border-radius: 20px; font-size: 0.85rem; display: inline-block;">Completed</span>`;
+    }
+
+    document.getElementById('detailModal').style.display = 'flex';
+    
+    const content = document.getElementById('modalContent');
+    content.innerHTML = `<div style="text-align:center; padding: 2rem; color:#888;">Loading transaction details...</div>`;
+
+    fetch(`${REPORT_CONTROLLER}?action=get_detail&id=${id}&role=${userRole}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'error' || !data.data || data.data.length === 0) {
+            content.innerHTML = `<div style="color:red; text-align:center; padding:2rem;">Failed to load details or data is empty.</div>`;
+            return;
+        }
+
+        const info = data.data[0];
+        let calcTotal = 0;
+
+        let html = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; background: #f8fafc; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <div>
+                    <span style="display:block; color:#64748b; font-size:0.8rem; margin-bottom:3px;">Customer</span>
+                    <b style="color:var(--primary-color); font-size:1.1rem;">${info.nama_customer}</b>
+                </div>
+                <div style="text-align:right;">
+                    <span style="display:block; color:#64748b; font-size:0.8rem; margin-bottom:3px;">Total Items</span>
+                    <b style="color:#333; font-size:1.1rem;">${info.total_barang} Pcs</b>
+                </div>
+            </div>
+            
+            <h3 style="font-size: 1rem; color: #475569; margin-bottom: 12px; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">Card List</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        `;
+
+        data.data.forEach(item => {
+            let price = parseFloat(item.penawaran_admin) > 0 ? parseFloat(item.penawaran_admin) : parseFloat(item.penawaran_customer);
+            calcTotal += price;
+
+            let imgDepan = `/CardHaven/${item.foto_depan}`;
+            let imgBelakang = `/CardHaven/${item.foto_belakang}`;
+
+            html += `
+                <div style="display: flex; gap: 15px; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    
+                    <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                        <img src="${imgDepan}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.2s;" title="Front Photo" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="${imgBelakang}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.2s;" title="Back Photo" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    </div>
+                    
+                    <div style="flex-grow: 1;">
+                        <div style="font-weight: 700; color: #1e293b; font-size: 1.05rem; margin-bottom: 4px;">${item.nama_kartu}</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">Final Approved Price</div>
+                    </div>
+                    
+                    <div style="text-align: right; flex-shrink: 0;">
+                        <div style="font-weight: 800; color: var(--primary-color); font-size: 1rem;">Rp ${price.toLocaleString('id-ID')}</div>
+                    </div>
+
+                </div>
+            `;
+        });
+
+        html += `</div>`; 
+
+        html += `
+            <div style="background: #dee8fc; border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #c6d8f9;">
+                <span style="font-weight: 800; color: #0F3891; font-size: 1rem;">Total Paid</span>
+                <span style="font-weight: 800; color: #27AE60; font-size: 1rem;">Rp ${calcTotal.toLocaleString('id-ID')}</span>
+            </div>
+        `;
+
+        let imgBukti = info.bukti_pembayaran ? `/CardHaven/${info.bukti_pembayaran}` : '';
+        if (imgBukti) {
+            html += `
+                <div style="margin-top:20px; text-align:center; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 15px 0; color:#475569; font-size:0.95rem;">Payment Proof</h4>
+                    <img src="${imgBukti}" onerror="this.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius:8px; border:2px solid #cbd5e1; cursor:pointer; transition:0.2s;" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                </div>
+            `;
+        } else {
+            html += `
+                <div style="margin-top:20px; text-align:center; background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0; color:#94a3b8; font-size:0.85rem;">
+                    No payment proof available for this transaction.
+                </div>
+            `;
+        }
+
+        content.innerHTML = html;
+    })
+    .catch(err => {
+        content.innerHTML = `<div style="color:red; text-align:center; padding:2rem;">Connection lost. Server error.</div>`;
+    });
+}
+
+// Fungsi menutup modal
+function closeDetailModal() {
+    document.getElementById('detailModal').style.display = 'none';
+}
 document.addEventListener('DOMContentLoaded', fetchReportData);
