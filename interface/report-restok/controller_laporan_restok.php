@@ -166,12 +166,12 @@ switch ($action) {
             $bgColor = ($no % 2 == 0) ? '#dee8fc' : '#ffffff';
 
             $html .= '<tr bgcolor="'.$bgColor.'" nobr="true">
-                        <td align="center">'.$no++.'</td>
-                        <td align="center" style="white-space:nowrap;">'.$tgl.'</td>
-                        <td><b>'.htmlspecialchars($row['nama_suplier']).'</b></td>
-                        <td>'.htmlspecialchars($row['daftar_produk']).'</td>
-                        <td align="center">'.($statusMap[(int)$row['status_restok']] ?? '-').'</td>
-                        <td align="center">'.$row['total_barang'].'</td>
+                        <td width="5%" align="center">'.$no++.'</td>
+                        <td width="12%" align="center" style="white-space:nowrap;">'.$tgl.'</td>
+                        <td width="15%"><b>'.htmlspecialchars($row['nama_suplier']).'</b></td>
+                        <td width="30%">'.htmlspecialchars($row['daftar_produk']).'</td>
+                        <td width="13%" align="center">'.($statusMap[(int)$row['status_restok']] ?? '-').'</td>
+                        <td width="10%" align="center">'.$row['total_barang'].'</td>
                         <td align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
                     </tr>';
         }
