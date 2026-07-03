@@ -118,7 +118,7 @@ switch ($action) {
             echo "<td>" . ucfirst($row['tipe_event']) . "</td>";
             echo "<td>" . number_format((float)$row['persen_diskon'], 0) . "%</td>";
             echo "<td>" . $row['total_barang'] . "</td>";
-            echo "<td>Rp " . number_format($row['total_harga'], 0, ',', '.') . "</td>";
+            echo "<td>Rp " . number_format((float)$row['total_harga'], 0, ',', '.') . "</td>";
             echo "</tr>";
         }
         echo "</table>";
@@ -174,7 +174,7 @@ switch ($action) {
                         <td width="20%" align="center" style="white-space:nowrap;">'.$tglMulai.' - '.$tglAkhir.'</td>
                         <td width="12%" align="center">'.ucfirst($row['tipe_event']).' ('.number_format((float)$row['persen_diskon'], 0).'%)</td>
                         <td width="12%" align="center">'.$row['total_barang'].' Pcs</td>
-                        <td align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
+                        <td align="right">Rp '.number_format((float)$row['total_harga'], 0, ',', '.').'</td>
                     </tr>';
         }
         $html .= '<tr style="background-color:#f2f2f2; font-weight:bold;" nobr="true">
