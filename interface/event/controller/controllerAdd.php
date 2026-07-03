@@ -11,14 +11,14 @@ if (!$body) { echo json_encode(['error' => 'Invalid JSON body']); exit; }
 
 $required = ['nama_event', 'tipe_event', 'tanggal_mulai', 'tanggal_berakhir', 'persen_diskon', 'maks_pembelian'];
 foreach ($required as $field) {
-    if (!isset($body[$field]) || $body[$field] === '') { echo json_encode(['error' => "Field '$field' wajib diisi"]); exit; }
+    if (!isset($body[$field]) || $body[$field] === '') { echo json_encode(['error' => "Field '$field' is required"]); exit; }
 }
 
 $products = $body['products'] ?? [];
-if (empty($products)) { echo json_encode(['error' => 'Minimal 1 produk harus ditambahkan']); exit; }
-if ($body['tipe_event'] === 'preorder' && count($products) > 1) { echo json_encode(['error' => 'Event preorder hanya boleh memiliki 1 produk']); exit; }
-if ($body['maks_pembelian'] <= 0) { echo json_encode(['error' => 'Maks pembelian harus lebih dari 0']); exit; }
-if ($body['tanggal_berakhir'] < $body['tanggal_mulai']) { echo json_encode(['error' => 'Tanggal berakhir tidak boleh sebelum tanggal mulai']); exit; }
+if (empty($products)) { echo json_encode(['error' => 'At least 1 product must be added']); exit; }
+if ($body['tipe_event'] === 'preorder' && count($products) > 1) { echo json_encode(['error' => 'A preorder event can only have 1 product']); exit; }
+if ($body['maks_pembelian'] <= 0) { echo json_encode(['error' => 'Max purchase must be greater than 0']); exit; }
+if ($body['tanggal_berakhir'] < $body['tanggal_mulai']) { echo json_encode(['error' => 'End date cannot be earlier than start date']); exit; }
 
 $itemsJson = json_encode($products);
 $status_event = isset($body['status_event']) ? (int)$body['status_event'] : 1;

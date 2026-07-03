@@ -49,12 +49,12 @@ elseif ($action === 'updateProfile') {
         $allowed  = ['jpg', 'jpeg', 'png', 'webp'];
 
         if (!in_array($ext, $allowed)) {
-            echo json_encode(['status' => 'error', 'msg' => 'Format foto tidak didukung (jpg/png/webp)']);
+            echo json_encode(['status' => 'error', 'msg' => 'Unsupported photo format (jpg/png/webp)']);
             exit;
         }
 
         if ($file['size'] > 2 * 1024 * 1024) { // Maks 2MB
-            echo json_encode(['status' => 'error', 'msg' => 'Ukuran foto maksimal 2MB']);
+            echo json_encode(['status' => 'error', 'msg' => 'Maximum photo size is 2MB']);
             exit;
         }
 
@@ -68,7 +68,7 @@ elseif ($action === 'updateProfile') {
         }
 
         if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            echo json_encode(['status' => 'error', 'msg' => 'Gagal menyimpan foto']);
+            echo json_encode(['status' => 'error', 'msg' => 'Failed to save photo']);
             exit;
         }
 
@@ -92,4 +92,52 @@ elseif ($action === 'updateProfile') {
     } else {
         echo json_encode(['status' => 'error', 'msg' => 'Failed updating data']);
     }
+}
+// Daftar pesanan "Buy Product" milik customer (untuk tab di halaman profil)
+elseif ($action === 'getOrders') {
+    $user_id = (int)($_GET['id_pengguna'] ?? 0);
+    if ($user_id <= 0) { echo json_encode(['status' => 'error', 'data' => []]); exit; }
+
+    $sql = "SELECT p.id_penjualan, p.tanggal_penjualan, p.alamat, p.total_barang, p.total_harga,
+                   p.status_penjualan, p.no_resi, m.nama_metode
+            FROM penjualan p
+            LEFT JOIN metode_pembayaran m ON p.id_metode = m.id_metode
+            WHERE p.id_pengguna = ?
+            ORDER BY p.tanggal_penjualan DESC, p.id_penjualan DESC";
+    $stmt = sqlsrv_query($conn, $sql, array($user_id));
+
+    $orders = [];
+    if ($stmt) {
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            if ($row['tanggal_penjualan'] instanceof DateTime) {
+                $row['tanggal_penjualan'] = $row['tanggal_penjualan']->format('Y-m-d H:i:s');
+            }
+            $row['total_harga'] = (float)$row['total_harga'];
+            $orders[] = $row;
+        }
+    }
+    echo json_encode(['status' => 'success', 'data' => $orders]);
+}
+// Detail satu pesanan (dipakai tombol ••• di tabel profil)
+elseif ($action === 'getOrderDetail') {
+    $user_id = (int)($_GET['id_pengguna'] ?? 0);
+    $id_penjualan = (int)($_GET['id_penjualan'] ?? 0);
+    if ($user_id <= 0 || $id_penjualan <= 0) { echo json_encode(['status' => 'error', 'msg' => 'Invalid request.']); exit; }
+
+    // sp_GetSalesDetail(id, id_pengguna) -> hanya milik user tsb
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSalesDetail(?, ?)}", array($id_penjualan, $user_id));
+    if (!$stmt) { echo json_encode(['status' => 'error', 'msg' => 'Order not found.']); exit; }
+
+    $order = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    if (!$order) { echo json_encode(['status' => 'error', 'msg' => 'Order not found.']); exit; }
+    if ($order['tanggal_penjualan'] instanceof DateTime) {
+        $order['tanggal_penjualan'] = $order['tanggal_penjualan']->format('Y-m-d H:i:s');
+    }
+
+    sqlsrv_next_result($stmt);
+    $items = [];
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $items[] = $row;
+    $order['items'] = $items;
+
+    echo json_encode(['status' => 'success', 'data' => $order]);
 }

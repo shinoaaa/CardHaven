@@ -1709,12 +1709,14 @@ input:checked + .slider:before {
 .product-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
 }
 
 /* Tiap product card */
 .product-card {
     display: flex;
+    flex: 0 0 auto;
     border: 1px solid #584c4c;
     border-radius: 0.9rem;
     padding: 0.25rem 1.25rem;

@@ -98,7 +98,7 @@ switch ($action) {
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
         
         echo "<table border='1'>";
-        echo "<tr><th>No</th><th>Tanggal</th><th>Customer</th><th>Daftar Produk</th><th>Metode Pembayaran</th><th>Total Qty</th><th>Total Penjualan</th></tr>";
+        echo "<tr><th>No</th><th>Date</th><th>Customer</th><th>Product List</th><th>Payment Method</th><th>Total Qty</th><th>Total Sales</th></tr>";
         
         $no = 1;
         foreach ($data as $row) {

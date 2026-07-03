@@ -50,6 +50,30 @@ function fetchProductDetail() {
                 // Bind ke DOM
                 document.getElementById('detailNama').innerText = prod.nama_produk;
                 document.getElementById('detailStok').innerText = prod.stok;
+
+                // Tampilan habis: badge SOLD OUT + nonaktifkan tombol beli
+                const soldOut = currentProductStock <= 0;
+                const btnCart = document.querySelector('.btn-add-cart');
+                const btnCheckout = document.querySelector('.btn-checkout');
+                [btnCart, btnCheckout].forEach(btn => {
+                    if (!btn) return;
+                    btn.disabled = soldOut;
+                    btn.style.opacity = soldOut ? '0.5' : '';
+                    btn.style.cursor = soldOut ? 'not-allowed' : '';
+                });
+                if (btnCart) btnCart.innerText = soldOut ? 'Out of Stock' : 'Add To Cart';
+                const imgBox = document.querySelector('.pd-image-box');
+                const oldBadge = document.getElementById('pd-soldout-badge');
+                if (oldBadge) oldBadge.remove();
+                if (soldOut && imgBox) {
+                    imgBox.style.position = 'relative';
+                    const badge = document.createElement('div');
+                    badge.id = 'pd-soldout-badge';
+                    badge.style.cssText = 'position:absolute; top:1rem; left:1rem; background:#dc2626; color:#fff; font-weight:800; letter-spacing:1px; padding:0.4rem 1rem; border-radius:0.4rem; z-index:2;';
+                    badge.innerText = 'SOLD OUT';
+                    imgBox.appendChild(badge);
+                }
+
                 document.getElementById('detailGame').innerText = prod.nama_game || 'General';
                 document.getElementById('detailType').innerText = prod.tipe_produk || 'Card';
                 document.getElementById('detailKondisi').innerText = prod.kondisi || 'Near Mint';
@@ -101,7 +125,6 @@ function renderRelatedProducts() {
     const btnNext = document.getElementById('btnNextRelated');
 
     if (btnPrev && btnNext) {
-        // Cek Tombol Prev (Jika di page 1)
         if (currentRelatedPage <= 1) {
             btnPrev.style.opacity = '0.3';
             btnPrev.style.cursor = 'default';
@@ -110,7 +133,6 @@ function renderRelatedProducts() {
             btnPrev.style.cursor = 'pointer';
         }
 
-        // Cek Tombol Next (Jika di page terakhir atau datanya kosong)
         if (currentRelatedPage >= totalPages || totalPages === 0) {
             btnNext.style.opacity = '0.3';
             btnNext.style.cursor = 'default';
@@ -139,20 +161,142 @@ function renderRelatedProducts() {
             relFotoSrc = `${base}/assets/image/products/${relFotoPath}`;
         }
 
+        // --- PERBAIKAN LOGIKA STOK DI SINI ---
+        // Ambil stok asli dari database. Kalau datanya ga ada/undefined, paksa jadi 0 (jangan 1).
+        let stokTersedia = parseInt(item.stok);
+        if (isNaN(stokTersedia)) {
+            console.warn(`Stok tidak ditemukan untuk produk ID ${item.id_produk}. Pastikan SP SQL sudah narik kolom 'stok'.`);
+            stokTersedia = 0; 
+        }
+        let soldOut = stokTersedia <= 0;
+        // ------------------------------------
+
         const card = document.createElement('div');
         card.className = 'rel-card';
         card.innerHTML = `
-            <img src="${relFotoSrc}" class="rel-image" alt="Related">
-            <div class="rel-title-row">
-                <h4 class="rel-title">${item.nama_produk}</h4>
-                <span class="rel-game">${item.nama_game || 'General'}</span>
+            <img src="${relFotoSrc}" class="rel-image" alt="Related" style="margin-bottom: 10px;">
+            <div class="rel-title-row" style="margin-bottom: 5px;">
+                <h4 class="rel-title" style="margin: 0; font-size: 13px;">${item.nama_produk}</h4>
+                <span class="rel-game" style="font-size: 10px;">${item.nama_game || 'General'}</span>
             </div>
-            <p class="rel-price">Price: Rp${parseFloat(item.harga_jual).toLocaleString('id-ID')}</p>
-            <button class="btn-check-detail" onclick="window.goToDetail(${item.id_produk})">Check Detail</button>
+            <p class="rel-price" style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold;">Price: Rp${parseFloat(item.harga_jual).toLocaleString('id-ID')}</p>
+            
+            <!-- Hidden Span Untuk Dibaca oleh fungsi window.buyNow dan addRelatedToCart -->
+            <span id="qty-val-${item.id_produk}" data-stok="${stokTersedia}" style="display:none;">1</span>
+
+            <!-- Tombol Check Detail & Add To Cart Berdampingan -->
+            <div style="display: flex; gap: 0.4rem; margin-bottom: 0.4rem;">
+                <button onclick="window.goToDetail(${item.id_produk})" 
+                        style="flex: 1; padding: 0.4rem 0; font-size: 0.75rem; font-weight:600; color: var(--primary-color, #173C99); border: 1px solid var(--primary-color, #173C99); background: transparent; border-radius: 9999px; cursor: pointer;">
+                    Detail
+                </button>
+                <button onclick="addRelatedToCart(${item.id_produk}, ${item.harga_jual})"
+                        ${soldOut ? 'disabled' : ''}
+                        style="flex: 1; padding: 0.4rem 0; font-size: 0.75rem; font-weight:600; ${soldOut ? 'opacity:0.5; cursor:default;' : 'cursor:pointer;'}; border: 1px solid var(--primary-color, #173C99); border-radius: 9999px; background: transparent; color: var(--primary-color, #173C99);">
+                    ${soldOut ? 'Out of stock' : '+ Cart'}
+                </button>
+            </div>
+            
+            <!-- Tombol Checkout Product Bawahnya -->
+            <button onclick="window.buyNow(${item.id_produk}, ${item.harga_jual})"
+                    ${soldOut ? 'disabled' : ''}
+                    style="width: 100%; padding: 0.5rem 0; font-size: 0.8rem; font-weight:600; background: var(--bg-gradient, linear-gradient(90deg, #173C99, #0D47A1)); border: none; border-radius: 9999px; color: #fff; ${soldOut ? 'opacity:0.5; cursor:default;' : 'cursor:pointer;'}">
+                Checkout
+            </button>
         `;
         grid.appendChild(card);
     });
 }
+
+// =====================================================================
+// FUNGSI UNTUK TOMBOL-TOMBOL DI RELATED PRODUCT
+// =====================================================================
+
+// Tambah Ke Keranjang Khusus Related Product
+window.addRelatedToCart = function(id_produk, harga) {
+    if (!userId || userId === "0") {
+        cardhavenAlert('error', 'Authentication Required', 'Please login to add items to your cart.');
+        return;
+    }
+
+    // Ambil data stok dari span hidden
+    const qtyEl = document.getElementById(`qty-val-${id_produk}`);
+    const stok = parseInt(qtyEl.dataset.stok) || 0;
+
+    console.log(stok);
+    
+    // PENCEGAHAN STOK HABIS
+    if (stok <= 0) {
+        cardhavenAlert('error', 'Out of Stock', 'Barang ini sedang habis.');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('id_pengguna', userId);
+    fd.append('id_produk', id_produk);
+    fd.append('harga', harga);
+    fd.append('qty', 1);
+
+    fetch(`${base}/interface/product-detail/controller/ProductDetailController.php?action=add_to_cart`, {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            cardhavenAlert('success', 'Success', 'Successfully added related product to cart!');
+        } else {
+            cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
+    });
+};
+
+// Checkout Khusus Related Product
+window.buyNow = function(idProduk, hargaSatuan) {
+    if (!userId || userId === "0") {
+        cardhavenAlert('error', 'Failed', 'Please login first to checkout!');
+        return;
+    }
+
+    // Ambil data stok dari span hidden
+    const qtyEl  = document.getElementById(`qty-val-${idProduk}`);
+    const qty    = parseInt(qtyEl.textContent) || 1;
+    const stok   = parseInt(qtyEl.dataset.stok) || 0;
+
+    // PENCEGAHAN STOK HABIS
+    if (stok <= 0) {
+        cardhavenAlert('error', 'Out of Stock', 'This product is currently out of stock.');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'buy_now');
+    fd.append('id_produk', idProduk);
+    fd.append('harga_produk', hargaSatuan);
+    fd.append('jumlah', qty);
+    fd.append('id_pengguna_js', userId);
+
+    fetch(`${base}/interface/cart/controller_keranjang.php`, {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            window.location.href = res.redirect || `${base}/checkout`;
+        } else {
+            cardhavenAlert('error', 'Failed', res.message || 'Failed to proceed to checkout.');
+        }
+    })
+    .catch(err => {
+        console.error('buyNow error:', err);
+        cardhavenAlert('error', 'System Error', 'A system error occurred.');
+    });
+};
 
 function nextRelatedPage() {
     if ((currentRelatedPage * relatedLimit) < allRelatedProducts.length) {
@@ -193,9 +337,16 @@ function updateQty(change) {
 }
 
 // 4. Add to Cart (Memanggil API yang akan eksekusi sp_ManageCart)
+// 4. Add to Cart (Produk Utama)
 function addToCart() {
-    if (!userId) {
+    if (!userId || userId === "0") {
         cardhavenAlert('error', 'Authentication Required', 'Please login to add items to your cart.');
+        return;
+    }
+
+    // PENCEGAHAN: Jika stok habis, hentikan fungsi!
+    if (currentProductStock <= 0) {
+        cardhavenAlert('error', 'Out of Stock', 'Barang ini sedang habis dan tidak bisa dimasukkan ke keranjang.');
         return;
     }
 
@@ -212,27 +363,56 @@ function addToCart() {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Successfully add product to cart!');
+            cardhavenAlert('success', 'Success', 'Successfully added product to cart!');
         } else {
-            cardhavenAlert('error', 'Error', res.msg || 'Failed to add product to cart.');
+            cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }
     })
     .catch(err => {
         console.error(err);
-        cardhavenAlert('error', 'System Error', 'A system error has occurred.');
+        cardhavenAlert('error', 'System Error', 'Terjadi kesalahan sistem.');
+    });
+}
+
+// 6. Checkout Product (Produk Utama)
+function checkoutProduct() {
+    if (!userId || userId === "0") {
+        cardhavenAlert('error', 'Failed', 'Please login first to checkout!');
+        return;
+    }
+    
+    // PENCEGAHAN: Jika stok habis, hentikan fungsi!
+    if (currentProductStock <= 0) {
+        cardhavenAlert('error', 'Out of Stock', 'Barang ini sedang habis dan tidak bisa di-checkout.');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'buy_now');
+    fd.append('id_produk', productId);
+    fd.append('harga_produk', currentProductPrice);
+    fd.append('jumlah', currentQty);
+    fd.append('id_pengguna_js', userId);
+
+    fetch(`${base}/interface/cart/controller_keranjang.php`, {
+        method: 'POST',
+        body: fd
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            window.location.href = res.redirect || `${base}/checkout`;
+        } else {
+            cardhavenAlert('error', 'Failed', res.message || 'Failed to proceed to checkout.');
+        }
+    })
+    .catch(err => {
+        console.error('checkoutProduct error:', err);
+        cardhavenAlert('error', 'System Error', 'A system error occurred.');
     });
 }
 
 // 5. Global GoToDetail (Dideklarasikan di window sesuai prompt)
 window.goToDetail = function(idProduk) {
     window.location.href = `${base}/home/productdetail?id_produk=${idProduk}`;
-}
-
-// 6. Checkout Product Placeholder
-function checkoutProduct() {
-    if (!userId) {
-        cardhavenAlert('error', 'Authentication Required', 'Please login to proceed.');
-        return;
-    }
-    cardhavenAlert('info', 'Checkout Process', 'Proceeding to checkout with ' + currentQty + ' item(s). (Feature under development)');
 }

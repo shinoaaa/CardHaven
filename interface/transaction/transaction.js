@@ -44,6 +44,13 @@ function getUserId() {
     return sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0;
 }
 
+// Resolusi path foto produk yang konsisten: path lengkap dipakai apa adanya,
+// nama file polos diarahkan ke folder produk.
+function productImg(foto) {
+    if (!foto) return '/CardHaven/image-profile/defaultProduct.jpg';
+    return foto.includes('/') ? `/CardHaven/${foto}` : `/CardHaven/assets/image/products/${foto}`;
+}
+
 function statusBadge(status) {
     const s = parseInt(status);
     return `<span style="
@@ -77,7 +84,9 @@ async function openDetailModal(id_penjualan) {
             return;
         }
 
-        const h = data.header;
+        // apifetch (sp_GetSalesDetail) mengembalikan field header di level teratas,
+        // bukan di dalam properti `header`. Ambil langsung dari `data`.
+        const h = data;
         const st = parseInt(h.status_penjualan);
 
         // Tentukan tombol aksi yang tampil
@@ -117,13 +126,14 @@ async function openDetailModal(id_penjualan) {
                 <img src="/CardHaven/image-profile/${h.bukti_pembayaran}"
                     style="max-width:180px;max-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,.15);object-fit:cover;cursor:pointer;">
                </a>`
-            : `<span style="opacity:.45;font-size:.8rem;">Belum ada bukti</span>`;
+            : `<span style="opacity:.45;font-size:.8rem;">No proof yet</span>`;
 
         // Item rows
         const itemsHtml = (data.items || []).map(item => `
             <tr>
                 <td style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;">
-                    <img src="/CardHaven/image-profile/${item.foto || 'defaultProduct.jpg'}"
+                    <img src="${productImg(item.foto)}"
+                        onerror="this.src='/CardHaven/image-profile/defaultProduct.jpg'"
                         style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;">
                     <div>
                         <div style="font-weight:600;font-size:.85rem;">${item.nama_produk ?? '-'}</div>
@@ -160,9 +170,9 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-section-title">Payment</div>
                     <div class="trx-info-row"><span>Method</span><b>${h.nama_metode ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Account Number</span><b>${h.no_rekening ?? '-'}</b></div>
+                    <div class="trx-info-row"><span>Account Number</span><b>${h.rek_tujuan ?? h.no_rekening ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin}</b></div>
+                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin ?? 0}</b></div>
                 </div>
 
                 <!-- Shipping -->

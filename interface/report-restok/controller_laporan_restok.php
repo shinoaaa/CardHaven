@@ -103,7 +103,7 @@ switch ($action) {
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
 
         echo "<table border='1'>";
-        echo "<tr><th>No</th><th>Tanggal</th><th>Supplier</th><th>Daftar Produk</th><th>Status</th><th>Total Qty</th><th>Total Pembelian</th></tr>";
+        echo "<tr><th>No</th><th>Date</th><th>Supplier</th><th>Product List</th><th>Status</th><th>Total Qty</th><th>Total Purchase</th></tr>";
 
         $no = 1;
         $statusMap = [0=>'Pending', 1=>'Approved', 2=>'Rejected', 3=>'Received', 4=>'Paid'];

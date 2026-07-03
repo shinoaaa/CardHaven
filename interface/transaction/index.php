@@ -299,7 +299,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                 </div>
 
                 <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" placeholder="Cari username or ID order..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
+                    <input class="trx-search-input" type="text" placeholder="Search username or order ID..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
                 </div>
 
                 <table class="styled-table">
@@ -309,11 +309,11 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             <th>Order ID</th>
                             <th>Customer</th>
                             <th>Date</th>
-                            <th>Payment Metode</th>
+                            <th>Payment Method</th>
                             <th>Items</th>
                             <th>Total</th>
-                            <th>Payment Method</th>
                             <th>Status</th>
+                            <th style="text-align:center;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -324,7 +324,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             ?>
                             <?php foreach ($stmt_trx as $row): ?>
                                 <?php $s = (int)$row['status_penjualan']; ?>
-                                <tr class="trx-row" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">
+                                <tr>
                                     <td><?= $no++ ?></td>
                                     <td style="font-weight:700;color:var(--primary-color);">#<?= (int)$row['id_penjualan'] ?></td>
                                     <td>
@@ -345,10 +345,15 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                                             <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
                                         </span>
                                     </td>
+                                    <td style="text-align:center;">
+                                        <div class="btn-action-group" style="justify-content:center;">
+                                            <button class="btn-view-icon" title="View detail" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">...</button>
+                                        </div>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="8" style="text-align:center;padding:2rem 0;opacity:.5;">No transactions found.</td></tr>
+                            <tr><td colspan="9" style="text-align:center;padding:2rem 0;opacity:.5;">No transactions found.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -400,6 +405,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             <th>Date</th>
                             <th>Total Offer</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>

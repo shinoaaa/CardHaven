@@ -28,44 +28,47 @@ session_start();
             font-weight: 800;
             margin-bottom: 0.5rem;
             color: var(--primary-color, #1a3a6b);
-            font-family: 'Coolvetica', sans-serif;
+            font-family: coolvetica, sans-serif;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .checkout-page-title .accent { color: #2563EB; }
+        .checkout-page-title .accent { color: var(--highlight); }
 
         /* ---- Step Indicator ---- */
         .checkout-steps {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0;
             margin-bottom: 2.5rem;
             padding: 1.25rem 0;
             border-bottom: 2px solid #eef2ff;
         }
 
+        /* Circle di atas, label di bawah, dan garis penghubung sejajar dengan
+           tengah lingkaran (lewat di BAWAH lingkaran) supaya tidak menembus teks. */
         .step-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 10px;
             flex: 1;
             position: relative;
+            text-align: center;
         }
 
         .step-item:not(:last-child)::after {
             content: '';
             position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: calc(100% - 130px);
+            top: 18px;               /* tengah lingkaran 36px */
+            left: 50%;
+            width: 100%;             /* dari tengah circle ini ke tengah circle berikutnya */
             height: 2px;
             background: #e0e7ff;
-            margin-left: 130px;
+            z-index: 0;
         }
 
-        .step-item.active::after { background: #2563EB; }
+        .step-item.active::after { background: var(--highlight); }
         .step-item.done::after   { background: #16a34a; }
 
         .step-circle {
@@ -81,10 +84,12 @@ session_start();
             justify-content: center;
             flex-shrink: 0;
             transition: all 0.3s;
+            position: relative;
+            z-index: 1;              /* di atas garis penghubung */
         }
 
         .step-item.active .step-circle {
-            background: #2563EB;
+            background: var(--highlight);
             color: white;
             box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
         }
@@ -103,7 +108,7 @@ session_start();
             white-space: nowrap;
         }
 
-        .step-item.active .step-label { color: #2563EB; }
+        .step-item.active .step-label { color: var(--highlight); }
         .step-item.done  .step-label  { color: #16a34a; }
 
         /* ---- Layout ---- */
@@ -198,7 +203,7 @@ session_start();
         .form-input:focus,
         .form-select:focus,
         .form-textarea:focus {
-            border-color: #2563EB;
+            border-color: var(--highlight);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
@@ -281,15 +286,15 @@ session_start();
             transition: all 0.2s;
         }
 
-        .payment-method-option:hover { border-color: #2563EB; background: #fafbff; }
+        .payment-method-option:hover { border-color: var(--highlight); background: #fafbff; }
 
         .payment-method-option.selected {
-            border-color: #2563EB;
+            border-color: var(--highlight);
             background: #eef2ff;
         }
 
         .payment-method-option input[type="radio"] {
-            accent-color: #2563EB;
+            accent-color: var(--highlight);
             width: 16px;
             height: 16px;
             flex-shrink: 0;
@@ -317,14 +322,52 @@ session_start();
 
         .payment-method-fee.free { color: #16a34a; }
 
+        /* ---- Payment Method Pagination ---- */
+        .payment-method-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .pm-page-btn {
+            padding: 7px 16px;
+            border: 1.5px solid #dde4f8;
+            background: white;
+            color: var(--primary-color, #0F3891);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pm-page-btn:hover:not(:disabled) {
+            border-color: var(--highlight);
+            background: #f0f4ff;
+        }
+
+        .pm-page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
         /* ---- Order Summary (Sidebar) ---- */
+        /* Kolom kanan: Order Summary di atas, Payment Method di bawahnya */
+        .checkout-aside {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 100px;
+        }
+
         .checkout-summary-card {
             background: white;
             border: 1.5px solid #dde4f8;
             border-radius: 12px;
             overflow: hidden;
-            position: sticky;
-            top: 100px;
         }
 
         .summary-header {
@@ -398,7 +441,7 @@ session_start();
         }
 
         .btn-place-order:hover:not(:disabled) {
-            background: #2563EB;
+            background: var(--highlight);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(37,99,235,0.28);
         }
@@ -432,7 +475,7 @@ session_start();
             width: 36px;
             height: 36px;
             border: 3px solid #dde4f8;
-            border-top-color: #2563EB;
+            border-top-color: var(--highlight);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -472,21 +515,34 @@ session_start();
             transition: color 0.2s;
         }
 
-        .back-link:hover { color: #2563EB; }
+        .back-link:hover { color: var(--highlight); }
 
         @media (max-width: 900px) {
             .checkout-layout { grid-template-columns: 1fr; }
-            .checkout-summary-card { position: static; }
+            .checkout-aside { position: static; }
             .checkout-page-wrapper { padding: 1.5rem 1rem 3rem; }
             .form-row { grid-template-columns: 1fr; }
-            .step-item .step-label { display: none; }
-            .step-item::after { width: calc(100% - 46px); }
+            .step-label { font-size: 0.68rem; }
         }
 
         /* ---- Offset navbar ---- */
         .main-content {
             margin-top: 80px;
         }
+
+        /* ---- Itemized order summary ---- */
+        .summary-items-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-gray, #888);
+        }
+        .summary-items { display: flex; flex-direction: column; gap: 10px; max-height: 260px; overflow-y: auto; }
+        .summary-line { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-size: 0.82rem; }
+        .summary-line-name { color: var(--text-dark, #111); font-weight: 600; line-height: 1.3; }
+        .summary-line-qty { color: var(--text-gray, #888); font-weight: 500; font-size: 0.76rem; }
+        .summary-line-price { font-weight: 700; color: var(--primary-color, #1a3a6b); white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -495,7 +551,7 @@ session_start();
     <main class="main-content">
         <div class="checkout-page-wrapper">
 
-            <a href="/cardhaven/interface/cart/" class="back-link">← Back to Cart</a>
+            <a href="/CardHaven/home/cart" class="back-link">← Back to Cart</a>
 
             <h1 class="checkout-page-title">CHECK<span class="accent">OUT</span></h1>
 
@@ -524,6 +580,21 @@ session_start();
                     <!-- LEFT: Form -->
                     <div class="checkout-form-section">
 
+                        <!-- Order Items (moved to top for better UX) -->
+                        <div class="checkout-card">
+                            <div class="checkout-card-header">
+                                <span class="header-icon">🃏</span>
+                                <h2>Order Items</h2>
+                            </div>
+                            <div class="checkout-card-body">
+                                <div id="checkout-items-loading" class="checkout-loading" style="padding:30px 0;">
+                                    <div class="loading-spinner"></div>
+                                    <span class="loading-text">Loading items...</span>
+                                </div>
+                                <div id="checkout-item-list" class="checkout-item-list" style="display:none;"></div>
+                            </div>
+                        </div>
+
                         <!-- Shipping Address -->
                         <div class="checkout-card">
                             <div class="checkout-card-header">
@@ -550,53 +621,21 @@ session_start();
                             </div>
                         </div>
 
-                        <!-- Payment Method -->
-                        <div class="checkout-card">
-                            <div class="checkout-card-header">
-                                <span class="header-icon">💳</span>
-                                <h2>Payment Method</h2>
-                            </div>
-                            <div class="checkout-card-body">
-                                <div id="payment-method-loading" class="checkout-loading" style="padding:30px 0;">
-                                    <div class="loading-spinner"></div>
-                                    <span class="loading-text">Loading payment methods...</span>
-                                </div>
-                                <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Order Items -->
-                        <div class="checkout-card">
-                            <div class="checkout-card-header">
-                                <span class="header-icon">🃏</span>
-                                <h2>Order Items</h2>
-                            </div>
-                            <div class="checkout-card-body">
-                                <div id="checkout-items-loading" class="checkout-loading" style="padding:30px 0;">
-                                    <div class="loading-spinner"></div>
-                                    <span class="loading-text">Loading items...</span>
-                                </div>
-                                <div id="checkout-item-list" class="checkout-item-list" style="display:none;"></div>
-                            </div>
-                        </div>
-
                     </div>
 
-                    <!-- RIGHT: Summary -->
-                    <aside>
+                    <!-- RIGHT: Summary + Payment -->
+                    <aside class="checkout-aside">
                         <div class="checkout-summary-card">
                             <div class="summary-header">
                                 <h2>Order Summary</h2>
                             </div>
                             <div class="summary-body">
-                                <div class="summary-row">
-                                    <span id="summary-items-label">Items</span>
-                                    <span class="val" id="summary-subtotal">Rp 0</span>
-                                </div>
+                                <div id="summary-items-label" class="summary-items-label">Items</div>
+                                <div id="summary-items" class="summary-items"></div>
                                 <div class="summary-divider"></div>
                                 <div class="summary-row">
-                                    <span>Shipping</span>
-                                    <span class="val free">Free</span>
+                                    <span>Subtotal</span>
+                                    <span class="val" id="summary-subtotal">Rp 0</span>
                                 </div>
                                 <div class="summary-row" id="summary-fee-row" style="display:none;">
                                     <span>Payment Fee</span>
@@ -615,6 +654,22 @@ session_start();
                                     By placing your order, you agree to CardHaven's<br>
                                     terms and conditions.
                                 </p>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method (di kolom kanan, sejajar dengan Shipping Address) -->
+                        <div class="checkout-card">
+                            <div class="checkout-card-header">
+                                <span class="header-icon">💳</span>
+                                <h2>Payment Method</h2>
+                            </div>
+                            <div class="checkout-card-body">
+                                <div id="payment-method-loading" class="checkout-loading" style="padding:30px 0;">
+                                    <div class="loading-spinner"></div>
+                                    <span class="loading-text">Loading payment methods...</span>
+                                </div>
+                                <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
+                                <div id="payment-method-pagination" class="payment-method-pagination"></div>
                             </div>
                         </div>
                     </aside>
@@ -658,7 +713,7 @@ session_start();
                                         cursor: pointer;
                                         transition: border-color 0.2s, background 0.2s;
                                     " onclick="document.getElementById('bukti-file-input').click()"
-                                       ondragover="event.preventDefault();this.style.borderColor='#2563EB';this.style.background='#eef2ff'"
+                                       ondragover="event.preventDefault();this.style.borderColor='var(--highlight)';this.style.background='#eef2ff'"
                                        ondragleave="this.style.borderColor='#dde4f8';this.style.background=''"
                                        ondrop="handleFileDrop(event)">
                                         <div style="font-size:2.5rem;margin-bottom:8px;">🖼️</div>
@@ -737,7 +792,7 @@ session_start();
                 </div>
 
                 <br>
-                <a href="/cardhaven/interface/orders/" style="
+                <a href="/cardhaven/interface/orders/orders.php" style="
                     display:inline-block;
                     padding:14px 32px;
                     background:#1a3a6b;
@@ -750,10 +805,10 @@ session_start();
                     text-decoration:none;
                     transition:all 0.2s;
                     margin-right:12px;
-                " onmouseover="this.style.background='#2563EB'" onmouseout="this.style.background='#1a3a6b'">
+                " onmouseover="this.style.background='var(--highlight)'" onmouseout="this.style.background='#1a3a6b'">
                     View My Orders
                 </a>
-                <a href="/cardhaven/interface/shop/" style="
+                <a href="/CardHaven/home" style="
                     display:inline-block;
                     padding:14px 32px;
                     background:transparent;
