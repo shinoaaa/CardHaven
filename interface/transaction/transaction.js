@@ -322,3 +322,18 @@ function onSearchInput(val) {
         window.location.href = url.toString();
     }, 500);
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// FILTER BY / SORT BY (navigasi via URL, param lain dipertahankan)
+// ════════════════════════════════════════════════════════════════════════════
+
+function trxNavigate(params) {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+
+function setTrxStatus(val) { trxNavigate({ status: val }); }
+function setTrxSort(val)   { trxNavigate({ sort_by: val }); }
+function toggleTrxOrder(current) { trxNavigate({ sort_order: current === 'ASC' ? 'DESC' : 'ASC' }); }

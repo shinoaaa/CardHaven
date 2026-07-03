@@ -61,21 +61,30 @@ $BUYBACK_STATUS = [
 
             <?php if ($type === 'restok'): ?>
                 <!-- ================== RESTOK ================== -->
-                <!-- Filter bar -->
-                <div style="display:flex; gap:0.75rem; margin-bottom:1.25rem; flex-wrap:wrap; align-items:center;">
-                    <input type="text" id="searchInput" placeholder="Search supplier or PO ID..."
-                        style="padding:8px 16px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:0.88rem; outline:none; min-width:220px;"
-                        oninput="debounceSearch()">
+                <!-- Filter bar: Filter By + Sort By + Asc/Desc satu baris, Search full width di bawah -->
+                <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                        <select id="statusFilter" class="purchase-filter-input" onchange="applyRestokFilter(1)" style="width:200px; cursor:pointer;">
+                            <option value="">All Status</option>
+                            <option value="0">Pending</option>
+                            <option value="1">Approved</option>
+                            <option value="2">Rejected</option>
+                            <option value="3">Received</option>
+                            <option value="4">Paid</option>
+                        </select>
 
-                    <select id="statusFilter" onchange="loadRestok(1)"
-                        style="padding:8px 16px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:0.88rem; outline:none; background:white; cursor:pointer;">
-                        <option value="">All Status</option>
-                        <option value="0">Pending</option>
-                        <option value="1">Approved</option>
-                        <option value="2">Rejected</option>
-                        <option value="3">Received</option>
-                        <option value="4">Paid</option>
-                    </select>
+                        <select id="restokSort" class="purchase-filter-input" onchange="changeRestokSort()" style="width:180px; cursor:pointer;">
+                            <option value="DATE">Sort: Date</option>
+                            <option value="PRICE">Sort: Total Price</option>
+                            <option value="QTY">Sort: Total Items</option>
+                        </select>
+
+                        <button id="btnRestokSortOrder" class="purchase-filter-input" onclick="toggleRestokSortOrder()"
+                            style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color);">Descending ↓</button>
+                    </div>
+
+                    <input type="text" id="searchInput" class="purchase-filter-input" placeholder="Search supplier or PO ID..."
+                        style="width:100%; box-sizing:border-box;" oninput="debounceSearch()">
                 </div>
 
                 <!-- Table -->
@@ -102,25 +111,27 @@ $BUYBACK_STATUS = [
 
             <?php elseif ($type === 'buyback'): ?>
                 <!-- ================== BUYBACK ================== -->
-                <!-- Filter bar (Search + Filter By status + Sort By) -->
-                <div style="display:flex; gap:0.75rem; margin-bottom:1.25rem; flex-wrap:wrap; align-items:center;">
+                <!-- Filter bar: Filter By + Sort By + Asc/Desc satu baris, Search full width di bawah -->
+                <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                        <select id="buybackStatusFilter" class="purchase-filter-input" onchange="setBuybackStatus(this.value)" style="width:200px; cursor:pointer;">
+                            <option value="">All Status</option>
+                            <?php foreach ($BUYBACK_STATUS as $sid => $slabel): ?>
+                                <option value="<?= $sid ?>"><?= $slabel ?></option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <select id="buybackSort" class="purchase-filter-input" onchange="changeBuybackSort()" style="width:180px; cursor:pointer;">
+                            <option value="DATE">Sort: Date</option>
+                            <option value="PRICE">Sort: Total Offer</option>
+                        </select>
+
+                        <button id="btnBuybackSortOrder" class="purchase-filter-input" onclick="toggleBuybackSortOrder()"
+                            style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color);">Descending ↓</button>
+                    </div>
+
                     <input type="text" id="buybackSearch" class="purchase-filter-input" placeholder="Search customer, order ID, date, or offer..."
-                        style="min-width:260px; flex:1;" oninput="handleBuybackSearch()">
-
-                    <select id="buybackStatusFilter" class="purchase-filter-input" onchange="setBuybackStatus(this.value)" style="cursor:pointer;">
-                        <option value="">All Status</option>
-                        <?php foreach ($BUYBACK_STATUS as $sid => $slabel): ?>
-                            <option value="<?= $sid ?>"><?= $slabel ?></option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <select id="buybackSort" class="purchase-filter-input" onchange="changeBuybackSort()" style="cursor:pointer;">
-                        <option value="DATE">Sort: Date</option>
-                        <option value="PRICE">Sort: Total Offer</option>
-                    </select>
-
-                    <button id="btnBuybackSortOrder" class="purchase-filter-input" onclick="toggleBuybackSortOrder()"
-                        style="cursor:pointer; font-weight:700; color:var(--primary-color); min-width:130px;">Descending ↓</button>
+                        style="width:100%; box-sizing:border-box;" oninput="handleBuybackSearch()">
                 </div>
 
                 <!-- Table -->
