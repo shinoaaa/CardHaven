@@ -89,23 +89,22 @@
         </div>
     </div>
 
-    <!-- Buyback Table -->
+    <!-- Buyback Table (riwayat asli, sama seperti interface/buyback/customer.php) -->
     <div id="tab-buyback" class="tab-content" style="display: none;">
         <div class="table-responsive">
-            <table class="cardhaven-table">
+            <table class="cardhaven-table" id="tableRiwayat">
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Item Name</th>
-                        <th>Deal Date</th>
-                        <th>Total Product</th>
-                        <th>Status</th>
+                        <th>Transaction ID</th>
+                        <th>Date</th>
                         <th>Total Price</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="7" style="text-align: center;">No BuyBack records yet.</td></tr>
+                    <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
                 </tbody>
             </table>
         </div>
