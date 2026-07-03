@@ -305,7 +305,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </div>
                         <div style="width: 1px; height: 20px; background: #cbd5e1;"></div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #64748b; font-size: 0.85rem;">Total Pembelian:</span>
+                            <span style="color: #64748b; font-size: 0.85rem;">Total Sales:</span>
                             <span id="summaryTotalPaid" style="color: #27AE60; font-size: 1.1rem;">Rp 0</span>
                         </div>
                     </div>

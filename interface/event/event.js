@@ -431,7 +431,7 @@ function aeRenderProductTable() {
                 <td style="font-weight:600;">${escHtml(p.nama_produk)}</td>
                 <td>Rp ${Math.round(p.harga_event).toLocaleString('id-ID')}</td>
                 <td>${p.stok_event}</td>
-                <td><button class="ae-btn-del-prod" onclick="aeRemoveProduct(${i})" title="Hapus">🗑</button></td>
+                <td><button class="ae-btn-del-prod" onclick="aeRemoveProduct(${i})" title="Delete">🗑</button></td>
             </tr>
         `;
     }).join('');

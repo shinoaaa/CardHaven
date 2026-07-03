@@ -55,7 +55,7 @@ function loadDaftar() {
         tbody.innerHTML = '';
         
         if(data.data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem 0;opacity:.5;">No buyback transactions were found.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem 0;opacity:.5;">No buyback transactions were found.</td></tr>`;
         } else {
             let startNo = (currentPage - 1) * 10 + 1;
             data.data.forEach((row) => {
@@ -68,13 +68,18 @@ function loadDaftar() {
                     const [tahun, bulan, hari] = tglMentah.split('-');
                     tanggal = `${hari}-${bulan}-${tahun}`;
                 }
-                let tr = `<tr class="trx-row" onclick="openDetailModal(${row.id_pembelian})">
+                let tr = `<tr>
                     <td>${startNo++}</td>
                     <td style="font-weight:700;color:var(--primary-color);">#${row.id_pembelian}</td>
                     <td><div style="font-weight:600;font-size:.85rem;">${row.username}</div></td>
                     <td style="white-space:nowrap;font-size:.82rem;">${tanggal}</td>
                     <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
                     <td>${parseStatus(row.status_pembelian)}</td>
+                    <td style="text-align:center;">
+                        <div class="btn-action-group" style="justify-content:center;">
+                            <button class="btn-view-icon" title="View detail" onclick="openDetailModal(${row.id_pembelian})">...</button>
+                        </div>
+                    </td>
                 </tr>`;
                 tbody.innerHTML += tr;
             });

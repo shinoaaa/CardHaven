@@ -97,26 +97,6 @@
 
             </div>
         </div>
-
-        <div class="content-card" style="margin-top: 2rem;">
-            <div class="card-title-row">
-                <h2>Your Buyback History</h2>
-            </div>
-            <table class="styled-table" id="tableRiwayat">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Transaction ID</th>
-                        <th>Date</th>
-                        <th>Total Price</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-        </div>
         <div class="footer">
             <div class="foot-top">
                 <div class="foot-game">

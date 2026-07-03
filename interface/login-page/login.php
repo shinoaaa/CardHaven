@@ -65,8 +65,13 @@ try {
             session_start();
         }
 
+        // Simpan identitas ke PHP session agar halaman berbasis session
+        // (mis. orders/controller_orders.php) mengenali user yang login.
+        $_SESSION['id_pengguna'] = $user['id_pengguna'];
+        $_SESSION['role']        = $user['role'];
+
         echo json_encode([
-                            "status" => "success", 
+                            "status" => "success",
                             "message" => "Login successful", 
                             "role" => $user['role'], 
                             "id_pengguna" => $user['id_pengguna'],
