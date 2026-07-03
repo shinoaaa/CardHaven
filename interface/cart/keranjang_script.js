@@ -95,7 +95,7 @@ function renderCart(data) {
 function renderRow(item) {
     const tr = document.createElement('tr');
     const formatIDR = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
-    const fotoSrc = item.foto ? `${BASE_URL}/${item.foto}` : `${BASE_URL}/image-profile/defaultProduct.jpg`;
+    const fotoSrc = item.foto ? `${BASE_URL}/assets/image/products/${item.foto}` : `${BASE_URL}/image-profile/defaultProduct.jpg`;
  
     tr.setAttribute('data-id', item.id_detail_keranjang);
  
