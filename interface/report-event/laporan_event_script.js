@@ -170,7 +170,7 @@ function renderTable() {
             <td style="white-space:nowrap; font-size:0.85rem;">${periode}</td>
             <td style="text-align:center; white-space:nowrap;">${badgeType}${badgeDiskon}</td>
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
-            <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
+            <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${(parseInt(row.total_harga) || 0).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">
                 <button class="btn-view-icon" onclick="openDetailModal(${row.id_event})">...</button>
             </td>
@@ -287,7 +287,7 @@ function openDetailModal(id) {
                     </div>
                     <div style="text-align: right; min-width: 120px;">
                         <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 2px;">Subtotal</div>
-                        <div style="font-weight: 800; color: var(--primary-color); font-size: 1.1rem;">Rp ${parseInt(item.subtotal_harga).toLocaleString('id-ID')}</div>
+                        <div style="font-weight: 800; color: var(--primary-color); font-size: 1.1rem;">Rp ${(parseInt(item.subtotal_harga) || 0).toLocaleString('id-ID')}</div>
                     </div>
                 </div>
             `;
@@ -296,7 +296,7 @@ function openDetailModal(id) {
         html += `</div>
             <div style="background: #dee8fc; border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #c6d8f9;">
                 <span style="font-weight: 800; color: #0F3891; font-size: 1rem;">TOTAL REVENUE</span>
-                <span style="font-weight: 800; color: #27AE60; font-size: 1.25rem;">Rp ${parseFloat(totalRevenue).toLocaleString('id-ID')}</span>
+                <span style="font-weight: 800; color: #27AE60; font-size: 1.25rem;">Rp ${(parseFloat(totalRevenue) || 0).toLocaleString('id-ID')}</span>
             </div>
         `;
 
