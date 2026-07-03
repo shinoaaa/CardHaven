@@ -13,6 +13,10 @@
 --     - status penjualan bukan dibatalkan/ditolak (NOT IN (7,8)).
 --   Logika yang sama dipakai di kedua UDF agar total pada grid utama
 --   selalu cocok dengan rincian pada modal detail.
+--
+--   Laporan hanya menampilkan event yang sudah selesai (status_event = 0 /
+--   Done) agar revenue & item terjual yang dilaporkan sudah final, tidak
+--   berubah-ubah selagi event masih ongoing (1) atau belum mulai (2).
 -- ==========================================================
 
 IF OBJECT_ID('dbo.udf_LaporanEvent', 'IF') IS NOT NULL DROP FUNCTION dbo.udf_LaporanEvent;
@@ -65,6 +69,7 @@ RETURN (
           AND ISNULL(pe.is_product_deleted, 0) = 0
     ) s
     WHERE ISNULL(e.is_deleted, 0) = 0
+      AND e.status_event = 0
       AND (@Tahun = 0 OR YEAR(e.tanggal_mulai)  = @Tahun)
       AND (@Bulan = 0 OR MONTH(e.tanggal_mulai) = @Bulan)
 );
