@@ -407,7 +407,7 @@ window.addEventListener('click', function(e) {
             // Gunakan fungsi bawaan sistem Anda
             cardhavenConfirm(
                 `Cancel ${actionText} Product?`, 
-                "Data yang sudah diisi akan hilang.", 
+                "Any unsaved changes will be lost. Are you sure you want to exit?", 
                 "Yes, Exit", 
                 () => {
                     isConfirmed = true;
