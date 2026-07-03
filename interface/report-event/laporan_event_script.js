@@ -165,14 +165,15 @@ function renderTable() {
 
         let tr = `<tr class="trx-row">
             <td style="text-align:center;">${startNo++}</td>
-            <td style="text-align:center; font-weight:700; white-space:nowrap;"><span class="blue-text">#EVT${row.id_event}</span></td>
             <td style="font-weight:600;">${row.nama_event || '-'}</td>
             <td style="white-space:nowrap; font-size:0.85rem;">${periode}</td>
             <td style="text-align:center; white-space:nowrap;">${badgeType}${badgeDiskon}</td>
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${(parseInt(row.total_harga) || 0).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">
-                <button class="btn-view-icon" onclick="openDetailModal(${row.id_event})">...</button>
+                <div width="100%" style="display:flex; justify-content:center; align-items:center;">
+                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_event})">...</button>
+                </div>
             </td>
         </tr>`;
         tbody.innerHTML += tr;

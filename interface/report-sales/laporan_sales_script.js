@@ -148,7 +148,9 @@ function renderTable() {
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">
-                <button class="btn-view-icon" onclick="openDetailModal(${row.id_penjualan})">...</button>
+                <div width="100%" style="display:flex; justify-content:center; align-items:center;">
+                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_penjualan})">...</button>
+                </div>
             </td>
         </tr>`;
         tbody.innerHTML += tr;

@@ -104,7 +104,7 @@ switch ($action) {
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
 
         echo "<table border='1'>";
-        echo "<tr><th>No</th><th>Event ID</th><th>Nama Event</th><th>Periode</th><th>Tipe</th><th>Diskon</th><th>Total Terjual</th><th>Total Pendapatan</th></tr>";
+        echo "<tr><th>No</th><th>Nama Event</th><th>Periode</th><th>Tipe</th><th>Diskon</th><th>Total Terjual</th><th>Total Pendapatan</th></tr>";
 
         $no = 1;
         foreach ($data as $row) {
@@ -112,7 +112,6 @@ switch ($action) {
             $tglAkhir = ($row['tanggal_berakhir'] instanceof DateTime) ? $row['tanggal_berakhir']->format('d-m-Y') : '-';
             echo "<tr>";
             echo "<td>" . $no++ . "</td>";
-            echo "<td>#EVT" . $row['id_event'] . "</td>";
             echo "<td>" . $row['nama_event'] . "</td>";
             echo "<td>" . $tglMulai . " s/d " . $tglAkhir . "</td>";
             echo "<td>" . ucfirst($row['tipe_event']) . "</td>";
@@ -149,7 +148,6 @@ switch ($action) {
                     <thead>
                         <tr style="background-color:#0F3891; color:#ffffff; font-weight:bold; text-align:center;">
                             <th width="5%">No</th>
-                            <th width="10%">Event ID</th>
                             <th width="23%">Event Name</th>
                             <th width="20%">Period</th>
                             <th width="12%">Type / Disc</th>
@@ -169,7 +167,6 @@ switch ($action) {
 
             $html .= '<tr bgcolor="'.$bgColor.'" nobr="true">
                         <td width="5%" align="center">'.$no++.'</td>
-                        <td width="10%" align="center">#EVT'.$row['id_event'].'</td>
                         <td width="23%"><b>'.htmlspecialchars($row['nama_event']).'</b></td>
                         <td width="20%" align="center" style="white-space:nowrap;">'.$tglMulai.' - '.$tglAkhir.'</td>
                         <td width="12%" align="center">'.ucfirst($row['tipe_event']).' ('.number_format((float)$row['persen_diskon'], 0).'%)</td>

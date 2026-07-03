@@ -376,7 +376,6 @@ $currentTitle = $titles[$type] ?? 'Report';
                     <thead>
                         <tr>
                             <th width="5%">No</th>
-                            <th width="10%">Event ID</th>
                             <th width="23%">Event Name</th>
                             <th width="17%">Period</th>
                             <th width="13%">Type / Discount</th>
