@@ -123,7 +123,7 @@ async function openDetailModal(id_penjualan) {
         const itemsHtml = (data.items || []).map(item => `
             <tr>
                 <td style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;">
-                    <img src="/CardHaven/image-profile/${item.foto || 'defaultProduct.jpg'}"
+                    <img src="${item.foto ? `/CardHaven/assets/image/products/${item.foto}` : '/CardHaven/image-profile/defaultProduct.jpg'}"
                         style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;">
                     <div>
                         <div style="font-weight:600;font-size:.85rem;">${item.nama_produk ?? '-'}</div>

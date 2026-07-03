@@ -67,8 +67,8 @@ function preorderSwitchToOrder() {
     loadPreorderPaymentMethods();
     loadPreorderAlreadyPurchased(function () {
         renderPreOrderControls();
-        document.getElementById('preorder-order-img').src = preorderProduct.foto 
-            ? '/cardhaven/' + preorderProduct.foto 
+        document.getElementById('preorder-order-img').src = preorderProduct.foto
+            ? '/cardhaven/assets/image/products/' + preorderProduct.foto
             : '/cardhaven/image-profile/defaultProduct.jpg';
     });
     
@@ -106,8 +106,8 @@ function renderPreOrderDetail() {
     let preorderStatus = document.getElementById('preorder-title');
     
     document.getElementById('preorder-event-name').textContent = preorderEvent.nama_event;
-    document.getElementById('preorder-detail-img').src = p.foto 
-        ? ('/cardhaven/' + p.foto) 
+    document.getElementById('preorder-detail-img').src = p.foto
+        ? ('/cardhaven/assets/image/products/' + p.foto)
         : '/cardhaven/image-profile/defaultProduct.jpg';
 
     document.getElementById('preorder-product-badge').textContent = p.nama_produk;
