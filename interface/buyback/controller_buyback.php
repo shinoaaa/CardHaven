@@ -84,7 +84,9 @@ switch ($action) {
             $role        = (int)($_GET['role'] ?? 0);
             $id_pengguna = (int)($_GET['id_pengguna'] ?? 0);
             $page        = max(1, intval($_GET['page'] ?? 1));
-            $limit       = 10;
+            // Limit bisa di-override lewat query (dipakai admin untuk menarik semua data
+            // lalu difilter/sort/paginate di sisi client, sama seperti halaman laporan).
+            $limit       = max(1, (int)($_GET['limit'] ?? 10));
             $offset      = ($page - 1) * $limit;
             $search      = trim($_GET['search'] ?? '');
             $status      = trim($_GET['status'] ?? ''); 

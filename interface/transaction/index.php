@@ -2,7 +2,8 @@
 // 1. PERBAIKAN PATH: Gunakan __DIR__ agar file selalu ditemukan dari mana pun di-include
 require_once __DIR__ . '/apifetch.php'; 
 
-$type = $_GET['type'] ?? 'sales';
+// Buyback dipindah ke halaman Purchase; Transaction sekarang khusus Sales.
+$type = 'sales';
 
 // Status mapping untuk PHP render (Khusus Sales)
 $STATUS_LABEL = [
@@ -272,12 +273,6 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
 
             <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h2 class="coolveticaa" style="margin: 0; font-size: 2rem; color: var(--primary-color);">Transaction</h2>
-                
-                <!-- TOGGLE TRANSACTION TYPE -->
-                <div style="display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 999px;">
-                    <a href="?type=sales" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; <?= $type === 'sales' ? 'background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);' : 'color: #555;' ?>">Sales</a>
-                    <a href="?type=buyback" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; <?= $type === 'buyback' ? 'background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);' : 'color: #555;' ?>">Buyback</a>
-                </div>
             </div>
 
             <?php if ($type === 'sales'): ?>
@@ -312,7 +307,6 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             <th>Payment Metode</th>
                             <th>Items</th>
                             <th>Total</th>
-                            <th>Payment Method</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -384,57 +378,18 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                     <?php endif; ?>
                 </div>
 
-            <?php elseif ($type === 'buyback'): ?>
-                <div class="trx-tabs" id="buybackTabs"></div>
-
-                <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" id="buybackSearch" placeholder="Search username or Order ID..." oninput="handleBuybackSearch(this.value)">
-                </div>
-
-                <table class="styled-table" id="tableAdmin">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Total Offer</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-
-                <div class="pagination-container" id="buybackPagination"></div>
             <?php endif; ?>
         </div>
     </div>
 
     <!-- Modals -->
-    <?php if ($type === 'sales'): ?>
-        <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
-            <div class="trx-modal-box" onclick="event.stopPropagation()">
-                <button class="trx-modal-close" onclick="closeTrxModal()">&times;</button>
-                <div id="trxModalBody"></div>
-            </div>
+    <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
+        <div class="trx-modal-box" onclick="event.stopPropagation()">
+            <button class="trx-modal-close" onclick="closeTrxModal()">&times;</button>
+            <div id="trxModalBody"></div>
         </div>
-        <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
-    
-    <?php elseif ($type === 'buyback'): ?>
-        <div id="detailModal" class="event-modal-overlay" style="display: none;" onclick="closeDetailModal()">
-            <div class="modal-box" style="width: 650px; max-width: 95vw;" onclick="event.stopPropagation()">
-                <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
-                <div class="modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Transaction <span class="blue-text" id="modalTxId"></span></h2>
-                    <span class="game-id" id="modalStatus" style="font-weight: 600;"></span>
-                </div>
-                <div id="modalContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;"></div>
-                <div class="modal-footer" id="modalFooter" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"></div>
-            </div>
-        </div>
-        <script src="/cardhaven/interface/buyback/buyback_admin_script.js?v=<?= time() ?>"></script>
-    <?php endif; ?>
+    </div>
+    <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
 
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
 </body>
