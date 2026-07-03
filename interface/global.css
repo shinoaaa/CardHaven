@@ -1707,23 +1707,16 @@ input:checked + .slider:before {
 
 /* Product list — grid 2 kolom */
 .product-list {
-    display: flex;
-    gap: 2rem;
-    overflow-x: auto;
-    scroll-behavior: smooth;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     padding-bottom: 0.75rem;
-    scrollbar-width: thin;
 }
-.product-list.dragging { scroll-behavior: auto; }
-.product-list::-webkit-scrollbar { height: 8px; }
-.product-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
 
 /* Tiap product card */
 .product-card {
     display: flex;
     flex: 0 0 auto;
-    width: 40rem;
-    max-width: 88vw;
     border: 1px solid #584c4c;
     border-radius: 0.9rem;
     padding: 0.25rem 1.25rem;

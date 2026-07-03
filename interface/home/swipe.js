@@ -12,7 +12,6 @@
         let startScroll = 0;
         let moved = false;
 
-        el.style.cursor = 'grab';
         el.style.userSelect = 'none';
 
         el.addEventListener('pointerdown', (e) => {
@@ -24,7 +23,6 @@
             startX = e.clientX;
             startScroll = el.scrollLeft;
             el.classList.add('dragging');
-            el.style.cursor = 'grabbing';
         });
 
         el.addEventListener('pointermove', (e) => {
@@ -43,7 +41,6 @@
             if (!isDown) return;
             isDown = false;
             el.classList.remove('dragging');
-            el.style.cursor = 'grab';
         };
         el.addEventListener('pointerup', release);
         el.addEventListener('pointerleave', release);

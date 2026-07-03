@@ -139,6 +139,13 @@ session_start();
             }
         }
     </style>
+    <script>
+        const isLogin = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+
+        if(!isLogin){
+            window.location.replace("/CardHaven/login")
+        }
+    </script>
 </head>
 <body>
     <!-- Simpan ID Session agar bisa dibaca JS -->
