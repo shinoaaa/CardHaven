@@ -61,7 +61,8 @@ switch ($action) {
     // ─── LIST (tabel utama, dengan pagination & filter) ───────────────────
     case 'getList':
         $page     = max(1, (int)($_GET['page'] ?? 1));
-        $limit    = 7;
+        // Limit bisa di-override (admin menarik semua data untuk difilter/sort/paginate di client).
+        $limit    = max(1, (int)($_GET['limit'] ?? 7));
         $offset   = ($page - 1) * $limit;
         $status   = trim($_GET['status'] ?? '');
         $search   = trim($_GET['search'] ?? '');

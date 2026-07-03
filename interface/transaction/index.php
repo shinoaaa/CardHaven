@@ -2,7 +2,8 @@
 // 1. PERBAIKAN PATH: Gunakan __DIR__ agar file selalu ditemukan dari mana pun di-include
 require_once __DIR__ . '/apifetch.php'; 
 
-$type = $_GET['type'] ?? 'sales';
+// Buyback dipindah ke halaman Purchase; Transaction sekarang khusus Sales.
+$type = 'sales';
 
 // Status mapping untuk PHP render (Khusus Sales)
 $STATUS_LABEL = [
@@ -30,8 +31,10 @@ $STATUS_COLOR = [
 ];
 
 // 2. PERBAIKAN VARIABEL: Ambil data dari variabel yang telah disiapkan apifetch.php
-$activeStatus = $status ?? null; 
+$activeStatus = $status ?? null;
 $activeSearch = $search ?? '';
+$activeSortBy    = $sortBy ?? 'DATE';
+$activeSortOrder = $sortOrder ?? 'DESC';
 
 // Sesuaikan nama variabel untuk tabel HTML (karena kontroler baru memakai $data)
 $stmt_trx = $data ?? [];
@@ -272,34 +275,36 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
 
             <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h2 class="coolveticaa" style="margin: 0; font-size: 2rem; color: var(--primary-color);">Transaction</h2>
-                
-                <!-- TOGGLE TRANSACTION TYPE -->
-                <div style="display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 999px;">
-                    <a href="?type=sales" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; <?= $type === 'sales' ? 'background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);' : 'color: #555;' ?>">Sales</a>
-                    <a href="?type=buyback" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; <?= $type === 'buyback' ? 'background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);' : 'color: #555;' ?>">Buyback</a>
-                </div>
             </div>
 
             <?php if ($type === 'sales'): ?>
                 <!-- ================== START SALES ================== -->
-                <div class="trx-tabs">
-                    <a href="?type=sales&status=&search=<?= urlencode($activeSearch) ?>"
-                        class="trx-tab <?= $activeStatus === null ? 'active' : '' ?>" style="color:#555;">
-                        All <span class="tab-count"><?= array_sum($count_status) ?></span>
-                    </a>
-                    <?php foreach ($STATUS_LABEL as $s => $label): ?>
-                        <?php $cnt = $count_status[$s] ?? 0; ?>
-                        <a href="?type=sales&status=<?= $s ?>&search=<?= urlencode($activeSearch) ?>"
-                            class="trx-tab <?= $activeStatus == $s ? 'active' : '' ?>"
-                            style="color:<?= $STATUS_COLOR[$s]['color'] ?>;">
-                            <?= $label ?>
-                            <?php if ($cnt > 0): ?><span class="tab-count"><?= $cnt ?></span><?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
+                <!-- Filter By + Sort By + Asc/Desc satu baris, Search full width di bawah -->
+                <?php $trxPill = 'padding:8px 16px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:0.88rem; outline:none; background:white;'; ?>
+                <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                        <select onchange="setTrxStatus(this.value)" style="width:200px; cursor:pointer; <?= $trxPill ?>">
+                            <option value="" <?= $activeStatus === null ? 'selected' : '' ?>>All Status (<?= array_sum($count_status) ?>)</option>
+                            <?php foreach ($STATUS_LABEL as $s => $label): ?>
+                                <?php $cnt = $count_status[$s] ?? 0; ?>
+                                <option value="<?= $s ?>" <?= ($activeStatus !== null && $activeStatus == $s) ? 'selected' : '' ?>>
+                                    <?= $label ?><?= $cnt > 0 ? " ($cnt)" : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
 
-                <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" placeholder="Search username or order ID..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)">
+                        <select onchange="setTrxSort(this.value)" style="width:180px; cursor:pointer; <?= $trxPill ?>">
+                            <option value="DATE"  <?= $activeSortBy === 'DATE'  ? 'selected' : '' ?>>Sort: Date</option>
+                            <option value="PRICE" <?= $activeSortBy === 'PRICE' ? 'selected' : '' ?>>Sort: Total</option>
+                            <option value="QTY"   <?= $activeSortBy === 'QTY'   ? 'selected' : '' ?>>Sort: Items</option>
+                        </select>
+
+                        <button onclick="toggleTrxOrder('<?= $activeSortOrder ?>')" style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color); <?= $trxPill ?>">
+                            <?= $activeSortOrder === 'ASC' ? 'Ascending ↑' : 'Descending ↓' ?>
+                        </button>
+                    </div>
+
+                    <input type="text" placeholder="Search username or Order ID..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)" style="width:100%; box-sizing:border-box; <?= $trxPill ?>">
                 </div>
 
                 <table class="styled-table">
@@ -308,6 +313,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                             <th>No</th>
                             <th>Order ID</th>
                             <th>Customer</th>
+                            <th>Products</th>
                             <th>Date</th>
                             <th>Payment Method</th>
                             <th>Items</th>
@@ -330,6 +336,11 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                                     <td>
                                         <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
                                         <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
+                                    </td>
+                                    <td>
+                                        <div style="max-width:240px; font-size:.78rem; opacity:.85; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;" title="<?= htmlspecialchars($row['daftar_produk'] ?? '') ?>">
+                                            <?= htmlspecialchars($row['daftar_produk'] ?? '') ?: '-' ?>
+                                        </div>
                                     </td>
                                     <td style="white-space:nowrap;font-size:.82rem;"><?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?></td>
                                     <td style="font-size:.8rem;">
@@ -360,7 +371,7 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
 
                 <div class="pagination-container">
                     <?php
-                    $baseUrl = '?type=sales&status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch);
+                    $baseUrl = '?type=sales&status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch) . '&sort_by=' . urlencode($activeSortBy) . '&sort_order=' . urlencode($activeSortOrder);
                     ?>
                     <?php if ($page > 1): ?>
                         <a href="<?= $baseUrl ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
@@ -389,58 +400,18 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
                     <?php endif; ?>
                 </div>
 
-            <?php elseif ($type === 'buyback'): ?>
-                <div class="trx-tabs" id="buybackTabs"></div>
-
-                <div class="trx-search-wrap">
-                    <input class="trx-search-input" type="text" id="buybackSearch" placeholder="Search username or Order ID..." oninput="handleBuybackSearch(this.value)">
-                </div>
-
-                <table class="styled-table" id="tableAdmin">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Total Offer</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-
-                <div class="pagination-container" id="buybackPagination"></div>
             <?php endif; ?>
         </div>
     </div>
 
     <!-- Modals -->
-    <?php if ($type === 'sales'): ?>
-        <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
-            <div class="trx-modal-box" onclick="event.stopPropagation()">
-                <button class="trx-modal-close" onclick="closeTrxModal()">&times;</button>
-                <div id="trxModalBody"></div>
-            </div>
+    <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
+        <div class="trx-modal-box" onclick="event.stopPropagation()">
+            <button class="trx-modal-close" onclick="closeTrxModal()">&times;</button>
+            <div id="trxModalBody"></div>
         </div>
-        <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
-    
-    <?php elseif ($type === 'buyback'): ?>
-        <div id="detailModal" class="event-modal-overlay" style="display: none;" onclick="closeDetailModal()">
-            <div class="modal-box" style="width: 650px; max-width: 95vw;" onclick="event.stopPropagation()">
-                <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
-                <div class="modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Transaction <span class="blue-text" id="modalTxId"></span></h2>
-                    <span class="game-id" id="modalStatus" style="font-weight: 600;"></span>
-                </div>
-                <div id="modalContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;"></div>
-                <div class="modal-footer" id="modalFooter" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"></div>
-            </div>
-        </div>
-        <script src="/cardhaven/interface/buyback/buyback_admin_script.js?v=<?= time() ?>"></script>
-    <?php endif; ?>
+    </div>
+    <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
 
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
 </body>

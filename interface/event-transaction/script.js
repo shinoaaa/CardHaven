@@ -86,7 +86,7 @@ function switchToOrderView() {
         // Sync the displayed card image with the currently selected product
         const product = eventProducts[selectedProductIdx];
         document.getElementById('order-card-img').src =
-            product ? '/cardhaven/' + product.foto : '/cardhaven/image-profile/defaultProduct.jpg';
+            product ? '/cardhaven/assets/image/products/' + product.foto : '/cardhaven/image-profile/defaultProduct.jpg';
     });
     document.getElementById('view-detail').style.display = 'none';
     document.getElementById('view-order').style.display  = 'flex';
@@ -141,8 +141,8 @@ function selectDetailProduct(idx) {
     let promoStatus = document.getElementById('promo-status');
     if (!p) return;
 
-    document.getElementById('detail-main-card-img').src = p.foto 
-    ? ('/cardhaven/' + p.foto) 
+    document.getElementById('detail-main-card-img').src = p.foto
+    ? ('/cardhaven/assets/image/products/' + p.foto)
     : '/cardhaven/image-profile/defaultProduct.jpg';
 
     document.getElementById('detail-product-badge').textContent = p.nama_produk;
@@ -198,7 +198,7 @@ function renderDetailThumbs() {
         const localI  = i; // capture
         const img     = document.createElement('img');
         if (p.foto) {
-            img.src = '/cardhaven/' + p.foto;
+            img.src = '/cardhaven/assets/image/products/' + p.foto;
         } else {
             img.src = '/cardhaven/image-profile/defaultProduct.jpg';
         }

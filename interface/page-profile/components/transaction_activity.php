@@ -76,10 +76,10 @@
         </div>
     </div>
 
-    <!-- Buyback Table -->
+    <!-- Buyback Table (riwayat asli, sama seperti interface/buyback/customer.php) -->
     <div id="tab-buyback" class="tab-content" style="display: none;">
         <div class="table-responsive">
-            <table class="cardhaven-table">
+            <table class="cardhaven-table" id="tableRiwayat">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -88,6 +88,7 @@
                         <th>Total Product</th>
                         <th>Status</th>
                         <th>Total Price</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>

@@ -1,8 +1,13 @@
 const API       = '/cardhaven/interface/purchase/controller_restok.php';
 const ACTOR_ID  = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
 const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
+const RESTOK_PER_PAGE = 7;
 let currentPage = 1;
 let searchTimer = null;
+let allRestok = [];        // semua data (di-fetch sekali)
+let filteredRestok = [];   // hasil filter + sort
+let restokSortBy = 'DATE'; // DATE | PRICE | QTY
+let restokSortOrder = 'DESC';
 
 // ─── STATUS HELPER ────────────────────────────────────────────────────────────
 function statusLabel(s) {
@@ -20,65 +25,132 @@ function formatRupiah(n) {
     return 'Rp' + Number(n).toLocaleString('id-ID');
 }
 
-// ─── LOAD TABLE ───────────────────────────────────────────────────────────────
+// ─── LOAD TABLE (fetch semua data sekali, filter/sort/paginate di client) ──────
 function loadRestok(page = 1) {
-    currentPage = page;
-    const search = document.getElementById('searchInput').value.trim();
-    const status = document.getElementById('statusFilter').value;
-
     const params = new URLSearchParams({
         action: 'getList',
-        page,
-        search,
-        status,
+        page: 1,
+        search: '',
+        status: '',
+        limit: 100000,
         actor_id: ACTOR_ID,
     });
 
     const tbody = document.getElementById('restokTableBody');
-    tbody.innerHTML = '<tr><td colspan="8" style="color:#999;">Loading...</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="color:#999;">Loading...</td></tr>';
 
     fetch(`${API}?${params}`)
         .then(r => r.json())
         .then(res => {
             if (res.status !== 'success') {
-                tbody.innerHTML = `<tr><td colspan="8" style="color:#E74C3C;">${res.message}</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="color:#E74C3C;">${res.message}</td></tr>`;
                 return;
             }
-
-            const { rows, total, total_pages } = res.data;
-
-            if (!rows.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="color:#999;">No data found.</td></tr>';
-                renderPagination(0, 0);
-                return;
-            }
-
-            let html = '';
-            rows.forEach((row, i) => {
-                const no = ((page - 1) * 7) + i + 1;
-                html += `
-                <tr>
-                    <td>${no}</td>
-                    <td style="text-align:left;">${row.nama_suplier ?? '-'}</td>
-                    <td>${row.tanggal_restok}</td>
-                    <td style="text-align:right;">${row.total_barang}</td>
-                    <td style="text-align:right; font-weight:600;">${formatRupiah(row.total_harga)}</td>
-                    <td>${row.created_by_name ?? '-'}</td>
-                    <td>${statusLabel(row.status_restok)}</td>
-                    <td>
-                        <div class="btn-action-group">
-                            <button class="btn-view-icon" onclick="openRestokModal(${row.id_restok})">...</button>
-                        </div>
-                    </td>
-                </tr>`;
-            });
-
-            tbody.innerHTML = html;
-            renderPagination(total_pages, page);
+            allRestok = res.data.rows || [];
+            applyRestokFilter(page);
         })
         .catch(() => {
-            tbody.innerHTML = '<tr><td colspan="8" style="color:#E74C3C;">Failed to load data.</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="color:#E74C3C;">Failed to load data.</td></tr>';
         });
+}
+
+// Parse tanggal 'd-m-Y' menjadi timestamp untuk sorting.
+function parseRestokDate(str) {
+    if (!str) return 0;
+    const [d, m, y] = str.toString().split('-');
+    return new Date(`${y}-${m}-${d}`).getTime() || 0;
+}
+
+function changeRestokSort() {
+    const el = document.getElementById('restokSort');
+    restokSortBy = el ? el.value : 'DATE';
+    applyRestokFilter(1);
+}
+
+function toggleRestokSortOrder() {
+    restokSortOrder = restokSortOrder === 'DESC' ? 'ASC' : 'DESC';
+    const btn = document.getElementById('btnRestokSortOrder');
+    if (btn) btn.innerHTML = restokSortOrder === 'DESC' ? 'Descending ↓' : 'Ascending ↑';
+    applyRestokFilter(1);
+}
+
+function applyRestokFilter(page = 1) {
+    const searchEl = document.getElementById('searchInput');
+    const statusEl = document.getElementById('statusFilter');
+    const search = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    const status = statusEl ? statusEl.value : '';
+
+    filteredRestok = allRestok.filter(row => {
+        if (status !== '' && String(row.status_restok) !== String(status)) return false;
+        if (search !== '') {
+            const supplier = (row.nama_suplier || '').toString().toLowerCase();
+            const id = String(row.id_restok || '');
+            const by = (row.created_by_name || '').toString().toLowerCase();
+            const harga = String(row.total_harga || '');
+            const tgl = (row.tanggal_restok || '').toString().toLowerCase();
+            const match = supplier.includes(search) || id.includes(search) ||
+                          ('#' + id).includes(search) || by.includes(search) ||
+                          harga.includes(search) || tgl.includes(search);
+            if (!match) return false;
+        }
+        return true;
+    });
+
+    filteredRestok.sort((a, b) => {
+        let x, y;
+        if (restokSortBy === 'PRICE') { x = parseFloat(a.total_harga || 0); y = parseFloat(b.total_harga || 0); }
+        else if (restokSortBy === 'QTY') { x = parseInt(a.total_barang || 0); y = parseInt(b.total_barang || 0); }
+        else { x = parseRestokDate(a.tanggal_restok); y = parseRestokDate(b.tanggal_restok); }
+        if (x === y) return 0;
+        return restokSortOrder === 'DESC' ? (x < y ? 1 : -1) : (x < y ? -1 : 1);
+    });
+
+    const totalPages = Math.max(1, Math.ceil(filteredRestok.length / RESTOK_PER_PAGE));
+    currentPage = Math.min(Math.max(1, page), totalPages);
+    renderRestokTable();
+}
+
+function renderRestokTable() {
+    const tbody = document.getElementById('restokTableBody');
+    if (!tbody) return;
+
+    if (!filteredRestok.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color:#999;">No data found.</td></tr>';
+        renderPagination(0, 0);
+        return;
+    }
+
+    const totalPages = Math.ceil(filteredRestok.length / RESTOK_PER_PAGE);
+    const startIdx = (currentPage - 1) * RESTOK_PER_PAGE;
+    const pageRows = filteredRestok.slice(startIdx, startIdx + RESTOK_PER_PAGE);
+
+    let html = '';
+    pageRows.forEach((row, i) => {
+        const no = startIdx + i + 1;
+        html += `
+        <tr>
+            <td>${no}</td>
+            <td style="text-align:left;">${row.nama_suplier ?? '-'}</td>
+            <td>${row.tanggal_restok}</td>
+            <td style="text-align:right;">${row.total_barang}</td>
+            <td style="text-align:right; font-weight:600;">${formatRupiah(row.total_harga)}</td>
+            <td>${row.created_by_name ?? '-'}</td>
+            <td>${statusLabel(row.status_restok)}</td>
+            <td>
+                <div class="btn-action-group">
+                    <button class="btn-view-icon" onclick="openRestokModal(${row.id_restok})">...</button>
+                </div>
+            </td>
+        </tr>`;
+    });
+
+    tbody.innerHTML = html;
+    renderPagination(totalPages, currentPage);
+}
+
+function gotoRestokPage(page) {
+    currentPage = page;
+    renderRestokTable();
 }
 
 // ─── PAGINATION ───────────────────────────────────────────────────────────────
@@ -88,19 +160,19 @@ function renderPagination(totalPages, current) {
 
     let html = '';
     html += current > 1
-        ? `<a href="javascript:void(0)" onclick="loadRestok(${current - 1})" class="page-link">&lt;</a>`
+        ? `<a href="javascript:void(0)" onclick="gotoRestokPage(${current - 1})" class="page-link">&lt;</a>`
         : `<span class="page-link disabled">&lt;</span>`;
 
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || Math.abs(i - current) <= 1) {
-            html += `<a href="javascript:void(0)" onclick="loadRestok(${i})" class="page-link ${i === current ? 'active' : ''}">${i}</a>`;
+            html += `<a href="javascript:void(0)" onclick="gotoRestokPage(${i})" class="page-link ${i === current ? 'active' : ''}">${i}</a>`;
         } else if (Math.abs(i - current) === 2) {
             html += `<span class="dots">...</span>`;
         }
     }
 
     html += current < totalPages
-        ? `<a href="javascript:void(0)" onclick="loadRestok(${current + 1})" class="page-link">&gt;</a>`
+        ? `<a href="javascript:void(0)" onclick="gotoRestokPage(${current + 1})" class="page-link">&gt;</a>`
         : `<span class="page-link disabled">&gt;</span>`;
 
     el.innerHTML = html;
@@ -109,7 +181,7 @@ function renderPagination(totalPages, current) {
 // ─── DEBOUNCE SEARCH ──────────────────────────────────────────────────────────
 function debounceSearch() {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => loadRestok(1), 400);
+    searchTimer = setTimeout(() => applyRestokFilter(1), 400);
 }
 
 // ─── MODAL DETAIL ─────────────────────────────────────────────────────────────

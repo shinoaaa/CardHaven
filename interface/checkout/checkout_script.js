@@ -214,7 +214,7 @@ function renderCheckoutItem(item, outOfStock = false, stok = null) {
     const div = document.createElement('div');
     div.className = 'checkout-item';
     const fotoSrc = item.foto
-        ? `${BASE_IMG_URL}/${item.foto}`
+        ? `${BASE_IMG_URL}/assets/image/products/${item.foto}`
         : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
 
     const stockWarn = outOfStock
