@@ -1,5 +1,4 @@
 <?php
-// Letakkan baris ini di bagian paling atas file index.php halaman Home Anda
 $baseUrl = '/CardHaven';
 ?>
 
@@ -86,12 +85,12 @@ $baseUrl = '/CardHaven';
         <div class="product-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h1 style="font-size: 2.5rem; color: var(--primary-color);">Explore Our <br> Products</h1>
-                <div class="nav-search" style="width: auto; height: 2.5rem;">
+                <!-- <div class="nav-search" style="width: auto; height: 2.5rem;">
                     <input type="text" style="height: 100%; width: 20.5rem; border: 1px solid var(--primary-color); border-radius: 9999px;" placeholder="Type Product Name">
                     <div style="height: 100%; aspect-ratio: 1/1; background-color: var(--primary-color); border-radius: 9999px; display: flex; justify-content: center; align-items: center;">
                         <img src="<?= $baseUrl ?>/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
                     </div>
-                </div>
+                </div> -->
             </div>
             <div style="gap: 1.75rem; margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
                 <div>
@@ -241,6 +240,5 @@ $baseUrl = '/CardHaven';
 </script>
 <script src="<?= $baseUrl ?>/interface/global_alert.js"></script>
 <script src="<?= $baseUrl ?>/interface/home/script.js"></script>
-<script src="<?= $baseUrl ?>/interface/home/swipe.js"></script>
 <script src="<?= $baseUrl ?>/interface/event-transaction/script.js"></script>
 <script src="<?= $baseUrl ?>/interface/preorder-transaction/script.js"></script>

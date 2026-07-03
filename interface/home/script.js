@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <img src="${fotoSrc}" style="height: 100%; object-fit: contain; ${soldOut ? 'filter: grayscale(1) brightness(0.7);' : ''}">
                                 ${soldOut ? `
                                 <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35);">
-                                    <span style="background:#dc2626; color:#fff; font-weight:800; letter-spacing:1px; padding:0.4rem 1rem; border-radius:0.4rem; transform:rotate(-12deg); font-size:1.1rem;">SOLD OUT</span>
+                                    <span style="background:#dc2626; color:#fff; font-weight:800; letter-spacing:1px; padding:0.4rem 1rem; border-radius:0.4rem; transform:rotate(-12deg); font-size:1.1rem;">OUT OF STOCK</span>
                                 </div>` : ''}
                             </div>
                         </div>
@@ -265,25 +265,27 @@ document.addEventListener("DOMContentLoaded", function() {
                                 </p>
                             </div>
                             <div style="display: flex; align-items: center; justify-content: space-between; color: var(--primary-color); margin-top: 1.25rem;">
-                                <h2>Price: <span id="display-price-${prod.id_produk}">${formatRupiah(prod.harga_jual)}</span></h2>
+                                <h2 style="font-size:1rem">Price: <span id="display-price-${prod.id_produk}">${formatRupiah(prod.harga_jual)}</span></h2>
                                 <div style="display: flex; align-items: center; gap: 10px; border: 1px solid #ccc; border-radius: 20px; padding: 2px 10px; ${soldOut ? 'opacity:0.4; pointer-events:none;' : ''}">
                                     <span id="negatif" onclick="updateHomeQty(${prod.id_produk}, -1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">-</span>
                                     <span id="qty-val-${prod.id_produk}" data-stok="${prod.stok}"style="font-weight:bold; min-width: 20px; text-align:center;">1</span>
                                     <span onclick="updateHomeQty(${prod.id_produk}, 1, ${prod.harga_jual})" style="cursor:pointer; font-weight:bold; padding: 0 5px;">+</span>
                                 </div>
                             </div>
-                            <button class="detail-product" onclick="goToDetail(${prod.id_produk})" style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin: 1.5rem 0rem 0.75rem 0rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
-                            <button class="btn-primary"
+                            <div style="display: flex; gap: 0.65rem; margin:0.5rem 0">
+                                <button class="detail-product" onclick="goToDetail(${prod.id_produk})" style="width: 100%; padding: 0.5rem 0; font-size: 1rem; color: var(--primary-color); border: 1px solid var(--primary-color); background: transparent; border-radius: 9999px;">Check Detail</button>
+                                <button class="detail-product"
                                     onclick="addToCart(${prod.id_produk}, ${prod.harga_jual})"
                                     ${soldOut ? 'disabled' : ''}
-                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem; margin-bottom: 0.5rem; ${soldOut ? 'opacity:0.5; cursor:not-allowed;' : ''}">
-                                ${soldOut ? 'Out of Stock' : 'Add To Cart'}
-                            </button>
+                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem; ${soldOut ? 'opacity:0.5; cursor:default;' : ''}; border: 1px solid var(--primary-color); border-radius: 999px; background: transparent; color: var(--primary-color);">
+                                    ${soldOut ? 'Out of Stock' : 'Add To Cart'}
+                                </button>
+                            </div>
                             <button class="btn-primary"
                                     onclick="buyNow(${prod.id_produk}, ${prod.harga_jual})"
                                     ${soldOut ? 'disabled' : ''}
-                                    style="width: 100%; padding: 0.5rem 0; font-size: 1rem; background: var(--bg-gradient); ${soldOut ? 'opacity:0.5; cursor:not-allowed;' : ''}">
-                                Checkout
+                                    style="width: 100%; padding: 0.75rem 0; font-size: 1rem; background: var(--bg-gradient); ${soldOut ? 'opacity:0.5; cursor:default;' : ''}">
+                                Checkout Product
                             </button>
                         </div>
                     </div>`;
@@ -420,7 +422,7 @@ window.updateHomeQty = function(id, change, hargaSatuan) {
         plusBtn.style.cursor  = 'default';
         plusBtn.onclick       = null;
     } 
-    else if (currentQty == 1) {
+    else if (currentQty <= 1) {
         plusBtn.style.opacity = '0.3';
         plusBtn.style.cursor  = 'default';
         plusBtn.onclick       = null;
