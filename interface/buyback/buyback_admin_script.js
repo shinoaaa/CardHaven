@@ -2,9 +2,15 @@ const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php'
 
 const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
 const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+
+// State ala halaman laporan: tarik semua data sekali, filter/sort/paginate di client.
+let allBuyback = [];
+let filteredBuyback = [];
 let currentPage = 1;
-let currentSearch = '';
-let currentStatus = '';
+const itemsPerPage = 10;
+let currentStatusFilter = '';   // '' = All Status
+let currentSortBy = 'DATE';     // DATE | PRICE
+let currentSortOrder = 'DESC';
 let typingTimer;
 
 const STATUS_BUYBACK = [
@@ -21,102 +27,136 @@ const STATUS_BUYBACK = [
     { id: 10, label: "Cancelled", bg: "#f3f4f6", color: "#6b7280" }
 ];
 
-function handleBuybackSearch(val) {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-        currentSearch = val;
-        currentPage = 1; // Reset page saat mencari
-        loadDaftar();
-    }, 400); // Debounce untuk mengurangi beban server
-}
-
-function setBuybackStatus(statusId) {
-    currentStatus = statusId;
-    currentPage = 1;
-    loadDaftar();
-}
-
-function setBuybackPage(page) {
-    currentPage = page;
-    loadDaftar();
-}
-
 if (!idPengguna || (userRole != '2' && userRole != '3')) {
     window.location.href = '../login-page/index.php';
 }
+
+// ── Ambil tanggal transaksi (fallback ke created_date) ──
+function getRowDate(row) {
+    return (row.tanggal_pembelian || row.created_date || '').toString();
+}
+
+// ── FETCH SEMUA DATA (limit besar → semua baris untuk difilter di client) ──
 function loadDaftar() {
-    fetch(`${BUYBACK_CONTROLLER}?action=get_buyback_list&role=2&id_pengguna=${idPengguna}&page=${currentPage}&search=${encodeURIComponent(currentSearch)}&status=${currentStatus}`)
+    fetch(`${BUYBACK_CONTROLLER}?action=get_buyback_list&role=2&id_pengguna=${idPengguna}&page=1&search=&status=&limit=100000`)
     .then(res => res.json())
     .then(data => {
         if (data.status === 'error') return;
+        allBuyback = data.data || [];
+        applyBuybackFilter();
+    })
+    .catch(err => console.error("Error fetching buyback list:", err));
+}
 
-        // 1. Render Table
-        const tbody = document.querySelector('#tableAdmin tbody');
-        tbody.innerHTML = '';
-        
-        if(data.data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem 0;opacity:.5;">No buyback transactions were found.</td></tr>`;
-        } else {
-            let startNo = (currentPage - 1) * 10 + 1;
-            data.data.forEach((row) => {
-                let tanggal = 'N/A';
-                if (row.tanggal_pembelian) {
-                    // Mengambil 10 karakter pertama (YYYY-MM-DD)
-                    const tglMentah = row.tanggal_pembelian.substring(0, 10); 
-                    
-                    // Opsional: Jika ingin mengubah format menjadi DD-MM-YYYY (e.g., 30-06-2026)
-                    const [tahun, bulan, hari] = tglMentah.split('-');
-                    tanggal = `${hari}-${bulan}-${tahun}`;
-                }
-                let tr = `<tr class="trx-row" onclick="openDetailModal(${row.id_pembelian})">
-                    <td>${startNo++}</td>
-                    <td style="font-weight:700;color:var(--primary-color);">#${row.id_pembelian}</td>
-                    <td><div style="font-weight:600;font-size:.85rem;">${row.username}</div></td>
-                    <td style="white-space:nowrap;font-size:.82rem;">${tanggal}</td>
-                    <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
-                    <td>${parseStatus(row.status_pembelian)}</td>
-                </tr>`;
-                tbody.innerHTML += tr;
-            });
+// ── FILTER BAR (search + filter by status + sort by) ──
+function handleBuybackSearch() {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(applyBuybackFilter, 250);
+}
+
+function setBuybackStatus(val) {
+    currentStatusFilter = val;
+    applyBuybackFilter();
+}
+
+function changeBuybackSort() {
+    const el = document.getElementById('buybackSort');
+    const val = el ? el.value : 'DATE';
+    currentSortBy = (val === '' || val === 'NONE') ? 'DATE' : val;
+    applyBuybackFilter();
+}
+
+function toggleBuybackSortOrder() {
+    currentSortOrder = currentSortOrder === 'DESC' ? 'ASC' : 'DESC';
+    const btn = document.getElementById('btnBuybackSortOrder');
+    if (btn) btn.innerHTML = currentSortOrder === 'DESC' ? 'Descending ↓' : 'Ascending ↑';
+    applyBuybackFilter();
+}
+
+function applyBuybackFilter() {
+    const searchEl = document.getElementById('buybackSearch');
+    const search = searchEl ? searchEl.value.toLowerCase().trim() : '';
+
+    filteredBuyback = allBuyback.filter(row => {
+        // Filter by status
+        if (currentStatusFilter !== '' && String(row.status_pembelian) !== String(currentStatusFilter)) return false;
+
+        // Searching (username, order id, harga, tanggal)
+        if (search !== '') {
+            const uname = (row.username || '').toString().toLowerCase();
+            const idPlain = String(row.id_pembelian || '');
+            const harga = (row.total_harga || '').toString().toLowerCase();
+            const rawTgl = getRowDate(row);
+            const tgl = rawTgl.length >= 10 ? rawTgl.substring(0, 10).split('-').reverse().join('-') : rawTgl;
+            const match = uname.includes(search) || idPlain.includes(search) ||
+                          ('#' + idPlain).includes(search) || harga.includes(search) || tgl.includes(search);
+            if (!match) return false;
         }
-
-        // 2. Render Tabs
-        renderTabs(data.status_counts);
-
-        // 3. Render Pagination
-        renderPagination(data.pagination);
+        return true;
     });
-}
-function renderTabs(counts) {
-    const tabsContainer = document.getElementById('buybackTabs');
-    if (!tabsContainer) return;
-    
-    let totalAll = 0;
-    for (let key in counts) { totalAll += parseInt(counts[key]); }
 
-    let html = `<a onclick="setBuybackStatus('')" class="trx-tab ${currentStatus === '' ? 'active' : ''}" style="color:#555;">
-                    All <span class="tab-count">${totalAll}</span>
-                </a>`;
-    
-    STATUS_BUYBACK.forEach(s => {
-        const cnt = counts[s.id] || 0;
-        html += `<a onclick="setBuybackStatus(${s.id})" class="trx-tab ${currentStatus === s.id ? 'active' : ''}" style="color:${s.color};">
-                    ${s.label} ${cnt > 0 ? `<span class="tab-count">${cnt}</span>` : ''}
-                </a>`;
+    filteredBuyback.sort((a, b) => {
+        let valA, valB;
+        if (currentSortBy === 'PRICE') {
+            valA = parseFloat(a.total_harga || 0);
+            valB = parseFloat(b.total_harga || 0);
+        } else { // DATE
+            valA = new Date(getRowDate(a) || 0).getTime();
+            valB = new Date(getRowDate(b) || 0).getTime();
+        }
+        if (valA === valB) return 0;
+        return currentSortOrder === 'DESC' ? (valA < valB ? 1 : -1) : (valA < valB ? -1 : 1);
     });
-    
-    tabsContainer.innerHTML = html;
+
+    currentPage = 1;
+    renderTable();
 }
 
-function renderPagination(pageInfo) {
+function renderTable() {
+    const tbody = document.querySelector('#tableAdmin tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (filteredBuyback.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem 0;opacity:.5;">No buyback transactions were found.</td></tr>`;
+        renderPagination(0);
+        return;
+    }
+
+    const totalPages = Math.ceil(filteredBuyback.length / itemsPerPage);
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const pageData = filteredBuyback.slice(startIdx, startIdx + itemsPerPage);
+
+    let startNo = startIdx + 1;
+    pageData.forEach((row) => {
+        let tanggal = 'N/A';
+        const rawTgl = getRowDate(row);
+        if (rawTgl) {
+            const tglMentah = rawTgl.substring(0, 10);
+            const [tahun, bulan, hari] = tglMentah.split('-');
+            tanggal = `${hari}-${bulan}-${tahun}`;
+        }
+        let tr = `<tr class="trx-row" onclick="openDetailModal(${row.id_pembelian})">
+            <td>${startNo++}</td>
+            <td style="font-weight:700;color:var(--primary-color);">#${row.id_pembelian}</td>
+            <td><div style="font-weight:600;font-size:.85rem;">${row.username}</div></td>
+            <td style="white-space:nowrap;font-size:.82rem;">${tanggal}</td>
+            <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp ${(parseInt(row.total_harga) || 0).toLocaleString('id-ID')}</td>
+            <td>${parseStatus(row.status_pembelian)}</td>
+        </tr>`;
+        tbody.innerHTML += tr;
+    });
+
+    renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
     const pagContainer = document.getElementById('buybackPagination');
     if (!pagContainer) return;
 
-    const totalPages = pageInfo.total_pages;
-    const page = pageInfo.current_page;
-    
     if (totalPages <= 1) { pagContainer.innerHTML = ''; return; }
 
+    const page = currentPage;
     let html = '';
     html += page > 1 ? `<a onclick="setBuybackPage(${page - 1})" class="page-link">&lt;</a>` : `<span class="page-link disabled">&lt;</span>`;
 
@@ -141,6 +181,11 @@ function renderPagination(pageInfo) {
     pagContainer.innerHTML = html;
 }
 
+function setBuybackPage(page) {
+    currentPage = page;
+    renderTable();
+}
+
 function parseStatus(status) {
     const s = STATUS_BUYBACK.find(x => x.id == status) || { label: "Unknown", bg: "#f3f4f6", color: "#555" };
     return `<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:${s.bg}; color:${s.color}; white-space:nowrap;">${s.label}</span>`;
@@ -153,10 +198,10 @@ function openDetailModal(id_pembelian) {
         if(res.status === 'success') {
             const data = res.data;
             const pem = data.pembelian;
-            
+
             document.getElementById('modalTxId').innerText = `${pem.id_pembelian}`;
             document.getElementById('modalStatus').innerHTML = parseStatus(pem.status_pembelian);
-            
+
             let htmlContent = `
                 <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
                     <strong>Customer:</strong> ${pem.username}<br>
@@ -164,17 +209,17 @@ function openDetailModal(id_pembelian) {
                     <strong>Notes / Return Addr:</strong> <span style="color: #E74C3C; font-weight: 600;">${pem.alamat || 'None'}</span>
                 </div>
             `;
-            
-            const FINAL_STATUSES = [8, 9, 10]; 
+
+            const FINAL_STATUSES = [8, 9, 10];
             const isFinal = FINAL_STATUSES.includes(parseInt(pem.status_pembelian));
 
-            let allDecided = true; 
+            let allDecided = true;
             let allApproved = true;
             let hasCounter = false;
             let anyDecided = false; // FLAG BARU: Cek apakah admin sudah mulai memberi keputusan
 
             data.kartu.forEach(k => {
-                const hasDecision = k.penawaran_admin != null; 
+                const hasDecision = k.penawaran_admin != null;
                 const isApproved = hasDecision && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isCountered = hasDecision && !isApproved;
 
@@ -203,11 +248,11 @@ function openDetailModal(id_pembelian) {
                     if (!hasDecision) {
                         cardActionHtml = `
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button onclick="adminApproveCard(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_customer})" 
+                                <button onclick="adminApproveCard(${pem.id_pembelian}, ${k.id_kartu}, ${k.penawaran_customer})"
                                     class="btn-confirm" style="width:auto; padding:5px 14px; font-size:0.8rem; margin:0; background:#27AE60;">
                                     ✓ Approve Price
                                 </button>
-                                <button onclick="adminCounterItem(${pem.id_pembelian}, ${k.id_kartu})" 
+                                <button onclick="adminCounterItem(${pem.id_pembelian}, ${k.id_kartu})"
                                     class="btn-cancel-outline" style="width:auto; padding:5px 14px; font-size:0.8rem; margin:0;">
                                     ✎ Set Counter Offer
                                 </button>
@@ -229,7 +274,7 @@ function openDetailModal(id_pembelian) {
                 htmlContent += `
                     <div style="border: 1px solid ${!hasDecision && pem.status_pembelian == 1 ? '#fbbf24' : '#e5e7eb'}; padding: 15px; margin-bottom: 15px; border-radius: 12px; background: #fff;">
                         <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">${k.nama_kartu}</h4>
-                        
+
                         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                             <div style="flex: 1;">
                                 <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Front Photo:</p>
@@ -259,7 +304,7 @@ function openDetailModal(id_pembelian) {
             // 3. LOGIKA FOOTER SATU PINTU & KONSISTENSI STYLE TOMBOL
             let footerHtml = '';
             const status = pem.status_pembelian;
-            
+
             // Variabel Style CSS Tombol
             const btnBase = "border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.2s;";
             const btnCancel = `background: #b91c1c; color: white; ${btnBase}`;
@@ -271,10 +316,10 @@ function openDetailModal(id_pembelian) {
             if (status == 0) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')" style="${btnBlue}">Start Review</button>`;
-            } 
+            }
             else if (status == 1) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
-                
+
                 if (!anyDecided) {
                     // MODE 1: Muncul pertama kali (Langsung bisa Approve All)
                     footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
@@ -289,20 +334,20 @@ function openDetailModal(id_pembelian) {
                     // MODE 3: Sedang memproses kartu (tombol dikunci sementara)
                     footerHtml += `<button disabled style="${btnDisabled}">Send Counter Offers</button>`;
                 }
-            } 
+            }
             else if (status == 2) {
                 footerHtml += `<div style="text-align: center; width: 100%; color: #d97706; font-weight: bold; padding: 12px; background: #fef3c7; border-radius: 8px;">Waiting for the Customer's Response...</div>`;
-            } 
+            }
             else if (status == 4) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 5, 'Received')" style="${btnGreen}">Receive Package</button>`;
-            } 
+            }
             else if (status == 5) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 9, 'Rejected')" style="${btnCancel}">Reject & Return</button>`;
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 6, 'Verified')" style="${btnGreen}">Quality Match (Proceed)</button>`;
-            } 
+            }
             else if (status == 6) {
                 footerHtml += `<button onclick="uploadPayment(${pem.id_pembelian})" style="${btnBlue}">Upload Payment Proof</button>`;
-            } 
+            }
 
             document.getElementById('modalFooter').innerHTML = footerHtml;
             document.getElementById('detailModal').style.display = 'flex';
@@ -337,7 +382,7 @@ function adminCounterItem(idP, idK) {
         inputValidator: (value) => {
 
             const val = value ? value.toString().trim() : '';
-            
+
             if (!val || isNaN(val) || Number(val) <= 0) {
                 return 'Invalid price!';
             }
@@ -347,7 +392,7 @@ function adminCounterItem(idP, idK) {
             const formData = new URLSearchParams();
             formData.append('action', 'admin_negotiate');
             formData.append('id_pembelian', idP);
-            formData.append('id_kartu', idK); 
+            formData.append('id_kartu', idK);
             formData.append('penawaran_admin', result.value);
             formData.append('id_pengguna', idPengguna);
 
@@ -357,7 +402,7 @@ function adminCounterItem(idP, idK) {
                 if (res.status === 'success') {
                     // JANGAN panggil loadDaftar() di sini agar modal tidak menutup.
                     // Cukup panggil openDetailModal agar data harga yang baru tersimpan langsung ter-refresh di dalam modal.
-                    openDetailModal(idP); 
+                    openDetailModal(idP);
                 } else {
                     Swal.fire('Error', res.message, 'error');
                 }
