@@ -4,9 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require __DIR__ . '/../../connection.php';
+require __DIR__ . '/../../diagnose.php';
 
-$client_id;
-$client_secret;
+$client_id = $_ENV['FACEBOOK_CLIENT_ID'];
+$client_secret = $_ENV['FACEBOOK_CLIENT_CLIENT'];
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php";
 
 if (isset($_GET['code'])) {

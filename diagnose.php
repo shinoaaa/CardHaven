@@ -1,37 +1,36 @@
+
 <?php
-// C:\xampp\htdocs\CardHaven\diagnose.php
-echo "<h2 style='font-family: sans-serif;'>CardHaven Assets Scanner</h2>";
-$root = __DIR__;
-$assetsPath = $root . '/assets';
 
-if (!is_dir($assetsPath)) {
-    echo "<p style='color: red; font-family: sans-serif;'><b>Error:</b> Folder <code>$assetsPath</code> tidak ditemukan!</p>";
-    exit;
-}
+// ==========================================
+// FUNGSI UNTUK MEMBACA FILE .env
+// ==========================================
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        die("File .env tidak ditemukan di path: " . $path);
+    }
 
-echo "<p style='font-family: sans-serif;'>Memindai seluruh isi folder: <b>$assetsPath</b></p>";
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Abaikan baris komentar (yang diawali #)
+        if (strpos(trim($line), '#') === 0) continue;
 
-function scanDirectory($dir, $rootPath) {
-    $result = [];
-    $items = scandir($dir);
-    foreach ($items as $item) {
-        if ($item === '.' || $item === '..') continue;
-        $path = $dir . '/' . $item;
-        if (is_dir($path)) {
-            $result[$item] = scanDirectory($path, $rootPath);
-        } else {
-            // Sederhanakan path untuk ditampilkan
-            $relativePath = str_replace($rootPath, '', $path);
-            $relativePath = str_replace('\\', '/', $relativePath);
-            $result[] = $relativePath;
+        // Pisahkan key dan value berdasarkan tanda '='
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+
+            // Masukkan ke dalam environment variable PHP
+            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+                putenv(sprintf('%s=%s', $name, $value));
+                $_ENV[$name] = $value;
+                $_SERVER[$name] = $value;
+            }
         }
     }
-    return $result;
 }
 
-$files = scanDirectory($assetsPath, $root);
-
-echo "<pre style='background: #f4f4f4; border: 1px solid #ccc; padding: 15px; font-family: monospace; font-size: 14px;'>";
-print_r($files);
-echo "</pre>";
-?>
+// 1. Arahkan path ini ke lokasi file .env kamu berada. 
+// Asumsi: file .env ada di folder root (CardHaven/.env)
+$envPath = __DIR__ . '/.env'; 
+loadEnv($envPath);
