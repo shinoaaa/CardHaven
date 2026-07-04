@@ -4,7 +4,7 @@
         <div class="foot-game">
             <div class="list-header">
                 <div style="width: 2rem; height: 2rem;">
-                    <img src="<?= $baseUrl ?>/assets/image/games.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/games.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <h1 style="font-size: 1.25rem;">Games</h1>
             </div>
@@ -19,7 +19,7 @@
         <div class="foot-service">
             <div class="list-header">
                 <div style="width: 2rem; height: 2rem;">
-                    <img src="<?= $baseUrl ?>/assets/image/service.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/service.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <h1 style="font-size: 1.25rem;">Services</h1>
             </div>
@@ -32,7 +32,7 @@
         <div class="foot-about">
             <div class="list-header">
                 <div style="width: 2rem; height: 2rem;">
-                    <img src="<?= $baseUrl ?>/assets/image/product-foot.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/product-foot.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <h1 style="font-size: 1.25rem;">About Us</h1>
             </div>
@@ -47,13 +47,13 @@
             <div style="height: 2px; background-color: var(--primary-color); width: 12rem;"></div>
             <div style="display: flex; gap: 1rem;">
                 <div class="community-icon">
-                    <img src="<?= $baseUrl ?>/assets/image/instagram.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/instagram.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <div class="community-icon">
-                    <img src="<?= $baseUrl ?>/assets/image/x.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/x.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <div class="community-icon">
-                    <img src="<?= $baseUrl ?>/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
             </div>
         </div>
