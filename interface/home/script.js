@@ -172,24 +172,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // --- 3. RENDER GAME BAR ---
-        const gameBarContainer = document.getElementById('ui-game-list');
-        if (gameBarContainer) {
-            gameBarContainer.innerHTML = '';
-            if (data.list_game_bar && data.list_game_bar.length > 0) {
-                data.list_game_bar.forEach(game => {
-                    const aNav = document.createElement('a');
-                    aNav.href = `list.php?id=${game.id_game}`;
-                    aNav.textContent = game.nama_game;
-                    aNav.style.color = 'white';
-                    gameBarContainer.appendChild(aNav);
-                });
-            } else {
-                gameBarContainer.innerHTML = '<span>There are no games here</span>';
-            }
-        }
-
-        // --- 4. RENDER GAME CARD ---
+        // --- RENDER GAME CARD ---
         const gameCardContainer = document.getElementById('ui-game-card-list');
         if (gameCardContainer) {
             gameCardContainer.innerHTML = '';
@@ -200,17 +183,39 @@ document.addEventListener("DOMContentLoaded", function() {
                         gamePath = `assets/image/products/${gamePath}`;
                     }
                     const bannerSrc = gamePath ? `/CardHaven/${gamePath}` : '/CardHaven/image-profile/defaultBanner.jpg';
+                    
+                    // Mengganti <a href> dengan onclick pada div utama
                     const cardHTML = `
-                    <a href="list.php?id=${game.id_game}">
+                    <div onclick="openGameCatalogue(${game.id_game})" style="cursor: pointer;">
                         <div class="game-card" style="background-image: url('${bannerSrc}');">
                             <h1 style="font-size: 1.25rem; z-index: 999; position: relative; color: white;">${game.nama_game}</h1>
                             <div style="background-color: black; width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 50%;"></div>
                         </div>
-                    </a>`;
+                    </div>`;
                     gameCardContainer.innerHTML += cardHTML;
                 });
             } else {
                 gameCardContainer.innerHTML = '<span style="color: white;">No games are available</span>';
+            }
+        }
+
+        // --- RENDER GAME BAR ---
+        const gameBarContainer = document.getElementById('ui-game-list');
+        if (gameBarContainer) {
+            gameBarContainer.innerHTML = '';
+            if (data.list_game_bar && data.list_game_bar.length > 0) {
+                data.list_game_bar.forEach(game => {
+                    // Mengganti elemen <a> href menjadi elemen <span> atau <a> dengan onclick
+                    const aNav = document.createElement('a');
+                    aNav.textContent = game.nama_game;
+                    aNav.style.color = 'white';
+                    aNav.style.cursor = 'pointer'; // Biar tetep keliatan bisa diklik
+                    aNav.onclick = () => openGameCatalogue(game.id_game);
+                    
+                    gameBarContainer.appendChild(aNav);
+                });
+            } else {
+                gameBarContainer.innerHTML = '<span>There are no games here</span>';
             }
         }
 
@@ -519,3 +524,7 @@ window.buyNow = function(idProduk, hargaSatuan) {
 window.goToDetail = function(idProduk) {
     window.location.href = `/CardHaven/home/productdetail?id_produk=${idProduk}`;
 }
+
+window.openGameCatalogue = function(idGame) {
+    window.location.href = `/CardHaven/home/list?id=${idGame}`; 
+};

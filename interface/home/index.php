@@ -35,9 +35,9 @@ $baseUrl = '/CardHaven';
             </div>
             
             <div class="hero-img">
-                <img src="<?= $baseUrl ?>/assets/image/kotak-depan.png" style="position: absolute; z-index: 999; width: 100%; height: 100%;">
+                <!-- <img src="<?= $baseUrl ?>/assets/image/kotak-depan.png" style="position: absolute; z-index: 999; width: 100%; height: 100%;"> -->
                 <img id="ui-event-image" src="" style="position: absolute; z-index: 1; transform: translateX(-1.5rem) translateY(2.5rem) scale(0.92);">
-                <img src="<?= $baseUrl ?>/assets/image/garis-belakang.png" style="position: absolute; z-index: 0; width: 65.5%; height: 62%; transform: translateX(-3rem) translateY(-6.75rem);">
+                <!-- <img src="<?= $baseUrl ?>/assets/image/garis-belakang.png" style="position: absolute; z-index: 0; width: 65.5%; height: 62%; transform: translateX(-3rem) translateY(-6.75rem);"> -->
             </div>
         </div>
         
@@ -91,6 +91,11 @@ $baseUrl = '/CardHaven';
                         <img src="<?= $baseUrl ?>/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
                     </div>
                 </div> -->
+                <div style="display: flex; flex-direction: column; align-items:  flex-start;">
+                    <a href="/CardHaven/home/list" style="text-decoration: underline; color: var(--primary-color); font-size: 1rem;">
+                        See all product
+                    </a>
+                </div>
             </div>
             <div style="gap: 1.75rem; margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
                 <div>
@@ -132,39 +137,48 @@ $baseUrl = '/CardHaven';
         <div style="width: 20rem; height: 20rem; border-radius: 9999px; background-color: #1B4AAD; position: absolute; transform: translateX(3rem) translateY(3rem);  filter: blur(75px);"></div>
         <div style="width: 20rem; height: 20rem; border-radius: 9999px; background-color: #1949b1; position: absolute; transform: translateX(65rem) translateY(15rem);  filter: blur(70px); z-index: 0;"></div>
 
-        <div style="z-index: 999; position: relative;">
-            <div class="buyback-title">
-                <div style="width: 0.75rem; height: 0.75rem; background-color: #FC7812; border-radius: 9999px;"></div>
-                <h3>Buyback Card</h3>
-            </div>
-            <h2 class="coolveticaa" style="color: white; font-size: 3.25rem; margin-top: 1rem;">
-                Your cards are worth <br>
-                <span class="coolveticaa" style="color: #5e8be3;">
-                    more than shelf <br>
-                    space.
-                </span>
-            </h2>
-            <p style="color: #ffffff; opacity: 65%; width: 30rem; margin-top: 1.25rem;">
-                Your cards are worth more than shelf spaGot extra cards collecting dust? Trade them in for fast cash or store credit — we make it simple and fair
-            </p>
-            <div class="buyback-list-btn">
-                <a href="<?= $baseUrl ?>/interface/buyback/customer.php" style="text-decoration: none;">
-                    <div class="btn-buyback" style="padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
-                        <div style="width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center;">
-                            <img src="<?= $baseUrl ?>/assets/image/cash.svg" style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <h3>Get an offer</h3>
-                    </div>
-                </a>
-                
-                <div class="btn-buyback" style="padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
-                    <h3>Learn how it work →</h3>
+        <div style="display: flex; justify-content: space-between; gap: 27rem;">
+            <div style="z-index: 999; position: relative;">
+                <div class="buyback-title">
+                    <div style="width: 0.75rem; height: 0.75rem; background-color: #FC7812; border-radius: 9999px;"></div>
+                    <h3>Buyback Card</h3>
                 </div>
+                <h2 class="coolveticaa" style="color: white; font-size: 3.25rem; margin-top: 1rem;">
+                    Your cards are worth <br>
+                    <span class="coolveticaa" style="color: #5e8be3;">
+                        more than shelf <br>
+                        space.
+                    </span>
+                </h2>
+                <p style="color: #ffffff; opacity: 65%; width: 30rem; margin-top: 1.25rem;">
+                    Your cards are worth more than shelf spaGot extra cards collecting dust? Trade them in for fast cash or store credit — we make it simple and fair
+                </p>
+                <div class="buyback-list-btn">
+                    <a href="/CardHaven/home/buyback" style="text-decoration: none;">
+                        <div class="btn-buyback" style="padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
+                            <div style="width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center;">
+                                <img src="<?= $baseUrl ?>/assets/image/cash.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                            </div>
+                            <h3>Get an offer</h3>
+                        </div>
+                    </a>
+                    
+                    <div class="btn-buyback" style="padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
+                        <h3>Learn how it work →</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <img src="/cardhaven/assets/image/pict1.svg" alt="" style="position: absolute; z-index: 6; transform: translateX(2rem) translateY(3rem);">
+                <img src="/cardhaven/assets/image/pict2.svg" alt="" style="position: absolute; z-index: 5; transform: translateX(-0.75rem) translateY(0.75rem);">
+                <img src="/cardhaven/assets/image/pict3.svg" alt="" style="position: absolute; z-index: 3; transform: translateX(-2.5rem) translateY(-3.25rem);">
+                <img src="/cardhaven/assets/image/pict4.svg" alt="" style="position: absolute; z-index: 2; transform: translateX(-4.5rem) translateY(-1.25rem) scale(1.1);">
             </div>
         </div>
     </div>
 
-    <div class="footer">
+    <!-- <div class="footer">
         <div class="foot-top">
             <div class="foot-game">
                 <div class="list-header">
@@ -228,7 +242,8 @@ $baseUrl = '/CardHaven';
                 <h3>© 2026 www.card-haven.com - All Rights Reserved.</h3>
             </div>
         </div>
-    </div>
+    </div> -->
+    <?php include __DIR__ . '/../page-customer/footer.php' ?>
 
 
     <?php include __DIR__ . '/../../interface/event-transaction/index.php' ?>

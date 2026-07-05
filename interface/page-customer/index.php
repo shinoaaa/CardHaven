@@ -26,6 +26,7 @@
 <body>
     <div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
         <?php include '../CardHaven/interface/page-customer/navBar.php'; ?>
+
         <?php if(($segments[0] === 'home' || $segments[0] === '') && count($segments) === 1): ?>
             <div style="height: 85%; width: 100%">
                 <?php include '../CardHaven/interface/home/index.php'; ?>
@@ -34,8 +35,11 @@
             <?php include __DIR__ . '/../product-detail/index.php' ?>
         <?php elseif($segments[1] === 'cart'): ?>
             <?php include __DIR__ . '/../cart/index.php' ?>
+        <?php elseif($segments[1] === 'list'): ?>
+            <?php include __DIR__ . '/../catalogue/index.php' ?>
+        <?php elseif($segments[1] === 'buyback'): ?>
+            <?php include __DIR__ . '/../buyback/customer.php' ?>
         <?php endif; ?>
-        
     </div>
 
 </body>

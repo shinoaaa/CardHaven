@@ -3,9 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require __DIR__ . '/../../connection.php';
+require __DIR__ . '/../../diagnose.php';
 
-$client_id;
-$client_secret;
+$client_id = $_ENV['DISCORD_CLIENT_ID'];
+$client_secret = $_ENV['DISCORD_CLIENT_CLIENT'];
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/discord-callback.php";
 
 if (isset($_GET['code'])) {

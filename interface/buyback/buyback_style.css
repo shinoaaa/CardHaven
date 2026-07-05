@@ -1,7 +1,7 @@
 /* interface/buyback/buyback_style.css */
 .main-content {
     /* Tinggi navbar 6rem ditambah ekstra ruang bernapas 2rem */
-    padding-top: 8rem; 
+    margin-top: 4rem; 
 }
 .content-card form {
     display: grid;

@@ -5,7 +5,7 @@ const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
 let cardIndexCounter = 1;
 
 if (!idPengguna || userRole != '0') {
-    window.location.href = '../login-page/index.php';
+    window.location.href = '/CardHaven/login';
 }
 
 function fetchBankDetails() {
@@ -109,10 +109,6 @@ function resetCardFields() {
         container.removeChild(container.lastChild);
     }
     cardIndexCounter = 1;
-}
-
-if (!idPengguna || userRole != '0') {
-    window.location.href = '../login-page/index.php';
 }
 function loadRiwayat() {
     fetch(`${BUYBACK_CONTROLLER}?action=get_buyback_list&role=0&id_pengguna=${idPengguna}`)
