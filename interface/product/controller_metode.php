@@ -20,6 +20,24 @@ try {
         $biaya     = (float)($_POST['biaya_admin'] ?? 0);
 
         if ($action === 'add' || $action === 'edit') {
+            if (!preg_match('/^[A-Za-z ]+$/', $nama)) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => 'Method name must contain letters only (no numbers or symbols).']);
+                exit;
+            }
+            if (!preg_match('/^[A-Za-z0-9 .]+$/', $provider)) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => 'Provider must contain letters, numbers, or dots only.']);
+                exit;
+            }
+            if (!preg_match('/^[A-Za-z ]+$/', $atas_nama)) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => 'Account name must contain letters only (no numbers or symbols).']);
+                exit;
+            }
+        }
+
+        if ($action === 'add' || $action === 'edit') {
             $stmt_cek = sqlsrv_query($conn, 'SELECT dbo.udf_CheckDuplicateMetode(?, ?) AS total', [$nama, $id_metode]);
             if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
             $row_cek = sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC);

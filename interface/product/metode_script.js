@@ -73,11 +73,17 @@ metodeForm.onsubmit = async function(e) {
 if (!nama.value.trim()) {
     showError(nama, 'Method name is required.');
     isValid = false;
+} else if (!/^[A-Za-z ]+$/.test(nama.value.trim())) {
+    showError(nama, 'Method name must contain letters only (no numbers or symbols).');
+    isValid = false;
 } else {
     clearError(nama);
 }
 if (!provider.value.trim()) {
     showError(provider, 'Provider is required.');
+    isValid = false;
+} else if (!/^[A-Za-z0-9 .]+$/.test(provider.value.trim())) {
+    showError(provider, 'Provider must contain letters, numbers, or dots only.');
     isValid = false;
 } else {
     clearError(provider);
@@ -99,6 +105,9 @@ if (!noRek.value.trim()) {
 }
 if (!atasNama.value.trim()) {
     showError(atasNama, 'Account name is required.');
+    isValid = false;
+} else if (!/^[A-Za-z ]+$/.test(atasNama.value.trim())) {
+    showError(atasNama, 'Account name must contain letters only (no numbers or symbols).');
     isValid = false;
 } else {
     clearError(atasNama);

@@ -75,6 +75,16 @@ try {
             $tanggal = $dt ? $dt->format('Y-m-d H:i:s') : null;
         }
 
+        if ($action === 'delete') {
+            $stmt_rel = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.produk WHERE id_set = ? AND is_deleted = 0", [$id_set]);
+            $rel = $stmt_rel ? sqlsrv_fetch_array($stmt_rel, SQLSRV_FETCH_ASSOC) : null;
+            if ($rel && (int)$rel['n'] > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => "Cannot delete: this set is still used by {$rel['n']} Product(s)."]);
+                exit;
+            }
+        }
+        
         if ($action === 'add' || $action === 'edit') {
             $stmt_cek = sqlsrv_query($conn, 'SELECT dbo.udf_CheckDuplicateSet(?, ?) AS total', [$kode, $id_set]);
             if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
