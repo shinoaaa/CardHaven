@@ -148,7 +148,7 @@ function submitAddCustomer() {
     
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
-    const no_telp  = document.getElementById('addNoTelp').value.trim();
+    const no_telp  = document.getElementById('addNoTelp').value.replace(/\s+/g, '');
     const password = document.getElementById('addPassword').value;
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
@@ -262,7 +262,7 @@ function submitEditCustomer() {
     const id       = document.getElementById('editCustomerId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
-    const no_telp  = document.getElementById('editNoTelp').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.replace(/\s+/g, '');
     const password = document.getElementById('editPassword').value;
     const confirmPassword = document.getElementById('editConfirmPassword').value;
     const foto     = document.getElementById('editFoto').files[0];

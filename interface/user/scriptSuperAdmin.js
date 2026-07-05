@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
     attachLiveClear('editPassword', 'err-edit-password');
-    attachLiveClear('editNoTelp',   'err-edit-notelp');
+    attachLiveClear('editNoTelp', 'err-edit-notelp');
     attachLiveClear('editUsername', 'err-edit-username');
     attachLiveClear('editEmail',    'err-edit-email');
     
@@ -147,7 +147,7 @@ function submitAddAdmin() {
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
     const password = document.getElementById('addPassword').value;
-    const no_telp  = document.getElementById('addNoTelp').value.trim();
+    const no_telp  = document.getElementById('addNoTelp').value.replace(/\s+/g, '');
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
 
@@ -158,13 +158,18 @@ function submitAddAdmin() {
     
     if (no_telp && !isValidPhone(no_telp)) { showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false; }
     
-    if (!password) { showErr('addPassword', 'err-add-password', 'Password is required.'); valid = false; }
+    if (!password) { 
+        showErr('addPassword', 'err-add-password', 'Password is required.'); valid = false; 
+    } else if (password.length < 8 || password.length > 12) {
+        showErr('addPassword', 'err-add-password', 'Password must be 8 - 12 characters long'); valid = false;
+    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        showErr('addPassword', 'err-add-password', 'Password must contain a special character'); valid = false;
+    }
+
     if (!confirmPassword) {
-        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password.');
-        valid = false;
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password.'); valid = false;
     } else if (password !== confirmPassword) {
-        showErr('addConfirmPassword', 'err-add-confirm-password', 'Passwords do not match.');
-        valid = false;
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Passwords do not match.'); valid = false;
     }
     if (!valid) return;
 
@@ -173,7 +178,7 @@ function submitAddAdmin() {
     body.append('username', username);
     body.append('email', email);
     body.append('password', password);
-    body.append('noTelp', no_telp);
+    body.append('no_telepon', no_telp);
     if (foto) body.append('foto_profil', foto);
 
     fetch(ADMIN_URL, { method: 'POST', body })
@@ -251,7 +256,7 @@ function submitEditAdmin() {
     const id       = document.getElementById('editAdminId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
-    const no_telp  = document.getElementById('editNoTelp').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.replace(/\s+/g, '');
     const foto     = document.getElementById('editFoto').files[0];
 
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }
@@ -452,7 +457,7 @@ async function resetSuperPassword() {
     if (!valid) return;
 
     const body = new FormData();
-    body.append('action', 'resetAdminPassword');
+    body.append('action', 'changePasswordAdmin');
     body.append('password', password);
     body.append('confirm_password', confirm);
     body.append('actor_id', actorId);

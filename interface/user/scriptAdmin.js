@@ -11,11 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachLiveClear('addUsername', 'err-add-username');
     attachLiveClear('addEmail',    'err-add-email');
+    attachLiveClear('addNoTelp', 'err-add-notelp');
     attachLiveClear('addPassword', 'err-add-password');
     attachLiveClear('addConfirmPassword', 'err-add-confirm-password');
     
     attachLiveClear('editUsername', 'err-edit-username');
     attachLiveClear('editEmail',    'err-edit-email');
+    attachLiveClear('editNoTelp', 'err-edit-notelp');
     attachLiveClear('editPassword', 'err-edit-password');
     attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
     attachLiveClear('adminChangeCreatedDate', 'err-admin-change-date');
@@ -144,7 +146,7 @@ function submitAddAdmin() {
     
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
-    const no_telp  = document.getElementById('addNoTelp').value.trim();
+    const no_telp = document.getElementById('addNoTelp').value.replace(/\s+/g, '');
     const password = document.getElementById('addPassword').value;
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
@@ -263,7 +265,7 @@ function submitEditAdmin() {
     const id       = document.getElementById('editAdminId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
-    const no_telp  = document.getElementById('editNoTelp').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.replace(/\s+/g, '');
     const foto     = document.getElementById('editFoto').files[0];
 
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }

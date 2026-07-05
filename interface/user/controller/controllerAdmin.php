@@ -2,9 +2,9 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../../../connection.php';
 
-function jsonOut(bool $success, string $message = '', array $data = []): void {
+function jsonOut(bool $success, string $message = '', array $data = [], string $code = ''): void {
     header('Content-Type: application/json');
-    echo json_encode(['success' => $success, 'message' => $message, 'data' => $data]);
+    echo json_encode(['success' => $success, 'message' => $message, 'data' => $data, 'code' => $code]);
     exit;
 }
 
@@ -42,7 +42,7 @@ if ($action !== '') {
                 if ($stmt === false) throw new Exception(sqlsrv_errors()[0]['message']);
                 jsonOut(true, 'Admin deleted successfully.');
 
-            case 'updateAdminStatus':
+            case 'toggleAdmin':
                 $body = json_decode(file_get_contents('php://input'), true) ?? $_POST;
                 $id = (int)($body['id_pengguna'] ?? 0);
                 $stmt = sqlsrv_query($conn, "{CALL dbo.sp_ManagePengguna('toggle_status', ?, ?, '', '', '', '')}", [$id, $role]);

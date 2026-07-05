@@ -68,8 +68,13 @@
     </table>
 
     <div class="pagination-container">
+        <?php 
+            // Ambil role saat ini dari URL agar tidak hilang saat pindah halaman
+            $current_role = isset($_GET['role']) ? (int)$_GET['role'] : 1; 
+        ?>
+        
         <?php if ($page > 1): ?>
-            <a href="?page=<?= $page - 1 ?>" class="page-link">&lt;</a>
+            <a href="?role=<?= $current_role ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
         <?php else: ?>
             <span class="page-link disabled">&lt;</span>
         <?php endif; ?>
@@ -79,21 +84,21 @@
         $end   = min($total_pages, $page + 1);
 
         if ($start > 1): ?>
-            <a href="?page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
+            <a href="?role=<?= $current_role ?>&page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
             <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
         <?php endif; ?>
 
         <?php for ($i = $start; $i <= $end; $i++): ?>
-            <a href="?page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+            <a href="?role=<?= $current_role ?>&page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
         <?php endfor; ?>
 
         <?php if ($end < $total_pages): ?>
             <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
-            <a href="?page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
+            <a href="?role=<?= $current_role ?>&page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
         <?php endif; ?>
 
         <?php if ($page < $total_pages): ?>
-            <a href="?page=<?= $page + 1 ?>" class="page-link">&gt;</a>
+            <a href="?role=<?= $current_role ?>&page=<?= $page + 1 ?>" class="page-link">&gt;</a>
         <?php else: ?>
             <span class="page-link disabled">&gt;</span>
         <?php endif; ?>

@@ -68,6 +68,21 @@ function isValidPhone(phone) {
     return /^[0-9+\-\s]{7,20}$/.test(phone.trim());
 }
 
+function getActiveUserId() {
+    return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || '';
+}
+
+function validateSupplierNameInput(name) {
+    if (!name) return 'Supplier name is required.';
+    if (!/^[a-zA-Z0-9\s]+$/.test(name)) return 'Special characters are not allowed.';
+    if (/^\d+$/.test(name)) return 'Name cannot be numeric only; it must contain letters.';
+    
+    let cleanedName = name.replace(/\b(PT|CV)\b/gi, '').replace(/\s+/g, '');
+    if (cleanedName.length < 3) return 'Supplier name must be at least 3 letters (excluding PT and CV).';
+    
+    return null; 
+}
+
 // ============================================================
 //  DIRTY FORM CHECK
 //  Returns true if any field in the form has been changed
@@ -181,8 +196,9 @@ function validateAddForm() {
     const num     = document.getElementById('addSupplierNum').value.trim();
     const address = document.getElementById('addSupplierAddress').value.trim();
 
-    if (!name) {
-        showErr('addSupplierName', 'err-add-name', 'Supplier name is required.');
+    const nameError = validateSupplierNameInput(name);
+    if (nameError) {
+        showErr('addSupplierName', 'err-add-name', nameError);
         valid = false;
     }
     if (!mail) {
@@ -208,13 +224,14 @@ function validateAddForm() {
 
 function submitAddSupplier() {
     if (!validateAddForm()) return;
-
+    const userId = getActiveUserId();
     const body = new FormData();
     body.append('action',       'addSupplier');
     body.append('nama_suplier', document.getElementById('addSupplierName').value.trim());
     body.append('email',        document.getElementById('addSupplierMail').value.trim());
     body.append('no_telp',      document.getElementById('addSupplierNum').value.trim());
     body.append('alamat',       document.getElementById('addSupplierAddress').value.trim());
+    body.append('user_id', userId);
 
     fetch(SUPP_URL, { method: 'POST', body })
         .then(r => r.json())
@@ -298,8 +315,9 @@ function validateEditForm() {
     const num     = document.getElementById('editSupplierNum').value.trim();
     const address = document.getElementById('editSupplierAddress').value.trim();
 
-    if (!name) {
-        showErr('editSupplierName', 'err-edit-name', 'Supplier name is required.');
+    const nameError = validateSupplierNameInput(name);
+    if (nameError) {
+        showErr('editSupplierName', 'err-edit-name', nameError);
         valid = false;
     }
     if (!mail) {
@@ -327,6 +345,7 @@ function submitEditSupplier() {
     if (!validateEditForm()) return;
 
     const id = document.getElementById('editSuppId').value;
+    const userId = getActiveUserId();
 
     const body = new FormData();
     body.append('action',       'updateSupplier');
@@ -335,6 +354,7 @@ function submitEditSupplier() {
     body.append('email',        document.getElementById('editSupplierMail').value.trim());
     body.append('no_telp',      document.getElementById('editSupplierNum').value.trim());
     body.append('alamat',       document.getElementById('editSupplierAddress').value.trim());
+    body.append('user_id',      userId);
 
     fetch(SUPP_URL, { method: 'POST', body })
         .then(r => r.json())
@@ -367,9 +387,11 @@ function deleteSupplier(id) {
         'This action cannot be undone. The supplier will be permanently removed.',
         'Delete',
         () => {
+            const userId = getActiveUserId();
             const body = new FormData();
             body.append('action',      'deleteSupplier');
             body.append('id_supplier', id);
+            body.append('user_id', userId);
 
             fetch(SUPP_URL, { method: 'POST', body })
                 .then(r => r.json())
@@ -399,10 +421,12 @@ function toggleSupplier(id, isChecked, checkboxEl) {
         `Are you sure you want to ${label} this supplier?`,
         isChecked ? 'Activate' : 'Deactivate',
         () => {
+            const userId = getActiveUserId();
             const body = new FormData();
             body.append('action',      'toggleSupplier');
             body.append('id_supplier', id);
             body.append('aktif',       newStatus);
+            body.append('user_id', userId);
 
             fetch(SUPP_URL, { method: 'POST', body })
                 .then(r => r.json())
