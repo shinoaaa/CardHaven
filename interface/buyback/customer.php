@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <title>Buyback - Customer</title>
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
-    <link rel="stylesheet" href="buyback_style.css">
+    <link rel="stylesheet" href="/cardhaven/interface/buyback/buyback_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>
     
 </head>
 <body>
-    <?php include '../page-customer/navBar.php'; ?>
     <div class="main-content">
         
         <div class="content-card" style="margin-bottom: 2rem; padding: 30px;">
@@ -28,7 +27,7 @@
                 
                 <div style="grid-column: span 2;">
                     <form id="formBuyback" enctype="multipart/form-data">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; border-bottom: 2px dashed #E1EBFF; padding-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; border-bottom: 2px dashed #E1EBFF; padding-bottom: 20px;">
                             <div class="form-group">
                                 <label>Provider<span class="required">*</span></label>
                                 <input type="text" name="provider" id="bankProvider" class="modal-input" placeholder="e.g., BCA, GoPay, DANA">
@@ -41,7 +40,7 @@
                             </div>
                         </div>
                         <div id="cardInputsContainer">
-                            <div class="card-input-group" id="cardGroup1" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff;">
+                            <div class="card-input-group" id="cardGroup1" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 7px; background: #fafcff;">
                                 <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card 1</h4>
                                 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -57,7 +56,7 @@
                                     </div>
                                 </div>
 
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 7px;">
                                     <div class="form-group">
                                         <label>Front Photo <span class="required">*</span></label>
                                         <input type="file" name="foto_depan[]" class="file-input-custom modal-input" accept="image/*" onchange="previewImage(this, 'previewFront1')">
@@ -83,7 +82,7 @@
 
                 <div style="grid-column: span 1; top: 20px;">
                     <div style="background: #fafcff; border: 2px solid #E1EBFF; border-radius: 12px; padding: 25px;">
-                        <h3 style="color: var(--primary-color); margin-top: 0; font-size: 1.2rem; border-bottom: 2px dashed #E1EBFF; padding-bottom: 10px; margin-bottom: 15px;">Terms & Conditions</h3>
+                        <h3 style="color: var(--primary-color); margin-top: 0; font-size: 1.2rem; border-bottom: 2px dashed #E1EBFF; padding-bottom: 10px; margin-bottom: 5px;">Terms & Conditions</h3>
                         <ul style="padding-left: 20px; font-size: 0.85rem; color: #555; line-height: 1.8; margin: 0;">
                             <li style="margin-bottom: 10px;"><strong>Originality:</strong> Ensure your cards are 100% genuine. Counterfeit cards will be automatically rejected.</li>
                             <li style="margin-bottom: 10px;"><strong>Clear Photos:</strong> Photos must be clear, well-lit, and clearly show all four edges of the card.</li>
@@ -97,7 +96,9 @@
 
             </div>
         </div>
-        <div class="footer">
+
+        <?php include __DIR__ . '/../page-customer/footer.php'; ?>
+        <!-- <div class="footer">
             <div class="foot-top">
                 <div class="foot-game">
                     <div class="list-header">
@@ -161,10 +162,10 @@
                     <h3>© 2026 www.card-haven.com - All Rights Reserved.</h3>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     
     <?php include 'components/modal.php'; ?>
-    <script src="buyback_customer_script.js"></script>
+    <script src="/cardhaven/interface/buyback/buyback_customer_script.js"></script>
 </body>
 </html>

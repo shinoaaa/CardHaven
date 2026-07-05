@@ -2,12 +2,14 @@
 // =========================================================
 // 1. CONFIG GOOGLE OAUTH
 // =========================================================
+require __DIR__ . '/../../diagnose.php';
+
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/google-callback.php"; 
 $scope         = "email profile openid";
 $response_type = "code";
 
 $google_login_url = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
-    'client_id'     => $client_id,
+    'client_id'     => $_ENV['GOOGLE_CLIENT_ID'],
     'redirect_uri'  => $redirect_uri,
     'scope'         => $scope,
     'response_type' => $response_type
@@ -21,7 +23,7 @@ $scope_discord         = "identify email";
 $response_type_discord = "code";
 
 $discord_login_url = "https://discord.com/api/oauth2/authorize?" . http_build_query([
-    'client_id'     => $client_id,
+    'client_id'     => $_ENV['DISCORD_CLIENT_ID'],
     'redirect_uri'  => $redirect_uri_discord,
     'scope'         => $scope_discord,
     'response_type' => $response_type_discord
@@ -35,7 +37,7 @@ $scope_facebook         = "email";
 $response_type_facebook = "code";
 
 $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_build_query([
-    'client_id'     => $client_id,
+    'client_id'     => $_ENV['FACEBOOK_CLIENT_ID'],
     'redirect_uri'  => $redirect_uri_facebook,
     'scope'         => $scope_facebook,
     'response_type' => $response_type_facebook

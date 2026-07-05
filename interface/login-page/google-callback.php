@@ -3,8 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require __DIR__ . '/../../connection.php';
-$client_id;
-$client_secret;
+require __DIR__ . '/../../diagnose.php';
+
+$client_id = $_ENV['GOOGLE_CLIENT_ID'];
+$client_secret = $_ENV['GOOGLE_CLIENT_CLIENT'];
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/google-callback.php";
 
 if (isset($_GET['code'])) {
