@@ -154,7 +154,7 @@ $baseUrl = '/CardHaven';
                     Your cards are worth more than shelf spaGot extra cards collecting dust? Trade them in for fast cash or store credit — we make it simple and fair
                 </p>
                 <div class="buyback-list-btn">
-                    <a href="<?= $baseUrl ?>/interface/buyback/customer.php" style="text-decoration: none;">
+                    <a href="/CardHaven/home/buyback" style="text-decoration: none;">
                         <div class="btn-buyback" style="padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
                             <div style="width: 2.25rem; height: 2.25rem; display: flex; align-items: center; justify-content: center;">
                                 <img src="<?= $baseUrl ?>/assets/image/cash.svg" style="object-fit: cover; width: 100%; height: 100%;">

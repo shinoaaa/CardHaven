@@ -37,6 +37,8 @@
             <?php include __DIR__ . '/../cart/index.php' ?>
         <?php elseif($segments[1] === 'list'): ?>
             <?php include __DIR__ . '/../catalogue/index.php' ?>
+        <?php elseif($segments[1] === 'buyback'): ?>
+            <?php include __DIR__ . '/../buyback/customer.php' ?>
         <?php endif; ?>
     </div>
 

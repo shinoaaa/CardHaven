@@ -28,7 +28,7 @@ const STATUS_BUYBACK = [
 ];
 
 if (!idPengguna || (userRole != '2' && userRole != '3')) {
-    window.location.href = '../login-page/index.php';
+    window.location.href = '/CardHaven/home';
 }
 
 // ── Ambil tanggal transaksi (fallback ke created_date) ──
