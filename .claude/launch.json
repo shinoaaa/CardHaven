@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "cardhaven-apache", "runtimeExecutable": "D:/Xampp/php/php.exe", "runtimeArgs": ["-S", "127.0.0.1:8899", "-t", "D:/Xampp/htdocs"], "port": 8899 }
+  ]
+}

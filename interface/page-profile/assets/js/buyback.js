@@ -12,6 +12,30 @@ function parseStatus(status) {
     return statuses[status] || "Unknown";
 }
 
+// Samakan tone dengan status-pill di tab Buy Product: background pastel + teks gelap.
+function buybackStatusColor(status) {
+    const map = {
+        0:  { bg: '#fef9c3', color: '#ca8a04' }, // Pending Submission
+        1:  { bg: '#e0f2fe', color: '#0369a1' }, // Under Review
+        2:  { bg: '#ede9fe', color: '#7c3aed' }, // Price Negotiation
+        3:  { bg: '#dcfce7', color: '#15803d' }, // Offer Accepted
+        4:  { bg: '#dbeafe', color: '#1d4ed8' }, // Card Shipped
+        5:  { bg: '#d1fae5', color: '#065f46' }, // Card Received
+        6:  { bg: '#cffafe', color: '#0e7490' }, // Quality Checked
+        7:  { bg: '#fef3c7', color: '#b45309' }, // Payment Sent
+        8:  { bg: '#d1fae5', color: '#14532d' }, // Completed
+        9:  { bg: '#fee2e2', color: '#b91c1c' }, // Rejected
+        10: { bg: '#f3f4f6', color: '#6b7280' }, // Cancelled
+    };
+    return map[parseInt(status)] || { bg: '#f3f4f6', color: '#6b7280' };
+}
+
+// ── Search / filter / sort / pagination (mirip tab Buy Product) ──────────
+let allBuyback     = [];
+let buybackPage    = 1;
+const BUYBACK_PER_PAGE = 4;
+let bbSearch = '', bbStatus = '', bbPriceSort = '', bbDateSort = 'desc';
+
 function loadRiwayat() {
     const tbody = document.querySelector('#tableRiwayat tbody');
     if (!tbody || !idPengguna) return;
@@ -19,29 +43,115 @@ function loadRiwayat() {
     fetch(`${BUYBACK_CONTROLLER}?action=get_buyback_list&role=0&id_pengguna=${idPengguna}`)
     .then(res => res.json())
     .then(data => {
-        tbody.innerHTML = '';
-        if (!data.data || data.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No BuyBack records yet.</td></tr>';
-            return;
-        }
-        data.data.forEach((row, index) => {
-            let tanggal = 'N/A';
-            if (row.tanggal_pembelian) {
-                const tglMentah = row.tanggal_pembelian.substring(0, 10);
-                const [tahun, bulan, hari] = tglMentah.split('-');
-                tanggal = `${hari}-${bulan}-${tahun}`;
-            }
-            const aksi = `<button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})" style="margin: 0 auto;">...</button>`;
-            tbody.innerHTML += `<tr>
-                <td>${index + 1}</td>
-                <td>#${row.id_pembelian}</td>
-                <td>${tanggal}</td>
-                <td>Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
-                <td>${parseStatus(row.status_pembelian)}</td>
-                <td class="btn-action-group">${aksi}</td>
-            </tr>`;
-        });
+        allBuyback = (data && data.data) ? data.data : [];
+        buybackPage = 1;
+        renderBuyback();
+    })
+    .catch(() => {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#dc2626;">Failed to load buyback history.</td></tr>';
     });
+}
+
+function getFilteredBuyback() {
+    let rows = allBuyback.slice();
+
+    if (bbStatus !== '') {
+        rows = rows.filter(r => String(r.status_pembelian) === String(bbStatus));
+    }
+    if (bbSearch.trim() !== '') {
+        const q = bbSearch.trim().toLowerCase();
+        rows = rows.filter(r =>
+            String(r.id_pembelian).includes(q) ||
+            ('#' + r.id_pembelian).includes(q) ||
+            parseStatus(r.status_pembelian).toLowerCase().includes(q) ||
+            String(r.total_harga || '').includes(q) ||
+            (r.tanggal_pembelian || '').toLowerCase().includes(q));
+    }
+    if (bbPriceSort === 'price_asc')       rows.sort((a, b) => (a.total_harga || 0) - (b.total_harga || 0));
+    else if (bbPriceSort === 'price_desc') rows.sort((a, b) => (b.total_harga || 0) - (a.total_harga || 0));
+    else rows.sort((a, b) => {
+        const da = new Date(a.tanggal_pembelian), db = new Date(b.tanggal_pembelian);
+        return bbDateSort === 'asc' ? da - db : db - da;
+    });
+    return rows;
+}
+
+function renderBuyback() {
+    const tbody = document.querySelector('#tableRiwayat tbody');
+    if (!tbody) return;
+
+    const rows = getFilteredBuyback();
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No BuyBack records yet.</td></tr>';
+        renderBuybackPagination(0);
+        return;
+    }
+
+    const totalPages = Math.ceil(rows.length / BUYBACK_PER_PAGE);
+    if (buybackPage > totalPages) buybackPage = totalPages;
+    const start = (buybackPage - 1) * BUYBACK_PER_PAGE;
+    const pageRows = rows.slice(start, start + BUYBACK_PER_PAGE);
+
+    // Kolom harus cocok dengan header: No | Transaction ID | Deal Date |
+    // Total Product | Total Price | Status | Action.
+    tbody.innerHTML = pageRows.map((row, i) => {
+        let tanggal = 'N/A';
+        if (row.tanggal_pembelian) {
+            const [tahun, bulan, hari] = row.tanggal_pembelian.substring(0, 10).split('-');
+            tanggal = `${hari}-${bulan}-${tahun}`;
+        }
+        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})">•••</button>`;
+        const sc = buybackStatusColor(row.status_pembelian);
+        return `<tr>
+            <td>${start + i + 1}</td>
+            <td>#${row.id_pembelian}</td>
+            <td>${tanggal}</td>
+            <td>${row.total_barang ?? '-'}</td>
+            <td>Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
+            <td><span class="status-pill" style="background:${sc.bg};color:${sc.color};">${parseStatus(row.status_pembelian)}</span></td>
+            <td>${aksi}</td>
+        </tr>`;
+    }).join('');
+
+    renderBuybackPagination(totalPages);
+}
+
+function renderBuybackPagination(totalPages) {
+    const box = document.getElementById('bb-pagination');
+    if (!box) return;
+    if (totalPages <= 1) { box.innerHTML = ''; return; }
+
+    let html = `<button class="page-arrow" ${buybackPage === 1 ? 'disabled' : ''} onclick="gotoBuybackPage(${buybackPage - 1})">‹</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || Math.abs(i - buybackPage) <= 1) {
+            html += `<button class="page-num ${i === buybackPage ? 'active' : ''}" onclick="gotoBuybackPage(${i})">${i}</button>`;
+        } else if (i === buybackPage - 2 || i === buybackPage + 2) {
+            html += `<span class="page-dots">...</span>`;
+        }
+    }
+    html += `<button class="page-arrow" ${buybackPage === totalPages ? 'disabled' : ''} onclick="gotoBuybackPage(${buybackPage + 1})">›</button>`;
+    box.innerHTML = html;
+}
+
+function gotoBuybackPage(p) { buybackPage = p; renderBuyback(); }
+
+function onBuybackFilterChange() {
+    bbSearch    = document.getElementById('bb-search')?.value || '';
+    bbStatus    = document.getElementById('bb-status')?.value || '';
+    bbPriceSort = document.getElementById('bb-price')?.value  || '';
+    buybackPage = 1;
+    renderBuyback();
+}
+
+function toggleBuybackDateSort() {
+    bbDateSort = bbDateSort === 'desc' ? 'asc' : 'desc';
+    bbPriceSort = ''; // date sort mengalahkan price sort
+    const priceSel = document.getElementById('bb-price');
+    if (priceSel) priceSel.value = '';
+    const icon = document.getElementById('bb-sort-icon');
+    if (icon) icon.textContent = bbDateSort === 'desc' ? '↓' : '↑';
+    buybackPage = 1;
+    renderBuyback();
 }
 
 function inputResi(id_pembelian) {

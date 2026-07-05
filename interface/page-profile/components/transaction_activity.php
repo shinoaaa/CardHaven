@@ -78,6 +78,36 @@
 
     <!-- Buyback Table (riwayat asli, sama seperti interface/buyback/customer.php) -->
     <div id="tab-buyback" class="tab-content" style="display: none;">
+        <!-- Toolbar khusus Buy Back (search + filter status buyback + sort) -->
+        <div class="transaction-toolbar" id="bb-toolbar">
+            <div class="search-box">
+                <img src="/cardhaven/assets/image/search.svg" alt="Search">
+                <input type="text" id="bb-search" placeholder="Search transaction ID or status..." oninput="onBuybackFilterChange()">
+            </div>
+            <select class="filter-btn" id="bb-status" onchange="onBuybackFilterChange()">
+                <option value="">All Status</option>
+                <option value="0">Pending Submission</option>
+                <option value="1">Under Review</option>
+                <option value="2">Price Negotiation</option>
+                <option value="3">Offer Accepted</option>
+                <option value="4">Card Shipped</option>
+                <option value="5">Card Received</option>
+                <option value="6">Quality Checked</option>
+                <option value="7">Payment Sent</option>
+                <option value="8">Completed</option>
+                <option value="9">Rejected</option>
+                <option value="10">Cancelled</option>
+            </select>
+            <select class="filter-btn" id="bb-price" onchange="onBuybackFilterChange()">
+                <option value="">Price</option>
+                <option value="price_asc">Price: Low → High</option>
+                <option value="price_desc">Price: High → Low</option>
+            </select>
+            <button class="sort-btn" id="bb-sort" onclick="toggleBuybackDateSort()" title="Sort by date">
+                <span id="bb-sort-icon">↓</span>
+            </button>
+        </div>
+
         <div class="table-responsive">
             <table class="cardhaven-table" id="tableRiwayat">
                 <thead>
@@ -86,7 +116,6 @@
                         <th>Transaction ID</th>
                         <th>Deal Date</th>
                         <th>Total Product</th>
-                        <th>Status</th>
                         <th>Total Price</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -97,6 +126,8 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="pagination" id="bb-pagination"></div>
     </div>
 
     <!-- Pagination (dynamic; driven by the active tab) -->
