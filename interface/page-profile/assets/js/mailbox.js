@@ -71,14 +71,11 @@ function renderMailList() {
     container.innerHTML = '';
     if(mailData.length === 0) {
         container.innerHTML = '<p style="text-align:center; color:#888;">Mailbox is empty.</p>';
-        document.getElementById('mailPagination').innerHTML = '';
         return;
     }
 
-    const startIndex = (currentPage - 1) * limitPerPage;
-    const paginatedItems = mailData.slice(startIndex, startIndex + limitPerPage);
-
-    paginatedItems.forEach(mail => {
+    // Tanpa paging — semua notifikasi ditampilkan, area di-scroll (lihat CSS #mailListContainer).
+    mailData.forEach(mail => {
         const isUnread = mail.status_notifikasi == 0 ? 'unread' : '';
         const item = document.createElement('div');
         item.className = `mail-item ${isUnread}`;
@@ -86,22 +83,20 @@ function renderMailList() {
             <h4 class="mail-item-title">${translateNotif(mail.judul)}</h4>
             <p class="mail-item-date">${mail.tanggal_notifikasi}</p>
         `;
-        // Handle overlap interaction here
         item.onclick = () => openMailContent(mail);
         container.appendChild(item);
     });
+}
 
-    // Handle pagination DOM create
-    const totalPages = Math.ceil(mailData.length / limitPerPage);
-    const pagination = document.getElementById('mailPagination');
-    pagination.innerHTML = '';
-    for(let i=1; i<=totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
-        btn.onclick = () => { currentPage = i; renderMailList(); };
-        pagination.appendChild(btn);
-    }
+function markAllAsRead() {
+    if (!userId) return;
+    const fd = new FormData();
+    fd.append('id_pengguna', userId);
+    fetch('/cardhaven/interface/page-profile/controller/MailController.php?action=markAllRead', {
+        method: 'POST', body: fd
+    }).then(res => res.json()).then(res => {
+        if (res.status === 'success') fetchMails();
+    });
 }
 
 function openMailContent(mail) {

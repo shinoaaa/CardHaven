@@ -15,8 +15,9 @@
             <h3 id="userEmail" style="font-size: 0.75rem; opacity: 55%; margin: 0.25rem 0 0 0;"></h3>
         </div>
         <div style="width: 100%; margin-top: 0.5rem; display: flex; justify-content: center; gap: .75rem;">
-            <a href="">
+            <a href="javascript:void(0)" onclick="openAdminMailbox()" style="position: relative;" title="Notifications">
                 <img src="/cardhaven/assets/image/inbox.svg" style="object-fit:fill; width: 1.35rem; height: 1.35rem;">
+                <span id="adminMailBadge" style="display:none; position:absolute; top:-7px; right:-9px; background:#e53935; color:#fff; font-size:0.6rem; font-weight:700; min-width:16px; height:16px; border-radius:9999px; align-items:center; justify-content:center; padding:0 3px; line-height:1;">0</span>
             </a>
             <a href="javascript:void(0)" id="btnLogout">
                 <img src="/cardhaven/assets/image/logout.svg" style="object-fit:fill; width: 1.35rem; height: 1.35rem;">
@@ -156,4 +157,105 @@ document.addEventListener("DOMContentLoaded", () => {
         default: break;
     }
 });
+</script>
+
+<!-- Admin Mailbox Modal -->
+<div id="adminMailOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:3000; justify-content:center; align-items:flex-start; padding:4.5rem 1rem;" onclick="if(event.target===this) closeAdminMailbox()">
+    <div style="background:#fff; width:min(440px,95vw); max-height:75vh; border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.3); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; border-bottom:1px solid #eef0f2;">
+            <h3 style="margin:0; color:var(--primary-color, #0D47A1); font-size:1.15rem;">Mailbox</h3>
+            <div style="display:flex; gap:0.9rem; align-items:center;">
+                <button onclick="adminMarkAllRead()" style="background:none; border:none; color:var(--primary-color, #0D47A1); font-size:0.78rem; cursor:pointer; font-weight:600;">Mark all as read</button>
+                <button onclick="closeAdminMailbox()" style="background:none; border:none; font-size:22px; cursor:pointer; opacity:.5; line-height:1;">&times;</button>
+            </div>
+        </div>
+        <div id="adminMailList" style="overflow-y:auto; flex:1;">
+            <p style="text-align:center; color:#888; padding:1.5rem;">Loading...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    const ADMIN_MAIL_API = '/cardhaven/interface/page-profile/controller/MailController.php';
+    function adminMailId(){ return sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna'); }
+
+    // Notif tersimpan dalam Bahasa Indonesia; terjemahkan frasa template yang dikenal ke Inggris.
+    const ADM_NOTIF_TR = [
+        ['PEMBAYARAN BERHASIL','Payment Received'],
+        ['Pembayaran untuk pesanan','Payment for order'],
+        ['telah kami terima','has been received'],
+        ['Pesananmu sedang diproses oleh penjual','Your order is now being processed by the seller'],
+        ['Pesanan kamu sedang diproses','Your order is being processed'],
+        ['Pesananmu sedang diproses','Your order is being processed'],
+        ['Pesanan kamu telah dikirim','Your order has been shipped'],
+        ['Pesananmu telah dikirim','Your order has been shipped'],
+        ['Pesanan kamu telah sampai','Your order has been delivered'],
+        ['Pesananmu telah sampai','Your order has been delivered'],
+        ['Pesanan kamu telah dibatalkan','Your order has been cancelled'],
+        ['Pesananmu telah dibatalkan','Your order has been cancelled'],
+        ['Menunggu pembayaran','Awaiting payment'],
+        ['Nomor resi','Tracking number'],
+        ['Terima kasih','Thank you'],
+        ['sebesar','amounting to'],
+        ['Halo','Hello'],
+        ['pesanan','order'],
+    ];
+    function admTranslate(t){ if(!t) return ''; let o=String(t); ADM_NOTIF_TR.forEach(([id,en])=>{ o=o.split(id).join(en); }); return o; }
+
+    let adminMailData = [];
+
+    window.adminLoadMails = function(){
+        const uid = adminMailId(); if(!uid) return;
+        fetch(`${ADMIN_MAIL_API}?action=getMails&id_pengguna=${uid}`)
+            .then(r=>r.json())
+            .then(res=>{
+                if(res.status !== 'success') return;
+                adminMailData = res.data || [];
+                const badge = document.getElementById('adminMailBadge');
+                if(badge){
+                    if((res.unread||0) > 0){ badge.textContent = res.unread; badge.style.display = 'inline-flex'; }
+                    else badge.style.display = 'none';
+                }
+                adminRenderMails();
+            })
+            .catch(()=>{});
+    };
+
+    function adminRenderMails(){
+        const box = document.getElementById('adminMailList'); if(!box) return;
+        if(!adminMailData.length){
+            box.innerHTML = '<p style="text-align:center;color:#888;padding:1.5rem;">No notifications.</p>';
+            return;
+        }
+        box.innerHTML = adminMailData.map(m=>{
+            const unread = m.status_notifikasi == 0;
+            return `<div onclick="adminReadMail(${m.id_notifikasi})" style="padding:.75rem 1.25rem; border-bottom:1px solid #f4f4f4; cursor:pointer; ${unread?'background:#f0f7ff;':''}">
+                <div style="font-weight:600; font-size:.88rem; color:#111; display:flex; align-items:center; gap:6px;">${admTranslate(m.judul)} ${unread?'<span style=\"width:7px;height:7px;border-radius:50%;background:#0088ff;flex-shrink:0;\"></span>':''}</div>
+                <div style="font-size:.8rem; color:#666; margin:3px 0;">${admTranslate(m.isi)}</div>
+                <div style="font-size:.7rem; color:#999;">${m.tanggal_notifikasi || ''}</div>
+            </div>`;
+        }).join('');
+    }
+
+    window.openAdminMailbox  = function(){ const o=document.getElementById('adminMailOverlay'); if(o) o.style.display='flex'; };
+    window.closeAdminMailbox = function(){ const o=document.getElementById('adminMailOverlay'); if(o) o.style.display='none'; };
+
+    window.adminReadMail = function(id){
+        const m = adminMailData.find(x=>x.id_notifikasi == id);
+        if(!m || m.status_notifikasi != 0) return;
+        const fd = new FormData(); fd.append('id_notifikasi', id);
+        fetch(`${ADMIN_MAIL_API}?action=markRead`, { method:'POST', body: fd })
+            .then(r=>r.json()).then(res=>{ if(res.status==='success') window.adminLoadMails(); });
+    };
+
+    window.adminMarkAllRead = function(){
+        const uid = adminMailId(); if(!uid) return;
+        const fd = new FormData(); fd.append('id_pengguna', uid);
+        fetch(`${ADMIN_MAIL_API}?action=markAllRead`, { method:'POST', body: fd })
+            .then(r=>r.json()).then(res=>{ if(res.status==='success') window.adminLoadMails(); });
+    };
+
+    document.addEventListener('DOMContentLoaded', function(){ if(adminMailId()) window.adminLoadMails(); });
+})();
 </script>
