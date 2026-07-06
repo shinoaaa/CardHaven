@@ -106,8 +106,8 @@ function renderBuyback() {
             <td>${start + i + 1}</td>
             <td>#${row.id_pembelian}</td>
             <td>${tanggal}</td>
-            <td>${row.total_barang ?? '-'}</td>
-            <td>Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
+            <td style="text-align:right;">${row.total_barang ?? '-'}</td>
+            <td style="text-align:right;">Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
             <td><span class="status-pill" style="background:${sc.bg};color:${sc.color};">${parseStatus(row.status_pembelian)}</span></td>
             <td>${aksi}</td>
         </tr>`;

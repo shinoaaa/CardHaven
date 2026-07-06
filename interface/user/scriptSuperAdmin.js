@@ -1,4 +1,6 @@
 const ADMIN_URL = '/cardhaven/interface/user/controller/controllerSuperAdmin.php';
+// id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
+function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
 let overlay, modalDetail, modalAdd, modalEdit;
 let superVerifyStepDone = false;
 let modalSuperChange;
@@ -48,6 +50,7 @@ function clearErr(inputId, errId) {
 function clearAllErrors(prefix) {
     clearErr(`${prefix}Username`, `err-${prefix}-username`);
     clearErr(`${prefix}Email`,    `err-${prefix}-email`);
+    clearErr(`${prefix}NoTelp`,   `err-${prefix}-notelp`);
     clearErr(`${prefix}Password`, `err-${prefix}-password`);
     clearErr(`${prefix}ConfirmPassword`, `err-${prefix}-confirm-password`);
     if(document.getElementById(`${prefix}Foto`)) {
@@ -175,6 +178,7 @@ function submitAddAdmin() {
 
     const body = new FormData();
     body.append('action', 'addAdmin');
+    body.append('actor_id', getActorId());
     body.append('username', username);
     body.append('email', email);
     body.append('password', password);
@@ -276,6 +280,7 @@ function submitEditAdmin() {
 
     const body = new FormData();
     body.append('action', 'updateAdmin');
+    body.append('actor_id', getActorId());
     body.append('id_pengguna', id);
     body.append('username', username);
     body.append('email', email);
@@ -305,6 +310,7 @@ function deleteAdmin(id) {
     cardhavenConfirm('Delete Super Admin?', 'This action cannot be undone.', 'Delete', () => {
         const body = new FormData();
         body.append('action', 'deleteAdmin');
+        body.append('actor_id', getActorId());
         body.append('id_pengguna', id);
 
         fetch(ADMIN_URL, { method: 'POST', body })
@@ -329,6 +335,7 @@ function toggleAdmin(id, isChecked, checkboxEl) {
         () => {
             const body = new FormData();
             body.append('action', 'toggleAdmin');
+            body.append('actor_id', getActorId());
             body.append('id_pengguna', id);
             body.append('status_akun', newStatus);
 
