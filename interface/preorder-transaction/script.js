@@ -122,19 +122,27 @@ function renderPreOrderDetail() {
         preorderStatus.textContent = "Login to order product";
     }
     else{
-        if (e.status_event === 1) {
-            console.log(e.status_event);
-            preorderStatus.textContent = "Order product now";
-            preorderStatus.disabled = false
-        } else if (e.status_event === 2) {
-            console.log(e.status_event);
-            preorderStatus.textContent = "Event is not begin";
-            preorderStatus.disabled = true
-            preorderStatus.style.cursor = 'default';
+        if(p.stok_event > 0){
+            if (e.status_event === 1) {
+                preorderStatus.textContent = "Order product now";
+                preorderStatus.disabled = false;
+                preorderStatus.style.cursor = 'pointer';
+            } else if (e.status_event === 2) {
+                preorderStatus.textContent = "Event is not begin";
+                preorderStatus.disabled = true;
+                preorderStatus.style.cursor = 'default';
+                preorderStatus.style.background = ''; // reset juga
+            } else {
+                preorderStatus.textContent = "Event was complete";
+                preorderStatus.disabled = true;
+                preorderStatus.style.cursor = 'default';
+                preorderStatus.style.background = '#FF8E24';
+            }
         } else {
-            console.log(e.status_event);
-            preorderStatus.textContent = "Event was complete";
-            preorderStatus.disabled = true
+            preorderStatus.textContent = "Out of stock";
+            preorderStatus.disabled = true;
+            preorderStatus.style.cursor = 'default';
+            preorderStatus.style.background = '#FF8E24';
         }
     }
 

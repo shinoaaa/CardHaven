@@ -148,7 +148,7 @@ function selectDetailProduct(idx) {
     document.getElementById('detail-product-badge').textContent = p.nama_produk;
     document.getElementById('detail-stok').textContent          = e.maks_pembelian;
     document.getElementById('detail-game').textContent          = p.nama_game || '-';
-    document.getElementById('detail-remain').textContent          = p.stok_event || '-';
+    document.getElementById('detail-remain').textContent        = p.stok_event || '-';
     document.getElementById('detail-type').textContent          = p.tipe_produk || '-';
     document.getElementById('detail-kondisi').textContent       = p.kondisi || '-';
     document.getElementById('detail-deskripsi').textContent     = p.deskripsi || '-';
@@ -157,15 +157,20 @@ function selectDetailProduct(idx) {
         promoStatus.textContent = "Login to order product";
     }
     else{
-        if (e.status_event === 1) {
-            console.log(e.status_event);
-            promoStatus.textContent = "Order product now";
-            promoStatus.disabled = false
-        } else if (e.status_event === 2) {
-            promoStatus.textContent = "Event is not begin";
-            promoStatus.disabled = true
-        } else {
-            promoStatus.textContent = "Event was complete";
+        if(p.stok_event > 0){
+            if (e.status_event === 1) {
+                console.log(e.status_event);
+                promoStatus.textContent = "Order product now";
+                promoStatus.disabled = false
+            } else if (e.status_event === 2) {
+                promoStatus.textContent = "Event is not begin";
+                promoStatus.disabled = true
+            } else {
+                promoStatus.textContent = "Event was complete";
+                promoStatus.disabled = true
+            }
+        } else{
+            promoStatus.textContent = "Out of stock";
             promoStatus.disabled = true
         }
     }

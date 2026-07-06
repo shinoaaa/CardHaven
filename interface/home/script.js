@@ -111,12 +111,15 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.event.status_event == 1) {
                 eventTitle.textContent = "Check detail";
                 eventTitle.disabled = false; 
+                eventTitle.style.cursor = "pointer"
             } else if (data.event.status_event == 2) {
                 eventTitle.textContent = "Upcoming event check detail";
                 eventTitle.disabled = false;
+                eventTitle.style.cursor = "pointer"
             } else {
                 eventTitle.textContent = "Event was complete";
-                eventTitle.disabled = true;  // Di-disable kalau event sudah selesai
+                eventTitle.disabled = true;
+                eventTitle.style.cursor = "default"  // Di-disable kalau event sudah selesai
                 eventTitle.onclick = null;   // Hapus fungsi klik sekalian biar aman
             }
         }

@@ -261,39 +261,56 @@ session_start();
                     <p style="font-size:0.9rem;font-weight:700;color:#d97706;margin:0;">⏳ Pending Payment Verification</p>
                 </div>
 
-                <br>
-                <a href="/cardhaven/interface/orders/orders.php" style="
-                    display:inline-block;
-                    padding:14px 32px;
-                    background:#1a3a6b;
-                    color:white;
-                    border-radius:8px;
-                    font-weight:800;
-                    text-transform:uppercase;
-                    letter-spacing:1.5px;
-                    font-size:0.85rem;
-                    text-decoration:none;
-                    transition:all 0.2s;
-                    margin-right:12px;
-                " onmouseover="this.style.background='var(--highlight)'" onmouseout="this.style.background='#1a3a6b'">
-                    View My Orders
-                </a>
-                <a href="/CardHaven/home" style="
-                    display:inline-block;
-                    padding:14px 32px;
-                    background:transparent;
-                    color:#1a3a6b;
-                    border:2px solid #1a3a6b;
-                    border-radius:8px;
-                    font-weight:800;
-                    text-transform:uppercase;
-                    letter-spacing:1.5px;
-                    font-size:0.85rem;
-                    text-decoration:none;
-                    transition:all 0.2s;
-                ">
-                    Continue Shopping
-                </a>
+                <!-- Aksi setelah pembayaran: riwayat order (profil), katalog, dan home -->
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                    <a href="/CardHaven/profilepage" style="
+                        display:inline-block;
+                        padding:14px 32px;
+                        background:#1a3a6b;
+                        color:white;
+                        border-radius:8px;
+                        font-weight:800;
+                        text-transform:uppercase;
+                        letter-spacing:1.5px;
+                        font-size:0.85rem;
+                        text-decoration:none;
+                        transition:all 0.2s;
+                    " onmouseover="this.style.background='var(--highlight)'" onmouseout="this.style.background='#1a3a6b'">
+                        📋 View My Orders
+                    </a>
+                    <a href="/CardHaven/home#catalog-section" style="
+                        display:inline-block;
+                        padding:14px 32px;
+                        background:transparent;
+                        color:#1a3a6b;
+                        border:2px solid #1a3a6b;
+                        border-radius:8px;
+                        font-weight:800;
+                        text-transform:uppercase;
+                        letter-spacing:1.5px;
+                        font-size:0.85rem;
+                        text-decoration:none;
+                        transition:all 0.2s;
+                    ">
+                        🃏 Browse Catalog
+                    </a>
+                    <a href="/CardHaven/home" style="
+                        display:inline-block;
+                        padding:14px 32px;
+                        background:transparent;
+                        color:#1a3a6b;
+                        border:2px solid #1a3a6b;
+                        border-radius:8px;
+                        font-weight:800;
+                        text-transform:uppercase;
+                        letter-spacing:1.5px;
+                        font-size:0.85rem;
+                        text-decoration:none;
+                        transition:all 0.2s;
+                    ">
+                        🏠 Back to Home
+                    </a>
+                </div>
             </div>
 
         </div>

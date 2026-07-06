@@ -81,7 +81,7 @@ $baseUrl = '/CardHaven';
         <div class="game-list" id="ui-game-card-list"></div>
     </div>
 
-    <div class="product">
+    <div class="product" id="catalog-section">
         <div class="product-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h1 style="font-size: 2.5rem; color: var(--primary-color);">Explore Our <br> Products</h1>

@@ -118,7 +118,8 @@ function renderOrders() {
     const pageRows = rows.slice(start, start + ORDERS_PER_PAGE);
 
     tbody.innerHTML = pageRows.map((row, i) => {
-        const st = ORDER_STATUS[parseInt(row.status_penjualan)] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
+        const stNum = parseInt(row.status_penjualan);
+        const st = ORDER_STATUS[stNum] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
         let tgl = '-';
         if (row.tanggal_penjualan) {
             const [y, m, d] = row.tanggal_penjualan.substring(0, 10).split('-');
@@ -178,6 +179,11 @@ function toggleOrderDateSort() {
     renderOrders();
 }
 
+// Lanjutkan pembayaran order Pending Payment → halaman checkout step Upload Payment
+function continuePayment(idPenjualan) {
+    window.location.href = `/CardHaven/checkout?resume=${idPenjualan}`;
+}
+
 // ── Order detail modal ───────────────────────────────────────────────
 function openOrderDetail(idPenjualan) {
     const overlay = document.getElementById('orderDetailOverlay');
@@ -222,7 +228,17 @@ function openOrderDetail(idPenjualan) {
                 <div style="display:flex;justify-content:space-between;margin-top:1rem;padding-top:.75rem;border-top:1px solid #eee;">
                     <span style="font-weight:700;">Total (${o.total_barang || 0} pcs)</span>
                     <span style="font-weight:800;color:var(--primary-color,#1a3a6b);">${fmtRp(o.total_harga)}</span>
-                </div>`;
+                </div>
+                ${parseInt(o.status_penjualan) === 0 ? `
+                <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #eee;">
+                    <p style="margin:0 0 .6rem;font-size:.78rem;color:#888;text-align:center;">
+                        This order is awaiting payment. Complete it now to start processing.
+                    </p>
+                    <button class="action-pay-btn" style="width:100%;padding:12px 0;font-size:.9rem;border-radius:8px;"
+                            onclick="continuePayment(${o.id_penjualan})">
+                        💳 Continue Payment
+                    </button>
+                </div>` : ''}`;
         })
         .catch(err => {
             console.error('Failed to load order detail:', err);
