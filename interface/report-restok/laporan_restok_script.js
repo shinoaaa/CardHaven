@@ -10,9 +10,6 @@ let currentSortBy = 'DATE';
 let currentSortOrder = 'DESC';
 let typingTimer;
 
-const STATUS_LABEL = { 0: 'Pending', 1: 'Approved', 2: 'Rejected', 3: 'Received', 4: 'Paid' };
-const STATUS_BADGE_CLASS = { 0: 'badge-pending', 1: 'badge-approved', 2: 'badge-rejected', 3: 'badge-received', 4: 'badge-paid' };
-
 // Laporan Restok cuma buat Owner (role 3)
 if (!idPengguna || userRole != '3') window.location.href = 'login';
 
@@ -117,7 +114,7 @@ function renderTable() {
     tbody.innerHTML = '';
 
     if (filteredData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; opacity:0.6;">No data matches your search.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; opacity:0.6;">No data matches your search.</td></tr>`;
         document.getElementById('paginationReport').innerHTML = '';
         return;
     }
@@ -129,15 +126,12 @@ function renderTable() {
     let startNo = startIdx + 1;
     pageData.forEach(row => {
         const tanggal = row.tanggal_restok ? row.tanggal_restok.substring(0, 10).split('-').reverse().join('-') : '-';
-        const statusInt = parseInt(row.status_restok);
-        const badge = `<span class="${STATUS_BADGE_CLASS[statusInt] || 'badge-pending'}">${STATUS_LABEL[statusInt] || '-'}</span>`;
 
         let tr = `<tr class="trx-row">
             <td style="text-align:center;">${startNo++}</td>
             <td style="white-space:nowrap;">${tanggal}</td>
             <td style="font-weight:600;">${row.nama_suplier || '-'}</td>
             <td><div class="card-list-cell">${row.daftar_produk || '-'}</div></td>
-            <td style="text-align:center;">${badge}</td>
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">
@@ -190,17 +184,12 @@ function openDetailModal(id) {
         const supplierName = trxGlobal ? trxGlobal.nama_suplier : '-';
         const totalItems = trxGlobal ? trxGlobal.total_barang : '-';
         const totalHarga = trxGlobal ? trxGlobal.total_harga : 0;
-        const statusInt = trxGlobal ? parseInt(trxGlobal.status_restok) : 0;
 
         let html = `
             <div style="display:flex; justify-content:space-between; margin-bottom:20px; background: #f8fafc; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
                 <div>
                     <span style="display:block; color:#64748b; font-size:0.8rem; margin-bottom:3px;">Supplier</span>
                     <b style="color:var(--primary-color); font-size:1.1rem;">${supplierName}</b>
-                </div>
-                <div>
-                    <span style="display:block; color:#64748b; font-size:0.8rem; margin-bottom:3px;">Status</span>
-                    <span class="${STATUS_BADGE_CLASS[statusInt] || 'badge-pending'}">${STATUS_LABEL[statusInt] || '-'}</span>
                 </div>
                 <div style="text-align:right;">
                     <span style="display:block; color:#64748b; font-size:0.8rem; margin-bottom:3px;">Total Items</span>

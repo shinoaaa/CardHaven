@@ -285,7 +285,6 @@ $currentTitle = $titles[$type] ?? 'Report';
                             <th width="12%">Date</th>
                             <th width="16%">Supplier</th>
                             <th width="27%">Products Purchased</th>
-                            <th width="12%">Status</th>
                             <th width="8%">Quantity</th>
                             <th width="13%">Total Price</th>
                             <th width="7%">Action</th>
