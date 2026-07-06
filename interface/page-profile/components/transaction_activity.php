@@ -128,6 +128,16 @@
     }
     .action-dots-btn:hover { filter: brightness(1.15); }
 
+    /* Tombol lanjut bayar untuk order Pending Payment */
+    .action-pay-btn {
+        border: none; background: #16a34a; color: #fff;
+        height: 26px; padding: 0 10px; border-radius: 6px; cursor: pointer;
+        font-weight: 700; font-size: 0.72rem; white-space: nowrap;
+        display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        transition: filter .15s;
+    }
+    .action-pay-btn:hover { filter: brightness(1.12); }
+
     /* Order detail modal */
     .order-detail-overlay {
         display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);

@@ -38,10 +38,66 @@ function fetchWithTimeout(url, options = {}, ms = 10000) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Mode resume: ?resume=<id_penjualan> → langsung ke step Upload Payment
+    // untuk order Pending Payment yang sudah dibuat sebelumnya.
+    const resumeId = parseInt(new URLSearchParams(window.location.search).get('resume'));
+    if (resumeId > 0) {
+        resumeOrderPayment(resumeId);
+        return;
+    }
+
     loadUserInfo();
     loadCartItems();
     loadPaymentMethods();
 });
+
+// ============================================================
+// RESUME PAYMENT (order Pending Payment dari halaman profil)
+// ============================================================
+function resumeOrderPayment(orderId) {
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_order_info&idpengguna=${idPengguna}&id_penjualan=${orderId}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success || !data.order) {
+                alert(data.message || 'Order not found.');
+                window.location.replace('/CardHaven/profilepage');
+                return;
+            }
+
+            const o = data.order;
+            if (parseInt(o.status_penjualan) !== 0) {
+                alert('This order has already been paid or can no longer be paid.');
+                window.location.replace('/CardHaven/profilepage');
+                return;
+            }
+
+            currentOrderId = o.id_penjualan;
+            orderPlaced    = true; // kunci agar tidak bisa place order lagi dari halaman ini
+
+            // Susun instruksi transfer dari data metode pembayaran order
+            const detailParts = [];
+            if (o.nama_metode) detailParts.push(escapeHtml(o.nama_metode));
+            if (o.no_rekening) detailParts.push(escapeHtml(o.no_rekening));
+            if (o.atas_nama)   detailParts.push('a/n ' + escapeHtml(o.atas_nama));
+
+            markStepDone(1);
+            markStepActive(2);
+            document.getElementById('step1-content').style.display = 'none';
+            document.getElementById('step2-content').style.display = 'block';
+
+            document.getElementById('step2-order-id').textContent             = '#' + o.id_penjualan;
+            document.getElementById('step2-total').textContent                = fmt(o.total_harga);
+            document.getElementById('payment-instruction-amount').textContent = fmt(o.total_harga);
+            document.getElementById('payment-instruction-detail').innerHTML   = detailParts.join(' · ') || '-';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to load order info. Please try again.');
+            window.location.replace('/CardHaven/profilepage');
+        });
+}
 
 // Jika halaman dipulihkan dari bfcache (user menekan tombol back setelah
 // meninggalkan halaman), muat ulang agar state order tidak bisa dipakai lagi.

@@ -118,12 +118,17 @@ function renderOrders() {
     const pageRows = rows.slice(start, start + ORDERS_PER_PAGE);
 
     tbody.innerHTML = pageRows.map((row, i) => {
-        const st = ORDER_STATUS[parseInt(row.status_penjualan)] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
+        const stNum = parseInt(row.status_penjualan);
+        const st = ORDER_STATUS[stNum] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
         let tgl = '-';
         if (row.tanggal_penjualan) {
             const [y, m, d] = row.tanggal_penjualan.substring(0, 10).split('-');
             tgl = `${d}-${m}-${y}`;
         }
+        // Order yang masih Pending Payment (0) diberi tombol lanjut bayar
+        const payBtn = stNum === 0
+            ? `<button class="action-pay-btn" title="Continue payment" onclick="continuePayment(${row.id_penjualan})">💳 Pay</button>`
+            : '';
         return `
             <tr>
                 <td>${start + i + 1}</td>
@@ -132,7 +137,12 @@ function renderOrders() {
                 <td>${escHtml(row.alamat || '-')}</td>
                 <td><span class="status-pill" style="background:${st.bg};color:${st.color};">${st.label}</span></td>
                 <td>${fmtRp(row.total_harga)}</td>
-                <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})">•••</button></td>
+                <td>
+                    <div style="display:inline-flex;gap:6px;align-items:center;">
+                        <button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})">•••</button>
+                        ${payBtn}
+                    </div>
+                </td>
             </tr>`;
     }).join('');
 
@@ -176,6 +186,11 @@ function toggleOrderDateSort() {
     if (icon) icon.textContent = orderDateSort === 'desc' ? '↓' : '↑';
     orderPage = 1;
     renderOrders();
+}
+
+// Lanjutkan pembayaran order Pending Payment → halaman checkout step Upload Payment
+function continuePayment(idPenjualan) {
+    window.location.href = `/CardHaven/checkout?resume=${idPenjualan}`;
 }
 
 // ── Order detail modal ───────────────────────────────────────────────
@@ -222,7 +237,12 @@ function openOrderDetail(idPenjualan) {
                 <div style="display:flex;justify-content:space-between;margin-top:1rem;padding-top:.75rem;border-top:1px solid #eee;">
                     <span style="font-weight:700;">Total (${o.total_barang || 0} pcs)</span>
                     <span style="font-weight:800;color:var(--primary-color,#1a3a6b);">${fmtRp(o.total_harga)}</span>
-                </div>`;
+                </div>
+                ${parseInt(o.status_penjualan) === 0 ? `
+                <button class="action-pay-btn" style="width:100%;margin-top:1rem;padding:12px 0;font-size:.9rem;"
+                        onclick="continuePayment(${o.id_penjualan})">
+                    💳 Continue Payment
+                </button>` : ''}`;
         })
         .catch(err => {
             console.error('Failed to load order detail:', err);

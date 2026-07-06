@@ -27,6 +27,29 @@ try {
 
             echo json_encode(['success' => true, 'user' => $user, 'items' => $items, 'methods' => $methods]); exit;
         }
+
+        // Info order untuk melanjutkan pembayaran (resume) — hanya order milik user ini
+        if ($action === 'get_order_info') {
+            $id_penjualan = (int)($_GET['id_penjualan'] ?? 0);
+            if ($id_penjualan <= 0) throw new Exception("Invalid order ID.");
+
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSalesDetail(?, ?)}", [$id_penjualan, $id_sekarang]);
+            if (!$stmt) throw new Exception(sqlsrv_errors()[0]['message']);
+
+            $order = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            if (!$order) throw new Exception("Order not found.");
+
+            // Kirim hanya field skalar yang dibutuhkan step Upload Payment
+            echo json_encode(['success' => true, 'order' => [
+                'id_penjualan'     => (int)$order['id_penjualan'],
+                'status_penjualan' => (int)$order['status_penjualan'],
+                'total_harga'      => (float)$order['total_harga'],
+                'total_barang'     => (int)$order['total_barang'],
+                'nama_metode'      => $order['nama_metode'] ?? null,
+                'no_rekening'      => $order['rek_tujuan'] ?? null,
+                'atas_nama'        => $order['atas_nama'] ?? null,
+            ]]); exit;
+        }
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
