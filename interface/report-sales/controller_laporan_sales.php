@@ -127,12 +127,16 @@ switch ($action) {
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetTitle('Sales Report');
         $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(true); 
-        $pdf->setFooterFont(Array('helvetica', '', 9));
         $pdf->SetMargins(15, 15, 15);
         $pdf->SetAutoPageBreak(TRUE, 15);
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 10);
+
+        $pdf->setPrintFooter(true); 
+        $pdf->setFooterFont(Array('helvetica', '', 9));
+        $pdf->SetFooterMargin(10);
+        
+        
 
         $html = '<h2 style="text-align:center; color:#0F3891; margin-bottom:0;">Sales Transaction Report</h2>';
         $html .= '<p style="text-align:center; font-size:9px; color:#666;">Generated on: ' . date('d-m-Y H:i') . '</p><br/>';
@@ -143,9 +147,9 @@ switch ($action) {
                             <th width="5%">No</th>
                             <th width="12%">Date</th>
                             <th width="15%">Customer</th>
-                            <th width="33%">Products</th>
-                            <th width="15%">Method</th>
-                            <th width="5%">Qty</th>
+                            <th width="30%">Products</th>
+                            <th width="15%">Payment Method</th>
+                            <th width="7%">Quantity</th>
                             <th width="15%">Total (Rp)</th>
                         </tr>
                     </thead>
@@ -159,19 +163,19 @@ switch ($action) {
             $bgColor = ($no % 2 == 0) ? '#dee8fc' : '#ffffff';
             
             $html .= '<tr bgcolor="'.$bgColor.'" nobr="true">
-                        <td align="center">'.$no++.'</td>
-                        <td align="center" style="white-space:nowrap;">'.$tgl.'</td>
-                        <td><b>'.htmlspecialchars($row['nama_customer']).'</b></td>
-                        <td>'.htmlspecialchars($row['daftar_produk']).'</td>
-                        <td align="center">'.$row['nama_metode'].'</td>
-                        <td align="center">'.$row['total_barang'].'</td>
-                        <td align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
+                        <td width="5%" align="center">'.$no++.'</td>
+                        <td width="12%" align="center" style="white-space:nowrap;">'.$tgl.'</td>
+                        <td width="15%"><b>'.htmlspecialchars($row['nama_customer']).'</b></td>
+                        <td width="30%">'.htmlspecialchars($row['daftar_produk']).'</td>
+                        <td width="15%" align="center">'.$row['nama_metode'].'</td>
+                        <td width="7%" align="right">'.$row['total_barang'].'</td>
+                        <td width="15%" align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
                     </tr>';
         }
         $html .= '<tr style="background-color:#f2f2f2; font-weight:bold;" nobr="true">
                     <td colspan="5" align="right">GRAND TOTAL</td>
-                    <td align="center">'.number_format($totalQty, 0, ',', '.').'</td>
-                    <td align="right">Rp '.number_format($totalNominal, 0, ',', '.').'</td>
+                    <td width="7%" align="center">'.number_format($totalQty, 0, ',', '.').'</td>
+                    <td width="15%" align="right">Rp '.number_format($totalNominal, 0, ',', '.').'</td>
                   </tr></tbody></table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');

@@ -30,6 +30,7 @@ try {
         if ($action === 'add' || $action === 'edit') {
             $nama       = trim($_POST['nama_produk'] ?? '');
             $id_game    = !empty($_POST['id_game']) ? (int)$_POST['id_game'] : null;
+            $id_supplier = !empty($_POST['id_supplier']) ? (int)$_POST['id_supplier'] : null;
             $tipe       = $_POST['tipe_produk'] ?? '';
             $id_set     = !empty($_POST['id_set']) ? (int)$_POST['id_set'] : null;
             $id_rarity  = !empty($_POST['id_rarity']) ? (int)$_POST['id_rarity'] : null;
@@ -70,8 +71,8 @@ try {
             if ($tipe !== 'Single Card') { $id_rarity = null; $kondisi = null; }
         }
 
-        $params = [$action, $id_produk, $id_game, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $path_foto_simpan, $id_user];
-        $stmt   = sqlsrv_query($conn, '{CALL dbo.sp_ManageProduk(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}', $params);
+        $params = [$action, $id_produk, $id_game, $id_supplier, $tipe, $nama, $harga_jual, $harga_beli, $stok, $deskripsi, $id_rarity, $id_set, $kondisi, $path_foto_simpan, $id_user];
+        $stmt   = sqlsrv_query($conn, '{CALL dbo.sp_ManageProduk(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}', $params);
         if ($stmt === false) throw new Exception('Query Failed: ' . (sqlsrv_errors()[0]['message'] ?? 'Unknown error'));
 
         ob_clean();
@@ -126,6 +127,15 @@ try {
     if (isset($_GET['get_rarity_list'])) {
         $id_game = (int)$_GET['id_game'];
         $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetDropdownRarity(?)}', [$id_game]);
+        $res  = [];
+        if ($stmt) while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $row;
+        ob_clean();
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    if (isset($_GET['search_supplier'])) {
+        $keyword = trim($_GET['search_supplier']);
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetSearchSupplier(?)}', [$keyword]);
         $res  = [];
         if ($stmt) while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $row;
         ob_clean();

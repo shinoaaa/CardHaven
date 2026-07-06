@@ -42,7 +42,6 @@ function loadRarities(gameId, selectedId = null) {
         });
     });
 }
-
 function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
     const input = document.getElementById(inputId);
     const hidden = document.getElementById(hiddenId);
@@ -63,10 +62,15 @@ function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
                 box.style.display = 'block';
                 data.forEach(item => {
                     let div = document.createElement('div');
-                    div.innerHTML = item.nama_game || item.nama_set;
+                    
+                    // PERBAIKAN: Tambahkan item.nama_suplier di sini
+                    div.innerHTML = item.nama_game || item.nama_set || item.nama_suplier; 
+                    
                     div.onclick = () => {
-                        input.value = item.nama_game || item.nama_set;
-                        hidden.value = item.id_game || item.id_set;
+                        // PERBAIKAN: Tambahkan item.nama_suplier dan item.id_supplier di sini
+                        input.value = item.nama_game || item.nama_set || item.nama_suplier;
+                        hidden.value = item.id_game || item.id_set || item.id_supplier;
+                        
                         box.style.display = 'none';
                         clearError(input);
                         if (inputId === 'pGameSearch') {
@@ -84,6 +88,7 @@ function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
 
 setupSuggest('pGameSearch', 'pIdGame', 'pGameSuggest', 'search_game');
 setupSuggest('pSetSearch', 'pIdSet', 'pSetSuggest', 'search_set', 'pIdGame');
+setupSuggest('pSupplierSearch', 'pIdSupplier', 'pSupplierSuggest', 'search_supplier');
 
 function toggleProdFields() {
     const tipe = document.getElementById('pTipe').value;
@@ -266,6 +271,8 @@ function openEditProductModal(id) {
         document.getElementById('pTipe').value = data.tipe_produk;
         document.getElementById('pIdGame').value = data.id_game;
         document.getElementById('pGameSearch').value = data.nama_game || '';
+        document.getElementById('pIdSupplier').value = data.id_supplier || '';
+        document.getElementById('pSupplierSearch').value = data.nama_suplier || '';
         document.getElementById('pIdSet').value = data.id_set || '';
         document.getElementById('pSetSearch').value = data.nama_set || '';
         document.getElementById('pStok').value = parseInt(data.stok, 10);
@@ -331,6 +338,7 @@ function openDetailProductModal(id) {
             document.getElementById('detProdNama').innerText = data.nama_produk || '-';
             document.getElementById('detProdTipe').innerText = data.tipe_produk || '-';
             document.getElementById('detProdGame').innerText = data.nama_game || '-';
+            document.getElementById('detProdSupplier').innerText = data.nama_suplier || '-';
             document.getElementById('detProdStok').innerText = (data.stok || '0') + ' pcs';
             document.getElementById('detProdHarga').innerText = 'Rp ' + parseFloat(data.harga_jual).toLocaleString('id-ID');
             document.getElementById('detProdDeskripsi').innerText = data.deskripsi || 'No description available.';
@@ -363,6 +371,10 @@ function openDetailProductModal(id) {
             const rowSet = document.getElementById('detRowSet');
             const rowRarity = document.getElementById('detRowRarity');
             const rowKondisi = document.getElementById('detRowKondisi');
+            const supplierEl = document.getElementById('detProdSupplier');
+            if(supplierEl) {
+                supplierEl.innerText = data.nama_suplier || '-';
+            }
 
             if(rowSet) rowSet.style.display = 'none';
             if(rowRarity) rowRarity.style.display = 'none';

@@ -23,6 +23,12 @@
                         <option value="Booster Box">Booster Box</option>
                         <option value="Sleeve">Sleeve</option>
                         <option value="Playmat">Playmat</option>
+                        <option value="Binder">Binder</option>
+                        <option value="Deck Box">Deck Box</option>
+                        <option value="Dice">Accessory</option>
+                        <option value="Token">Card Protector</option>
+                        <option value="Toploader">Toploader</option>
+                        <option value="Other">Other</option>
                     </select>
                     <div class="error-message"></div>
                 </div>
@@ -34,6 +40,15 @@
                     <input type="text" id="pGameSearch" class="modal-input" placeholder="Type game name..." autocomplete="off">
                     <input type="hidden" name="id_game" id="pIdGame">
                     <div id="pGameSuggest" class="suggestion-box"></div>
+                </div>
+                <div class="error-message"></div>
+            </div>
+            <div class="modal-form-group">
+                <label>Supplier</label>
+                <div style="position:relative;">
+                    <input type="text" id="pSupplierSearch" class="modal-input" placeholder="Type supplier name..." autocomplete="off">
+                    <input type="hidden" name="id_supplier" id="pIdSupplier">
+                    <div id="pSupplierSuggest" class="suggestion-box"></div>
                 </div>
                 <div class="error-message"></div>
             </div>
@@ -162,6 +177,10 @@
                     <tr>
                         <td style="padding: 8px 0; color: #888;">Game</td>
                         <td style="padding: 8px 0;" id="detProdGame"></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #888;">Supplier</td>
+                        <td style="padding: 8px 0;" id="detProdSupplier"></td>
                     </tr>
                     
                     <tr id="detRowSet" style="display: none;">
