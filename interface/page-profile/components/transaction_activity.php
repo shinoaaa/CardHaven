@@ -22,10 +22,10 @@
             <option value="7">Returned</option>
             <option value="8">Cancelled</option>
         </select>
-        <select class="filter-btn" id="bp-price" onchange="onOrderFilterChange()">
-            <option value="">Price</option>
-            <option value="price_asc">Price: Low → High</option>
-            <option value="price_desc">Price: High → Low</option>
+        <select class="filter-btn" id="bp-sortby" onchange="onOrderFilterChange()">
+            <option value="date">Sort by Date</option>
+            <option value="price">Sort by Price</option>
+            <option value="items">Sort by Items</option>
         </select>
         <button class="sort-btn" id="bp-sort" onclick="toggleOrderDateSort()" title="Sort by date">
             <span id="bp-sort-icon">↓</span>
@@ -63,9 +63,9 @@
                         <th>No</th>
                         <th>Payment Method</th>
                         <th>Order Date</th>
-                        <th>Address</th>
-                        <th>Status</th>
+                        <th>Total Items</th>
                         <th>Total Price</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -98,10 +98,10 @@
                 <option value="9">Rejected</option>
                 <option value="10">Cancelled</option>
             </select>
-            <select class="filter-btn" id="bb-price" onchange="onBuybackFilterChange()">
-                <option value="">Price</option>
-                <option value="price_asc">Price: Low → High</option>
-                <option value="price_desc">Price: High → Low</option>
+            <select class="filter-btn" id="bb-sortby" onchange="onBuybackFilterChange()">
+                <option value="date">Sort by Date</option>
+                <option value="price">Sort by Price</option>
+                <option value="items">Sort by Items</option>
             </select>
             <button class="sort-btn" id="bb-sort" onclick="toggleBuybackDateSort()" title="Sort by date">
                 <span id="bb-sort-icon">↓</span>

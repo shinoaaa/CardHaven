@@ -131,7 +131,7 @@ function loadRiwayat() {
                 <td>${index + 1}</td>
                 <td>#${row.id_pembelian}</td>
                 <td>${tanggal}</td>
-                <td>Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
+                <td style="text-align:right;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
                 <td>${parseStatus(row.status_pembelian)}</td>
                 <td class="btn-action-group">${aksi}</td>
             </tr>`;

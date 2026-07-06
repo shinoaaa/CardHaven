@@ -25,8 +25,8 @@ let orderPage       = 1;
 const ORDERS_PER_PAGE = 5;
 let orderSearch     = '';
 let orderStatus     = '';
-let orderPriceSort  = '';       // '', 'price_asc', 'price_desc'
-let orderDateSort   = 'desc';   // 'desc' | 'asc'
+let orderSortField  = 'date';   // 'date' | 'price' | 'items'
+let orderSortDir    = 'desc';   // 'asc' | 'desc'
 
 document.addEventListener('DOMContentLoaded', () => {
     switchTab('buyproduct');
@@ -91,12 +91,14 @@ function getFilteredOrders() {
             (r.nama_metode || '').toLowerCase().includes(q) ||
             (r.alamat || '').toLowerCase().includes(q));
     }
-    // Sort: price takes precedence if chosen, otherwise by date
-    if (orderPriceSort === 'price_asc')  rows.sort((a, b) => a.total_harga - b.total_harga);
-    else if (orderPriceSort === 'price_desc') rows.sort((a, b) => b.total_harga - a.total_harga);
-    else rows.sort((a, b) => {
-        const da = new Date(a.tanggal_penjualan), db = new Date(b.tanggal_penjualan);
-        return orderDateSort === 'asc' ? da - db : db - da;
+    // Sort berdasarkan field terpilih (tanggal/harga/jumlah item) + arah asc/desc.
+    const dir = orderSortDir === 'asc' ? 1 : -1;
+    rows.sort((a, b) => {
+        let cmp;
+        if (orderSortField === 'price')      cmp = (a.total_harga || 0) - (b.total_harga || 0);
+        else if (orderSortField === 'items') cmp = (a.total_barang || 0) - (b.total_barang || 0);
+        else cmp = new Date(a.tanggal_penjualan) - new Date(b.tanggal_penjualan);
+        return cmp * dir;
     });
     return rows;
 }
@@ -130,9 +132,9 @@ function renderOrders() {
                 <td>${start + i + 1}</td>
                 <td>${escHtml(row.nama_metode || '-')}</td>
                 <td>${tgl}</td>
-                <td>${escHtml(row.alamat || '-')}</td>
+                <td style="text-align:right; padding-right: 5px">${row.total_barang ?? '-'}</td>
+                <td style="text-align:right;">${fmtRp(row.total_harga)}</td>
                 <td><span class="status-pill" style="background:${st.bg};color:${st.color};">${st.label}</span></td>
-                <td>${fmtRp(row.total_harga)}</td>
                 <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})">•••</button></td>
             </tr>`;
     }).join('');
@@ -163,18 +165,15 @@ function gotoOrderPage(p) { orderPage = p; renderOrders(); }
 function onOrderFilterChange() {
     orderSearch    = document.getElementById('bp-search')?.value || '';
     orderStatus    = document.getElementById('bp-status')?.value || '';
-    orderPriceSort = document.getElementById('bp-price')?.value  || '';
+    orderSortField = document.getElementById('bp-sortby')?.value || 'date';
     orderPage = 1;
     renderOrders();
 }
 
 function toggleOrderDateSort() {
-    orderDateSort = orderDateSort === 'desc' ? 'asc' : 'desc';
-    orderPriceSort = ''; // date sort overrides price sort
-    const priceSel = document.getElementById('bp-price');
-    if (priceSel) priceSel.value = '';
+    orderSortDir = orderSortDir === 'desc' ? 'asc' : 'desc';
     const icon = document.getElementById('bp-sort-icon');
-    if (icon) icon.textContent = orderDateSort === 'desc' ? '↓' : '↑';
+    if (icon) icon.textContent = orderSortDir === 'desc' ? '↓' : '↑';
     orderPage = 1;
     renderOrders();
 }

@@ -34,7 +34,7 @@ function buybackStatusColor(status) {
 let allBuyback     = [];
 let buybackPage    = 1;
 const BUYBACK_PER_PAGE = 4;
-let bbSearch = '', bbStatus = '', bbPriceSort = '', bbDateSort = 'desc';
+let bbSearch = '', bbStatus = '', bbSortField = 'date', bbSortDir = 'desc';
 
 function loadRiwayat() {
     const tbody = document.querySelector('#tableRiwayat tbody');
@@ -67,11 +67,13 @@ function getFilteredBuyback() {
             String(r.total_harga || '').includes(q) ||
             (r.tanggal_pembelian || '').toLowerCase().includes(q));
     }
-    if (bbPriceSort === 'price_asc')       rows.sort((a, b) => (a.total_harga || 0) - (b.total_harga || 0));
-    else if (bbPriceSort === 'price_desc') rows.sort((a, b) => (b.total_harga || 0) - (a.total_harga || 0));
-    else rows.sort((a, b) => {
-        const da = new Date(a.tanggal_pembelian), db = new Date(b.tanggal_pembelian);
-        return bbDateSort === 'asc' ? da - db : db - da;
+    const dir = bbSortDir === 'asc' ? 1 : -1;
+    rows.sort((a, b) => {
+        let cmp;
+        if (bbSortField === 'price')      cmp = (a.total_harga || 0) - (b.total_harga || 0);
+        else if (bbSortField === 'items') cmp = (a.total_barang || 0) - (b.total_barang || 0);
+        else cmp = new Date(a.tanggal_pembelian) - new Date(b.tanggal_pembelian);
+        return cmp * dir;
     });
     return rows;
 }
@@ -138,18 +140,15 @@ function gotoBuybackPage(p) { buybackPage = p; renderBuyback(); }
 function onBuybackFilterChange() {
     bbSearch    = document.getElementById('bb-search')?.value || '';
     bbStatus    = document.getElementById('bb-status')?.value || '';
-    bbPriceSort = document.getElementById('bb-price')?.value  || '';
+    bbSortField = document.getElementById('bb-sortby')?.value || 'date';
     buybackPage = 1;
     renderBuyback();
 }
 
 function toggleBuybackDateSort() {
-    bbDateSort = bbDateSort === 'desc' ? 'asc' : 'desc';
-    bbPriceSort = ''; // date sort mengalahkan price sort
-    const priceSel = document.getElementById('bb-price');
-    if (priceSel) priceSel.value = '';
+    bbSortDir = bbSortDir === 'desc' ? 'asc' : 'desc';
     const icon = document.getElementById('bb-sort-icon');
-    if (icon) icon.textContent = bbDateSort === 'desc' ? '↓' : '↑';
+    if (icon) icon.textContent = bbSortDir === 'desc' ? '↓' : '↑';
     buybackPage = 1;
     renderBuyback();
 }
