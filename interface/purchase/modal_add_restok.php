@@ -5,10 +5,13 @@
         </div>
 
         <div class="modal-form-group">
-            <label>Supplier</label>
-            <select id="addSupplierSelect" class="modal-select">
-                <option value="">-- Select Supplier --</option>
-            </select>
+            <label>Supplier <span style="color: #E74C3C;">*</span></label>
+            <div style="position:relative;">
+                <input type="text" id="addSupplierSearch" class="modal-input" placeholder="Type supplier name..." autocomplete="off">
+                <input type="hidden" id="addIdSupplier">
+                <div id="addSupplierSuggest" class="suggestion-box"></div>
+            </div>
+            <div class="error-message"></div>
         </div>
 
         <table class="modal-product-table" id="addItemsTable">

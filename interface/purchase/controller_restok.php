@@ -49,7 +49,7 @@ if (!$actor) {
 $role    = (int)$actor['role'];
 $id_user = $actor_id;
 
-if ($role === 0) {
+if ($role === 0 || $role === 1) {
     http_response_code(403);
     jsonOut('error', 'Access denied.');
 }
@@ -166,19 +166,25 @@ switch ($action) {
 
         jsonOut('success', 'PO marked as paid. Stock has been updated.');
 
-    // ─── SUPPLIER LIST ────────────────────────
-    case 'getSuppliers':
-        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownSupplier}");
-        $rows = [];
-        if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
-        jsonOut('success', '', ['rows' => $rows]);
+    // ─── SEARCH SUPPLIER (autocomplete, mirip search_game) ──────────────────
+    case 'search_supplier':
+        $keyword = trim($_GET['search_supplier'] ?? '');
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownSupplier(?)}", [$keyword]);
+        $res = [];
+        if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $r;
+        ob_clean();
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        exit;
 
-    // ─── PRODUK LIST ─────────────────────
-    case 'getProduk':
-        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownProdukRestok}");
-        $rows = [];
-        if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
-        jsonOut('success', '', ['rows' => $rows]);
+    // ─── SEARCH PRODUK (autocomplete, mirip search_set) ──────────────────────
+    case 'search_produk':
+        $keyword = trim($_GET['search_produk'] ?? '');
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownProdukRestok(?)}", [$keyword]);
+        $res = [];
+        if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $r;
+        ob_clean();
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        exit;
 
     // ─── CREATE PO BARU ─────────────────────────────────────────────────────
     case 'create':
