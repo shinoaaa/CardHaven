@@ -67,7 +67,7 @@ try {
         }
 
         // Simpan identitas ke PHP session agar halaman berbasis session
-        // (mis. orders/controller_orders.php) mengenali user yang login.
+        // mengenali user yang login.
         $_SESSION['id_pengguna'] = $user['id_pengguna'];
         $_SESSION['role']        = $user['role'];
 

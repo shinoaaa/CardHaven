@@ -25,9 +25,9 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Method name must contain letters only (no numbers or symbols).']);
                 exit;
             }
-            if (!preg_match('/^[A-Za-z0-9 .]+$/', $provider)) {
+            if (!preg_match('/^[A-Za-z0-9 .]+$/', $provider) || !preg_match('/[A-Za-z]/', $provider)) {
                 ob_clean();
-                echo json_encode(['status' => 'error', 'message' => 'Provider must contain letters, numbers, or dots only.']);
+                echo json_encode(['status' => 'error', 'message' => 'Provider must contain letters (not only numbers or symbols).']);
                 exit;
             }
             if (!preg_match('/^[A-Za-z ]+$/', $atas_nama)) {
@@ -58,6 +58,36 @@ try {
         } else {
             echo json_encode(['status' => 'success', 'message' => '']);
         }
+        exit;
+    }
+
+    // GET: list dengan search + sort + filter + pagination (kolom: nama_metode, provider, biaya_admin, status)
+    if (isset($_GET['list'])) {
+        $limit  = 5;
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $search = trim($_GET['search'] ?? '');
+        $status = $_GET['status'] ?? '';
+        $sortMap = ['nama_metode' => 'nama_metode', 'provider' => 'provider', 'biaya_admin' => 'biaya_admin', 'aktif' => 'aktif'];
+        $sortCol = $sortMap[$_GET['sort_by'] ?? ''] ?? 'nama_metode';
+        $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+
+        $where = 'is_deleted = 0';
+        $params = [];
+        if ($search !== '') { $where .= ' AND (nama_metode LIKE ? OR provider LIKE ?)'; $params[] = "%$search%"; $params[] = "%$search%"; }
+        if ($status === '0' || $status === '1') { $where .= ' AND aktif = ?'; $params[] = (int)$status; }
+
+        $cst = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.metode_pembayaran WHERE $where", $params);
+        $total = $cst ? (int)(sqlsrv_fetch_array($cst, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+        $total_pages = max(1, (int)ceil($total / $limit));
+        $page   = min($page, $total_pages);
+        $offset = ($page - 1) * $limit;
+
+        $sql = "SELECT * FROM dbo.metode_pembayaran WHERE $where ORDER BY aktif DESC, $sortCol $sortDir, id_metode DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        $st  = sqlsrv_query($conn, $sql, array_merge($params, [$offset, $limit]));
+        $rows = [];
+        if ($st) while ($r = sqlsrv_fetch_array($st, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        ob_clean();
+        echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page], JSON_UNESCAPED_UNICODE);
         exit;
     }
 

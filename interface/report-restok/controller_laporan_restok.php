@@ -162,18 +162,18 @@ switch ($action) {
             $bgColor = ($no % 2 == 0) ? '#dee8fc' : '#ffffff';
 
             $html .= '<tr bgcolor="'.$bgColor.'" nobr="true">
-            <td align="center">'.$no++.'</td>
-            <td align="center" style="white-space:nowrap;">'.$tgl.'</td>
-            <td><b>'.htmlspecialchars($row['nama_suplier']).'</b></td>
-            <td>'.htmlspecialchars($row['daftar_produk']).'</td>
-            <td align="center">'.$row['total_barang'].'</td>
-            <td align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
+            <td width="5%" align="center">'.$no++.'</td>
+            <td width="13%" align="center" style="white-space:nowrap;">'.$tgl.'</td>
+            <td width="20%"><b>'.htmlspecialchars($row['nama_suplier']).'</b></td>
+            <td width="37%">'.htmlspecialchars($row['daftar_produk']).'</td>
+            <td width="10%" align="center">'.$row['total_barang'].'</td>
+            <td width="15%" align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
         </tr>';
         }
         $html .= '<tr style="background-color:#f2f2f2; font-weight:bold;" nobr="true">
             <td colspan="4" align="right">GRAND TOTAL</td>
-                    <td align="center">'.number_format($totalQty, 0, ',', '.').'</td>
-                    <td align="right">Rp '.number_format($totalNominal, 0, ',', '.').'</td>
+                    <td width="10%" align="center">'.number_format($totalQty, 0, ',', '.').'</td>
+                    <td width="15%" align="right">Rp '.number_format($totalNominal, 0, ',', '.').'</td>
                   </tr></tbody></table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');

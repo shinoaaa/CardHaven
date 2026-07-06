@@ -792,7 +792,7 @@ session_start();
                 </div>
 
                 <br>
-                <a href="/cardhaven/interface/orders/orders.php" style="
+                <a href="/cardhaven/interface/page-profile/index.php" style="
                     display:inline-block;
                     padding:14px 32px;
                     background:#1a3a6b;

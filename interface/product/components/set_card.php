@@ -4,6 +4,8 @@
         <button class="btn-add-green" onclick="openAddSetModal()">+ Add Set</button>
     </div>
 
+    <div id="set-toolbar"></div>
+
     <table class="styled-table">
         <thead>
             <tr>
@@ -14,7 +16,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="set-tbody">
             <?php
             $no = $offset_set + 1;
             if (!empty($data_set)):
@@ -52,7 +54,7 @@
     </table>
 </div>
 
-<div class="pagination-container">
+<div class="pagination-container" id="set-pag">
     <?php if ($page_set > 1): ?>
         <a href="javascript:void(0)" onclick="loadSetPage(<?= $page_set - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>

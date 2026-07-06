@@ -89,10 +89,13 @@ async function openDetailModal(id_penjualan) {
         const h = data;
         const st = parseInt(h.status_penjualan);
 
-        // Tentukan tombol aksi yang tampil
+        // Tentukan tombol aksi yang tampil. Owner (role 3) view-only — tanpa tombol aksi.
+        const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
         let actionBtns = '';
 
-        if (st === 0) {
+        if (USER_ROLE === 3) {
+            // view-only: tidak ada tombol aksi untuk Owner
+        } else if (st === 0) {
             actionBtns = `
                 <button class="btn-trx-action btn-confirm" onclick="doAction('konfirmasi_bayar', ${id_penjualan})">
                     ✅ Confirm Payment

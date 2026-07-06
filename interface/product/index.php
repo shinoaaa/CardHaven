@@ -134,19 +134,15 @@ require_once 'components/fetch_dashboard.php';
             <div class="master-table-card" id="container-rarity">
                 <?php include 'components/rarity_card.php'; ?>
             </div>
-
-            <div class="master-table-card" id="container-metode">
-                <?php include 'components/metode_card.php'; ?>
-            </div>
         </div>
     </div>
 
     <?php include 'components/modal.php'; ?>
 
+    <script src="/cardhaven/interface/product/master_filter.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/produk_script.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/set_script.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/rarity_script.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/game_script.js?v=<?= time() ?>"></script>
-    <script src="/cardhaven/interface/product/metode_script.js?v=<?= time() ?>"></script>
 </body>
 </html>

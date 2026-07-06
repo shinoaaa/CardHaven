@@ -41,6 +41,28 @@ $stmt_trx = $data ?? [];
 
 // Ambil jumlah angka per-status langsung dari controller yang sudah aktif di apifetch.php
 $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
+
+// ── Data Master Payment Method (dipindah ke sini; hanya tampil untuk Owner via JS) ──
+$limit_metode       = 3;
+$page_metode        = max(1, (int)($_GET['pm'] ?? 1));
+$data_metode        = [];
+$total_pages_metode = 1;
+$offset_metode      = 0;
+if (isset($conn) && $conn !== false) {
+    $stmt_cm = sqlsrv_query($conn, "SELECT dbo.udf_CountDashboard('metode') AS cm");
+    if ($stmt_cm !== false) {
+        $cm = sqlsrv_fetch_array($stmt_cm, SQLSRV_FETCH_ASSOC);
+        $total_pages_metode = max(1, (int)ceil(($cm['cm'] ?? 0) / $limit_metode));
+    }
+    $page_metode   = min($page_metode, $total_pages_metode);
+    $offset_metode = ($page_metode - 1) * $limit_metode;
+    $stmt_m = sqlsrv_query(
+        $conn,
+        "SELECT * FROM dbo.metode_pembayaran WHERE is_deleted = 0 ORDER BY aktif DESC, id_metode ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
+        [$offset_metode, $limit_metode]
+    );
+    if ($stmt_m !== false) while ($rowM = sqlsrv_fetch_array($stmt_m, SQLSRV_FETCH_ASSOC)) $data_metode[] = $rowM;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -402,9 +424,15 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
 
             <?php endif; ?>
         </div>
+
+        <!-- ── Master Payment Method (dipindah dari Product; khusus Owner) ── -->
+        <div id="ownerMetodeCard" class="content-card" style="display:none; margin-top:1.5rem;">
+            <?php include $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/interface/product/components/metode_card.php'; ?>
+        </div>
     </div>
 
     <!-- Modals -->
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/interface/product/components/metode_modal.php'; ?>
     <div id="trxModalOverlay" class="trx-modal-overlay" onclick="closeTrxModal(event)">
         <div class="trx-modal-box" onclick="event.stopPropagation()">
             <button class="trx-modal-close" onclick="closeTrxModal()">&times;</button>
@@ -414,5 +442,15 @@ $count_status = isset($ctrl) ? $ctrl->countPerStatus() : [];
     <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
 
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/master_filter.js?v=<?= time() ?>"></script>
+    <script src="/cardhaven/interface/product/metode_script.js?v=<?= time() ?>"></script>
+    <script>
+        // Master Payment Method hanya tampil untuk Owner (role 3).
+        (function () {
+            var role = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
+            var card = document.getElementById('ownerMetodeCard');
+            if (card && role === 3) card.style.display = '';
+        })();
+    </script>
 </body>
 </html>

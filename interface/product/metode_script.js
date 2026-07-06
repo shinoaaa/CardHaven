@@ -1,7 +1,28 @@
 const metodeModal = document.getElementById('metodeModal');
 const metodeForm  = document.getElementById('metodeForm');
 const METODE_API  = '/CardHaven/interface/product/controller_metode.php';
-// var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+
+// ── Helper mandiri: metode master kini berdiri sendiri di halaman Transaction
+//    (tanpa produk_script.js). Definisikan hanya bila belum ada agar tidak bentrok. ──
+window.getEmpId = window.getEmpId || (() => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna'));
+window.showError = window.showError || function (el, msg) {
+    el.style.border = '2px solid #E74C3C';
+    const err = el.closest('.modal-form-group').querySelector('.error-message');
+    if (err) { err.innerText = msg; err.style.display = 'block'; err.style.color = '#E74C3C'; }
+};
+window.clearError = window.clearError || function (el) {
+    el.style.border = '1.5px solid #888';
+    const err = el.closest('.modal-form-group').querySelector('.error-message');
+    if (err) err.innerText = '';
+};
+window.clearAllErrors = window.clearAllErrors || function (formId) {
+    document.getElementById(formId).querySelectorAll('.modal-input').forEach(input => window.clearError(input));
+};
+document.addEventListener('DOMContentLoaded', function () {
+    if (metodeForm) metodeForm.querySelectorAll('.modal-input').forEach(input => {
+        input.addEventListener('input', function () { window.clearError(this); });
+    });
+});
 
 function openAddMetode() {
     clearAllErrors('metodeForm');
@@ -82,8 +103,8 @@ if (!nama.value.trim()) {
 if (!provider.value.trim()) {
     showError(provider, 'Provider is required.');
     isValid = false;
-} else if (!/^[A-Za-z0-9 .]+$/.test(provider.value.trim())) {
-    showError(provider, 'Provider must contain letters, numbers, or dots only.');
+} else if (!/^[A-Za-z0-9 .]+$/.test(provider.value.trim()) || !/[A-Za-z]/.test(provider.value.trim())) {
+    showError(provider, 'Provider must contain letters (not only numbers or symbols).');
     isValid = false;
 } else {
     clearError(provider);

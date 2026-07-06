@@ -5,7 +5,7 @@
  * Mengambil semua data paginasi untuk ditampilkan di card-card.
  */
 
-$limit_produk = 7; $limit_game = 3; $limit_set = 3; $limit_rarity = 3; $limit_metode = 3;
+$limit_produk = 7; $limit_game = 3; $limit_set = 3; $limit_rarity = 3; $limit_metode = 5;
 
 $page_produk = max(1, (int)($_GET['pp'] ?? 1));
 $page_game   = max(1, (int)($_GET['pg'] ?? 1));

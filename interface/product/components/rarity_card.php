@@ -4,6 +4,8 @@
         <button class="btn-add-green" onclick="openModalRarity()">+ Add Rarity</button>
     </div>
 
+    <div id="rarity-toolbar"></div>
+
     <table class="styled-table">
         <thead>
             <tr>
@@ -14,8 +16,8 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
-            <?php 
+        <tbody id="rarity-tbody">
+            <?php
             $no = $offset_rarity + 1;
             if (!empty($data_rarity)):
                 foreach ($data_rarity as $rowRarity): ?>
@@ -55,7 +57,7 @@
     </table>
 </div>
 
-<div class="pagination-container">
+<div class="pagination-container" id="rarity-pag">
     <?php if ($page_rarity > 1): ?>
         <a href="javascript:void(0)" onclick="loadRarityPage(<?= $page_rarity - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
