@@ -349,3 +349,11 @@ function trxNavigate(params) {
 function setTrxStatus(val) { trxNavigate({ status: val }); }
 function setTrxSort(val)   { trxNavigate({ sort_by: val }); }
 function toggleTrxOrder(current) { trxNavigate({ sort_order: current === 'ASC' ? 'DESC' : 'ASC' }); }
+
+// ════════════════════════════════════════════════════════════════════════════
+// SHORTCUT DARI DASHBOARD: buka modal detail langsung via ?open_sales=<id>
+// ════════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    const id = new URLSearchParams(window.location.search).get('open_sales');
+    if (id) openDetailModal(parseInt(id));
+});

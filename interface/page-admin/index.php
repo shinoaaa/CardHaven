@@ -27,7 +27,7 @@
 
         <?php
         if ($segments[1] == 'activity') {
-            echo 'Welcome to the Activity Dashboard';
+            include '../CardHaven/interface/page-admin/activity.php';
         } else if ($segments[1] == 'product') {
             include '../CardHaven/interface/product/index.php';
         } else if ($segments[1] == 'transaction'){

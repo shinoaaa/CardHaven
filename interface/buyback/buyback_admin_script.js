@@ -468,3 +468,9 @@ function uploadPayment(id_pembelian) {
 }
 
 document.addEventListener('DOMContentLoaded', loadDaftar);
+
+// Shortcut dari dashboard Activity: buka modal detail langsung via ?open_buyback=<id>
+document.addEventListener('DOMContentLoaded', () => {
+    const id = new URLSearchParams(window.location.search).get('open_buyback');
+    if (id) openDetailModal(parseInt(id));
+});

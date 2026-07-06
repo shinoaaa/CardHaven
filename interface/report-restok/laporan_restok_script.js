@@ -147,9 +147,9 @@ function renderPagination(totalPages) {
     const pagContainer = document.getElementById('paginationReport');
     if (totalPages <= 1) { pagContainer.innerHTML = ''; return; }
     let html = '';
-    html += currentPage > 1 ? `<span onclick="changePage(${currentPage - 1})" class="page-link">&lt; Prev</span>` : `<span class="page-link disabled">&lt; Prev</span>`;
+    html += currentPage > 1 ? `<span onclick="changePage(${currentPage - 1})" class="page-link">&lt; </span>` : `<span class="page-link disabled">&lt; </span>`;
     for (let i = 1; i <= totalPages; i++) html += `<span onclick="changePage(${i})" class="page-link ${i == currentPage ? 'active' : ''}">${i}</span>`;
-    html += currentPage < totalPages ? `<span onclick="changePage(${currentPage + 1})" class="page-link">Next &gt;</span>` : `<span class="page-link disabled">Next &gt;</span>`;
+    html += currentPage < totalPages ? `<span onclick="changePage(${currentPage + 1})" class="page-link"> &gt;</span>` : `<span class="page-link disabled"> &gt;</span>`;
     pagContainer.innerHTML = html;
 }
 

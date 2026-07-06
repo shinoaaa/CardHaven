@@ -307,6 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btnBuatPO');
     if (btn) btn.style.display = (USER_ROLE === 2) ? '' : 'none';
     loadRestok(1);
+
+    // Shortcut dari dashboard Activity: buka modal PO langsung via ?open_restok=<id>
+    const openId = new URLSearchParams(window.location.search).get('open_restok');
+    if (openId) openRestokModal(parseInt(openId));
 });
 
 // Klik di luar modal box (di area overlay) untuk menutup, sama seperti modul Product
