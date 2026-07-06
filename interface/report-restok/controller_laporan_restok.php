@@ -103,10 +103,9 @@ switch ($action) {
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
 
         echo "<table border='1'>";
-        echo "<tr><th>No</th><th>Date</th><th>Supplier</th><th>Product List</th><th>Status</th><th>Total Qty</th><th>Total Purchase</th></tr>";
+        echo "<tr><th>No</th><th>Date</th><th>Supplier</th><th>Product List</th><th>Total Qty</th><th>Total Purchase</th></tr>";
 
         $no = 1;
-        $statusMap = [0=>'Pending', 1=>'Approved', 2=>'Rejected', 3=>'Received', 4=>'Paid'];
         foreach ($data as $row) {
             $tgl = ($row['tanggal_restok'] instanceof DateTime) ? $row['tanggal_restok']->format('d-m-Y') : '-';
             echo "<tr>";
@@ -114,7 +113,6 @@ switch ($action) {
             echo "<td>" . $tgl . "</td>";
             echo "<td>" . $row['nama_suplier'] . "</td>";
             echo "<td>" . $row['daftar_produk'] . "</td>";
-            echo "<td>" . ($statusMap[(int)$row['status_restok']] ?? '-') . "</td>";
             echo "<td>" . $row['total_barang'] . "</td>";
             echo "<td>Rp " . number_format($row['total_harga'], 0, ',', '.') . "</td>";
             echo "</tr>";
@@ -128,7 +126,6 @@ switch ($action) {
 
         if (ob_get_length()) ob_end_clean();
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
-        $statusMap = [0=>'Pending', 1=>'Approved', 2=>'Rejected', 3=>'Received', 4=>'Paid'];
 
         $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf->SetCreator(PDF_CREATOR);
@@ -148,10 +145,9 @@ switch ($action) {
                     <thead>
                         <tr style="background-color:#0F3891; color:#ffffff; font-weight:bold; text-align:center;">
                             <th width="5%">No</th>
-                            <th width="12%">Date</th>
-                            <th width="15%">Supplier</th>
-                            <th width="30%">Products</th>
-                            <th width="13%">Status</th>
+                            <th width="13%">Date</th>
+                            <th width="20%">Supplier</th>
+                            <th width="37%">Products</th>
                             <th width="10%">Qty</th>
                             <th width="15%">Total (Rp)</th>
                         </tr>
@@ -166,17 +162,16 @@ switch ($action) {
             $bgColor = ($no % 2 == 0) ? '#dee8fc' : '#ffffff';
 
             $html .= '<tr bgcolor="'.$bgColor.'" nobr="true">
-                        <td width="5%" align="center">'.$no++.'</td>
-                        <td width="12%" align="center" style="white-space:nowrap;">'.$tgl.'</td>
-                        <td width="15%"><b>'.htmlspecialchars($row['nama_suplier']).'</b></td>
-                        <td width="30%">'.htmlspecialchars($row['daftar_produk']).'</td>
-                        <td width="13%" align="center">'.($statusMap[(int)$row['status_restok']] ?? '-').'</td>
-                        <td width="10%" align="center">'.$row['total_barang'].'</td>
-                        <td align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
-                    </tr>';
+            <td align="center">'.$no++.'</td>
+            <td align="center" style="white-space:nowrap;">'.$tgl.'</td>
+            <td><b>'.htmlspecialchars($row['nama_suplier']).'</b></td>
+            <td>'.htmlspecialchars($row['daftar_produk']).'</td>
+            <td align="center">'.$row['total_barang'].'</td>
+            <td align="right">Rp '.number_format($row['total_harga'], 0, ',', '.').'</td>
+        </tr>';
         }
         $html .= '<tr style="background-color:#f2f2f2; font-weight:bold;" nobr="true">
-                    <td colspan="5" align="right">GRAND TOTAL</td>
+            <td colspan="4" align="right">GRAND TOTAL</td>
                     <td align="center">'.number_format($totalQty, 0, ',', '.').'</td>
                     <td align="right">Rp '.number_format($totalNominal, 0, ',', '.').'</td>
                   </tr></tbody></table>';
