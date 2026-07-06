@@ -71,7 +71,10 @@
             </div>
 
             <p style="font-family:Inter,sans-serif; font-size:16px; margin:0 0 6px;">
-                <strong style="color:#0f3891;">Kondisi :</strong> <span id="preorder-kondisi" style="color:#7e7e7e;"></span>
+                <strong style="color:#0f3891;">Remain Stock :</strong> <span id="preorder-remain" style="color:#7e7e7e;"></span>
+            </p>
+            <p style="font-family:Inter,sans-serif; font-size:16px; margin:0 0 6px;">
+                <strong style="color:#0f3891;">Condition :</strong> <span id="preorder-kondisi" style="color:#7e7e7e;"></span>
             </p>
 
             <p style="color:#0f3891; font-weight:700; font-size:16px; font-family:Inter,sans-serif; margin:0 0 4px;">Description:</p>
@@ -132,22 +135,7 @@
         <div style="flex:1; padding-top:12px;">
             <!-- Address + Payment row -->
             <div style="display:flex; gap:24px; margin-bottom:28px;">
-                <div style="flex:1;">
-                    <label style="color:#0f3891; font-size:16px; font-family:Inter,sans-serif; font-weight:700; display:block; margin-bottom:6px;">Address</label>
-                    <input id="preorder-address" type="text" placeholder="Enter city destination..." style="
-                        border:1.5px solid #0f3891; border-radius:15px; padding:6px 14px; width:100%; box-sizing:border-box;
-                        font-size:12px; color:#7e7e7e; font-family:Inter,sans-serif; outline:none;
-                    ">
-                </div>
-                <div style="flex:1;">
-                    <label style="color:#0f3891; font-size:16px; font-family:Inter,sans-serif; font-weight:700; display:block; margin-bottom:6px;">Payment Method</label>
-                    <select id="preorder-payment" style="
-                        border:1.5px solid #0f3891; border-radius:15px; padding:6px 14px; width:100%; box-sizing:border-box;
-                        font-size:12px; color:#7e7e7e; font-family:Inter,sans-serif; outline:none; background:#fff; cursor:pointer;
-                    ">
-                        <option value="">Select Payment Method</option>
-                    </select>
-                </div>
+                
             </div>
 
             <!-- Single Product Control -->

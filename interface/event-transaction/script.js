@@ -80,7 +80,7 @@ function switchToDetailView() {
 function switchToOrderView() {
     if(!isLogin) window.location.replace("/CardHaven/login");;
     if (!eventProducts.length) return;
-    loadPaymentMethods();
+    // loadPaymentMethods();
     loadAlreadyPurchased(function () {
         renderOrderProducts();
         // Sync the displayed card image with the currently selected product
@@ -146,8 +146,9 @@ function selectDetailProduct(idx) {
     : '/cardhaven/image-profile/defaultProduct.jpg';
 
     document.getElementById('detail-product-badge').textContent = p.nama_produk;
-    document.getElementById('detail-stok').textContent          = p.stok_event;
+    document.getElementById('detail-stok').textContent          = e.maks_pembelian;
     document.getElementById('detail-game').textContent          = p.nama_game || '-';
+    document.getElementById('detail-remain').textContent          = p.stok_event || '-';
     document.getElementById('detail-type').textContent          = p.tipe_produk || '-';
     document.getElementById('detail-kondisi').textContent       = p.kondisi || '-';
     document.getElementById('detail-deskripsi').textContent     = p.deskripsi || '-';
@@ -264,11 +265,12 @@ function renderOrderProducts() {
 
     for (let i = start; i < end; i++) {
         const p = eventProducts[i];
+        const e = currentEvent;
         if (!orderQuantities[p.id_produk]) orderQuantities[p.id_produk] = 0;
 
         const alreadyBought  = alreadyPurchased[p.id_produk] || 0;
         const maxAllowed     = (parseInt(currentEvent.maks_pembelian) || 0) - alreadyBought;
-        const remaining      = Math.max(0, Math.min(maxAllowed, parseInt(p.stok_event) || 0));
+        const remaining      = Math.max(0, Math.min(maxAllowed, parseInt(e.maks_pembelian) || 0));
 
         const item = document.createElement('div');
         item.style.cssText = 'display:flex; flex-direction:column; gap:6px;';
@@ -356,25 +358,24 @@ function changeQty(idProduk, delta, maxRemaining) {
 /* ─────────────────────────────────────────────
    LOAD PAYMENT METHODS
 ───────────────────────────────────────────── */
-function loadPaymentMethods() {
-    const sel = document.getElementById('order-payment');
-    sel.innerHTML = '<option value="">Select Payment Method</option>';
+// function loadPaymentMethods() {
+//     const sel = document.getElementById('order-payment');
 
-    fetch('/cardhaven/interface/event-transaction/controllerPromoTransaction.php?action=get_payment_methods')
-        .then(r => r.json())
-        .then(function (data) {
-            if (!data.methods) return;
-            data.methods.forEach(function (m) {
-                const opt       = document.createElement('option');
-                opt.value       = m.id_metode;
-                opt.textContent = m.nama_metode + ' — ' + m.provider +
-                    ' (' + m.no_rekening + ')' +
-                    (m.biaya_admin > 0 ? ' +' + formatRupiah(m.biaya_admin) : '');
-                sel.appendChild(opt);
-            });
-        })
-        .catch(function (err) { console.error('loadPaymentMethods error:', err); });
-}
+//     fetch('/cardhaven/interface/event-transaction/controllerPromoTransaction.php?action=get_payment_methods')
+//         .then(r => r.json())
+//         .then(function (data) {
+//             if (!data.methods) return;
+//             data.methods.forEach(function (m) {
+//                 const opt       = document.createElement('option');
+//                 opt.value       = m.id_metode;
+//                 opt.textContent = m.nama_metode + ' — ' + m.provider +
+//                     ' (' + m.no_rekening + ')' +
+//                     (m.biaya_admin > 0 ? ' +' + formatRupiah(m.biaya_admin) : '');
+//                 sel.appendChild(opt);
+//             });
+//         })
+//         .catch(function (err) { console.error('loadPaymentMethods error:', err); });
+// }
 
 /* ─────────────────────────────────────────────
    LOAD ALREADY PURCHASED (per-product per-user)
@@ -403,20 +404,14 @@ function loadAlreadyPurchased(callback) {
 /* ─────────────────────────────────────────────
    SUBMIT ORDER
 ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   SUBMIT ORDER (PROMO) - REDIRECT KE CHECKOUT
+───────────────────────────────────────────── */
 function submitOrder() {
     const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
-    const address    = document.getElementById('order-address').value.trim();
-    const idMetode   = document.getElementById('order-payment').value;
 
-    // ── Validation ──
     if (!idPengguna) {
         Swal.fire('Not Logged In', 'Please log in before purchasing.', 'warning'); return;
-    }
-    if (!address) {
-        Swal.fire('Address Required', 'Please enter your delivery address.', 'warning'); return;
-    }
-    if (!idMetode) {
-        Swal.fire('Payment Method Required', 'Please select a payment method.', 'warning'); return;
     }
 
     const selectedItems = eventProducts
@@ -424,8 +419,11 @@ function submitOrder() {
         .map(function (p) {
             return {
                 id_produk:    p.id_produk,
-                jumlah:       orderQuantities[p.id_produk],
-                harga_produk: p.harga_event
+                nama_produk:  p.nama_produk,
+                foto:         p.foto,
+                jumlah_barang: orderQuantities[p.id_produk], // Format ini disesuaikan untuk checkout.js
+                harga_produk: p.harga_event,
+                subtotal_harga: orderQuantities[p.id_produk] * p.harga_event
             };
         });
 
@@ -433,72 +431,36 @@ function submitOrder() {
         Swal.fire('No Items Selected', 'Please add at least one item to your order.', 'warning'); return;
     }
 
-    // Per-product purchase limit check (re-validated client-side before submit)
+    // Per-product purchase limit check
     for (const item of selectedItems) {
         const alreadyBought = alreadyPurchased[item.id_produk] || 0;
         const maxAllowed    = parseInt(currentEvent.maks_pembelian) || 0;
-        if (alreadyBought + item.jumlah > maxAllowed) {
-            const prod = eventProducts.find(function (p) { return p.id_produk == item.id_produk; });
+        if (alreadyBought + item.jumlah_barang > maxAllowed) {
+            const prod = eventProducts.find(p => p.id_produk == item.id_produk);
             Swal.fire(
                 'Purchase Limit Exceeded',
-                'You can only buy ' + maxAllowed + ' of "' + (prod ? prod.nama_produk : 'this product') + '" Total (including previous purchases).',
+                `You can only buy ${maxAllowed} of "${prod ? prod.nama_produk : 'this product'}" Total.`,
                 'warning'
             );
             return;
         }
     }
 
-    cardhavenConfirm(
-        'Confirm Purchase',
-        'Are you sure you want to place this order?',
-        'Yes, buy now',
-        function () {
-            // Hide popup while swal is up
-            document.getElementById('pop-up-overlay').style.display = 'none';
-            document.getElementById('pop-up-event').style.display   = 'none';
-
-            const payload = {
-                id_pengguna:  idPengguna,
-                id_event:     currentEventId,
-                id_metode:    idMetode,
-                alamat:       address,
-                items:        selectedItems
-            };
-
-            fetch('/cardhaven/interface/event-transaction/controllerPromoTransaction.php?action=submit_order', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(function (data) {
-                if (data.success) {
-                    Swal.fire('Order Placed!', 'Your order has been submitted successfully.', 'success');
-                    // Popup stays closed after a successful purchase
-                } else {
-                    Swal.fire('Order Failed', data.message || 'An unexpected error occurred.', 'error');
-                    // Reopen popup on failure so user can fix it
-                    document.getElementById('pop-up-overlay').style.display = 'block';
-                    document.getElementById('pop-up-event').style.display   = 'block';
-                }
-            })
-            .catch(function (err) {
-                console.error('submitOrder error:', err);
-                Swal.fire('Network Error', 'Could not reach the server. Please try again.', 'error');
-                document.getElementById('pop-up-overlay').style.display = 'block';
-                document.getElementById('pop-up-event').style.display   = 'block';
-            });
-        },
-        function () {
-            // User cancelled → put popup back
-            document.getElementById('pop-up-overlay').style.display = 'block';
-            document.getElementById('pop-up-event').style.display   = 'block';
-        }
-    );
-
-    // Hide while swal is shown (cancelCallback will reopen it)
+    // Tutup popup
     document.getElementById('pop-up-overlay').style.display = 'none';
     document.getElementById('pop-up-event').style.display   = 'none';
+
+    // BUNGKUS DATA DAN LEMPAR KE HALAMAN CHECKOUT
+    const payload = {
+        checkout_type: 'promo',
+        id_event: currentEventId,
+        nama_event: currentEvent.nama_event, // <--- TAMBAHAN
+        persen_diskon: currentEvent.persen_diskon, // <--- TAMBAHAN
+        items: selectedItems
+    };
+
+    sessionStorage.setItem('direct_checkout_data', JSON.stringify(payload));
+    window.location.href = '/CardHaven/checkout';
 }
 
 /* ─────────────────────────────────────────────

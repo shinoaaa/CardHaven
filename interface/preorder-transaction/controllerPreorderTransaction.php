@@ -25,7 +25,7 @@ switch ($action) {
         $sqlEvent = "
             SELECT id_event, nama_event, maks_pembelian, persen_diskon,
                    tipe_event, tanggal_mulai, tanggal_berakhir, status_event,
-                   tanggal_sampai, foto_banner, is_hide
+                   tanggal_sampai, foto_banner, is_hide,maks_pembelian
             FROM   [CardHaven].[dbo].[event]
             WHERE  id_event              = ?
               AND  ISNULL(is_deleted, 0) = 0

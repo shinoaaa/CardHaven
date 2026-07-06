@@ -496,6 +496,8 @@ window.buyNow = function(idProduk, hargaSatuan) {
         return;
     }
 
+    sessionStorage.removeItem('direct_checkout_data');
+
     const fd = new FormData();
     fd.append('action', 'buy_now');
     fd.append('id_produk', idProduk);

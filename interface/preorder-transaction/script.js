@@ -64,7 +64,7 @@ function preorderSwitchToDetail() {
 function preorderSwitchToOrder() {
     if (!idPengguna) { window.location.replace("login"); }
     if (!preorderProduct) return;
-    loadPreorderPaymentMethods();
+    // loadPreorderPaymentMethods();
     loadPreorderAlreadyPurchased(function () {
         renderPreOrderControls();
         document.getElementById('preorder-order-img').src = preorderProduct.foto
@@ -111,7 +111,8 @@ function renderPreOrderDetail() {
         : '/cardhaven/image-profile/defaultProduct.jpg';
 
     document.getElementById('preorder-product-badge').textContent = p.nama_produk;
-    document.getElementById('preorder-stok').textContent          = p.stok_event;
+    document.getElementById('preorder-stok').textContent          = e.maks_pembelian;
+    document.getElementById('preorder-remain').textContent        = p.stok_event;
     document.getElementById('preorder-game').textContent          = p.nama_game || '-';
     document.getElementById('preorder-type').textContent          = p.tipe_produk || '-';
     document.getElementById('preorder-kondisi').textContent       = p.kondisi || '-';
@@ -149,9 +150,10 @@ function renderPreOrderDetail() {
 function renderPreOrderControls() {
     const container = document.getElementById('preorder-product-control');
     const p = preorderProduct;
+    const e = currentEvent;
 
     const maxAllowed = (parseInt(preorderEvent.maks_pembelian) || 0) - preorderAlreadyBought;
-    const remaining  = Math.max(0, Math.min(maxAllowed, parseInt(p.stok_event) || 0));
+    const remaining  = Math.max(0, Math.min(maxAllowed, parseInt(preorderEvent.maks_pembelian) || 0));
 
     container.innerHTML = `
         <div style="
@@ -202,23 +204,23 @@ function changePreorderQty(delta, maxRemaining) {
     if (el) el.textContent = next;
 }
 
-function loadPreorderPaymentMethods() {
-    const sel = document.getElementById('preorder-payment');
-    sel.innerHTML = '<option value="">Select Payment Method</option>';
+// function loadPreorderPaymentMethods() {
+//     const sel = document.getElementById('preorder-payment');
+//     sel.innerHTML = '<option value="">Select Payment Method</option>';
 
-    fetch('/cardhaven/interface/preorder-transaction/controllerPreorderTransaction.php?action=get_payment_methods')
-        .then(r => r.json())
-        .then(data => {
-            if (!data.methods) return;
-            data.methods.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m.id_metode;
-                const admin = m.biaya_admin > 0 ? ' +Rp ' + parseInt(m.biaya_admin).toLocaleString('id-ID') : '';
-                opt.textContent = `${m.nama_metode} — ${m.provider} (${m.no_rekening})${admin}`;
-                sel.appendChild(opt);
-            });
-        });
-}
+//     fetch('/cardhaven/interface/preorder-transaction/controllerPreorderTransaction.php?action=get_payment_methods')
+//         .then(r => r.json())
+//         .then(data => {
+//             if (!data.methods) return;
+//             data.methods.forEach(m => {
+//                 const opt = document.createElement('option');
+//                 opt.value = m.id_metode;
+//                 const admin = m.biaya_admin > 0 ? ' +Rp ' + parseInt(m.biaya_admin).toLocaleString('id-ID') : '';
+//                 opt.textContent = `${m.nama_metode} — ${m.provider} (${m.no_rekening})${admin}`;
+//                 sel.appendChild(opt);
+//             });
+//         });
+// }
 
 function loadPreorderAlreadyPurchased(callback) {
     const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
@@ -238,61 +240,34 @@ function loadPreorderAlreadyPurchased(callback) {
 /* ─────────────────────────────────────────────
    SUBMIT ORDER
 ───────────────────────────────────────────── */
-function submitPreOrder() {    
-    const address    = document.getElementById('preorder-address').value.trim();
-    const idMetode   = document.getElementById('preorder-payment').value;
-
-    if (!address)    { Swal.fire('Warning', 'The shipping address must be filled in.', 'warning'); return; }
-    if (!idMetode)   { Swal.fire('Warning', 'You must select a payment method.', 'warning'); return; }
+/* ─────────────────────────────────────────────
+   SUBMIT ORDER (PREORDER) - REDIRECT KE CHECKOUT
+───────────────────────────────────────────── */
+window.submitPreOrder = function() {    
     if (preorderQty <= 0) { Swal.fire('Warning', 'Specify the number of products to be pre-ordered.', 'warning'); return; }
 
-    cardhavenConfirm(
-        'Confirm Pre-Order',
-        'Lanjutkan proses pre-order?',
-        'Yes, Checkout',
-        function () {
-            document.getElementById('pop-up-preorder-overlay').style.display = 'none';
-            document.getElementById('pop-up-preorder').style.display   = 'none';
+    // BUNGKUS DATA DAN LEMPAR KE HALAMAN CHECKOUT
+    // BUNGKUS DATA DAN LEMPAR KE HALAMAN CHECKOUT
+    const payload = {
+        checkout_type: 'preorder',
+        id_event: preorderCurrentEventId,
+        nama_event: preorderEvent.nama_event, // <--- TAMBAHAN
+        persen_diskon: preorderEvent.persen_diskon, // <--- TAMBAHAN
+        tanggal_sampai: preorderEvent.tanggal_sampai, // <--- TAMBAHAN
+        items: [{
+            id_produk: preorderProduct.id_produk,
+            nama_produk: preorderProduct.nama_produk,
+            foto: preorderProduct.foto,
+            jumlah_barang: preorderQty, 
+            harga_produk: preorderProduct.harga_event,
+            subtotal_harga: preorderQty * preorderProduct.harga_event
+        }]
+    };
 
-            const payload = {
-                id_pengguna: idPengguna,
-                id_event:    preorderCurrentEventId,
-                id_metode:   idMetode,
-                alamat:      address,
-                items: [{
-                    id_produk: preorderProduct.id_produk,
-                    jumlah: preorderQty,
-                    harga_produk: preorderProduct.harga_event
-                }]
-            };
-
-            fetch('/cardhaven/interface/preorder-transaction/controllerPreorderTransaction.php?action=submit_order', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire('Success!', 'Your pre-order has been successfully placed. Please proceed to checkout.', 'success');
-                } else {
-                    Swal.fire('Error', data.message, 'error');
-                    document.getElementById('pop-up-preorder-overlay').style.display = 'block';
-                    document.getElementById('pop-up-preorder').style.display   = 'block';
-                }
-            })
-            .catch(err => {
-                Swal.fire('Error', 'Failed to connect to the server.', 'error');
-                document.getElementById('pop-up-preorder-overlay').style.display = 'block';
-                document.getElementById('pop-up-preorder').style.display   = 'block';
-            });
-        },
-        function () {
-            document.getElementById('pop-up-preorder-overlay').style.display = 'block';
-            document.getElementById('pop-up-preorder').style.display   = 'block';
-        }
-    );
-
+    // Tutup popup
     document.getElementById('pop-up-preorder-overlay').style.display = 'none';
     document.getElementById('pop-up-preorder').style.display   = 'none';
-}
+
+    sessionStorage.setItem('direct_checkout_data', JSON.stringify(payload));
+    window.location.href = '/CardHaven/checkout';
+};

@@ -53,17 +53,8 @@
 
         <!-- LEFT : card carousel -->
         <div style="flex-shrink:0; width:375px;">
-            <div id="detail-card-frame" style="
-                background: #0f3891;
-                border-radius: 25px;
-                width: 375px;
-                height: 375px;
-                position: relative;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            ">
+            <div id="detail-card-frame" style="background: #0f3891; border-radius: 25px; width: 375px; height: 375px;
+                position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                 <!-- card shadow -->
                 <div style="
                     position:absolute; bottom:28px; left:50%;
@@ -111,7 +102,7 @@
             <!-- meta row -->
             <div style="display:flex; gap:48px; margin-bottom:12px; font-family:Inter,sans-serif;">
                 <div>
-                    <p style="color:#7e7e7e; font-size:16px; margin:0 0 2px;">Stock:</p>
+                    <p style="color:#7e7e7e; font-size:16px; margin:0 0 2px;">Order Quota:</p>
                     <p id="detail-stok" style="color:#0f3891; font-size:20px; font-weight:700; margin:0;"></p>
                 </div>
                 <div>
@@ -125,6 +116,10 @@
             </div>
 
             <!-- kondisi -->
+            <p style="font-family:Inter,sans-serif; font-size:16px; margin:0 0 6px;">
+                <strong style="color:#0f3891;">Remain Stock :</strong>
+                <span id="detail-remain" style="color:#7e7e7e;"></span>
+            </p>
             <p style="font-family:Inter,sans-serif; font-size:16px; margin:0 0 6px;">
                 <strong style="color:#0f3891;">Condition :</strong>
                 <span id="detail-kondisi" style="color:#7e7e7e;"></span>
@@ -226,36 +221,6 @@
         <div style="flex:1; padding-top:12px;">
 
             <!-- Address + Payment row -->
-            <div style="display:flex; gap:24px; margin-bottom:28px;">
-                <!-- Address -->
-                <div style="flex:1;">
-                    <label style="color:#0f3891; font-size:16px; font-family:Inter,sans-serif; font-weight:700; display:block; margin-bottom:6px;">
-                        Address
-                    </label>
-                    <input id="order-address" type="text" placeholder="Enter city destination..."
-                        style="
-                            border:1.5px solid #0f3891; border-radius:15px;
-                            padding:6px 14px; width:100%; box-sizing:border-box;
-                            font-size:12px; color:#7e7e7e; font-family:Inter,sans-serif;
-                            outline:none;
-                        ">
-                </div>
-                <!-- Payment Method -->
-                <div style="flex:1;">
-                    <label style="color:#0f3891; font-size:16px; font-family:Inter,sans-serif; font-weight:700; display:block; margin-bottom:6px;">
-                        Payment Method
-                    </label>
-                    <select id="order-payment" style="
-                        border:1.5px solid #0f3891; border-radius:15px;
-                        padding:6px 14px; width:100%; box-sizing:border-box;
-                        font-size:12px; color:#7e7e7e; font-family:Inter,sans-serif;
-                        outline:none; background:#fff; cursor:pointer;
-                    ">
-                        <option value="">Select Payment Method</option>
-                        <!-- filled by JS -->
-                    </select>
-                </div>
-            </div>
 
             <!-- Divider with label -->
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
