@@ -43,9 +43,9 @@ if ($action !== '') {
                     
                     // Panggil fungsi updateStatus dari controllerTransaction
                     if ($ctrl->updateStatus($id, $status, $mod_by)) {
-                        echo json_encode(['status' => 'success', 'message' => 'Pembayaran dikonfirmasi']);
+                        echo json_encode(['status' => 'success', 'message' => 'Payment has been confirmed']);
                     } else {
-                        echo json_encode(['status' => 'error', 'message' => 'Gagal mengonfirmasi pembayaran']);
+                        echo json_encode(['status' => 'error', 'message' => 'Failed to confirm payment']);
                     }
                     exit;
                 case 'kirim':
