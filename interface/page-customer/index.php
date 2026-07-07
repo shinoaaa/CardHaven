@@ -18,7 +18,7 @@
             const token = localStorage.getItem("id_pengguna") || sessionStorage.getItem("id_pengguna");
             const role = localStorage.getItem("role") || sessionStorage.getItem("role");
             if (token && (role === "2" || role === "1" || role === "3" )) {
-                window.location.replace("/CardHaven/dashboard");
+                window.location.replace("/CardHaven/dashboard/activity");
             }
         })();
     </script>

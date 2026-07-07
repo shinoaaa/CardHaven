@@ -97,7 +97,7 @@ async function openDetailModal(id_penjualan) {
             // view-only: tidak ada tombol aksi untuk Owner
         } else if (st === 0) {
             actionBtns = `
-                <button class="btn-trx-action btn-confirm" onclick="doAction('konfirmasi_bayar', ${id_penjualan})">
+                <button class="btn-trx-action btn-confirm" onclick="doAction('confirm_payment', ${id_penjualan})">
                     ✅ Confirm Payment
                 </button>
                 <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
@@ -299,7 +299,7 @@ async function postAction(action, id_penjualan, extra = {}) {
 
 async function doAction(action, id_penjualan) {
     const CONFIRM_MSG = {
-        konfirmasi_bayar: ['Confirm Payment?', 'The payment will be marked as received.', 'Yes, Confirm'],
+        confirm_payment: ['Confirm Payment?', 'The payment will be marked as received.', 'Yes, Confirm'],
         proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Processs'],
         delivered:        ['Mark as Delivered?', 'The order will be marked as delivered to the customer.', 'Yes, Mark as Delivered'],
         cancel:           ['Cancel Order?', 'The product stock will be restored. This action cannot be undone.', 'Yes, Cancel'],

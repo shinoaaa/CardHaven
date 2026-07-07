@@ -36,6 +36,18 @@ if ($action !== '') {
                 case 'proses':
                     $ok = $ctrl->prosesOrder($id, $modified_by);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
+                case 'confirm_payment': // Harus sama persis dengan yang di JS
+                    $id = (int)($body['id_penjualan'] ?? 0);
+                    $status = (int)($body['status'] ?? 1); // Status 1 = Paid
+                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    
+                    // Panggil fungsi updateStatus dari controllerTransaction
+                    if ($ctrl->updateStatus($id, $status, $mod_by)) {
+                        echo json_encode(['status' => 'success', 'message' => 'Pembayaran dikonfirmasi']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'Gagal mengonfirmasi pembayaran']);
+                    }
+                    exit;
                 case 'kirim':
                     $no_resi = trim($body['no_resi'] ?? '');
                     if ($no_resi === '') { 
