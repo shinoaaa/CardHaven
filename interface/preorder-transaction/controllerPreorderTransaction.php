@@ -76,26 +76,6 @@ switch ($action) {
         break;
 
     /* ──────────────────────────────────────────────────────
-       GET PAYMENT METHODS
-    ────────────────────────────────────────────────────── */
-    case 'get_payment_methods':
-        $sql  = "
-            SELECT id_metode, nama_metode, provider, no_rekening, atas_nama, biaya_admin
-            FROM   [CardHaven].[dbo].[metode_pembayaran]
-            WHERE  aktif      = 1
-              AND  is_deleted = 0
-            ORDER BY nama_metode
-        ";
-        $stmt = sqlsrv_query($conn, $sql);
-        $methods = [];
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            $methods[] = $row;
-        }
-        sqlsrv_free_stmt($stmt);
-        echo json_encode(['methods' => $methods]);
-        break;
-
-    /* ──────────────────────────────────────────────────────
        GET PURCHASE COUNT
     ────────────────────────────────────────────────────── */
     case 'get_purchase_count':
@@ -128,9 +108,7 @@ switch ($action) {
         echo json_encode(['counts' => $counts]);
         break;
 
-    /* ──────────────────────────────────────────────────────
-       SUBMIT ORDER (POST)
-    ────────────────────────────────────────────────────── */
+
     case 'submit_order':
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);

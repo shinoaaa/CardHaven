@@ -10,6 +10,7 @@ require_once 'components/fetch_dashboard.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management - Super Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
 </head>
 <body>
     <button id="scrollBottomBtn" class="scroll-bottom-btn" title="Scroll to Bottom">

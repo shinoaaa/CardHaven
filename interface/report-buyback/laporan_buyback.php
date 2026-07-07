@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Buyback Report</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <link rel="stylesheet" href="laporan_buyback.css">
 </head>

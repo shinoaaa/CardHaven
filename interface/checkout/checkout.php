@@ -11,6 +11,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - CardHaven</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <link rel="stylesheet" href="/cardhaven/interface/checkout/style.css">
     
@@ -278,7 +279,7 @@ session_start();
                     " onmouseover="this.style.background='var(--highlight)'" onmouseout="this.style.background='#1a3a6b'">
                         📋 View My Orders
                     </a>
-                    <a href="/CardHaven/home#catalog-section" style="
+                    <a href="/CardHaven/home/list" style="
                         display:inline-block;
                         padding:14px 32px;
                         background:transparent;

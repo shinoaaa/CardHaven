@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Setting</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/account-setting/account-setting.css">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

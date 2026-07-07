@@ -15,6 +15,7 @@ $currentTitle = $titles[$type] ?? 'Report';
 <head>
     <meta charset="UTF-8">
     <title>Report - CardHaven</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     
     <link rel="stylesheet" href="/cardhaven/interface/report-buyback/laporan_buyback.css">
@@ -40,6 +41,28 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </a>
                     <?php endforeach; ?>
                 </div>
+            </div>
+
+            <!-- ANALYTICS: bar chart bulanan + (khusus Sales) top selling items -->
+            <div style="display:flex; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+                <div style="flex:2; min-width:320px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; box-sizing:border-box;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.75rem; gap:1rem;">
+                        <div>
+                            <div style="font-weight:700; color:var(--primary-color); font-size:1.05rem;"><?= htmlspecialchars($currentTitle) ?> Overview</div>
+                            <div style="font-size:.72rem; color:#94a3b8;">Monthly total (Rp) per selected year</div>
+                        </div>
+                        <select id="reportChartYear" onchange="reportLoadChart(this.value)" style="height:34px; padding:0 12px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.82rem; color:var(--primary-color); background:#fff; cursor:pointer;"></select>
+                    </div>
+                    <div style="height:260px; position:relative;"><canvas id="reportChart"></canvas></div>
+                </div>
+
+                <?php if ($type === 'sales'): ?>
+                <div style="flex:1; min-width:270px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; box-sizing:border-box;">
+                    <div style="font-weight:700; color:var(--primary-color); font-size:1.05rem;">Top 5 Selling Items</div>
+                    <div style="font-size:.72rem; color:#94a3b8; margin-bottom:.9rem;">By quantity sold</div>
+                    <div id="topSellingList"><p style="color:#94a3b8; font-size:.85rem;">Loading…</p></div>
+                </div>
+                <?php endif; ?>
             </div>
 
             <?php if ($type === 'sales'): ?>
@@ -434,6 +457,11 @@ $currentTitle = $titles[$type] ?? 'Report';
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
             <script src="<?= $scripts[$type] ?>?v=<?= time() ?>"></script>
+
+            <!-- Analytics card: bar chart + top selling (Sales) -->
+            <script>window.REPORT_TYPE = '<?= $type ?>';</script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+            <script src="/cardhaven/interface/report-sales/report_charts.js?v=<?= time() ?>"></script>
     <?php endif; ?>
 
 </body>
