@@ -307,6 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btnBuatPO');
     if (btn) btn.style.display = (USER_ROLE === 2) ? '' : 'none';
     loadRestok(1);
+
+    // Shortcut dari dashboard Activity: buka modal PO langsung via ?open_restok=<id>
+    const openId = new URLSearchParams(window.location.search).get('open_restok');
+    if (openId) openRestokModal(parseInt(openId));
 });
 
 // Klik di luar modal box (di area overlay) untuk menutup, sama seperti modul Product
@@ -324,34 +328,98 @@ let itemRowCount = 0;
 // ─── ADD PO: open / close ────────────────────────────────────────────────────
 function openAddRestokModal() {
     document.getElementById('addRestokModal').style.display = 'flex';
-    document.getElementById('addSupplierSelect').innerHTML = '<option value="">Loading...</option>';
+    document.getElementById('addSupplierSearch').value = '';
+    document.getElementById('addIdSupplier').value = '';
     document.getElementById('addItemsBody').innerHTML = '';
     itemRowCount = 0;
+    addItemRow(); // langsung kasih 1 baris kosong waktu modal kebuka
+}
 
-    // Load supplier dropdown
-    fetch(`${API}?action=getSuppliers&actor_id=${ACTOR_ID}`)
+// Helper error style, dipakai buat field Supplier (di dalam .modal-form-group)
+function showError(el, msg) {
+    el.style.border = "2px solid #E74C3C";
+    const err = el.closest('.modal-form-group')?.querySelector('.error-message');
+    if (err) { err.innerText = msg; err.style.display = "block"; err.style.color = "#E74C3C"; }
+}
+function clearError(el) {
+    el.style.border = "";
+    const err = el.closest('.modal-form-group')?.querySelector('.error-message');
+    if (err) err.innerText = "";
+}
+
+// ─── Autocomplete Supplier ───────────────────────────────────────────────────
+const suppInput   = document.getElementById('addSupplierSearch');
+const suppHidden  = document.getElementById('addIdSupplier');
+const suppBox     = document.getElementById('addSupplierSuggest');
+
+suppInput.oninput = function () {
+    clearError(suppInput);
+    suppHidden.value = ''; // kalau lagi ngetik ulang, anggap belum valid sampai pilih dari suggestion
+    if (this.value.length < 1) { suppBox.style.display = 'none'; return; }
+
+    fetch(`${API}?action=search_supplier&search_supplier=${encodeURIComponent(this.value)}&actor_id=${ACTOR_ID}`)
         .then(r => r.json())
-        .then(res => {
-            const sel = document.getElementById('addSupplierSelect');
-            if (res.status !== 'success') {
-                sel.innerHTML = '<option value="">Failed to load suppliers</option>';
-                return;
+        .then(data => {
+            suppBox.innerHTML = '';
+            if (data.length > 0) {
+                suppBox.style.display = 'block';
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.innerHTML = item.nama_suplier;
+                    div.onclick = () => {
+                        suppInput.value = item.nama_suplier;
+                        suppHidden.value = item.id_supplier;
+                        suppBox.style.display = 'none';
+                        clearError(suppInput);
+                    };
+                    suppBox.appendChild(div);
+                });
+            } else {
+                suppBox.style.display = 'none';
             }
-            sel.innerHTML = '<option value="">-- Select Supplier --</option>' +
-                res.data.rows.map(s => `<option value="${s.id_supplier}">${s.nama_suplier}</option>`).join('');
-        })
-        .catch(() => {
-            document.getElementById('addSupplierSelect').innerHTML = '<option value="">Failed to load suppliers</option>';
         });
+};
 
-    // Load produk list (dipakai berkali-kali tiap nambah baris, jadi di-cache di produkList)
-    fetch(`${API}?action=getProduk&actor_id=${ACTOR_ID}`)
-        .then(r => r.json())
-        .then(res => {
-            produkList = res.status === 'success' ? res.data.rows : [];
-            addItemRow(); // langsung kasih 1 baris kosong waktu modal kebuka
-        })
-        .catch(() => { produkList = []; addItemRow(); });
+// ─── Autocomplete Produk (per baris, wajib supplier dipilih dulu) ────────────
+function setupProdukSuggest(rowId) {
+    const input  = document.getElementById(`produkSearch${rowId}`);
+    const hidden = document.getElementById(`produkId${rowId}`);
+    const box    = document.getElementById(`produkSuggest${rowId}`);
+
+    input.oninput = function () {
+        hidden.value = '';
+        if (this.value.length < 1) { box.style.display = 'none'; return; }
+
+        if (!suppHidden.value) {
+            box.innerHTML = '<div style="color:#E74C3C; cursor:default;">⚠ Please select a Supplier first!</div>';
+            box.style.display = 'block';
+            return;
+        }
+
+        fetch(`${API}?action=search_produk&search_produk=${encodeURIComponent(this.value)}&actor_id=${ACTOR_ID}`)
+            .then(r => r.json())
+            .then(data => {
+                box.innerHTML = '';
+                if (data.length > 0) {
+                    box.style.display = 'block';
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.innerHTML = item.nama_produk;
+                        div.onclick = () => {
+                            input.value = item.nama_produk;
+                            hidden.value = item.id_produk;
+                            box.style.display = 'none';
+                            document.getElementById(`harga${rowId}`).value = item.harga_beli;
+                            recalcRow(rowId);
+                        };
+                        box.appendChild(div);
+                    });
+                } else {
+                    box.innerHTML = '<div style="color:#888; cursor:default;">No product found.</div>';
+                    box.style.display = 'block';
+                }
+            });
+    };
 }
 
 function closeAddRestokModal() {
@@ -363,17 +431,16 @@ function addItemRow() {
     itemRowCount++;
     const rowId = itemRowCount;
 
-    const produkOptions = '<option value="">-- Select Product --</option>' +
-        produkList.map(p => `<option value="${p.id_produk}" data-harga="${p.harga_beli}">${p.nama_produk}</option>`).join('');
-
     const tr = document.createElement('tr');
     tr.className = 'item-row';
     tr.id = `itemRow${rowId}`;
     tr.innerHTML = `
         <td>
-            <select onchange="onProdukChange(${rowId})" id="produk${rowId}">
-                ${produkOptions}
-            </select>
+            <div style="position:relative;">
+                <input type="text" id="produkSearch${rowId}" class="modal-input" placeholder="Type product name..." autocomplete="off" style="padding:7px 10px; font-size:0.85rem;">
+                <input type="hidden" id="produkId${rowId}">
+                <div id="produkSuggest${rowId}" class="suggestion-box"></div>
+            </div>
         </td>
         <td><input type="number" min="1" value="1" id="qty${rowId}" oninput="recalcRow(${rowId})"></td>
         <td><input type="number" min="0" step="0.01" value="0" id="harga${rowId}" oninput="recalcRow(${rowId})"></td>
@@ -381,6 +448,7 @@ function addItemRow() {
         <td><button type="button" class="btn-remove-row" onclick="removeItemRow(${rowId})">&times;</button></td>
     `;
     document.getElementById('addItemsBody').appendChild(tr);
+    setupProdukSuggest(rowId);
 }
 
 function removeItemRow(rowId) {
@@ -389,14 +457,6 @@ function removeItemRow(rowId) {
     recalcAddTotal();
 }
 
-// Auto-fill harga_beli ketika produk dipilih
-function onProdukChange(rowId) {
-    const sel = document.getElementById(`produk${rowId}`);
-    const opt = sel.options[sel.selectedIndex];
-    const harga = opt?.dataset?.harga ?? 0;
-    document.getElementById(`harga${rowId}`).value = harga;
-    recalcRow(rowId);
-}
 
 function recalcRow(rowId) {
     const qty   = parseFloat(document.getElementById(`qty${rowId}`).value) || 0;
@@ -419,18 +479,18 @@ function recalcAddTotal() {
 
 // ─── ADD PO: submit ──────────────────────────────────────────────────────────
 function submitAddRestok() {
-   const suppSel = document.getElementById('addSupplierSelect');
-const id_supplier = suppSel.value;
+   const suppInputEl = document.getElementById('addSupplierSearch');
+const id_supplier = document.getElementById('addIdSupplier').value;
 let errors = [];
 
 // Reset semua border dulu
-suppSel.style.border = '';
+suppInputEl.style.border = '';
 document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
-    tr.querySelectorAll('select, input').forEach(el => el.style.border = '');
+    tr.querySelectorAll('input').forEach(el => el.style.border = '');
 });
 
 if (!id_supplier) {
-    suppSel.style.border = '2px solid #E74C3C';
+    showError(suppInputEl, 'Supplier is required.');
     errors.push('Supplier is required.');
 }
 
@@ -442,7 +502,7 @@ if (rows.length === 0) {
 const items = [];
 rows.forEach((tr, idx) => {
     const n = tr.id.replace('itemRow', '');
-    const selProduk  = document.getElementById(`produk${n}`);
+    const selProduk  = document.getElementById(`produkId${n}`);
     const inputQty   = document.getElementById(`qty${n}`);
     const inputHarga = document.getElementById(`harga${n}`);
 
@@ -451,7 +511,7 @@ rows.forEach((tr, idx) => {
     const harga_beli    = parseFloat(inputHarga.value) || 0;
 
     let rowErrors = [];
-    if (!id_produk)        { selProduk.style.border  = '2px solid #E74C3C'; rowErrors.push('product'); }
+    if (!id_produk)        { document.getElementById(`produkSearch${n}`).style.border = '2px solid #E74C3C'; rowErrors.push('product'); }
     if (jumlah_barang < 1) { inputQty.style.border   = '2px solid #E74C3C'; rowErrors.push('quantity'); }
     if (harga_beli <= 0)   { inputHarga.style.border = '2px solid #E74C3C'; rowErrors.push('price'); }
 

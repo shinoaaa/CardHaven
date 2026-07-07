@@ -121,7 +121,7 @@
                 <span class="supp-err" id="err-edit-foto"></span>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: -10px; margin-bottom: 15px; padding-right: 5px;">
-                <a href="javascript:void(0)" onclick="openChangePasswordModal()" class="change-pass-link">
+                <a href="javascript:void(0)" onclick="openAdminChangePasswordModal()" class="change-pass-link">
                     Change Password?
                 </a>
             </div>

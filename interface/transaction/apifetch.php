@@ -5,6 +5,12 @@ require_once __DIR__ . '/controllerTransaction.php';
 
 $action = $_REQUEST['action'] ?? '';
 
+// Aksi POST dikirim via JSON body (fetch), bukan form field — parse sekali, pakai ulang.
+$postBody = ($_SERVER['REQUEST_METHOD'] === 'POST')
+    ? (json_decode(file_get_contents('php://input'), true) ?: $_POST)
+    : [];
+if ($action === '' && isset($postBody['action'])) $action = $postBody['action'];
+
 // ── LOGIKA API (AJAX JSON) ──────────────────────────────────
 if ($action !== '') {
     header('Content-Type: application/json');
@@ -13,13 +19,35 @@ if ($action !== '') {
         $modified_by = $_SESSION['id_pengguna'] ?? 1;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $body = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+            $body = $postBody;
             $id = (int)($body['id_penjualan'] ?? 0);
-            
+
+            // Owner (role 3) view-only: tolak semua aksi mutasi transaksi.
+            $actorId = (int)($body['modified_by'] ?? $_SESSION['id_pengguna'] ?? 0);
+            if ($actorId) {
+                $rq = sqlsrv_query($conn, "SELECT role FROM dbo.pengguna WHERE id_pengguna = ?", [$actorId]);
+                $rr = $rq ? sqlsrv_fetch_array($rq, SQLSRV_FETCH_ASSOC) : null;
+                if ($rr && (int)$rr['role'] === 3) {
+                    echo json_encode(['status' => 'error', 'message' => 'Owner has view-only access to transactions.']); exit;
+                }
+            }
+
             switch ($action) {
                 case 'proses':
                     $ok = $ctrl->prosesOrder($id, $modified_by);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
+                case 'confirm_payment': // Harus sama persis dengan yang di JS
+                    $id = (int)($body['id_penjualan'] ?? 0);
+                    $status = (int)($body['status'] ?? 1); // Status 1 = Paid
+                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    
+                    // Panggil fungsi updateStatus dari controllerTransaction
+                    if ($ctrl->updateStatus($id, $status, $mod_by)) {
+                        echo json_encode(['status' => 'success', 'message' => 'Payment has been confirmed']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'Failed to confirm payment']);
+                    }
+                    exit;
                 case 'kirim':
                     $no_resi = trim($body['no_resi'] ?? '');
                     if ($no_resi === '') { 

@@ -57,13 +57,15 @@
 
 <!-- Modal Mailbox List -->
 <div id="modalMailboxList" class="supp-modal ch-modal" style="display: none;">
-    <div class="modal-header">
+    <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between;">
         <h2 style="color: #0D47A1; margin: 0;">Mailbox</h2>
-        <button class="btn-close" onclick="closeMailboxList()">✕</button>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <button type="button" onclick="markAllAsRead()" style="background: none; border: none; color: #0D47A1; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Mark all as read</button>
+            <button class="btn-close" onclick="closeMailboxList()">✕</button>
+        </div>
     </div>
     <div class="supp-modal-body" style="padding-top: 10px;">
-        <div id="mailListContainer" class="mail-list"></div>
-        <div class="pagination-controls" id="mailPagination"></div>
+        <div id="mailListContainer" class="mail-list" style="max-height: 55vh; overflow-y: auto;"></div>
     </div>
 </div>
 

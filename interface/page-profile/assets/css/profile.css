@@ -102,16 +102,18 @@ body {
 .search-box {
     display: flex; align-items: center;
     border: 1px solid #173C99; border-radius: 20px;
-    width: 230px;
+    flex: 1 1 auto; min-width: 180px;   /* diperlebar: mengisi sisa ruang toolbar */
+    height: 36px;
 }
 .search-box img { width: 20px; filter: invert(30%) sepia(75%) saturate(8090%) hue-rotate(173deg) brightness(64%) contrast(200%); margin-left: 15px;}
 .search-box input { border: none; outline: none; width: 100%; color: #173C99; font-size: 12px; }
 .search-box input::placeholder { color: #A0B0D0; }
 .filter-btn {
     background: #173C99; color: #fff; font-size: 12px; font-weight: 600;
-    border: none; border-radius: 20px; padding: 6px 20px; cursor: pointer;
+    border: none; border-radius: 20px; padding: 0 16px; cursor: pointer;
+    flex: 0 0 160px; width: 160px; box-sizing: border-box; height: 36px; display: flex; align-items: center; justify-content: center;
 }
-.sort-btn { background: none; border: none; cursor: pointer; font-size: 1.25rem;}
+.sort-btn { background: none; border: none; cursor: pointer; font-size: 1.25rem; height: 36px; width: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 /* Tabel */
 .table-responsive { overflow-x: auto; margin-bottom: 20px; }

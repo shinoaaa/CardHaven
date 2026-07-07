@@ -4,6 +4,8 @@
         <button class="btn-add-green" onclick="openAddMetode()">+ Add Method</button>
     </div>
 
+    <div id="metode-toolbar"></div>
+
     <table class="styled-table">
         <thead>
             <tr>
@@ -15,8 +17,8 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
-            <?php 
+        <tbody id="metode-tbody">
+            <?php
             $no_m = $offset_metode + 1;
             if (!empty($data_metode)):
                 foreach ($data_metode as $rowMetode): ?>
@@ -54,7 +56,7 @@
     </table>
 </div>
 
-<div class="pagination-container">
+<div class="pagination-container" id="metode-pag">
     <?php if ($page_metode > 1): ?>
         <a href="javascript:void(0)" onclick="loadMetodePage(<?= $page_metode - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>

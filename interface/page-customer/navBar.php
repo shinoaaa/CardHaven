@@ -56,7 +56,7 @@
                                 <button id="btn-trigger-mailbox" class="menu-item-btn">
                                     <img src="/cardhaven/assets/image/inbox.svg" class="menu-icon" alt="icon">
                                     <span>Mailbox</span>
-                                    <span class="badge-notif">2</span> </button>
+                                    <span class="badge-notif" id="navMailBadge" style="display:none;">0</span> </button>
                             </li>
                         </ul>
 
@@ -75,8 +75,10 @@
                             <img src="/cardhaven/assets/image/arrow-back.svg" alt="back">
                         </button>
                         <h4>Mailbox</h4>
-                        <div style="width: 24px;"></div> </div>
-                    <div class="popup-body mailbox-content">
+                        <button id="btn-nav-mark-all" class="mailbox-markall" title="Mark all as read">Mark all read</button>
+                    </div>
+                    <div class="popup-body mailbox-content" id="navMailboxContent">
+                        <p style="text-align:center; color:#888; padding:1rem 0; font-size:0.85rem;">Loading...</p>
                     </div>
                 </div>
 
@@ -251,9 +253,21 @@
         height: 20px;
     }
 
+    .mailbox-markall {
+        background: transparent;
+        border: none;
+        color: var(--primary-color, #0D47A1);
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 2px 4px;
+        white-space: nowrap;
+    }
+    .mailbox-markall:hover { text-decoration: underline; }
+
     /* Mailbox Items */
     .mailbox-content {
-        max-height: 250px;
+        max-height: 300px;
         overflow-y: auto;
         padding: 0.5rem 0;
     }
@@ -395,11 +409,11 @@
     });
 
     btnLogout.addEventListener('click', function() {
-            
+
         cardhavenConfirm(
-            "Confirm Logout", 
-            "Are you sure you want to logout from your account?", 
-            "Logout", 
+            "Confirm Logout",
+            "Are you sure you want to logout from your account?",
+            "Logout",
             () => {
                 localStorage.clear();
                 sessionStorage.clear();
@@ -407,5 +421,92 @@
             }
         );
     });
+
+    // ── Mailbox / Notifikasi ──────────────────────────────────────────────
+    const NAV_MAIL_API = '/cardhaven/interface/page-profile/controller/MailController.php';
+    const navMailUserId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+
+    // Notif lama tersimpan dalam Bahasa Indonesia; terjemahkan frasa template ke Inggris.
+    const NAV_NOTIF_TR = [
+        ['PEMBAYARAN BERHASIL','Payment Received'],
+        ['Pembayaran untuk pesanan','Payment for order'],
+        ['telah kami terima','has been received'],
+        ['Pesananmu sedang diproses oleh penjual','Your order is now being processed by the seller'],
+        ['Pesanan kamu sedang diproses','Your order is being processed'],
+        ['Pesananmu sedang diproses','Your order is being processed'],
+        ['Pesanan kamu telah dikirim','Your order has been shipped'],
+        ['Pesananmu telah dikirim','Your order has been shipped'],
+        ['Pesanan kamu telah sampai','Your order has been delivered'],
+        ['Pesananmu telah sampai','Your order has been delivered'],
+        ['Pesanan kamu telah dibatalkan','Your order has been cancelled'],
+        ['Pesananmu telah dibatalkan','Your order has been cancelled'],
+        ['Menunggu pembayaran','Awaiting payment'],
+        ['Nomor resi','Tracking number'],
+        ['Terima kasih','Thank you'],
+        ['sebesar','amounting to'],
+        ['Halo','Hello'],
+        ['pesanan','order'],
+    ];
+    function navTranslateNotif(t){ if(!t) return ''; let o=String(t); NAV_NOTIF_TR.forEach(([id,en])=>{ o=o.split(id).join(en); }); return o; }
+
+    let navMailData = [];
+
+    function navLoadMails(){
+        if(!navMailUserId) return;
+        fetch(`${NAV_MAIL_API}?action=getMails&id_pengguna=${navMailUserId}`)
+            .then(r=>r.json())
+            .then(res=>{
+                if(res.status !== 'success') return;
+                navMailData = res.data || [];
+                const badge = document.getElementById('navMailBadge');
+                if(badge){
+                    if((res.unread||0) > 0){ badge.textContent = res.unread; badge.style.display = ''; }
+                    else badge.style.display = 'none';
+                }
+                navRenderMails();
+            })
+            .catch(()=>{});
+    }
+
+    function navRenderMails(){
+        const box = document.getElementById('navMailboxContent');
+        if(!box) return;
+        if(!navMailData.length){
+            box.innerHTML = '<p style="text-align:center; color:#888; padding:1rem 0; font-size:0.85rem;">No notifications.</p>';
+            return;
+        }
+        box.innerHTML = navMailData.map(m=>{
+            const unread = m.status_notifikasi == 0 ? 'unread' : '';
+            return `<div class="mail-item ${unread}" onclick="navReadMail(${m.id_notifikasi})">
+                <img class="mail-icon" src="/cardhaven/assets/image/inbox.svg" alt="">
+                <div class="mail-details">
+                    <h5>${navTranslateNotif(m.judul)}</h5>
+                    <p>${navTranslateNotif(m.isi)}</p>
+                    <span class="mail-time">${m.tanggal_notifikasi || ''}</span>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function navReadMail(id){
+        const m = navMailData.find(x=>x.id_notifikasi == id);
+        if(!m || m.status_notifikasi != 0) return; // hanya tandai yang belum dibaca
+        const fd = new FormData(); fd.append('id_notifikasi', id);
+        fetch(`${NAV_MAIL_API}?action=markRead`, { method:'POST', body: fd })
+            .then(r=>r.json()).then(res=>{ if(res.status==='success') navLoadMails(); });
+    }
+
+    function navMarkAllRead(){
+        if(!navMailUserId) return;
+        const fd = new FormData(); fd.append('id_pengguna', navMailUserId);
+        fetch(`${NAV_MAIL_API}?action=markAllRead`, { method:'POST', body: fd })
+            .then(r=>r.json()).then(res=>{ if(res.status==='success') navLoadMails(); });
+    }
+
+    const btnNavMarkAll = document.getElementById('btn-nav-mark-all');
+    if(btnNavMarkAll) btnNavMarkAll.addEventListener('click', function(e){ e.stopPropagation(); navMarkAllRead(); });
+
+    // Muat notifikasi saat halaman dibuka (badge tampil tanpa perlu buka My Profile dulu).
+    if(isUser && navMailUserId) navLoadMails();
 </script>
 <script src="/cardhaven/interface/global_alert.js"></script>

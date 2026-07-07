@@ -28,7 +28,8 @@ try {
             exit;
         }
 
-        $sql = "SELECT id_pengguna, email, username, password, role FROM pengguna WHERE email = ?";
+        // Hanya akun aktif & belum dihapus yang boleh login (akun di-delete/nonaktif ditolak).
+        $sql = "SELECT id_pengguna, email, username, password, role FROM pengguna WHERE email = ? AND is_deleted = 0 AND status_akun = 1";
         $params = array($email);
         
         $stmt = sqlsrv_prepare($conn, $sql, $params);
@@ -66,7 +67,7 @@ try {
         }
 
         // Simpan identitas ke PHP session agar halaman berbasis session
-        // (mis. orders/controller_orders.php) mengenali user yang login.
+        // mengenali user yang login.
         $_SESSION['id_pengguna'] = $user['id_pengguna'];
         $_SESSION['role']        = $user['role'];
 

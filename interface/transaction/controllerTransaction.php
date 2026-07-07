@@ -76,8 +76,9 @@ class controllerTransaction {
             $items[] = $row;
         }
 
-        // transaction.js mengharapkan struktur { header, items }
-        return ['header' => $order, 'items' => $items];
+        // transaction.js membaca field header di level teratas + array `items`.
+        $order['items'] = $items;
+        return $order;
     }
 
     public function updateStatus($id, $status, $mod_by, $resi = null) {

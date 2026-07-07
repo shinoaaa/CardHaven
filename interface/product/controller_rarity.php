@@ -10,6 +10,39 @@ ob_start();
 try {
     $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 1));
 
+    // GET: list dengan search + sort + filter + pagination (kolom: nama_rarity, kode_rarity, game, status)
+    if (isset($_GET['list'])) {
+        $limit  = 3;
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $search = trim($_GET['search'] ?? '');
+        $status = $_GET['status'] ?? '';
+        $idGame = (int)($_GET['id_game'] ?? 0);
+        $sortMap = ['nama_rarity' => 'r.nama_rarity', 'kode_rarity' => 'r.kode_rarity', 'aktif' => 'r.aktif'];
+        $sortCol = $sortMap[$_GET['sort_by'] ?? ''] ?? 'r.nama_rarity';
+        $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+
+        $where = 'r.is_deleted = 0';
+        $params = [];
+        if ($search !== '') { $where .= ' AND (r.nama_rarity LIKE ? OR r.kode_rarity LIKE ?)'; $params[] = "%$search%"; $params[] = "%$search%"; }
+        if ($status === '0' || $status === '1') { $where .= ' AND r.aktif = ?'; $params[] = (int)$status; }
+        if ($idGame > 0) { $where .= ' AND r.id_game = ?'; $params[] = $idGame; }
+
+        $cst = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.rarity r WHERE $where", $params);
+        $total = $cst ? (int)(sqlsrv_fetch_array($cst, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+        $total_pages = max(1, (int)ceil($total / $limit));
+        $page   = min($page, $total_pages);
+        $offset = ($page - 1) * $limit;
+
+        $sql = "SELECT r.*, g.nama_game FROM dbo.rarity r LEFT JOIN dbo.game g ON r.id_game = g.id_game
+                WHERE $where ORDER BY aktif DESC, $sortCol $sortDir, r.id_rarity DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        $st  = sqlsrv_query($conn, $sql, array_merge($params, [$offset, $limit]));
+        $rows = [];
+        if ($st) while ($r = sqlsrv_fetch_array($st, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        ob_clean();
+        echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     // [FIX] check_duplicate via GET
     if (isset($_GET['check_duplicate'])) {
         $id_game    = (int)($_GET['id_game'] ?? 0);
@@ -32,13 +65,31 @@ try {
         $nama     = trim($_POST['nama_rarity'] ?? '');
         $kode     = trim($_POST['kode_rarity'] ?? '');
 
-        if ($action === 'add' || $action === 'edit') {
-            $stmt_cek = sqlsrv_query($conn, 'SELECT dbo.udf_CheckDuplicateRarity(?, ?, ?, ?) AS total', [$id_game, $nama, $kode, $id_rarity]);
-            if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
-            $row_cek = sqlsrv_fetch_array($stmt_cek, SQLSRV_FETCH_ASSOC);
-            if ($row_cek && $row_cek['total'] > 0) {
+        // Cek relasi sebelum delete: rarity tidak boleh dihapus bila masih dipakai produk.
+        if ($action === 'delete') {
+            $stmt_rel = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.produk WHERE id_rarity = ? AND is_deleted = 0", [$id_rarity]);
+            $rel = $stmt_rel ? sqlsrv_fetch_array($stmt_rel, SQLSRV_FETCH_ASSOC) : null;
+            if ($rel && (int)$rel['n'] > 0) {
                 ob_clean();
-                echo json_encode(['status' => 'error', 'message' => 'Rarity Name or Code is already registered.']);
+                echo json_encode(['status' => 'error', 'message' => "Cannot delete: this rarity is still used by {$rel['n']} Product(s)."]);
+                exit;
+            }
+        }
+
+        if ($action === 'add' || $action === 'edit') {
+            // Pesan duplikat spesifik (cek code dulu, lalu name) — konsisten dengan Master Set.
+            $stmt_code = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.rarity WHERE id_game = ? AND kode_rarity = ? AND is_deleted = 0 AND id_rarity <> ?", [$id_game, $kode, $id_rarity]);
+            $row_code  = $stmt_code ? sqlsrv_fetch_array($stmt_code, SQLSRV_FETCH_ASSOC) : null;
+            if ($row_code && (int)$row_code['n'] > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => "Rarity code '$kode' is already in use."]);
+                exit;
+            }
+            $stmt_name = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.rarity WHERE id_game = ? AND nama_rarity = ? AND is_deleted = 0 AND id_rarity <> ?", [$id_game, $nama, $id_rarity]);
+            $row_name  = $stmt_name ? sqlsrv_fetch_array($stmt_name, SQLSRV_FETCH_ASSOC) : null;
+            if ($row_name && (int)$row_name['n'] > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => "Rarity name '$nama' is already in use."]);
                 exit;
             }
         }

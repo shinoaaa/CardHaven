@@ -1,4 +1,6 @@
 const CUST_URL = '/cardhaven/interface/user/controller/controllerCustomer.php';
+// id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
+function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
 let overlay, modalDetail, modalAdd, modalEdit, modalCustChange;
 let custVerifyStepDone = false;
 
@@ -148,7 +150,7 @@ function submitAddCustomer() {
     
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
-    const no_telp  = document.getElementById('addNoTelp').value.trim();
+    const no_telp  = document.getElementById('addNoTelp').value.replace(/\s+/g, '');
     const password = document.getElementById('addPassword').value;
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
@@ -190,6 +192,7 @@ function submitAddCustomer() {
 
     const body = new FormData();
     body.append('action', 'addCustomer');
+    body.append('actor_id', getActorId());
     body.append('username', username);
     body.append('email', email);
     body.append('no_telepon', no_telp);
@@ -262,7 +265,7 @@ function submitEditCustomer() {
     const id       = document.getElementById('editCustomerId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
-    const no_telp  = document.getElementById('editNoTelp').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.replace(/\s+/g, '');
     const password = document.getElementById('editPassword').value;
     const confirmPassword = document.getElementById('editConfirmPassword').value;
     const foto     = document.getElementById('editFoto').files[0];
@@ -284,6 +287,7 @@ function submitEditCustomer() {
 
     const body = new FormData();
     body.append('action', 'updateCustomer');
+    body.append('actor_id', getActorId());
     body.append('id_pengguna', id);
     body.append('username', username);
     body.append('email', email);
@@ -314,6 +318,7 @@ function deleteCustomer(id) {
     cardhavenConfirm('Delete Customer?', 'This action cannot be undone.', 'Delete', () => {
         const body = new FormData();
         body.append('action', 'deleteCustomer');
+        body.append('actor_id', getActorId());
         body.append('id_pengguna', id);
 
         fetch(CUST_URL, { method: 'POST', body })
@@ -337,6 +342,7 @@ function toggleCustomer(id, isChecked, checkboxEl) {
         () => {
             const body = new FormData();
             body.append('action', 'toggleCustomer');
+            body.append('actor_id', getActorId());
             body.append('id_pengguna', id);
             body.append('status_akun', newStatus);
 

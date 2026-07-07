@@ -64,8 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            if (newPw.length < 6) {
-                cardhavenAlert('error', 'Error', "New password must be at least 6 characters long.");
+            // 8-12 karakter + kombinasi huruf, angka, dan simbol.
+            if (newPw.length < 8 || newPw.length > 12) {
+                cardhavenAlert('error', 'Error', "New password must be 8-12 characters long.");
+                return;
+            }
+            if (!/[A-Za-z]/.test(newPw) || !/[0-9]/.test(newPw) || !/[!@#$%^&*(),.?":{}|<>_\-]/.test(newPw)) {
+                cardhavenAlert('error', 'Error', "New password must be a combination of letters, numbers, and a symbol.");
                 return;
             }
 

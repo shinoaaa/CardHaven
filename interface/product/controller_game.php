@@ -23,6 +23,21 @@ try {
             exit;
         }
 
+        // Cek relasi sebelum delete: game tidak boleh dihapus bila masih dipakai set, produk, atau rarity.
+        if ($action === 'delete') {
+            $cSet = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.set_kartu WHERE id_game = ? AND is_deleted = 0", [$id_game]);
+            $cPrd = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.produk    WHERE id_game = ? AND is_deleted = 0", [$id_game]);
+            $cRar = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.rarity     WHERE id_game = ? AND is_deleted = 0", [$id_game]);
+            $nSet = $cSet ? (int)(sqlsrv_fetch_array($cSet, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+            $nPrd = $cPrd ? (int)(sqlsrv_fetch_array($cPrd, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+            $nRar = $cRar ? (int)(sqlsrv_fetch_array($cRar, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+            if ($nSet > 0 || $nPrd > 0 || $nRar > 0) {
+                ob_clean();
+                echo json_encode(['status' => 'error', 'message' => "Cannot delete: this game is still used by {$nSet} set(s), {$nPrd} Product(s) and {$nRar} rarity(s)."]);
+                exit;
+            }
+        }
+
         if ($action === 'add' || $action === 'edit') {
             $stmt_cek = sqlsrv_query($conn, "SELECT dbo.udf_CheckDuplicateGame(?, ?) AS total", [$nama, $id_game]);
             if ($stmt_cek === false) throw new Exception('Duplicate check query failed.');
@@ -63,6 +78,36 @@ try {
         } else {
             echo json_encode(['status' => 'success', 'message' => '']);
         }
+        exit;
+    }
+
+    // GET: list dengan search + sort + filter + pagination (kolom: nama_game, developer, aktif)
+    if (isset($_GET['list'])) {
+        $limit  = 3;
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $search = trim($_GET['search'] ?? '');
+        $status = $_GET['status'] ?? '';
+        $sortMap = ['nama_game' => 'nama_game', 'developer' => 'developer', 'aktif' => 'aktif'];
+        $sortCol = $sortMap[$_GET['sort_by'] ?? ''] ?? 'nama_game';
+        $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+
+        $where = 'is_deleted = 0';
+        $params = [];
+        if ($search !== '') { $where .= ' AND (nama_game LIKE ? OR developer LIKE ?)'; $params[] = "%$search%"; $params[] = "%$search%"; }
+        if ($status !== '' && ($status === '0' || $status === '1')) { $where .= ' AND aktif = ?'; $params[] = (int)$status; }
+
+        $cst = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.game WHERE $where", $params);
+        $total = $cst ? (int)(sqlsrv_fetch_array($cst, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
+        $total_pages = max(1, (int)ceil($total / $limit));
+        $page   = min($page, $total_pages);
+        $offset = ($page - 1) * $limit;
+
+        $sql = "SELECT * FROM dbo.game WHERE $where ORDER BY aktif DESC, $sortCol $sortDir, id_game DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        $st  = sqlsrv_query($conn, $sql, array_merge($params, [$offset, $limit]));
+        $rows = [];
+        if ($st) while ($r = sqlsrv_fetch_array($st, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        ob_clean();
+        echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page], JSON_UNESCAPED_UNICODE);
         exit;
     }
 

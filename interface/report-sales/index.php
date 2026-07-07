@@ -43,7 +43,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                 </div>
             </div>
 
-            <!-- ANALYTICS: bar chart bulanan + (khusus Sales) top selling items -->
+            <!-- ANALYTICS: bar chart bulanan + (khusus Sales) top 3 selling items -->
             <div style="display:flex; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap;">
                 <div style="flex:2; min-width:320px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; box-sizing:border-box;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.75rem; gap:1rem;">
@@ -308,7 +308,6 @@ $currentTitle = $titles[$type] ?? 'Report';
                             <th width="12%">Date</th>
                             <th width="16%">Supplier</th>
                             <th width="27%">Products Purchased</th>
-                            <th width="12%">Status</th>
                             <th width="8%">Quantity</th>
                             <th width="13%">Total Price</th>
                             <th width="7%">Action</th>

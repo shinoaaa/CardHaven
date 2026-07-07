@@ -1,4 +1,6 @@
 const ADMIN_URL = '/cardhaven/interface/user/controller/controllerSuperAdmin.php';
+// id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
+function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
 let overlay, modalDetail, modalAdd, modalEdit;
 let superVerifyStepDone = false;
 let modalSuperChange;
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
     attachLiveClear('editPassword', 'err-edit-password');
-    attachLiveClear('editNoTelp',   'err-edit-notelp');
+    attachLiveClear('editNoTelp', 'err-edit-notelp');
     attachLiveClear('editUsername', 'err-edit-username');
     attachLiveClear('editEmail',    'err-edit-email');
     
@@ -48,6 +50,7 @@ function clearErr(inputId, errId) {
 function clearAllErrors(prefix) {
     clearErr(`${prefix}Username`, `err-${prefix}-username`);
     clearErr(`${prefix}Email`,    `err-${prefix}-email`);
+    clearErr(`${prefix}NoTelp`,   `err-${prefix}-notelp`);
     clearErr(`${prefix}Password`, `err-${prefix}-password`);
     clearErr(`${prefix}ConfirmPassword`, `err-${prefix}-confirm-password`);
     if(document.getElementById(`${prefix}Foto`)) {
@@ -147,7 +150,7 @@ function submitAddAdmin() {
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
     const password = document.getElementById('addPassword').value;
-    const no_telp  = document.getElementById('addNoTelp').value.trim();
+    const no_telp  = document.getElementById('addNoTelp').value.replace(/\s+/g, '');
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
 
@@ -158,22 +161,28 @@ function submitAddAdmin() {
     
     if (no_telp && !isValidPhone(no_telp)) { showErr('addNoTelp', 'err-add-notelp', 'Invalid phone number format.'); valid = false; }
     
-    if (!password) { showErr('addPassword', 'err-add-password', 'Password is required.'); valid = false; }
+    if (!password) { 
+        showErr('addPassword', 'err-add-password', 'Password is required.'); valid = false; 
+    } else if (password.length < 8 || password.length > 12) {
+        showErr('addPassword', 'err-add-password', 'Password must be 8 - 12 characters long'); valid = false;
+    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        showErr('addPassword', 'err-add-password', 'Password must contain a special character'); valid = false;
+    }
+
     if (!confirmPassword) {
-        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password.');
-        valid = false;
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Please confirm your password.'); valid = false;
     } else if (password !== confirmPassword) {
-        showErr('addConfirmPassword', 'err-add-confirm-password', 'Passwords do not match.');
-        valid = false;
+        showErr('addConfirmPassword', 'err-add-confirm-password', 'Passwords do not match.'); valid = false;
     }
     if (!valid) return;
 
     const body = new FormData();
     body.append('action', 'addAdmin');
+    body.append('actor_id', getActorId());
     body.append('username', username);
     body.append('email', email);
     body.append('password', password);
-    body.append('noTelp', no_telp);
+    body.append('no_telepon', no_telp);
     if (foto) body.append('foto_profil', foto);
 
     fetch(ADMIN_URL, { method: 'POST', body })
@@ -251,7 +260,7 @@ function submitEditAdmin() {
     const id       = document.getElementById('editAdminId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
-    const no_telp  = document.getElementById('editNoTelp').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.replace(/\s+/g, '');
     const foto     = document.getElementById('editFoto').files[0];
 
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }
@@ -271,6 +280,7 @@ function submitEditAdmin() {
 
     const body = new FormData();
     body.append('action', 'updateAdmin');
+    body.append('actor_id', getActorId());
     body.append('id_pengguna', id);
     body.append('username', username);
     body.append('email', email);
@@ -300,6 +310,7 @@ function deleteAdmin(id) {
     cardhavenConfirm('Delete Super Admin?', 'This action cannot be undone.', 'Delete', () => {
         const body = new FormData();
         body.append('action', 'deleteAdmin');
+        body.append('actor_id', getActorId());
         body.append('id_pengguna', id);
 
         fetch(ADMIN_URL, { method: 'POST', body })
@@ -324,6 +335,7 @@ function toggleAdmin(id, isChecked, checkboxEl) {
         () => {
             const body = new FormData();
             body.append('action', 'toggleAdmin');
+            body.append('actor_id', getActorId());
             body.append('id_pengguna', id);
             body.append('status_akun', newStatus);
 
@@ -452,7 +464,7 @@ async function resetSuperPassword() {
     if (!valid) return;
 
     const body = new FormData();
-    body.append('action', 'resetAdminPassword');
+    body.append('action', 'changePasswordAdmin');
     body.append('password', password);
     body.append('confirm_password', confirm);
     body.append('actor_id', actorId);

@@ -1,4 +1,6 @@
 const ADMIN_URL = '/cardhaven/interface/user/controller/controllerAdmin.php';
+// id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
+function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
 let overlay, modalDetail, modalAdd, modalEdit, modalAdminChange;
 let adminVerifyStepDone = false;
 
@@ -11,11 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachLiveClear('addUsername', 'err-add-username');
     attachLiveClear('addEmail',    'err-add-email');
+    attachLiveClear('addNoTelp', 'err-add-notelp');
     attachLiveClear('addPassword', 'err-add-password');
     attachLiveClear('addConfirmPassword', 'err-add-confirm-password');
     
     attachLiveClear('editUsername', 'err-edit-username');
     attachLiveClear('editEmail',    'err-edit-email');
+    attachLiveClear('editNoTelp', 'err-edit-notelp');
     attachLiveClear('editPassword', 'err-edit-password');
     attachLiveClear('editConfirmPassword', 'err-edit-confirm-password');
     attachLiveClear('adminChangeCreatedDate', 'err-admin-change-date');
@@ -46,6 +50,7 @@ function clearErr(inputId, errId) {
 function clearAllErrors(prefix) {
     clearErr(`${prefix}Username`, `err-${prefix}-username`);
     clearErr(`${prefix}Email`,    `err-${prefix}-email`);
+    clearErr(`${prefix}NoTelp`,   `err-${prefix}-notelp`);
     clearErr(`${prefix}Password`, `err-${prefix}-password`);
     clearErr(`${prefix}ConfirmPassword`, `err-${prefix}-confirm-password`);
     if(document.getElementById(`${prefix}Foto`)) {
@@ -144,7 +149,7 @@ function submitAddAdmin() {
     
     const username = document.getElementById('addUsername').value.trim();
     const email    = document.getElementById('addEmail').value.trim();
-    const no_telp  = document.getElementById('addNoTelp').value.trim();
+    const no_telp = document.getElementById('addNoTelp').value.replace(/\s+/g, '');
     const password = document.getElementById('addPassword').value;
     const confirmPassword = document.getElementById('addConfirmPassword').value;
     const foto     = document.getElementById('addFoto').files[0];
@@ -188,6 +193,7 @@ function submitAddAdmin() {
 
     const body = new FormData();
     body.append('action', 'addAdmin');
+    body.append('actor_id', getActorId());
     body.append('username', username);
     body.append('email', email);
     body.append('no_telepon', no_telp);
@@ -263,7 +269,7 @@ function submitEditAdmin() {
     const id       = document.getElementById('editAdminId').value;
     const username = document.getElementById('editUsername').value.trim();
     const email    = document.getElementById('editEmail').value.trim();
-    const no_telp  = document.getElementById('editNoTelp').value.trim();
+    const no_telp  = document.getElementById('editNoTelp').value.replace(/\s+/g, '');
     const foto     = document.getElementById('editFoto').files[0];
 
     if (!username) { showErr('editUsername', 'err-edit-username', 'Username is required.'); valid = false; }
@@ -282,6 +288,7 @@ function submitEditAdmin() {
 
     const body = new FormData();
     body.append('action', 'updateAdmin');
+    body.append('actor_id', getActorId());
     body.append('id_pengguna', id);
     body.append('username', username);
     body.append('email', email);
@@ -312,6 +319,7 @@ function deleteAdmin(id) {
     cardhavenConfirm('Delete Admin?', 'This action cannot be undone.', 'Delete', () => {
         const body = new FormData();
         body.append('action', 'deleteAdmin');
+        body.append('actor_id', getActorId());
         body.append('id_pengguna', id);
 
         fetch(ADMIN_URL, { method: 'POST', body })
@@ -336,6 +344,7 @@ function toggleAdmin(id, isChecked, checkboxEl) {
         () => {
             const body = new FormData();
             body.append('action', 'toggleAdmin');
+            body.append('actor_id', getActorId());
             body.append('id_pengguna', id);
             body.append('status_akun', newStatus);
 

@@ -4,6 +4,8 @@
         <button class="btn-add-green" onclick="openAddModal()">+ Add Game</button>
     </div>
 
+    <div id="game-toolbar"></div>
+
     <table class="styled-table">
         <thead>
             <tr>
@@ -14,7 +16,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="game-tbody">
             <?php
             $no = $offset_game + 1;
             if (!empty($data_game)):
@@ -58,7 +60,7 @@
     </table>
 </div>
 
-<div class="pagination-container">
+<div class="pagination-container" id="game-pag">
     <?php if ($page_game > 1): ?>
         <a href="javascript:void(0)" onclick="loadGamePage(<?= $page_game - 1 ?>)" class="page-link">&lt;</a>
     <?php else: ?>
