@@ -269,17 +269,17 @@ async function submitKirim(id_penjualan) {
     const tgl_kirim = document.getElementById('inputTglKirim').value;
 
     if (!no_resi) {
-        cardhavenAlert('Alert', 'Tracking number is required!', 'warning');
+        cardhavenAlert('Alert',  'warning', 'Tracking number is required!');
         return;
     }
 
     const res  = await postAction('kirim', id_penjualan, { no_resi, tanggal_pengiriman: tgl_kirim });
     if (res.status === 'success') {
-        cardhavenAlert('Success', 'Package shipment has been confirmed.', 'success');
+        cardhavenAlert('Success', 'success', 'Package shipment has been confirmed.');
         closeTrxModal();
         setTimeout(() => location.reload(), 1200);
     } else {
-        cardhavenAlert('Error', res.message ?? 'Failed to update status.', 'error');
+        cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.', );
     }
 }
 
@@ -310,11 +310,11 @@ async function doAction(action, id_penjualan) {
     cardhavenConfirm(title, text, btnText, async () => {
         const res = await postAction(action, id_penjualan);
         if (res.status === 'success') {
-            cardhavenAlert('Success', 'Status has been updated successfully.', 'success');
+            cardhavenAlert('Success', 'success', 'Status has been updated successfully.');
             closeTrxModal();
             setTimeout(() => location.reload(), 1200);
         } else {
-            cardhavenAlert('Error', res.message ?? 'Failed to update status.', 'error');
+            cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.', );
         }
     }, null);
 }
