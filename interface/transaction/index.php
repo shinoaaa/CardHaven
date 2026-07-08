@@ -333,7 +333,6 @@ if (isset($conn) && $conn !== false) {
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Order ID</th>
                             <th>Customer</th>
                             <th>Products</th>
                             <th>Date</th>
@@ -354,7 +353,6 @@ if (isset($conn) && $conn !== false) {
                                 <?php $s = (int)$row['status_penjualan']; ?>
                                 <tr>
                                     <td><?= $no++ ?></td>
-                                    <td style="font-weight:700;color:var(--primary-color);">#<?= (int)$row['id_penjualan'] ?></td>
                                     <td>
                                         <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
                                         <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>

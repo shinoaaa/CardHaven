@@ -139,11 +139,11 @@ $BUYBACK_STATUS = [
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Order ID</th>
                             <th>Customer</th>
                             <th>Date</th>
                             <th>Total Offer</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

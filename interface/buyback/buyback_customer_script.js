@@ -52,12 +52,14 @@ function resetForm() {
 }
 
 function addCardField() {
-    cardIndexCounter++;
+    cardIndexCounter++; // ID tetap unik (terus bertambah) agar DOM tidak bentrok
     const container = document.getElementById('cardInputsContainer');
+    const visualIndex = container.children.length + 1; // Menyesuaikan label visual dengan jumlah kartu riil di layar
+    
     const html = `
         <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
             <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
-            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${visualIndex}</h4>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
@@ -100,6 +102,16 @@ function closeSubmitModal() {
 
 function removeCardField(id) {
     document.getElementById(`cardGroup${id}`).remove();
+    
+    // Kalkulasi ulang urutan nomor visual kartu yang tersisa
+    const container = document.getElementById('cardInputsContainer');
+    const groups = container.querySelectorAll('.card-input-group');
+    groups.forEach((group, index) => {
+        const header = group.querySelector('h4');
+        if (header) {
+            header.innerText = `Card ${index + 1}`;
+        }
+    });
 }
 
 function resetCardFields() {
@@ -374,15 +386,12 @@ function openDetailModal(id_pembelian) {
             let footerHtml = '';
             
             if (pem.status_pembelian == 2) {
-                if (anyPending) {
-                    // Masih ada tawaran admin yang belum direspons customer → footer disable
-                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
-                } else if (anyWaitingAdmin) {
-                    // Customer sudah counter offer → harus menunggu jawaban admin dulu
-                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.5; cursor:not-allowed;" title="Please wait for the admin to respond to your counter offer">⏳ Waiting for Admin Response</button>`;
-                } else if (allAgreed) {
-                    // Semua kartu sudah disepakati harganya → lanjut ke shipping
+                if (allAgreed) {
+                    // Semua kartu harganya sudah disepakati (Accept murni) → lanjut ke shipping
                     footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
+                } else {
+                    // Ada kartu yang di-counter → Munculkan tombol untuk kirim kembali ke Admin (Status 1)
+                    footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#7c3aed;" onclick="updateStatus(${pem.id_pembelian}, 1, 'Counter offer sent to Admin!')">Send Counter Offer to Admin</button>`;
                 }
             } else if (pem.status_pembelian == 3) {
                 footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #27AE60;" onclick="inputResi(${pem.id_pembelian})">Input Receipt</button>`;

@@ -138,11 +138,15 @@ function renderTable() {
         }
         let tr = `<tr class="trx-row" onclick="openDetailModal(${row.id_pembelian})">
             <td>${startNo++}</td>
-            <td style="font-weight:700;color:var(--primary-color);">#${row.id_pembelian}</td>
             <td><div style="font-weight:600;font-size:.85rem;">${row.username}</div></td>
             <td style="white-space:nowrap;font-size:.82rem;">${tanggal}</td>
             <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp ${(parseInt(row.total_harga) || 0).toLocaleString('id-ID')}</td>
             <td>${parseStatus(row.status_pembelian)}</td>
+            <td>
+                <div class="btn-action-group">
+                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})">...</button>
+                </div>
+            </td>
         </tr>`;
         tbody.innerHTML += tr;
     });
