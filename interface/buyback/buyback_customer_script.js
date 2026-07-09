@@ -414,7 +414,7 @@ function openDetailModal(id_pembelian) {
             // Tracking per-kartu untuk logika footer (status Price Negotiation)
             let anyPending      = false; // admin sudah menawar → menunggu keputusan customer (accept/counter)
             let anyWaitingAdmin = false; // customer sudah counter / admin belum menawar → menunggu admin
-            let allAgreed       = data.kartu.length > 0;  // semua kartu harganya sudah disepakati
+            let allAgreed       = true;  // semua kartu harganya sudah disepakati
             let hasCounter       = false;
 
             data.kartu.forEach(k => {
@@ -422,7 +422,6 @@ function openDetailModal(id_pembelian) {
                 const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isPending     = isNegotiating && adminHasOffer && !priceMatch;
                 const isAgreed      = adminHasOffer && priceMatch;
-                // Setelah customer counter, SP meng-set penawaran_admin = NULL → menunggu admin
                 const isWaitingAdmin = isNegotiating && !adminHasOffer;
 
                 // Menghitung percobaan murni (Submit awal tidak dihitung)
@@ -434,7 +433,10 @@ function openDetailModal(id_pembelian) {
                     if (isWaitingAdmin) anyWaitingAdmin = true;
                     if (!isAgreed)      allAgreed = false;
                     if (isWaitingAdmin) hasCounter = true;
-                }
+                } else {
+        // ✅ Kalo bukan negotiating, cek apakah kartu ini udah agreed
+        if (!isAgreed) allAgreed = false;
+    }
 
                 let adminOfferLabel;
                 if (!adminHasOffer) {
@@ -507,7 +509,15 @@ function openDetailModal(id_pembelian) {
             // Jadi saat status == 2, SEMUA kartu yang sudah "respond" akan match (karena counter sudah di-submit round sebelumnya).
             // Yang belum respond = isPending. Jika allDecided, berarti semua sudah accept di round ini.
             // Jadi: allDecided && status == 2 → semua accept di round ini → Proceed to Shipping
-
+                       // ✅ FIX: Recompute allAgreed - cek semua kartu punya penawaran_admin yang match dengan customer
+            // Toleransi untuk floating point comparison
+            allAgreed = data.kartu.length > 0 && data.kartu.every(k => {
+                if (k.penawaran_admin == null) return false;
+                const admin = parseFloat(k.penawaran_admin);
+                const cust = parseFloat(k.penawaran_customer);
+                // Toleransi 1 rupiah untuk handle decimal precision
+                return Math.abs(admin - cust) < 1;
+            });
             // Tampilkan foto bukti bayar jika ada (Status 7)
             if (pem.bukti_pembayaran) {
                 htmlContent += `
@@ -619,7 +629,8 @@ function acceptItemOffer(idP, idK, price) {
     formData.append('action', 'customer_accept_item');
     formData.append('id_pembelian', idP);
     formData.append('id_kartu', idK);
-    formData.append('harga_final', price);
+    // ✅ Pastikan harga_final dikirim sebagai string tanpa formatting
+    formData.append('harga_final', String(price));
     formData.append('id_pengguna', idPengguna);
 
     fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })

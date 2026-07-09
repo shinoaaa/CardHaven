@@ -330,17 +330,19 @@ function openDetailModal(id_pembelian) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
 
                 if (!anyDecided && !customerHasCountered) {
-                    // MODE 1: Belum ada keputusan sama sekali
+                    // MODE 1: Belum ada keputusan sama sekali → cuma bisa Approve All
                     footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
-                } else if (allDecided || customerHasCountered) {
-                    // MODE 2: Semua decided ATAU customer udah counter
-                    if (hasCounter || customerHasCountered) {
+                } else if (allDecided) {
+                    // MODE 2: Semua kartu udah ada keputusan admin
+                    if (hasCounter) {
+                        // Ada yang di-counter → bisa kirim counter offers
                         footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 2, 'Counter offers sent to customer')" style="${btnPurple}">Send Counter Offers</button>`;
                     } else {
+                        // Semua approve → Approve All
                         footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
                     }
                 } else {
-                    // MODE 3: Sedang memproses kartu (tombol dikunci sementara)
+                    // MODE 3: Sedang memproses (belum semua kartu diisi) → disabled
                     footerHtml += `<button disabled style="${btnDisabled}">Send Counter Offers</button>`;
                 }
             }
