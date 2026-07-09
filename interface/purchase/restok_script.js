@@ -396,7 +396,7 @@ function setupProdukSuggest(rowId) {
             return;
         }
 
-        fetch(`${API}?action=search_produk&search_produk=${encodeURIComponent(this.value)}&actor_id=${ACTOR_ID}`)
+        fetch(`${API}?action=search_produk&search_produk=${encodeURIComponent(this.value)}&id_supplier=${suppHidden.value}&actor_id=${ACTOR_ID}`)
             .then(r => r.json())
             .then(data => {
                 box.innerHTML = '';

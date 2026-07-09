@@ -221,6 +221,7 @@ function openDetailModal(id_pembelian) {
             let allApproved = true;
             let hasCounter = false;
             let anyDecided = false; // FLAG BARU: Cek apakah admin sudah mulai memberi keputusan
+            let customerHasCountered = false;
 
             data.kartu.forEach(k => {
                 const hasDecision = k.penawaran_admin != null;
@@ -228,11 +229,15 @@ function openDetailModal(id_pembelian) {
                 const isCountered = hasDecision && !isApproved;
 
                 let actualAttempts = Math.max(0, parseInt(k.percobaan_penawaran) - 1);
+                
+                // ✅ DETECT CUSTOMER COUNTER: penawaran_admin NULL tapi percobaan > 1
+                const customerCountered = !hasDecision && parseInt(k.percobaan_penawaran) > 1;
 
                 if (hasDecision) anyDecided = true; // Set true jika ada minimal 1 kartu yg diklik
                 if (!hasDecision) allDecided = false;
                 if (!isApproved) allApproved = false;
                 if (isCountered) hasCounter = true;
+                if (customerCountered) customerHasCountered = true;
 
                 let adminOfferLabel;
                 if (!hasDecision) {
@@ -324,12 +329,12 @@ function openDetailModal(id_pembelian) {
             else if (status == 1) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
 
-                if (!anyDecided) {
-                    // MODE 1: Muncul pertama kali (Langsung bisa Approve All)
+                if (!anyDecided && !customerHasCountered) {
+                    // MODE 1: Belum ada keputusan sama sekali
                     footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
-                } else if (allDecided) {
-                    // MODE 2: Semua kartu sudah diklik manual
-                    if (hasCounter) {
+                } else if (allDecided || customerHasCountered) {
+                    // MODE 2: Semua decided ATAU customer udah counter
+                    if (hasCounter || customerHasCountered) {
                         footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 2, 'Counter offers sent to customer')" style="${btnPurple}">Send Counter Offers</button>`;
                     } else {
                         footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;

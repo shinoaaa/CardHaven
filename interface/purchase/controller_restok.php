@@ -179,13 +179,19 @@ switch ($action) {
 
     // ─── SEARCH PRODUK (autocomplete, mirip search_set) ──────────────────────
     case 'search_produk':
-        $keyword = trim($_GET['search_produk'] ?? '');
-        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownProdukRestok(?)}", [$keyword]);
-        $res = [];
-        if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $r;
+    $keyword     = trim($_GET['search_produk'] ?? '');
+    $id_supplier = (int)($_GET['id_supplier'] ?? 0);
+    if (!$id_supplier) {
         ob_clean();
-        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        echo json_encode([]);
         exit;
+    }
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownProdukRestok(?, ?)}", [$keyword, $id_supplier]);
+    $res = [];
+    if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $r;
+    ob_clean();
+    echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    exit;
 
     // ─── CREATE PO BARU ─────────────────────────────────────────────────────
     case 'create':

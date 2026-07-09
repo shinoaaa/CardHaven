@@ -57,6 +57,6 @@ $pageTitle = 'My Profile – CardHaven';
     <script src="/cardhaven/interface/page-profile/assets/js/profile.js"></script>
     <script src="/cardhaven/interface/page-profile/assets/js/mailbox.js"></script>
     <script src="/cardhaven/interface/page-profile/assets/js/transaction.js"></script>
-    <script src="/cardhaven/interface/page-profile/assets/js/buyback.js"></script>
+    <script src="/cardhaven/interface/buyback/buyback_customer_script.js"></script>
 </body>
 </html>

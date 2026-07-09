@@ -190,7 +190,7 @@ session_start();
                     <div id="cart-empty-msg" style="display:none;">
                         <div class="empty-cart-icon">🛒</div>
                         <p>Your cart is empty. Time to add some cards!</p>
-                        <a href="/cardhaven/interface/home/" class="btn-shop-now">Browse Cards</a>
+                        <a href="/CardHaven/home" class="btn-shop-now">Browse Cards</a>
                     </div>
                 </div>
 
