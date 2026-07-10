@@ -113,33 +113,7 @@ switch ($action) {
 
 
     /* ──────────────────────────────────────────────────────
-       GET PAYMENT METHODS
-    ────────────────────────────────────────────────────── */
-    case 'get_payment_methods':
-        $sql  = "
-            SELECT id_metode, nama_metode, provider, no_rekening, atas_nama, biaya_admin
-            FROM   [CardHaven].[dbo].[metode_pembayaran]
-            WHERE  aktif      = 1
-              AND  is_deleted = 0
-            ORDER BY nama_metode
-        ";
-        $stmt = sqlsrv_query($conn, $sql);
-        if (!$stmt) {
-            echo json_encode(['error' => 'Failed to fetch payment methods.']);
-            exit;
-        }
-        $methods = [];
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            $methods[] = $row;
-        }
-        sqlsrv_free_stmt($stmt);
-        echo json_encode(['methods' => $methods]);
-        break;
-
-
-    /* ──────────────────────────────────────────────────────
        GET PURCHASE COUNT (per-product, per-user, per-event)
-       Used for client-side max-purchase enforcement display.
     ────────────────────────────────────────────────────── */
     case 'get_purchase_count':
         $idPengguna = (int)($_GET['id_pengguna'] ?? 0);
@@ -150,7 +124,7 @@ switch ($action) {
             exit;
         }
 
-        // Sum quantities per product from completed or pending sales
+        // PERBAIKAN: Gunakan angka (7, 8) bukan string ('cancelled')
         $sql = "
             SELECT dp.id_produk, SUM(dp.jumlah_barang) AS total_beli
             FROM   [CardHaven].[dbo].[penjualan]        pj
@@ -159,19 +133,17 @@ switch ($action) {
             INNER JOIN [CardHaven].[dbo].[produk_event] pe
                 ON pe.id_produk = dp.id_produk AND pe.id_event = ?
             WHERE  pj.id_pengguna = ?
-              AND  pj.status_penjualan NOT IN ('cancelled','rejected')
+              AND  pj.status_penjualan NOT IN (7, 8)
             GROUP BY dp.id_produk
         ";
         $stmt = sqlsrv_query($conn, $sql, [$idEvent, $idPengguna]);
-        if (!$stmt) {
-            echo json_encode(['counts' => []]);
-            exit;
-        }
         $counts = [];
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            $counts[$row['id_produk']] = (int)$row['total_beli'];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $counts[$row['id_produk']] = (int)$row['total_beli'];
+            }
+            sqlsrv_free_stmt($stmt);
         }
-        sqlsrv_free_stmt($stmt);
         echo json_encode(['counts' => $counts]);
         break;
 

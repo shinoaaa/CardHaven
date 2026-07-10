@@ -25,7 +25,7 @@ switch ($action) {
         $sqlEvent = "
             SELECT id_event, nama_event, maks_pembelian, persen_diskon,
                    tipe_event, tanggal_mulai, tanggal_berakhir, status_event,
-                   tanggal_sampai, foto_banner, is_hide
+                   tanggal_sampai, foto_banner, is_hide,maks_pembelian
             FROM   [CardHaven].[dbo].[event]
             WHERE  id_event              = ?
               AND  ISNULL(is_deleted, 0) = 0
@@ -76,26 +76,6 @@ switch ($action) {
         break;
 
     /* ──────────────────────────────────────────────────────
-       GET PAYMENT METHODS
-    ────────────────────────────────────────────────────── */
-    case 'get_payment_methods':
-        $sql  = "
-            SELECT id_metode, nama_metode, provider, no_rekening, atas_nama, biaya_admin
-            FROM   [CardHaven].[dbo].[metode_pembayaran]
-            WHERE  aktif      = 1
-              AND  is_deleted = 0
-            ORDER BY nama_metode
-        ";
-        $stmt = sqlsrv_query($conn, $sql);
-        $methods = [];
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            $methods[] = $row;
-        }
-        sqlsrv_free_stmt($stmt);
-        echo json_encode(['methods' => $methods]);
-        break;
-
-    /* ──────────────────────────────────────────────────────
        GET PURCHASE COUNT
     ────────────────────────────────────────────────────── */
     case 'get_purchase_count':
@@ -128,93 +108,173 @@ switch ($action) {
         echo json_encode(['counts' => $counts]);
         break;
 
-    /* ──────────────────────────────────────────────────────
-       SUBMIT ORDER (POST)
-    ────────────────────────────────────────────────────── */
+
     case 'submit_order':
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            echo json_encode(['success' => false, 'message' => 'Method not allowed.']); exit;
+            echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+            exit;
         }
 
         $body = json_decode(file_get_contents('php://input'), true);
-        
-        $idPengguna = (int)($body['id_pengguna'] ?? 0);
-        $idEvent    = (int)($body['id_event']    ?? 0);
-        $idMetode   = (int)($body['id_metode']   ?? 0);
-        $alamat     = trim($body['alamat']        ?? '');
-        $items      = $body['items']              ?? [];
-
-        if (!$idPengguna || !$idEvent || !$idMetode || !$alamat || empty($items)) {
-            echo json_encode(['success' => false, 'message' => 'Incomplete data submitted.']); exit;
+        if (!$body) {
+            echo json_encode(['success' => false, 'message' => 'Invalid request body.']);
+            exit;
         }
 
-        // Fetch event data (maks pembelian)
-        $sqlEv = "SELECT maks_pembelian FROM [CardHaven].[dbo].[event] WHERE id_event = ? AND ISNULL(is_deleted, 0) = 0";
+        $idPengguna    = (int)($body['id_pengguna'] ?? 0);
+        $idEvent       = (int)($body['id_event']    ?? 0);
+        $idMetode      = (int)($body['id_metode']   ?? 0);
+        $alamat        = trim($body['alamat']        ?? '');
+        
+        // TANGKAP TANGGAL ESTIMASI DENGAN AMAN
+        $tanggalSampai = isset($body['tanggal_sampai']) && trim($body['tanggal_sampai']) !== '' ? trim($body['tanggal_sampai']) : null;
+        
+        $items         = $body['items'] ?? [];
+
+        // ── Server-side validation ──────────────────────
+        if (!$idPengguna) { echo json_encode(['success' => false, 'message' => 'User not authenticated.']); exit; }
+        if (!$idEvent)    { echo json_encode(['success' => false, 'message' => 'Invalid event.']); exit; }
+        if (!$idMetode)   { echo json_encode(['success' => false, 'message' => 'Payment method is required.']); exit; }
+        if (!$alamat)     { echo json_encode(['success' => false, 'message' => 'Delivery address is required.']); exit; }
+        if (empty($items)){ echo json_encode(['success' => false, 'message' => 'No items selected.']); exit; }
+
+        // Fetch event to get maks_pembelian
+        $sqlEv = "SELECT id_event, maks_pembelian FROM [CardHaven].[dbo].[event] WHERE id_event = ? AND ISNULL(is_deleted, 0) = 0";
         $stmtEv = sqlsrv_query($conn, $sqlEv, [$idEvent]);
-        $evRow = sqlsrv_fetch_array($stmtEv, SQLSRV_FETCH_ASSOC);
+        if (!$stmtEv || !($evRow = sqlsrv_fetch_array($stmtEv, SQLSRV_FETCH_ASSOC))) {
+            echo json_encode(['success' => false, 'message' => 'Event not found or inactive.']); exit;
+        }
         sqlsrv_free_stmt($stmtEv);
         $maksPembelian = (int)$evRow['maks_pembelian'];
 
-        $idProduk = (int)$items[0]['id_produk'];
-        $itemQty  = (int)$items[0]['jumlah'];
+        // Per-product purchase limit check
+        $productIds = array_map(function ($i) { return (int)$i['id_produk']; }, $items);
+        foreach ($productIds as $idProduk) {
+            $sqlCount = "
+                SELECT ISNULL(SUM(dp.jumlah_barang), 0) AS total_beli
+                FROM   [CardHaven].[dbo].[penjualan]        pj
+                INNER JOIN [CardHaven].[dbo].[detail_penjualan] dp ON dp.id_penjualan = pj.id_penjualan
+                INNER JOIN [CardHaven].[dbo].[produk_event] pe ON pe.id_produk = dp.id_produk AND pe.id_event = ?
+                WHERE  pj.id_pengguna = ? AND  dp.id_produk = ? AND  pj.status_penjualan NOT IN (7, 8) 
+            ";
+            $stmtCount = sqlsrv_query($conn, $sqlCount, [$idEvent, $idPengguna, $idProduk]);
+            $countRow  = sqlsrv_fetch_array($stmtCount, SQLSRV_FETCH_ASSOC);
+            sqlsrv_free_stmt($stmtCount);
+            
+            $alreadyBought = (int)($countRow['total_beli'] ?? 0);
+            $itemQty = 0;
+            foreach ($items as $it) {
+                if ((int)$it['id_produk'] === $idProduk) { $itemQty = (int)$it['jumlah']; break; }
+            }
 
-        // Limit Check
-        $sqlCount = "
-            SELECT ISNULL(SUM(dp.jumlah_barang), 0) AS total_beli
-            FROM   [CardHaven].[dbo].[penjualan] pj
-            INNER JOIN [CardHaven].[dbo].[detail_penjualan] dp ON dp.id_penjualan = pj.id_penjualan
-            WHERE pj.id_pengguna = ? AND dp.id_produk = ? AND pj.status_penjualan NOT IN (7, 8)
-        ";
-        $stmtCount = sqlsrv_query($conn, $sqlCount, [$idPengguna, $idProduk]);
-        $countRow = sqlsrv_fetch_array($stmtCount, SQLSRV_FETCH_ASSOC);
-        sqlsrv_free_stmt($stmtCount);
-        $alreadyBought = (int)($countRow['total_beli'] ?? 0);
+            // PERBAIKAN: Hanya batasi jika maksPembelian lebih dari 0
+            if ($maksPembelian > 0 && ($alreadyBought + $itemQty > $maksPembelian)) {
+                echo json_encode(['success' => false, 'message' => 'Purchase limit exceeded for product ' . $idProduk]); exit;
+            }
 
-        if ($alreadyBought + $itemQty > $maksPembelian) {
-            echo json_encode(['success' => false, 'message' => "Limit reached. Maximum $maksPembelian."]); exit;
+            // Stock check
+            $sqlStock = "SELECT stok_event FROM [CardHaven].[dbo].[produk_event] WHERE id_produk = ? AND id_event = ? AND ISNULL(is_deleted, 0) = 0";
+            $stmtStock = sqlsrv_query($conn, $sqlStock, [$idProduk, $idEvent]);
+            $stockRow = sqlsrv_fetch_array($stmtStock, SQLSRV_FETCH_ASSOC);
+            sqlsrv_free_stmt($stmtStock);
+            if (!$stockRow || (int)$stockRow['stok_event'] < $itemQty) {
+                echo json_encode(['success' => false, 'message' => 'Insufficient stock for this product']); exit;
+            }
         }
 
-        // Metode Pembayaran & Biaya Admin
-        $sqlMet = "SELECT biaya_admin FROM [CardHaven].[dbo].[metode_pembayaran] WHERE id_metode = ? AND aktif = 1 AND is_deleted = 0";
+        // ── Payment method validation ───────────────────
+        $sqlMet = "SELECT id_metode, biaya_admin FROM [CardHaven].[dbo].[metode_pembayaran] WHERE id_metode = ? AND aktif = 1 AND is_deleted = 0";
         $stmtMet = sqlsrv_query($conn, $sqlMet, [$idMetode]);
         $metRow = sqlsrv_fetch_array($stmtMet, SQLSRV_FETCH_ASSOC);
         sqlsrv_free_stmt($stmtMet);
         $biayaAdmin = (float)$metRow['biaya_admin'];
 
-        $totalHarga = $biayaAdmin + ($itemQty * (float)$items[0]['harga_produk']);
+        // ── Compute totals ──────────────────────────────
+        $totalBarang = 0;
+        $totalHarga  = $biayaAdmin;
+        foreach ($items as $it) {
+            $qty          = (int)$it['jumlah'];
+            $harga        = (float)$it['harga_produk'];
+            $totalBarang += $qty;
+            $totalHarga  += $qty * $harga;
+        }
 
+        // ── Begin transaction ───────────────────────────
         sqlsrv_begin_transaction($conn);
 
-        // INSERT PENJUALAN (0 = Pending Payment) -> Nanti diupdate jadi 2 (Waiting Stock) setelah dibayar
+        // PERBAIKAN PENTING: Tambahkan SET NOCOUNT ON; agar OUTPUT INSERTED berjalan mulus
         $sqlInsertPj = "
+            SET NOCOUNT ON;
             INSERT INTO [CardHaven].[dbo].[penjualan]
-                (id_pengguna, id_metode, tanggal_penjualan, total_barang, total_harga, alamat, status_penjualan, created_by, created_date)
+                (id_pengguna, id_metode, tanggal_penjualan,
+                 total_barang, total_harga, alamat, status_penjualan,
+                 created_by, created_date, tanggal_sampai)
             OUTPUT INSERTED.id_penjualan
-            VALUES (?, ?, GETDATE(), ?, ?, ?, 0, ?, GETDATE()) 
+            VALUES (?, ?, GETDATE(), ?, ?, ?, 0, ?, GETDATE(), ?) 
         ";
-        $stmtPj = sqlsrv_query($conn, $sqlInsertPj, [$idPengguna, $idMetode, $itemQty, $totalHarga, $alamat, $idPengguna]);
-        if (!$stmtPj) { sqlsrv_rollback($conn); echo json_encode(['success' => false, 'message' => 'Failed to create order.']); exit; }
-        
+
+        $stmtPj = sqlsrv_query($conn, $sqlInsertPj, [
+            $idPengguna,
+            $idMetode,
+            $totalBarang,
+            $totalHarga,
+            $alamat,
+            $idPengguna,   
+            $tanggalSampai // Masuk ke tanggal_pengiriman
+        ]);
+
+        // JIKA GAGAL, TAMPILKAN ERROR ASLI DARI SQL SERVER KE POPUP!
+        if (!$stmtPj) {
+            sqlsrv_rollback($conn);
+            $dbErrors = sqlsrv_errors();
+            $errorMsg = $dbErrors[0]['message'] ?? 'Unknown database error.';
+            echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $errorMsg]); 
+            exit;
+        }
+
         $pjRow = sqlsrv_fetch_array($stmtPj, SQLSRV_FETCH_ASSOC);
         $idPenjualan = (int)($pjRow['id_penjualan'] ?? 0);
         sqlsrv_free_stmt($stmtPj);
 
-        // INSERT DETAIL PENJUALAN
-        $subtotal = $itemQty * (float)$items[0]['harga_produk'];
-        $sqlDet = "INSERT INTO [CardHaven].[dbo].[detail_penjualan] (id_penjualan, id_produk, jumlah_barang, harga_produk, subtotal_harga) VALUES (?, ?, ?, ?, ?)";
-        $stmtDet = sqlsrv_query($conn, $sqlDet, [$idPenjualan, $idProduk, $itemQty, (float)$items[0]['harga_produk'], $subtotal]);
-        if (!$stmtDet) { sqlsrv_rollback($conn); echo json_encode(['success' => false, 'message' => 'Failed to insert detail.']); exit; }
-        sqlsrv_free_stmt($stmtDet);
+        if (!$idPenjualan) {
+            sqlsrv_rollback($conn);
+            echo json_encode(['success' => false, 'message' => 'Gagal mendapatkan ID Penjualan baru dari database.']); 
+            exit;
+        }
 
-        // UPDATE STOCK
-        $sqlDeduct = "UPDATE [CardHaven].[dbo].[produk_event] SET stok_event = stok_event - ? WHERE id_produk = ? AND id_event = ?";
-        $stmtDeduct = sqlsrv_query($conn, $sqlDeduct, [$itemQty, $idProduk, $idEvent]);
-        if (!$stmtDeduct) { sqlsrv_rollback($conn); echo json_encode(['success' => false, 'message' => 'Failed to update stock.']); exit; }
-        sqlsrv_free_stmt($stmtDeduct);
+        // Insert detail_penjualan + deduct stok_event
+        foreach ($items as $it) {
+            $idProduk    = (int)$it['id_produk'];
+            $jumlah      = (int)$it['jumlah'];
+            $hargaProduk = (float)$it['harga_produk'];
+            $subtotal    = $jumlah * $hargaProduk;
+
+            $sqlDet = "INSERT INTO [CardHaven].[dbo].[detail_penjualan] (id_penjualan, id_produk, jumlah_barang, harga_produk, subtotal_harga) VALUES (?, ?, ?, ?, ?)";
+            $stmtDet = sqlsrv_query($conn, $sqlDet, [$idPenjualan, $idProduk, $jumlah, $hargaProduk, $subtotal]);
+            if (!$stmtDet) {
+                sqlsrv_rollback($conn);
+                $dbErrors = sqlsrv_errors();
+                echo json_encode(['success' => false, 'message' => 'SQL Detail Error: ' . ($dbErrors[0]['message'] ?? 'Unknown')]); exit;
+            }
+            sqlsrv_free_stmt($stmtDet);
+
+            $sqlDeduct = "UPDATE [CardHaven].[dbo].[produk_event] SET stok_event = stok_event - ? WHERE id_produk = ? AND id_event = ?";
+            $stmtDeduct = sqlsrv_query($conn, $sqlDeduct, [$jumlah, $idProduk, $idEvent]);
+            if (!$stmtDeduct) {
+                sqlsrv_rollback($conn);
+                echo json_encode(['success' => false, 'message' => 'Failed to update stock.']); exit;
+            }
+            sqlsrv_free_stmt($stmtDeduct);
+        }
 
         sqlsrv_commit($conn);
-        echo json_encode(['success' => true, 'id_penjualan' => $idPenjualan, 'message' => 'Pre-Order placed successfully.']);
+
+        echo json_encode([
+            'success'      => true,
+            'id_penjualan' => $idPenjualan,
+            'message'      => 'Order placed successfully.'
+        ]);
         break;
 
     default:

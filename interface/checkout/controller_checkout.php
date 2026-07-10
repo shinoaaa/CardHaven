@@ -65,6 +65,21 @@ try {
             $id_penjualan = (int)($_POST['id_penjualan'] ?? 0);
             if (!isset($_FILES['bukti_pembayaran']) || $_FILES['bukti_pembayaran']['error'] !== UPLOAD_ERR_OK) throw new Exception("Failed to upload the file.");
 
+            // Guard: order harus milik user ini dan masih Pending Payment.
+            // Tanpa ini, upload ulang (mis. lewat tombol back) tetap menyimpan file
+            // dan UI menampilkan sukses palsu padahal sp_UploadPaymentProof tidak
+            // mengubah apa pun (SP hanya menerima status_penjualan = 0).
+            $chk = sqlsrv_query(
+                $conn,
+                "SELECT status_penjualan FROM dbo.penjualan WHERE id_penjualan = ? AND id_pengguna = ?",
+                [$id_penjualan, $id_sekarang]
+            );
+            $ord = $chk ? sqlsrv_fetch_array($chk, SQLSRV_FETCH_ASSOC) : null;
+            if (!$ord) throw new Exception("Order not found.");
+            if ((int)$ord['status_penjualan'] !== 0) {
+                throw new Exception("This order has already been paid or can no longer be paid.");
+            }
+
             $dir = __DIR__ . '/../../../assets/image/receipt/';
             if (!is_dir($dir)) mkdir($dir, 0777, true);
             

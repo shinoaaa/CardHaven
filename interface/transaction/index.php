@@ -70,6 +70,7 @@ if (isset($conn) && $conn !== false) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <style>
         .main-content {

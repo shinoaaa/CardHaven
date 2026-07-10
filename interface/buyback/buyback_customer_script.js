@@ -357,7 +357,8 @@ function submitBuyback() {
     .then(res => {
         if (res.status === 'success') {
             resetForm();
-            cardhavenAlert('success', 'Success', res.message, () => loadRiwayat());
+            cardhavenToast('success', res.message);
+            loadRiwayat();
         } else {
             cardhavenAlert('error', 'Failed', res.message);
         }

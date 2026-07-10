@@ -10,6 +10,7 @@ $pageTitle = 'Catalogue – CardHaven';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?></title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     
     <!-- SweetAlert2 & Global Alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -82,10 +83,13 @@ $pageTitle = 'Catalogue – CardHaven';
 
             <!-- RIGHT MAIN CONTENT: CATALOGUE -->
             <div class="cat-content">
-                <div class="cat-topbar">
-                    <div class="cat-sort">
-                        <p>SortBy:</p>
-                        <select id="sortSelect" onchange="applySort()">
+                <div class="cat-topbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
+                    <!-- Ini akan diisi oleh Javascript jika ada pencarian -->
+                    <div id="search-indicator" style="font-size: 1.25rem; color: #173C99; font-weight: 700; display: none;"></div>
+                    
+                    <div class="cat-sort" style="display: flex; align-items: center; gap: 10px;">
+                        <p style="margin: 0; font-weight: 600; color: #173C99;">SortBy:</p>
+                        <select id="sortSelect" onchange="applySort()" style="border: 1px solid #173C99; border-radius: 15px; padding: 5px 10px; color: #173C99; outline: none; cursor: pointer;">
                             <option value="default">Default</option>
                             <option value="lowest">Lowest Price</option>
                             <option value="highest">Highest Price</option>

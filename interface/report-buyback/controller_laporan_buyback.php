@@ -125,6 +125,11 @@ switch ($action) {
         
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
         
+        echo "<table>";
+        echo "<tr><td colspan='7' style='font-size:18pt;font-weight:bold;color:#0F3891;'>CardHaven</td></tr>";
+        echo "<tr><td colspan='7' style='font-weight:bold;'>Buyback Report</td></tr>";
+        echo "<tr><td colspan='7'>Generated on: " . date('d-m-Y H:i') . "</td></tr>";
+        echo "</table>";
         echo "<table border='1'>";
         echo "<tr><th>No</th><th>Date</th><th>Customer</th><th>Card List</th><th>Total Pcs</th><th>Total Price</th></tr>";
         
@@ -156,12 +161,13 @@ switch ($action) {
         $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
         
         // Inisialisasi TCPDF Landscape (L)
-        $pdf = new TCPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        require_once __DIR__ . '/../report_pdf.php'; // kop & footer standar CardHaven
+        $pdf = new CardHavenPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         
         // Pengaturan Dokumen
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetTitle('Buyback Report');
-        $pdf->setPrintHeader(false); // Header kustom nonaktif
+        $pdf->setPrintHeader(true); // Header kustom nonaktif
         
         // --- PERBAIKAN MULTI-PAGE: Aktifkan Footer & Penomoran Halaman ---
         $pdf->setPrintFooter(true); 
@@ -169,8 +175,8 @@ switch ($action) {
         $pdf->SetFooterMargin(10);
         
         // Atur Margin dan Auto Page Break agar tidak menabrak batas kertas
-        $pdf->SetMargins(15, 15, 15);
-        $pdf->SetAutoPageBreak(TRUE, 15);
+        $pdf->SetMargins(15, 30, 15);
+        $pdf->SetAutoPageBreak(TRUE, 20);
         
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 10);

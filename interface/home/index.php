@@ -81,7 +81,7 @@ $baseUrl = '/CardHaven';
         <div class="game-list" id="ui-game-card-list"></div>
     </div>
 
-    <div class="product">
+    <div class="product" id="catalog-section">
         <div class="product-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h1 style="font-size: 2.5rem; color: var(--primary-color);">Explore Our <br> Products</h1>
@@ -99,23 +99,34 @@ $baseUrl = '/CardHaven';
             </div>
             <div style="gap: 1.75rem; margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
                 <div>
-                    <label for="">Min Price</label>
-                    <input type="text" placeholder="Enter min price">
+                    <label style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">Min Price</label>
+                    <input type="number" id="homeMinPrice" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color); margin-top: 5px; box-sizing: border-box;" placeholder="Min price">
                 </div>
                 <div>
-                    <label for="">Max Price</label>
-                    <input type="text" placeholder="Enter max price">
+                    <label style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">Max Price</label>
+                    <input type="number" id="homeMaxPrice" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color); margin-top: 5px; box-sizing: border-box;" placeholder="Max price">
                 </div>
                 <div>
-                    <label for="">Product Type</label>
-                    <input type="text" placeholder="Enter product type">
+                    <label style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">Product Type</label>
+                    <select id="homeProductType" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color); background: white; margin-top: 5px; box-sizing: border-box; cursor: pointer;">
+                        <option value="">All Types</option>
+                        <option value="Single card">Single card</option>
+                        <option value="Booster pack">Booster pack</option>
+                        <option value="Booster box">Booster box</option>
+                        <option value="Sleeve">Sleeve</option>
+                        <option value="Playmat">Playmat</option>
+                        <option value="Toploader">Toploader</option>
+                    </select>
                 </div>
                 <div>
-                    <label for="">Game Name</label>
-                    <input type="text" placeholder="Enter game name">
+                    <label style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">Game Name</label>
+                    <select id="homeGameName" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color); background: white; margin-top: 5px; box-sizing: border-box; cursor: pointer;">
+                        <option value="">All Games</option>
+                        <!-- Opsi Game Akan Diisi Otomatis oleh JS -->
+                    </select>
                 </div>
                 <div style="display: flex; flex-direction: column; justify-content: flex-end;">
-                    <button class="btn-primary" style="background: var(--bg-gradient); display: flex; padding: 1rem 0rem; align-items: center; justify-content: center; font-size: 1rem;">Confirm</button>
+                    <button id="btnConfirmExplore" class="btn-primary" style="background: var(--bg-gradient); width: 100%; height: 2.5rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; border: none; color: white;">Confirm</button>
                 </div>
             </div>
         </div>
@@ -163,9 +174,9 @@ $baseUrl = '/CardHaven';
                         </div>
                     </a>
                     
-                    <div class="btn-buyback" style="padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
+                    <!-- <div class="btn-buyback" style="padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: 1px solid white; display: flex; gap: 0.5rem; align-items: center;">
                         <h3>Learn how it work →</h3>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 

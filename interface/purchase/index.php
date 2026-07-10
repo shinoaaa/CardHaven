@@ -21,6 +21,7 @@ $BUYBACK_STATUS = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase — <?= $type === 'buyback' ? 'Buyback' : 'Restok' ?></title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <style>
         .trx-row { cursor: pointer; }
         .trx-row:hover td { background-color: rgba(15, 56, 145, 0.05) !important; }

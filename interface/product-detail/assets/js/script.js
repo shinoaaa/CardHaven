@@ -244,7 +244,7 @@ window.addRelatedToCart = function(id_produk, harga) {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Successfully added related product to cart!');
+            cardhavenToast('success', 'Successfully added related product to cart!');
         } else {
             cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }
@@ -363,7 +363,7 @@ function addToCart() {
     .then(res => res.json())
     .then(res => {
         if (res.status === 'success') {
-            cardhavenAlert('success', 'Success', 'Successfully added product to cart!');
+            cardhavenToast('success', 'Successfully added product to cart!');
         } else {
             cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }

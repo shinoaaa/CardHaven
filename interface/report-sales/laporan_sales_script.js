@@ -30,7 +30,7 @@ function fetchReportData() {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'error') return alert(data.message);
-        allData = data.data || []; 
+        allData = data.data || [];
         applyFilterAndSort(); 
     }).catch(err => console.error(err));
 }

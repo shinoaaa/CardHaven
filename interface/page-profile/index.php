@@ -1,26 +1,17 @@
-<?php
-/**
-* interface/page-profile/index.php
-* CardHaven – Customer Profile Page
-*/
-$pageTitle = 'My Profile – CardHaven';
-?>
+<?php $pageTitle = 'My Profile – CardHaven'; ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?></title>
-    
-    <!-- SweetAlert2 -->
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Global CSS -->
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
-
-    <!-- Profile page CSS -->
     <link rel="stylesheet" href="/cardhaven/interface/page-profile/assets/css/profile.css">
 </head>
+
 <body>
     <!-- Navbar Placeholder (Jika ada) -->
     <!-- <?php include __DIR__ . '/../page-customer/navBar.php'; ?> -->

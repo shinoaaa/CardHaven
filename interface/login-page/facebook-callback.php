@@ -94,6 +94,7 @@ if (isset($_GET['code'])) {
             <head>
                 <meta charset="UTF-8">
                 <title>Processing...</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             </head>
             <body>

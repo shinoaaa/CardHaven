@@ -6,13 +6,32 @@
             </a>
             </div>
         <div class="nav-menu">
-            <div class="nav-search">
-                <input type="text" style="height: 85%; width: 80%; border: 1px solid var(--primary-color); border-radius: 9999px;" placeholder="Type Product Name">
-                    <div style="height: 85%; aspect-ratio: 1/1; background-color: var(--primary-color); border-radius: 9999px; display: flex; justify-content: center; align-items: center;">
-                        <img src="/cardhaven/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
-                    </div>
-                </a>
+            <div class="nav-search" style="position: relative;"> <!-- position: relative WAJIB biar modalnya menggantung pas di bawah input -->
+            <input type="text" id="navSearchInput" autocomplete="off" style="height: 85%; width: 80%; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color);" placeholder="Type Product Name">
+            <div id="navSearchBtn" style="height: 85%; aspect-ratio: 1/1; background-color: var(--primary-color); border-radius: 9999px; display: flex; justify-content: center; align-items: center; cursor: pointer;">
+                <img src="/cardhaven/assets/image/search.svg" style="object-fit: cover; width: 60%; height: 60%;">
             </div>
+
+            <!-- INI DIA ELEMENT YANG HILANG: Modal Suggestion Dropdown -->
+            <div id="navSearchSuggestions" class="coolveticaa" style="
+                display: none; 
+                position: absolute; 
+                top: 110%; /* Muncul tepat di bawah kotak input */
+                left: 0; 
+                width: 90%; 
+                background-color: #ffffff; 
+                border: 2px solid var(--primary-color, #173C99); 
+                border-radius: 16px; 
+                box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15); 
+                z-index: 1050; 
+                flex-direction: column; 
+                overflow: hidden; 
+                max-height: 400px; 
+                overflow-y: auto;
+            ">
+                <!-- Hasil pencarian akan di-inject JS ke sini -->
+            </div>
+        </div>
             <div class="nav-profile" style="position: relative;"> 
                 <button onclick="window.location.replace('/CardHaven/register')" 
                 class="sign-in-button coolveticaa" id="btn-sign" style="height: 70%; width: 30%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
@@ -508,5 +527,80 @@
 
     // Muat notifikasi saat halaman dibuka (badge tampil tanpa perlu buka My Profile dulu).
     if(isUser && navMailUserId) navLoadMails();
+
+
+    // ── Fitur Search & Suggestion Navbar ──────────────────────────────────────────────
+const searchInput = document.getElementById('navSearchInput');
+const searchBtn   = document.getElementById('navSearchBtn');
+const searchSuggestions = document.getElementById('navSearchSuggestions');
+let searchTimeout = null;
+
+// Fungsi untuk mengeksekusi pencarian total ke Catalogue
+function executeSearch() {
+    const query = searchInput.value.trim();
+    if (query !== '') {
+        window.location.href = `/CardHaven/home/list?search=${encodeURIComponent(query)}`;
+    }
+}
+
+// 1. Eksekusi Enter & Klik Kaca Pembesar
+if (searchBtn) searchBtn.addEventListener('click', executeSearch);
+if (searchInput) {
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            executeSearch();
+        }
+    });
+
+    // 2. Logic Auto-Suggestion (Mencari saat mengetik)
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        clearTimeout(searchTimeout); // Reset timer biar server gak jebol
+        
+        if (query.length < 2) {
+            searchSuggestions.style.display = 'none';
+            return;
+        }
+
+        // Delay 300ms setelah user berhenti ngetik baru tembak database
+        searchTimeout = setTimeout(() => {
+            fetch(`/cardhaven/interface/catalogue/controller/CatalogueController.php?action=search_suggestion&q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(res => {
+                    if (res.status === 'success' && res.data.length > 0) {
+                        searchSuggestions.innerHTML = res.data.map(p => {
+                            let foto = p.foto ? `/cardhaven/assets/image/products/${p.foto}` : `/cardhaven/image-profile/defaultProduct.jpg`;
+                            return `
+                            <div class="suggest-item" onclick="window.location.href='/CardHaven/home/productdetail?id_produk=${p.id_produk}'" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                                <img src="${foto}" style="width: 35px; height: 45px; object-fit: contain; border-radius: 4px;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-weight: 700; color: #173C99; font-size: 0.9rem;">${p.nama_produk}</span>
+                                    <span style="color: #F97316; font-size: 0.8rem; font-weight: bold;">Rp ${parseInt(p.harga_jual).toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                            `;
+                        }).join('') + `
+                            <div onclick="executeSearch()" style="padding: 10px 15px; text-align: center; color: #173C99; font-weight: 700; font-size: 0.85rem; cursor: pointer; background: #f8fafc;">
+                                See all results for "${query}" &rarr;
+                            </div>
+                        `;
+                        searchSuggestions.style.display = 'flex';
+                    } else {
+                        searchSuggestions.innerHTML = `<div style="padding: 10px 15px; text-align: center; color: #888; font-size: 0.85rem;">No products found.</div>`;
+                        searchSuggestions.style.display = 'flex';
+                    }
+                })
+                .catch(err => console.error(err));
+        }, 300); 
+    });
+    
+    // 3. Sembunyikan suggestion modal kalau nge-klik di luar form
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+            searchSuggestions.style.display = 'none';
+        }
+    });
+}
 </script>
 <script src="/cardhaven/interface/global_alert.js"></script>

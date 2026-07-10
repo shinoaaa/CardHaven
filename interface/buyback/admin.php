@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Buyback Management - Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>

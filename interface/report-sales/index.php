@@ -15,6 +15,7 @@ $currentTitle = $titles[$type] ?? 'Report';
 <head>
     <meta charset="UTF-8">
     <title>Report - CardHaven</title>
+    <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     
     <link rel="stylesheet" href="/cardhaven/interface/report-buyback/laporan_buyback.css">

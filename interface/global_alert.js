@@ -59,6 +59,33 @@ function cardhavenConfirm(title, text, confirmText, callback, cancelCallback) {
     });
 }
 
+// Toast notification (top-right, auto-dismiss, no OK button needed)
+function cardhavenToast(iconType, title, timer = 2500) {
+    Swal.fire({
+        icon: iconType,
+        title,
+
+        toast: true,
+        position: "top-end",
+
+        showConfirmButton: false,
+        timer,
+        timerProgressBar: true,
+
+        iconColor: "#0D47A1",
+
+        didOpen: (toastEl) => {
+            toastEl.addEventListener("mouseenter", Swal.stopTimer);
+            toastEl.addEventListener("mouseleave", Swal.resumeTimer);
+        },
+
+        customClass: {
+            popup: "cardhaven-toast",
+            title: "coolveticaa cardhaven-toast-title"
+        }
+    });
+}
+
 function cardhavenAlert(iconType, title, text, callback = null) {
     Swal.fire({
         icon: iconType,
