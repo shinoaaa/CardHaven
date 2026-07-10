@@ -15,6 +15,7 @@ function formatRupiah(angka) {
 // STATE FILTER & PAGINATION
 // ==========================================
 let state = {
+    search: '',     // <--- STATE BARU UNTUK SEARCH
     games: [],
     types: [],
     rarities: [],
@@ -24,9 +25,9 @@ let state = {
     page: 1,
     limit: 6
 };
+
 let totalPages = 1;
 
-// Variabel penampung sementara jika URL bawa nama (bukan ID)
 let pendingGameName = null;
 
 // ==========================================
@@ -37,25 +38,46 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchFiltersDB(); // Pastikan urutannya: Parse URL -> Ambil DB -> Render Katalog
 });
 
+// Fungsi ini yang bikin error kalau nggak ada!
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // 1. Membaca Parameter URL dari Browser (Kebal Error)
 function parseUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     
-    // A. Dari klik Card Game di homepage (Link /list?id=...)
+    // TANGKAP KEYWORD PENCARIAN DARI NAVBAR
+    if (urlParams.has('search') && urlParams.get('search').trim() !== '') {
+        state.search = urlParams.get('search').trim();
+        
+        // Tampilkan teks "Related product to..." di Topbar
+        const indicator = document.getElementById('search-indicator');
+        if (indicator) {
+            indicator.innerHTML = `Related product to "<span style="color:#F97316;">${escapeHtml(state.search)}</span>"`;
+            indicator.style.display = 'block';
+        }
+    }
+
+    // A. Dari klik Card Game di homepage 
     if (urlParams.has('id') && urlParams.get('id').trim() !== '') {
         state.games.push(urlParams.get('id').trim());
     }
 
-    // B. Dari Form Explore Products Homepage (Teks Nama Game)
+    // B. Dari Form Explore Products Homepage
     if (urlParams.has('game_name') && urlParams.get('game_name').trim() !== '') {
-        // Simpan dulu, nanti dicocokkan ke ID pas fetchFiltersDB()
         pendingGameName = urlParams.get('game_name').trim().toLowerCase(); 
     }
 
-    // C. Tangkap Tipe Produk dari Form
+    // C. Tangkap Tipe Produk
     if (urlParams.has('product_type') && urlParams.get('product_type').trim() !== '') {
         const typeParam = urlParams.get('product_type').trim().toLowerCase();
-        // Cocokkan teks dengan huruf besar-kecil yang benar di database
         const validTypes = ['Single card', 'Booster pack', 'Booster box', 'Sleeve', 'Playmat', 'Toploader'];
         const matchedType = validTypes.find(t => t.toLowerCase() === typeParam);
         
@@ -194,6 +216,10 @@ window.resetFilters = function() {
 function fetchCatalogue() {
     const fd = new URLSearchParams();
     fd.append('action', 'get_products');
+    
+    // TAMBAHKAN PARAMETER SEARCH KE CONTROLLER PHP
+    if (state.search) fd.append('search_query', state.search);
+    
     if (state.games.length) fd.append('games', state.games.join(','));
     if (state.types.length) fd.append('types', state.types.join(','));
     if (state.rarities.length) fd.append('rarities', state.rarities.join(','));
@@ -217,6 +243,7 @@ function fetchCatalogue() {
         })
         .catch(err => console.error("Fetch Data Error:", err));
 }
+
 
 function renderCatalogue(products) {
     const grid = document.getElementById('catalogueGrid');
@@ -272,6 +299,9 @@ function renderCatalogue(products) {
 // ==========================================
 // PAGINATION & TRANSAKSI
 // ==========================================
+
+
+
 window.changePage = function(direction) {
     const newPage = state.page + direction;
     if (newPage >= 1 && newPage <= totalPages) {
@@ -317,7 +347,7 @@ window.addCatToCart = function(idProduk, hargaSatuan) {
 
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
     .then(res => res.json()).then(res => {
-        if (res.success || res.status === 'success') cardhavenAlert('success', 'Success', `Product added to cart!`);
+        if (res.success || res.status === 'success') cardhavenToast('success', 'Product added to cart!');
         else cardhavenAlert('error', 'Failed', res.message || res.msg || 'Gagal menambahkan produk.');
     });
 };

@@ -252,3 +252,103 @@ function closeOrderDetail(e) {
 }
 
 // ── Buy Back: lihat buyback.js (loadRiwayat + openDetailModal) ────────
+// ==========================================
+// STATE UNTUK PREORDER
+// ==========================================
+let allPreorders       = [];
+let preorderPage       = 1;
+const PREORDERS_PER_PAGE = 5;
+
+// ==========================================
+// INIT HALAMAN
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    switchTab('buyproduct'); // Default tab
+    loadOrders();
+    loadPreorders(); // LOAD DATA PREORDER SAAT HALAMAN DIBUKA
+});
+
+// Update Fungsi Switch Tab untuk memanggil renderPreorders
+function switchTab(tabName) {
+    currentTab = tabName;
+
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+
+    const targetBtn = document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`);
+    if (targetBtn) targetBtn.classList.add('active');
+    const targetContent = document.getElementById(`tab-${tabName}`);
+    if (targetContent) targetContent.style.display = 'block';
+
+    // Munculkan data sesuai tab
+    if (tabName === 'buyproduct') renderOrders();
+    if (tabName === 'preorder') renderPreorders();
+    if (tabName === 'buyback' && typeof loadRiwayat === 'function') loadRiwayat();
+}
+
+// ==========================================
+// FUNGSI PREORDER (LOAD & RENDER)
+// ==========================================
+function loadPreorders() {
+    const tbody = document.getElementById('preorder-body');
+    if (!tbody) return;
+    
+    if (!profileUserId) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Please login to see your pre-orders.</td></tr>`;
+        return;
+    }
+
+    fetch(`${PROFILE_CONTROLLER}?action=getPreorders&id_pengguna=${profileUserId}`)
+        .then(res => res.json())
+        .then(res => {
+            allPreorders = (res && res.data) ? res.data : [];
+            preorderPage = 1;
+            renderPreorders();
+        })
+        .catch(err => {
+            console.error('Failed to load preorders:', err);
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#dc2626;">Failed to load pre-orders.</td></tr>`;
+        });
+}
+
+function renderPreorders() {
+    const tbody = document.getElementById('preorder-body');
+    if (!tbody) return;
+
+    if (allPreorders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No Pre-order records yet.</td></tr>`;
+        return;
+    }
+
+    const totalPages = Math.ceil(allPreorders.length / PREORDERS_PER_PAGE);
+    if (preorderPage > totalPages) preorderPage = totalPages;
+    const start = (preorderPage - 1) * PREORDERS_PER_PAGE;
+    const pageRows = allPreorders.slice(start, start + PREORDERS_PER_PAGE);
+
+    tbody.innerHTML = pageRows.map((row, i) => {
+        const stNum = parseInt(row.status_penjualan);
+        const st = ORDER_STATUS[stNum] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
+        
+        // Format ETA / Tanggal Sampai
+        let eta = '-';
+        if (row.tanggal_sampai) {
+            const [y, m, d] = row.tanggal_sampai.substring(0, 10).split('-');
+            eta = `${d}-${m}-${y}`; // Output: DD-MM-YYYY
+        }
+
+        // Tampilkan "Action: •••" menggunakan openOrderDetail yang sama persis seperti Buy Product!
+        // Karena Preorder dan BuyProduct sama-sama masuk tabel penjualan, modal order detailnya bisa dipakai bersamaan.
+        return `
+            <tr>
+                <td>${start + i + 1}</td>
+                <td style="font-weight: 600; color: #0D47A1;">${escHtml(row.nama_produk || 'Event Product')}</td>
+                <td>${eta}</td>
+                <td style="text-align:right; padding-right: 5px">${row.total_barang ?? '-'}</td>
+                <td><span class="status-pill" style="background:${st.bg};color:${st.color};">${st.label}</span></td>
+                <td style="text-align:right;">${fmtRp(row.total_harga)}</td>
+                <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})">•••</button></td>
+            </tr>`;
+    }).join('');
+    
+    // Opsional: Jika kamu punya div pagination khusus preorder, panggil fungsi render pagination di sini.
+}

@@ -4,6 +4,12 @@ const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem
 const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
 let cardIndexCounter = 1;
 
+// ── Pagination/Filter State (dari buyback.js, untuk profile page) ──
+let allBuyback     = [];
+let buybackPage    = 1;
+const BUYBACK_PER_PAGE = 4;
+let bbSearch = '', bbStatus = '', bbSortField = 'date', bbSortDir = 'desc';
+
 if (!idPengguna || userRole != '0') {
     window.location.href = '/CardHaven/login';
 }
@@ -18,6 +24,125 @@ function fetchBankDetails() {
         }
     });
 }
+
+// ── FILTER/PAGINATION FUNCTIONS (untuk profile page) ──
+
+function getFilteredBuyback() {
+    let rows = allBuyback.slice();
+
+    if (bbStatus !== '') {
+        rows = rows.filter(r => String(r.status_pembelian) === String(bbStatus));
+    }
+    if (bbSearch.trim() !== '') {
+        const q = bbSearch.trim().toLowerCase();
+        rows = rows.filter(r =>
+            String(r.id_pembelian).includes(q) ||
+            ('#' + r.id_pembelian).includes(q) ||
+            parseStatus(r.status_pembelian).toLowerCase().includes(q) ||
+            String(r.total_harga || '').includes(q) ||
+            (r.tanggal_pembelian || '').toLowerCase().includes(q));
+    }
+    const dir = bbSortDir === 'asc' ? 1 : -1;
+    rows.sort((a, b) => {
+        let cmp;
+        if (bbSortField === 'price')      cmp = (a.total_harga || 0) - (b.total_harga || 0);
+        else if (bbSortField === 'items') cmp = (a.total_barang || 0) - (b.total_barang || 0);
+        else cmp = new Date(a.tanggal_pembelian) - new Date(b.tanggal_pembelian);
+        return cmp * dir;
+    });
+    return rows;
+}
+
+function renderBuyback() {
+    const tbody = document.querySelector('#tableRiwayat tbody');
+    if (!tbody) return;
+
+    const rows = getFilteredBuyback();
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No BuyBack records yet.</td></tr>';
+        renderBuybackPagination(0);
+        return;
+    }
+
+    const totalPages = Math.ceil(rows.length / BUYBACK_PER_PAGE);
+    if (buybackPage > totalPages) buybackPage = totalPages;
+    const start = (buybackPage - 1) * BUYBACK_PER_PAGE;
+    const pageRows = rows.slice(start, start + BUYBACK_PER_PAGE);
+
+    tbody.innerHTML = pageRows.map((row, i) => {
+        let tanggal = 'N/A';
+        if (row.tanggal_pembelian) {
+            const [tahun, bulan, hari] = row.tanggal_pembelian.substring(0, 10).split('-');
+            tanggal = `${hari}-${bulan}-${tahun}`;
+        }
+        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})">•••</button>`;
+        const sc = buybackStatusColor(row.status_pembelian);
+        return `<tr>
+            <td>${start + i + 1}</td>
+            <td>#${row.id_pembelian}</td>
+            <td>${tanggal}</td>
+            <td style="text-align:right;">${row.total_barang ?? '-'}</td>
+            <td style="text-align:right;">Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
+            <td><span class="status-pill" style="background:${sc.bg};color:${sc.color};">${parseStatus(row.status_pembelian)}</span></td>
+            <td>${aksi}</td>
+        </tr>`;
+    }).join('');
+
+    renderBuybackPagination(totalPages);
+}
+
+function renderBuybackPagination(totalPages) {
+    const box = document.getElementById('bb-pagination');
+    if (!box) return;
+    if (totalPages <= 1) { box.innerHTML = ''; return; }
+
+    let html = `<button class="page-arrow" ${buybackPage === 1 ? 'disabled' : ''} onclick="gotoBuybackPage(${buybackPage - 1})">‹</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || Math.abs(i - buybackPage) <= 1) {
+            html += `<button class="page-num ${i === buybackPage ? 'active' : ''}" onclick="gotoBuybackPage(${i})">${i}</button>`;
+        } else if (i === buybackPage - 2 || i === buybackPage + 2) {
+            html += `<span class="page-dots">...</span>`;
+        }
+    }
+    html += `<button class="page-arrow" ${buybackPage === totalPages ? 'disabled' : ''} onclick="gotoBuybackPage(${buybackPage + 1})">›</button>`;
+    box.innerHTML = html;
+}
+
+function gotoBuybackPage(p) { buybackPage = p; renderBuyback(); }
+
+function onBuybackFilterChange() {
+    bbSearch    = document.getElementById('bb-search')?.value || '';
+    bbStatus    = document.getElementById('bb-status')?.value || '';
+    bbSortField = document.getElementById('bb-sortby')?.value || 'date';
+    buybackPage = 1;
+    renderBuyback();
+}
+
+function toggleBuybackDateSort() {
+    bbSortDir = bbSortDir === 'desc' ? 'asc' : 'desc';
+    const icon = document.getElementById('bb-sort-icon');
+    if (icon) icon.textContent = bbSortDir === 'desc' ? '↓' : '↑';
+    buybackPage = 1;
+    renderBuyback();
+}
+
+function buybackStatusColor(status) {
+    const map = {
+        0:  { bg: '#fef9c3', color: '#ca8a04' },
+        1:  { bg: '#e0f2fe', color: '#0369a1' },
+        2:  { bg: '#ede9fe', color: '#7c3aed' },
+        3:  { bg: '#dcfce7', color: '#15803d' },
+        4:  { bg: '#dbeafe', color: '#1d4ed8' },
+        5:  { bg: '#d1fae5', color: '#065f46' },
+        6:  { bg: '#cffafe', color: '#0e7490' },
+        7:  { bg: '#fef3c7', color: '#b45309' },
+        8:  { bg: '#d1fae5', color: '#14532d' },
+        9:  { bg: '#fee2e2', color: '#b91c1c' },
+        10: { bg: '#f3f4f6', color: '#6b7280' },
+    };
+    return map[parseInt(status)] || { bg: '#f3f4f6', color: '#6b7280' };
+}
+
 
 // Fungsi untuk me-render gambar ke tag <img> saat user memilih file
 function previewImage(input, imgId) {
@@ -52,12 +177,14 @@ function resetForm() {
 }
 
 function addCardField() {
-    cardIndexCounter++;
+    cardIndexCounter++; // ID tetap unik (terus bertambah) agar DOM tidak bentrok
     const container = document.getElementById('cardInputsContainer');
+    const visualIndex = container.children.length + 1; // Menyesuaikan label visual dengan jumlah kartu riil di layar
+    
     const html = `
         <div class="card-input-group" id="cardGroup${cardIndexCounter}" style="border: 2px solid #E1EBFF; padding: 20px; border-radius: 12px; margin-bottom: 15px; background: #fafcff; position: relative;">
             <button type="button" onclick="removeCardField(${cardIndexCounter})" style="position: absolute; right: 15px; top: 15px; background: none; border: none; color: #E74C3C; cursor: pointer; font-weight: bold; font-size: 0.9rem;">&times; Remove</button>
-            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${cardIndexCounter}</h4>
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: var(--primary-color); font-size: 1.1rem;">Card ${visualIndex}</h4>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="form-group">
@@ -100,6 +227,16 @@ function closeSubmitModal() {
 
 function removeCardField(id) {
     document.getElementById(`cardGroup${id}`).remove();
+    
+    // Kalkulasi ulang urutan nomor visual kartu yang tersisa
+    const container = document.getElementById('cardInputsContainer');
+    const groups = container.querySelectorAll('.card-input-group');
+    groups.forEach((group, index) => {
+        const header = group.querySelector('h4');
+        if (header) {
+            header.innerText = `Card ${index + 1}`;
+        }
+    });
 }
 
 function resetCardFields() {
@@ -110,33 +247,58 @@ function resetCardFields() {
     }
     cardIndexCounter = 1;
 }
+
+function renderBuyback() {
+    const tbody = document.querySelector('#tableRiwayat tbody');
+    if (!tbody) return;
+
+    const rows = getFilteredBuyback();
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No BuyBack records yet.</td></tr>';
+        renderBuybackPagination(0);
+        return;
+    }
+
+    const totalPages = Math.ceil(rows.length / BUYBACK_PER_PAGE);
+    if (buybackPage > totalPages) buybackPage = totalPages;
+    const start = (buybackPage - 1) * BUYBACK_PER_PAGE;
+    const pageRows = rows.slice(start, start + BUYBACK_PER_PAGE);
+
+    tbody.innerHTML = pageRows.map((row, i) => {
+        let tanggal = 'N/A';
+        if (row.tanggal_pembelian) {
+            const [tahun, bulan, hari] = row.tanggal_pembelian.substring(0, 10).split('-');
+            tanggal = `${hari}-${bulan}-${tahun}`;
+        }
+        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})">•••</button>`;
+        const sc = buybackStatusColor(row.status_pembelian);
+        return `<tr>
+            <td>${start + i + 1}</td>
+            <td>#${row.id_pembelian}</td>
+            <td>${tanggal}</td>
+            <td style="text-align:right;">${row.total_barang ?? '-'}</td>
+            <td style="text-align:right;">Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
+            <td><span class="status-pill" style="background:${sc.bg};color:${sc.color};">${parseStatus(row.status_pembelian)}</span></td>
+            <td>${aksi}</td>
+        </tr>`;
+    }).join('');
+
+    renderBuybackPagination(totalPages);
+}
+
 function loadRiwayat() {
+    const tbody = document.querySelector('#tableRiwayat tbody');
+    if (!tbody || !idPengguna) return;
+
     fetch(`${BUYBACK_CONTROLLER}?action=get_buyback_list&role=0&id_pengguna=${idPengguna}`)
     .then(res => res.json())
     .then(data => {
-        const tbody = document.querySelector('#tableRiwayat tbody');
-        tbody.innerHTML = '';
-        data.data.forEach((row, index) => { 
-            let tanggal = 'N/A';
-            if (row.tanggal_pembelian) {
-                // Mengambil 10 karakter pertama (YYYY-MM-DD)
-                const tglMentah = row.tanggal_pembelian.substring(0, 10); 
-                
-                // Mengubah format menjadi DD-MM-YYYY
-                const [tahun, bulan, hari] = tglMentah.split('-');
-                tanggal = `${hari}-${bulan}-${tahun}`;
-            }
-            let aksi = `<button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})" style="margin: 0 auto;">...</button>`;
-            let tr = `<tr>
-                <td>${index + 1}</td>
-                <td>#${row.id_pembelian}</td>
-                <td>${tanggal}</td>
-                <td style="text-align:right;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
-                <td>${parseStatus(row.status_pembelian)}</td>
-                <td class="btn-action-group">${aksi}</td>
-            </tr>`;
-            tbody.innerHTML += tr;
-        });
+        allBuyback = (data && data.data) ? data.data : [];
+        buybackPage = 1;
+        renderBuyback();
+    })
+    .catch(() => {
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#dc2626;">Failed to load buyback history.</td></tr>';
     });
 }
 function submitBuyback() {
@@ -195,7 +357,8 @@ function submitBuyback() {
     .then(res => {
         if (res.status === 'success') {
             resetForm();
-            cardhavenAlert('success', 'Success', res.message, () => loadRiwayat());
+            cardhavenToast('success', res.message);
+            loadRiwayat();
         } else {
             cardhavenAlert('error', 'Failed', res.message);
         }
@@ -253,13 +416,13 @@ function openDetailModal(id_pembelian) {
             let anyPending      = false; // admin sudah menawar → menunggu keputusan customer (accept/counter)
             let anyWaitingAdmin = false; // customer sudah counter / admin belum menawar → menunggu admin
             let allAgreed       = true;  // semua kartu harganya sudah disepakati
+            let hasCounter       = false;
 
             data.kartu.forEach(k => {
                 const adminHasOffer = k.penawaran_admin != null;
                 const priceMatch    = adminHasOffer && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isPending     = isNegotiating && adminHasOffer && !priceMatch;
                 const isAgreed      = adminHasOffer && priceMatch;
-                // Setelah customer counter, SP meng-set penawaran_admin = NULL → menunggu admin
                 const isWaitingAdmin = isNegotiating && !adminHasOffer;
 
                 // Menghitung percobaan murni (Submit awal tidak dihitung)
@@ -270,7 +433,11 @@ function openDetailModal(id_pembelian) {
                     if (isPending)      anyPending = true;
                     if (isWaitingAdmin) anyWaitingAdmin = true;
                     if (!isAgreed)      allAgreed = false;
-                }
+                    if (isWaitingAdmin) hasCounter = true;
+                } else {
+        // ✅ Kalo bukan negotiating, cek apakah kartu ini udah agreed
+        if (!isAgreed) allAgreed = false;
+    }
 
                 let adminOfferLabel;
                 if (!adminHasOffer) {
@@ -343,7 +510,15 @@ function openDetailModal(id_pembelian) {
             // Jadi saat status == 2, SEMUA kartu yang sudah "respond" akan match (karena counter sudah di-submit round sebelumnya).
             // Yang belum respond = isPending. Jika allDecided, berarti semua sudah accept di round ini.
             // Jadi: allDecided && status == 2 → semua accept di round ini → Proceed to Shipping
-
+                       // ✅ FIX: Recompute allAgreed - cek semua kartu punya penawaran_admin yang match dengan customer
+            // Toleransi untuk floating point comparison
+            allAgreed = data.kartu.length > 0 && data.kartu.every(k => {
+                if (k.penawaran_admin == null) return false;
+                const admin = parseFloat(k.penawaran_admin);
+                const cust = parseFloat(k.penawaran_customer);
+                // Toleransi 1 rupiah untuk handle decimal precision
+                return Math.abs(admin - cust) < 1;
+            });
             // Tampilkan foto bukti bayar jika ada (Status 7)
             if (pem.bukti_pembayaran) {
                 htmlContent += `
@@ -373,17 +548,20 @@ function openDetailModal(id_pembelian) {
 
             let footerHtml = '';
             
-            if (pem.status_pembelian == 2) {
-                if (anyPending) {
-                    // Masih ada tawaran admin yang belum direspons customer → footer disable
-                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
-                } else if (anyWaitingAdmin) {
-                    // Customer sudah counter offer → harus menunggu jawaban admin dulu
-                    footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.5; cursor:not-allowed;" title="Please wait for the admin to respond to your counter offer">⏳ Waiting for Admin Response</button>`;
-                } else if (allAgreed) {
-                    // Semua kartu sudah disepakati harganya → lanjut ke shipping
-                    footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
-                }
+                           if (pem.status_pembelian == 2) {
+    if (allAgreed) {
+        // Semua kartu harganya sudah disepakati → lanjut ke shipping
+        footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
+    } else if (anyPending) {
+        // Ada kartu yang masih nunggu keputusan customer (admin udah nawar, belum respond)
+        footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
+    } else if (hasCounter) {
+        // ✅ SEMUA KARTU YANG BELUM AGREED UDAH DI-COUNTER → KIRIM KE ADMIN
+        footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#7c3aed;" onclick="submitCounterToAdmin(${pem.id_pembelian})">Send Counter Offer to Admin</button>`;
+    } else {
+        // Nunggu admin
+        footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;">Waiting for Admin...</button>`;
+    }
             } else if (pem.status_pembelian == 3) {
                 footerHtml += `<button class="btn-confirm" style="width: auto; padding: 10px 20px; background: #27AE60;" onclick="inputResi(${pem.id_pembelian})">Input Receipt</button>`;
             } else if (pem.status_pembelian == 7) {
@@ -452,7 +630,8 @@ function acceptItemOffer(idP, idK, price) {
     formData.append('action', 'customer_accept_item');
     formData.append('id_pembelian', idP);
     formData.append('id_kartu', idK);
-    formData.append('harga_final', price);
+    // ✅ Pastikan harga_final dikirim sebagai string tanpa formatting
+    formData.append('harga_final', String(price));
     formData.append('id_pengguna', idPengguna);
 
     fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
@@ -497,6 +676,25 @@ function cancelBuyback(id_pembelian) {
     });
 }
 
+function submitCounterToAdmin(id_pembelian) {
+    closeDetailModal();
+    cardhavenConfirm("Send Counter Offer", "Submit your counter offer to admin for review?", "Yes, Send", () => {
+        const formData = new URLSearchParams();
+        formData.append('action', 'update_status');
+        formData.append('id_pembelian', id_pembelian);
+        formData.append('status', 1); // Balik ke Under Review
+        formData.append('id_pengguna', idPengguna);
+
+        fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+        .then(() => {
+            Swal.fire({ icon: 'success', title: 'Sent!', text: 'Counter offer submitted. Waiting for admin review.', timer: 1500, showConfirmButton: false });
+            loadRiwayat();
+        });
+    }, () => {
+        document.getElementById('detailModal').style.display = 'flex';
+    });
+}
+
 function inputAddress(id_pembelian) {
     closeDetailModal();
     Swal.fire({
@@ -533,6 +731,12 @@ function inputAddress(id_pembelian) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadRiwayat();
-    fetchBankDetails(); // Agar provider dan rekening muncul seketika saat halaman dimuat
+    // Profile page: ada tabel riwayat
+    if (document.querySelector('#tableRiwayat')) {
+        loadRiwayat();
+    }
+    // Customer.php: ada form buyback
+    if (document.getElementById('formBuyback')) {
+        fetchBankDetails();
+    }
 });

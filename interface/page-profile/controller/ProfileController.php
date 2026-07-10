@@ -94,15 +94,19 @@ elseif ($action === 'updateProfile') {
     }
 }
 // Daftar pesanan "Buy Product" milik customer (untuk tab di halaman profil)
+// ==========================================
+// MENGAMBIL DATA ORDER NORMAL (SALES)
+// ==========================================
 elseif ($action === 'getOrders') {
     $user_id = (int)($_GET['id_pengguna'] ?? 0);
     if ($user_id <= 0) { echo json_encode(['status' => 'error', 'data' => []]); exit; }
 
+    // PERBAIKAN: Tambahkan AND p.tanggal_sampai IS NULL agar Preorder tidak ikut masuk ke sini
     $sql = "SELECT p.id_penjualan, p.tanggal_penjualan, p.alamat, p.total_barang, p.total_harga,
                    p.status_penjualan, p.no_resi, m.nama_metode
             FROM penjualan p
             LEFT JOIN metode_pembayaran m ON p.id_metode = m.id_metode
-            WHERE p.id_pengguna = ?
+            WHERE p.id_pengguna = ? AND p.tanggal_sampai IS NULL
             ORDER BY p.tanggal_penjualan DESC, p.id_penjualan DESC";
     $stmt = sqlsrv_query($conn, $sql, array($user_id));
 
@@ -118,6 +122,54 @@ elseif ($action === 'getOrders') {
     }
     echo json_encode(['status' => 'success', 'data' => $orders]);
 }
+
+// ==========================================
+// MENGAMBIL DATA PREORDER
+// ==========================================
+elseif ($action === 'getPreorders') {
+    $user_id = (int)($_GET['id_pengguna'] ?? 0);
+    if ($user_id <= 0) { echo json_encode(['status' => 'error', 'data' => []]); exit; }
+
+    // AMBIL DATA YANG TANGGAL PENGIRIMANNYA TIDAK NULL
+    // Serta kita Sub-Query untuk mengambil 1 nama produknya
+    $sql = "SELECT 
+                p.id_penjualan, 
+                p.tanggal_penjualan, 
+                p.tanggal_sampai AS tanggal_sampai, 
+                p.total_barang, 
+                p.total_harga,
+                p.status_penjualan, 
+                p.no_resi, 
+                m.nama_metode,
+                (
+                    SELECT TOP 1 pr.nama_produk
+                    FROM detail_penjualan dp
+                    JOIN produk pr ON dp.id_produk = pr.id_produk
+                    WHERE dp.id_penjualan = p.id_penjualan
+                ) AS nama_produk
+            FROM penjualan p
+            LEFT JOIN metode_pembayaran m ON p.id_metode = m.id_metode
+            WHERE p.id_pengguna = ? AND p.tanggal_sampai IS NOT NULL
+            ORDER BY p.tanggal_penjualan DESC, p.id_penjualan DESC";
+            
+    $stmt = sqlsrv_query($conn, $sql, array($user_id));
+
+    $preorders = [];
+    if ($stmt) {
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            if ($row['tanggal_penjualan'] instanceof DateTime) {
+                $row['tanggal_penjualan'] = $row['tanggal_penjualan']->format('Y-m-d H:i:s');
+            }
+            if ($row['tanggal_sampai'] instanceof DateTime) {
+                $row['tanggal_sampai'] = $row['tanggal_sampai']->format('Y-m-d');
+            }
+            $row['total_harga'] = (float)$row['total_harga'];
+            $preorders[] = $row;
+        }
+    }
+    echo json_encode(['status' => 'success', 'data' => $preorders]);
+}
+
 // Detail satu pesanan (dipakai tombol ••• di tabel profil)
 elseif ($action === 'getOrderDetail') {
     $user_id = (int)($_GET['id_pengguna'] ?? 0);

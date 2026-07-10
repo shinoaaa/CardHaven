@@ -400,6 +400,7 @@ function placeOrder() {
             id_pengguna: idPengguna,
             id_event: directCheckoutData.id_event,
             id_metode: selectedMethodId,
+            tanggal_sampai: directCheckoutData.tanggal_sampai,
             alamat: alamat,
             items: directCheckoutData.items.map(i => ({
                 id_produk: i.id_produk,

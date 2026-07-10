@@ -3,7 +3,7 @@ const userId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id
 document.addEventListener('DOMContentLoaded', () => {
     if (!userId) {
         Swal.fire("Session Expired", "Please login first", "error").then(() => {
-            window.location.href = "/cardhaven/login-page";
+            window.location.href = "/CardHaven/login";
         });
         return;
     }

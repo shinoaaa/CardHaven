@@ -132,6 +132,15 @@ button{
     object-fit: cover; height: 100%;
 }
 
+/* Hover untuk item di dalam Search Suggestion */
+    .suggest-item:hover { 
+        background-color: #f0f7ff !important; 
+    }
+    
+    /* Styling Scrollbar khusus untuk kotak pencarian */
+    #navSearchSuggestions::-webkit-scrollbar { width: 6px; }
+    #navSearchSuggestions::-webkit-scrollbar-thumb { background-color: var(--primary-color, #173C99); border-radius: 6px; }
+
 .form-section {
     width: 45%; 
     height: 100%; 
@@ -163,6 +172,7 @@ h1 {
     justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
+    margin-top: 15pxZ;
 }
 
 .social-btn {
@@ -835,6 +845,25 @@ input::placeholder {
     align-items: center !important;
     text-align: center !important;
     justify-content: center !important;
+}
+
+/* TOAST NOTIFICATION (no OK button, auto-dismiss) */
+.cardhaven-toast {
+    border-radius: 16px !important;
+    border: 2px solid #0D47A1 !important;
+    box-shadow: 0 8px 24px rgba(13, 71, 161, 0.18), 0 3px 8px rgba(0,0,0,0.08) !important;
+    padding: 12px 18px !important;
+}
+
+.cardhaven-toast-title {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #0D47A1 !important;
+    margin: 0 !important;
+}
+
+.cardhaven-toast .swal2-timer-progress-bar {
+    background: #0D47A1 !important;
 }
 
 /* ICON */

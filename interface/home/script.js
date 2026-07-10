@@ -111,15 +111,12 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.event.status_event == 1) {
                 eventTitle.textContent = "Check detail";
                 eventTitle.disabled = false; 
-                eventTitle.style.cursor = "pointer"
             } else if (data.event.status_event == 2) {
                 eventTitle.textContent = "Upcoming event check detail";
                 eventTitle.disabled = false;
-                eventTitle.style.cursor = "pointer"
             } else {
                 eventTitle.textContent = "Event was complete";
-                eventTitle.disabled = true;
-                eventTitle.style.cursor = "default"  // Di-disable kalau event sudah selesai
+                eventTitle.disabled = true;  // Di-disable kalau event sudah selesai
                 eventTitle.onclick = null;   // Hapus fungsi klik sekalian biar aman
             }
         }
@@ -311,6 +308,22 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         };
 
+        // --- 7. ISI DROPDOWN GAME EXPLORE FILTER ---
+        const gameSelect = document.getElementById('homeGameName');
+        if (gameSelect && data.list_game_bar) {
+            // Bersihkan dulu biar kalau user pindah page, gamenya ga numpuk ganda
+            gameSelect.innerHTML = '<option value="">All Games</option>';
+            
+            // Loop data game dan jadikan opsi <option>
+            data.list_game_bar.forEach(game => {
+                const opt = document.createElement('option');
+                // Value pakai nama game agar ditangkap parameter `?game_name=` di Katalog
+                opt.value = game.nama_game; 
+                opt.textContent = game.nama_game;
+                gameSelect.appendChild(opt);
+            });
+        }
+
         // Event Preorder
         setBtnState(document.getElementById('btn-prev-event'), currentEventPage <= 1);
         setBtnState(document.getElementById('btn-next-event'), currentEventPage >= totalEventPages);
@@ -398,8 +411,8 @@ window.addToCart = function(idProduk, harga) {
     .then(res => res.json())
     .then(res => {
         if (res.success) {
-            // Jika pakai SweetAlert (cardhavenAlert)
-            cardhavenAlert('success', 'Success', 'Product added to cart!');
+            // Toast notification, ngk perlu klik OK
+            cardhavenToast('success', 'Product added to cart!');
         } else {
             alert("Failed: " + res.message);
         }
@@ -474,7 +487,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     .then(res => res.json())
     .then(res => {
         if (res.success) {
-            cardhavenAlert('success', 'Success', `${qty} Product added to cart!`);
+            cardhavenToast('success', `${qty} Product added to cart!`);
             // Reset qty ke 1 setelah berhasil
             document.getElementById(`qty-val-${idProduk}`).textContent = 1;
             document.getElementById(`display-price-${idProduk}`).textContent = formatRupiah(hargaSatuan);
@@ -498,8 +511,6 @@ window.buyNow = function(idProduk, hargaSatuan) {
         cardhavenAlert('error', 'Out of Stock', 'This product is currently out of stock.');
         return;
     }
-
-    sessionStorage.removeItem('direct_checkout_data');
 
     const fd = new FormData();
     fd.append('action', 'buy_now');
@@ -533,3 +544,24 @@ window.goToDetail = function(idProduk) {
 window.openGameCatalogue = function(idGame) {
     window.location.href = `/CardHaven/home/list?id=${idGame}`; 
 };
+
+const btnConfirmExplore = document.getElementById('btnConfirmExplore');
+if (btnConfirmExplore) {
+    btnConfirmExplore.addEventListener('click', () => {
+        const minPrice = document.getElementById('homeMinPrice').value;
+        const maxPrice = document.getElementById('homeMaxPrice').value;
+        const productType = document.getElementById('homeProductType').value;
+        const gameName = document.getElementById('homeGameName').value;
+
+        // Kumpulkan URL Parameter
+        const params = new URLSearchParams();
+        if (minPrice) params.append('min_price', minPrice);
+        if (maxPrice) params.append('max_price', maxPrice);
+        if (productType) params.append('product_type', productType);
+        if (gameName) params.append('game_name', gameName);
+
+        // Jika ada parameter yang dipilih, arahkan ke halaman katalog
+        // (Sesuaikan dengan path katalog asli-mu. Contoh: /CardHaven/home/list.php)
+        window.location.href = `/CardHaven/home/list?${params.toString()}`;
+    });
+}

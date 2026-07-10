@@ -273,7 +273,7 @@ window.submitPreOrder = function() {
         id_event: preorderCurrentEventId,
         nama_event: preorderEvent.nama_event,
         persen_diskon: preorderEvent.persen_diskon,
-        tanggal_sampai: preorderEvent.tanggal_sampai,
+        tanggal_sampai: preorderEvent.tanggal_sampai, // INI PENTING! (Format YYYY-MM-DD)
         items: [{
             id_produk: preorderProduct.id_produk,
             nama_produk: preorderProduct.nama_produk,

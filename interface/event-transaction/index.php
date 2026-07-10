@@ -74,7 +74,7 @@
     <!-- ──────────────────────────────────────────── -->
     <!--  VIEW 2 : Buy Event Promo (Transaction Form) -->
     <!-- ──────────────────────────────────────────── -->
-    <div id="view-order" style="display:none; background: linear-gradient(180deg,#fff 0%,#dae6ff 100%); border-radius: 25px; padding: 36px 40px 36px 36px; position: relative; min-height: 550px; flex-direction: row; gap: 40px; align-items: flex-start;">
+    <div id="view-order" style="display:none; background: linear-gradient(180deg,#fff 0%,#dae6ff 100%); border-radius: 25px; padding: 36px 40px 36px 36px; position: relative; min-height: 575px; flex-direction: row; gap: 40px; align-items: flex-start;">
         <button onclick="window.closePromoEvent()" title="Close" style="position: absolute; top: 16px; right: 18px; background: none; border: none; cursor: pointer; font-size: 22px; color: #0f3891; line-height:1;">&#x2715;</button>
 
         <button onclick="window.switchToPromoDetailView()" style="position:absolute; top:16px; left:18px; background:none; border:none; cursor:pointer; font-size:13px; color:#0f3891; font-family:Inter,sans-serif; display:flex; align-items:center; gap:4px;">&#8592; Back</button>
@@ -103,7 +103,7 @@
                 </div>
 
                 <!-- Product pagination -->
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                <div style="display:flex; justify-content:center; gap:8px; margin-top:8px; margin-bottom: 15px;">
                     <button id="btn-prev-order-product" class="nav-btn-circle" onclick="window.promoChangeOrderPage(-1)">
                         <img src="/cardhaven/assets/image/left-arrow.svg">
                     </button>
@@ -114,7 +114,7 @@
             </div>
 
             <!-- Buy button -->
-            <div style="margin-top:auto;">
+            <div style="margin-top:auto; margin-bottom: 15px;">
                 <button onclick="window.submitPromoOrder()" style="background:var(--bg-gradient,#0f3891); color:#fff; border:none; border-radius:25px; padding:16px 0; width:100%; font-size:22px; font-family:'Coolvetica',sans-serif; cursor:pointer; display:block;">Proceed to Checkout</button>
             </div>
         </div>

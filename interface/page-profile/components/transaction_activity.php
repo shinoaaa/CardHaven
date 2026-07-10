@@ -47,7 +47,7 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="preorder-body">
                     <tr><td colspan="7" style="text-align: center;">No Pre-order records yet.</td></tr>
                 </tbody>
             </table>
