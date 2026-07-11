@@ -132,7 +132,12 @@ function openEditModal(id) {
             document.getElementById('formID').value = id;
             document.getElementById('nama_game').value = data.nama_game;
             document.getElementById('developer').value = data.developer;
-
+            
+            const statusDisplay = document.getElementById('gameStatusDisplay');
+            if (statusDisplay) {
+                statusDisplay.value = (data.aktif == 1) ? 'Active' : 'Inactive';
+                statusDisplay.style.color = (data.aktif == 1) ? '#27AE60' : '#E74C3C';
+            }
             const preview = document.getElementById('gPreview');
             const placeholder = document.getElementById('gPlaceholder');
             if (data.foto_banner) {

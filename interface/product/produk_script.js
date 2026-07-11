@@ -48,7 +48,12 @@ function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
     const box = document.getElementById(boxId);
 
     input.oninput = function() {
-        if (this.value.length < 1) { box.style.display = 'none'; return; }
+        clearError(this); // Tambahkan ini agar border merah hilang saat user mengetik kembali
+        if (this.value.length < 1) { 
+            box.style.display = 'none'; 
+            hidden.value = '';
+            return; 
+        }
         let url = `${URL_PRODUK}?${param}=${this.value}`;
         if (dependId) {
             const depVal = document.getElementById(dependId).value;
@@ -95,6 +100,16 @@ function toggleProdFields() {
     document.getElementById('pSetGroup').style.display = (tipe.includes('Card') || tipe.includes('Booster')) ? 'block' : 'none';
     document.getElementById('pRarityGroup').style.display = (tipe === 'Single Card') ? 'block' : 'none';
     document.getElementById('pKondisiGroup').style.display = (tipe === 'Single Card') ? 'block' : 'none';
+
+    const gameLabel = document.querySelector('label[for="pGameSearch"]');
+    if (gameLabel) {
+        let baseText = gameLabel.innerHTML.replace('<span style="color:red;">*</span>', '').trim();
+        if (isRequiredType) {
+            gameLabel.innerHTML = baseText + ' <span style="color:red;">*</span>';
+        } else {
+            gameLabel.innerHTML = baseText;
+        }
+    }
 }
 
 function previewImage(input) {
@@ -161,8 +176,20 @@ document.getElementById('productForm').onsubmit = async function(e) {
     });
 
     if (tipe.includes('Card') || tipe.includes('Booster')) {
-        if (!document.getElementById('pIdGame').value) { showError(document.getElementById('pGameSearch'), "Select Game"); isValid = false; }
-        if (!document.getElementById('pIdSet').value) { showError(document.getElementById('pSetSearch'), "Select Set"); isValid = false; }
+        const gameId = document.getElementById('pIdGame').value;
+        const gameSearch = document.getElementById('pGameSearch');
+        
+        if (!gameId || gameSearch.value.trim() === "") { 
+            showError(gameSearch, "Please select a Game from the list!"); 
+            isValid = false; 
+        }
+
+        const setId = document.getElementById('pIdSet').value;
+        const setSearch = document.getElementById('pSetSearch');
+        if (!setId || setSearch.value.trim() === "") { 
+            showError(setSearch, "Please select a Set from the list!"); 
+            isValid = false; 
+        }
     }
 
     if (tipe === 'Single Card') {

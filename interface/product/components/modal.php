@@ -226,7 +226,6 @@
         </div>
     </div>
 </div>
-
 <div id="gameModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
@@ -252,8 +251,11 @@
 
             <div class="modal-form-group">
                 <label>Status</label>
-                <input type="text" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: not-allowed; border: 1.5px dashed #cbd5e1; text-align: center;">
+                <!-- TAMBAHKAN ID: gameStatusDisplay dan UBAH disabled MENJADI readonly -->
+                <input type="text" id="gameStatusDisplay" value="Active" class="modal-input" readonly 
+                       style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: default; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
+
             <div class="modal-form-group">
                 <label>Game Banner <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
                 <div style="text-align: center; margin-bottom: 8px;">
@@ -514,7 +516,7 @@
             </div>
             <div class="modal-form-group">
                 <label>Method Status</label>
-                <input type="text" id="metodeStatusDisplay" value="Active" class="modal-input" disabled style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; text-align: center; border: 1.5px dashed #cbd5e1; cursor: not-allowed;">
+                <input type="text" id="metodeStatusDisplay" value="Active" class="modal-input" readonly style="background-color: #f1f5f9; color: #27AE60; font-weight: 800; cursor: default; border: 1.5px dashed #cbd5e1; text-align: center;">
             </div>
             <button type="submit" class="btn-confirm">Save Method</button>
         </form>

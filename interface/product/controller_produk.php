@@ -79,7 +79,44 @@ try {
         echo json_encode(['status' => 'success']);
         exit;
     }
+    if (isset($_GET['list'])) {
+        $limit  = 5;
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $search = trim($_GET['search'] ?? '');
+        $status = $_GET['status'] ?? '';
+        
+        $statusParam = ($status === '') ? -1 : (int)$status;
+        $sortBy      = $_GET['sort_by'] ?? 'nama_produk';
+        $sortOrder   = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
+        $sql  = "{CALL dbo.sp_GetProductList(?, ?, ?, ?, ?, ?)}";
+        $params = [$search, $sortBy, $sortOrder, $statusParam, $page, $limit];
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt === false) {
+            ob_clean();
+            echo json_encode(['status' => 'error', 'message' => 'Failed to execute SP']);
+            exit;
+        }
+
+        $total_rows = 0;
+        if ($rCount = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $total_rows = (int)$rCount['total_rows'];
+        }
+
+        sqlsrv_next_result($stmt);
+        $rows = [];
+        while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $rows[] = $r;
+        }
+
+        $total_pages = max(1, (int)ceil($total_rows / $limit));
+        $offset      = ($page - 1) * $limit;
+
+        ob_clean();
+        echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page, 'offset' => $offset], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     // [FIX] GET: get_detail
     if (isset($_GET['get_detail'])) {
         $id   = (int)$_GET['get_detail'];

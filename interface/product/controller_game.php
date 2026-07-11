@@ -83,29 +83,36 @@ try {
 
     // GET: list dengan search + sort + filter + pagination (kolom: nama_game, developer, aktif)
     if (isset($_GET['list'])) {
-        $limit  = 3;
+        $limit  = 3; 
         $page   = max(1, (int)($_GET['page'] ?? 1));
         $search = trim($_GET['search'] ?? '');
         $status = $_GET['status'] ?? '';
-        $sortMap = ['nama_game' => 'nama_game', 'developer' => 'developer', 'aktif' => 'aktif'];
-        $sortCol = $sortMap[$_GET['sort_by'] ?? ''] ?? 'nama_game';
-        $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+        
+        $statusParam = ($status === '') ? -1 : (int)$status;
+        $sortBy      = $_GET['sort_by'] ?? 'nama_game';
+        $sortOrder   = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-        $where = 'is_deleted = 0';
-        $params = [];
-        if ($search !== '') { $where .= ' AND (nama_game LIKE ? OR developer LIKE ?)'; $params[] = "%$search%"; $params[] = "%$search%"; }
-        if ($status !== '' && ($status === '0' || $status === '1')) { $where .= ' AND aktif = ?'; $params[] = (int)$status; }
+        $sql  = "{CALL dbo.sp_GetGameList(?, ?, ?, ?, ?, ?)}";
+        $params = [$search, $sortBy, $sortOrder, $statusParam, $page, $limit];
+        $stmt = sqlsrv_query($conn, $sql, $params);
 
-        $cst = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.game WHERE $where", $params);
-        $total = $cst ? (int)(sqlsrv_fetch_array($cst, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
-        $total_pages = max(1, (int)ceil($total / $limit));
-        $page   = min($page, $total_pages);
-        $offset = ($page - 1) * $limit;
+        if ($stmt === false) {
+            ob_clean(); echo json_encode(['status' => 'error', 'message' => 'Failed to execute SP']); exit;
+        }
 
-        $sql = "SELECT * FROM dbo.game WHERE $where ORDER BY aktif DESC, $sortCol $sortDir, id_game DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        $st  = sqlsrv_query($conn, $sql, array_merge($params, [$offset, $limit]));
+        $total_rows = 0;
+        if ($rCount = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $total_rows = (int)$rCount['total_rows'];
+        }
+
+        sqlsrv_next_result($stmt);
         $rows = [];
-        if ($st) while ($r = sqlsrv_fetch_array($st, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $rows[] = $r;
+        }
+
+        $total_pages = max(1, (int)ceil($total_rows / $limit));
+
         ob_clean();
         echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page], JSON_UNESCAPED_UNICODE);
         exit;

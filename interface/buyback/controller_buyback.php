@@ -155,8 +155,7 @@ switch ($action) {
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
         break;
 
-    case 'update_address': 
-    case 'submit_return_address':
+    case 'update_address':
         try {
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackAddress(?, ?, ?)}", 
                 [$_POST['id_pembelian'], $_POST['id_pengguna'], $_POST['alamat_retur']]);
@@ -164,7 +163,6 @@ switch ($action) {
             ob_clean(); echo json_encode(["status" => "success", "message" => "Address saved successfully."]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
         break;
-
     case 'customer_negotiate':
         try {
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerNegotiateTransaction(?, ?, ?)}", 

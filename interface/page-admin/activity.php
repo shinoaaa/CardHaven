@@ -22,6 +22,13 @@
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0;
     }
+    .dash-stat-icon img,
+    .dash-stat-icon svg {
+        width: 40px;  /* Bisa dibesarkan/dikecilkan sesuai selera */
+        height: 40px;
+        object-fit: contain; 
+        display: block;
+    }
     .dash-stat-label { font-size: .78rem; color: #8a95a5; margin: 0 0 .15rem 0; }
     .dash-stat-value { font-size: 1.5rem; font-weight: 800; color: #1f2937; margin: 0; line-height: 1.1; }
 
@@ -103,28 +110,36 @@
     <!-- Kartu statistik -->
     <div class="dash-stats">
         <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#e7f0ff;">🛒</div>
+            <div class="dash-stat-icon" style="background:#fff;">
+                <img src="/cardhaven/assets/image/totalsales.svg" alt="Total Sales">
+            </div>
             <div>
                 <p class="dash-stat-label">Total Sales</p>
                 <p class="dash-stat-value" id="statSales">—</p>
             </div>
         </div>
         <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#e9fbf0;">📄</div>
+            <div class="dash-stat-icon" style="background:#fff;">
+                <img src="/cardhaven/assets/image/order.svg" alt="Orders">
+            </div>
             <div>
                 <p class="dash-stat-label">Orders</p>
                 <p class="dash-stat-value" id="statOrders">—</p>
             </div>
         </div>
         <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f1ecff;">👥</div>
+            <div class="dash-stat-icon" style="background:#fff;">
+                <img src="/cardhaven/assets/image/customer.svg" alt="Customers">
+            </div>
             <div>
                 <p class="dash-stat-label">Customers</p>
                 <p class="dash-stat-value" id="statCustomers">—</p>
             </div>
         </div>
         <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#ffecec;">📦</div>
+            <div class="dash-stat-icon" style="background:#fff;">
+                <img src="/cardhaven/assets/image/box.svg" alt="Out Of Stock">
+            </div>
             <div>
                 <p class="dash-stat-label">Out Of Stock</p>
                 <p class="dash-stat-value" id="statOOS">—</p>
