@@ -134,6 +134,24 @@ class UserMasterFilter {
         pag.querySelectorAll('a[data-p]').forEach(a => a.onclick = () => this.gotoPage(parseInt(a.dataset.p)));
     }
 }
+function resolveProfilePath(filename) {
+    if (!filename) return '/cardhaven/assets/image/user.svg';
+    
+    return `/cardhaven/image-profile/${filename}`;
+}
+
+
+function handleImageError(img) {
+    const currentSrc = img.src;
+    const defaultImg = '/cardhaven/assets/image/user.svg';
+
+    if (currentSrc.includes('/image-profile/')) {
+        img.src = currentSrc.replace('/image-profile/', '/');
+    } 
+    else if (img.src !== window.location.origin + defaultImg) {
+        img.src = defaultImg;
+    }
+}
 
 // Global Helper (agar bisa dipakai di scriptAdmin.js dkk)
 window.mfEsc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

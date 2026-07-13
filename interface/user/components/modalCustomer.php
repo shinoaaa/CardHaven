@@ -7,7 +7,10 @@
     </div>
     <div class="supp-modal-body">
         <div style="text-align: center; margin-bottom: 20px;">
-            <img id="detailFoto" src="/cardhaven/assets/image/user.svg" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #0D47A1;">
+            <img id="detailFoto" src="/cardhaven/assets/image/user.svg" 
+                alt="Profile Picture" 
+                style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #0D47A1;"
+                onerror="handleImageError(this)">
         </div>
         <div class="supp-detail-grid">
             <div class="supp-detail-item">
@@ -99,7 +102,10 @@
             <input type="hidden" id="editCustomerId">
             
             <div style="text-align: center; margin-bottom: 15px;">
-                <img id="editFotoPreview" src="/cardhaven/assets/image/user.svg" alt="Current Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                <img id="editFotoPreview" src="/cardhaven/assets/image/user.svg" 
+                    alt="Current Profile" 
+                    style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;"
+                    onerror="handleImageError(this)">
             </div>
 
             <div class="supp-form-group">

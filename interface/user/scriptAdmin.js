@@ -94,6 +94,19 @@ function clearAllErrors(prefix) {
     }
 }
 
+function previewAdminImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.src = '/cardhaven/assets/image/user.svg';
+    }
+}
+
 function showOverlay() { overlay.classList.add('active'); }
 function hideOverlay() { overlay.classList.remove('active'); }
 function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()); }
@@ -159,6 +172,7 @@ function closeAdminModal() {
 // ===================== ADD =====================
 function openAddAdminModal() {
     document.getElementById('adminAddForm').reset();
+    document.getElementById('addFotoPreview').src = '/cardhaven/assets/image/user.svg';
     clearAllErrors('add');
     addFormSnapshot = snapshotForm('add');
     showOverlay();

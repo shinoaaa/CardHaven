@@ -41,13 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRow: (r, no) => {
             // Logika Foto
             const fotoPath = r.foto_profil 
-                ? `/cardhaven/image-profile/${mfEsc(r.foto_profil)}` 
+                ? `/cardhaven/${mfEsc(r.foto_profil)}` 
                 : '/cardhaven/assets/image/user.svg';
 
             return `<tr>
                 <td>${no}</td>
                 <td>
-                    <img src="${fotoPath}" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;">
+                    <img src="${fotoPath}" 
+                        alt="Profile" 
+                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;"
+                        onerror="handleImageError(this)">
                 </td>
                 <td style="font-weight: 600; text-align: left;">${mfEsc(r.username)}</td>
                 <td style="text-align: left;">${mfEsc(r.email)}</td>
@@ -147,7 +150,7 @@ function openCustomerModal(id) {
             document.getElementById('detailCreated').textContent  = d.created_date || '-';
             
             const fotoEl = document.getElementById('detailFoto');
-            fotoEl.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
+            fotoEl.src = resolveProfilePath(d.foto_profil);
 
             const statusEl = document.getElementById('detailStatus');
             if (parseInt(d.status_akun) === 1) {
@@ -278,7 +281,7 @@ function openCustomerEdit(id) {
             document.getElementById('editNoTelp').value       = d.no_telepon || '';
             document.getElementById('custChangeEmail').value  = d.email || '';
             const preview = document.getElementById('editFotoPreview');
-            preview.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
+            preview.src = resolveProfilePath(d.foto_profil);
 
             clearAllErrors('edit');
             editFormSnapshot = snapshotForm('edit');
