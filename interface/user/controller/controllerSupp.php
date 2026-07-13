@@ -75,22 +75,40 @@ if ($action !== '') {
     } catch (Throwable $e) {
         jsonOut(false, $e->getMessage());
     }
-} else {
+}else if (isset($_GET['list'])) {
     $limit  = 7;
-    $page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-    $offset = ($page - 1) * $limit;
+    $page   = max(1, (int)($_GET['page'] ?? 1));
+    $search = trim($_GET['search'] ?? '');
+    $status = ($_GET['status'] === '' || !isset($_GET['status'])) ? -1 : (int)$_GET['status'];
+    $sortBy  = $_GET['sort_by'] ?? 'id_supplier';
+    $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSupplierList(?, ?)}", [$limit, $offset]);
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSupplierList(?, ?, ?, ?, ?, ?)}", 
+        [$search, $sortBy, $sortDir, $status, $page, $limit]);
     
     $data = [];
-    $total_pages = 1;
+    $total_rows = 0;
     if ($stmt) {
-        $rowTotal = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-        $total_pages = max(1, ceil(($rowTotal['total_data'] ?? 0) / $limit));
+        if ($rowTotal = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $total_rows = (int)($rowTotal['total_data'] ?? 0);
+        }
         sqlsrv_next_result($stmt);
         while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            // Ubah DateTime object jadi String rapi
+            foreach ($r as $key => $val) {
+                if ($val instanceof DateTime) $r[$key] = $val->format('d M Y');
+            }
             $data[] = $r;
         }
     }
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'success',
+        'data' => $data,
+        'total_pages' => max(1, ceil($total_rows / $limit)),
+        'current_page' => $page
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 ?>
