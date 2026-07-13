@@ -17,6 +17,39 @@ document.addEventListener('DOMContentLoaded', () => {
     attachLiveClear('editSupplierMail',   'err-edit-mail');
     attachLiveClear('editSupplierNum',    'err-edit-num');
     attachLiveClear('editSupplierAddress','err-edit-address');
+   
+    if (document.getElementById('supplier-toolbar')) {
+        new UserMasterFilter({
+            api: SUPP_URL,
+            toolbarId: 'supplier-toolbar', tbodyId: 'supplier-tbody', pagId: 'supplier-pag',
+            colspan: 7,
+            searchPlaceholder: 'Search name, email, or address...',
+            sortOptions: [
+                { val: 'nama_suplier', label: 'Sort: Name' },
+                { val: 'email', label: 'Sort: Email' }
+            ],
+            renderRow: (r, no) => `<tr>
+                <td>${no}</td>
+                <td style="font-weight: 600; text-align: center;">${mfEsc(r.nama_suplier)}</td>
+                <td>${mfEsc(r.email)}</td>
+                <td>${mfEsc(r.alamat)}</td>
+                <td>${mfEsc(r.no_telp)}</td>
+                <td>${mfStatusPill(r.aktif)}</td>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openSupplierModal(${r.id_supplier})">...</button>
+                        <button class="btn-edit-icon" onclick="openSupplierEdit(${r.id_supplier})"><img src="/cardhaven/assets/image/edit.svg"></button>
+                        <button class="btn-delete-icon" onclick="deleteSupplier(${r.id_supplier})"><img src="/cardhaven/assets/image/delete.svg"></button>
+                        <label class="switch">
+                            <input type="checkbox" ${parseInt(r.aktif) === 1 ? 'checked' : ''} onchange="toggleSupplier(${r.id_supplier}, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </td>
+            </tr>`
+        });
+    }
+
 });
 
 // ============================================================
@@ -474,3 +507,5 @@ function toggleSupplier(id, isChecked, checkboxEl) {
         }
     );
 }
+
+// Di scriptSupplier.js

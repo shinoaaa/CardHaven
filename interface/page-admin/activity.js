@@ -10,7 +10,8 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 // ── Meta per jenis transaksi: ikon, warna, url tujuan, & label status ──────────
 const ACT_META = {
     sales: {
-        icon: '🛒', tagBg: '#e7f0ff', tagColor: '#1d4ed8', badgeBg: '#e7f0ff', label: 'Sales',
+        icon: '<img src="/cardhaven/assets/image/totalsales.svg" alt="Sales">', 
+        tagBg: '#e7f0ff', tagColor: '#1d4ed8', label: 'Sales',
         url: (id) => `/CardHaven/dashboard/transaction?open_sales=${id}`,
         status: {
             0: ['Pending Payment', '#fef9c3', '#ca8a04'], 1: ['Paid', '#dcfce7', '#15803d'],
@@ -21,7 +22,7 @@ const ACT_META = {
         },
     },
     buyback: {
-        icon: '🔄', tagBg: '#f1ecff', tagColor: '#7c3aed', badgeBg: '#f1ecff', label: 'Buyback',
+        icon: '<img src="/cardhaven/assets/image/buybak.svg" alt="Buyback">', tagBg: '#f1ecff', tagColor: '#7c3aed', label: 'Buyback',
         url: (id) => `/CardHaven/dashboard/purchase?type=buyback&open_buyback=${id}`,
         status: {
             0: ['Pending Submission', '#fef9c3', '#ca8a04'], 1: ['Under Review', '#e0f2fe', '#0369a1'],
@@ -33,7 +34,8 @@ const ACT_META = {
         },
     },
     restok: {
-        icon: '📦', tagBg: '#e9fbf0', tagColor: '#15803d', badgeBg: '#e9fbf0', label: 'Restock',
+        icon: '<img src="/cardhaven/assets/image/box.svg" alt="Out Of Stock">',
+        tagBg: '#e9fbf0', tagColor: '#15803d', label: 'Restock',
         url: (id) => `/CardHaven/dashboard/purchase?type=restok&open_restok=${id}`,
         status: {
             0: ['Pending', '#fef9c3', '#ca8a04'], 1: ['Approved', '#dbeafe', '#1d4ed8'],
@@ -102,8 +104,8 @@ function dashRenderChart(sales, buyback, restok) {
 
     const datasets = [
         mk('Sales', sales, '#0088FF'),
-        mk('Buyback', buyback, '#fcdc4e'),
-        mk('Restock', restok, '#e39037'),
+        mk('Buyback', buyback, '#FFC200'),
+        mk('Restock', restok, '#FF4F00'),
     ];
 
     if (dashChartInstance) {

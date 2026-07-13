@@ -74,12 +74,18 @@ if ($isAjax) {
                 if (!$id) jsonOut(false, 'Invalid Super Admin ID.');
                 $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetPenggunaDetail(?, ?)}", [$id, $role]);
                 if ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                    if (isset($row['created_date']) && $row['created_date'] instanceof DateTime) {
-                        $row['created_date'] = $row['created_date']->format('d M Y');
+                    
+                    // FIX: Konversi object DateTime ke String
+                    foreach ($row as $key => $val) {
+                        if ($val instanceof DateTime) {
+                            $row[$key] = $val->format('d M Y, H:i');
+                        }
                     }
+                    
                     jsonOut(true, '', $row);
                 }
                 jsonOut(false, 'Super Admin not found.');
+                break;
 
             case 'addAdmin':
                 $pw = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
@@ -163,22 +169,39 @@ if ($isAjax) {
         }
         jsonOut(false, $clean !== '' ? $clean : 'Something went wrong. Please try again.');
     }
-} else {
+} else if (isset($_GET['list'])) {
     $limit  = 7;
-    $page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-    $offset = ($page - 1) * $limit;
+    $page   = max(1, (int)($_GET['page'] ?? 1));
+    $search = trim($_GET['search'] ?? '');
+    $status = ($_GET['status'] === '' || !isset($_GET['status'])) ? -1 : (int)$_GET['status'];
+    $sortBy  = $_GET['sort_by'] ?? 'id_pengguna';
+    $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetPenggunaList(?, ?, ?)}", [$role, $limit, $offset]);
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetPenggunaList(?, ?, ?, ?, ?, ?, ?)}", 
+        [$role, $search, $sortBy, $sortDir, $status, $page, $limit]);
 
     $data = [];
-    $total_pages = 1;
+    $total_rows = 0;
     if ($stmt) {
-        $rowTotal = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-        $total_pages = max(1, ceil(($rowTotal['total_data'] ?? 0) / $limit));
+        if ($rowTotal = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $total_rows = (int)($rowTotal['total_data'] ?? 0);
+        }
         sqlsrv_next_result($stmt);
         while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            foreach ($r as $key => $val) {
+                if ($val instanceof DateTime) $r[$key] = $val->format('d M Y');
+            }
             $data[] = $r;
         }
     }
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'success',
+        'data' => $data,
+        'total_pages' => max(1, ceil($total_rows / $limit)),
+        'current_page' => $page
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 ?>

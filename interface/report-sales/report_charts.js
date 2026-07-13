@@ -9,7 +9,7 @@ const RC_ROLE = sessionStorage.getItem('role') || localStorage.getItem('role') |
 const RC_TYPE = window.REPORT_TYPE || 'sales';
 const RC_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const RC_COLOR = { sales: '#0088FF', buyback: '#fde12d', restok: '#e39037', event: '#27AE60' };
+const RC_COLOR = { sales: '#0088FF', buyback: '#FFC200', restok: '#FF4F00', event: '#27AE60' };
 const RC_LABEL = { sales: 'Sales', buyback: 'Buyback', restok: 'Restock', event: 'Event' };
 
 function rcRupiah(n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); }

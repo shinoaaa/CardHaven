@@ -2,12 +2,15 @@
 
 <div id="modalAdminDetail" class="supp-modal" style="min-width: 30rem;">
     <div class="modal-header">
-        <h2 id="pTitle">Detail <span class="blue-text">Admin</span></h2>
+        <h2 id="pTitle">Employee <span class="blue-text">Details</span></h2>
         <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <div style="text-align: center; margin-bottom: 20px;">
-            <img id="detailFoto" src="/cardhaven/assets/image/user.svg" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #0D47A1;">
+            <div class="image-upload-wrapper">
+                <img id="detailFoto" src="/cardhaven/assets/image/user.svg" alt="Profile Picture" 
+                    style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #0D47A1; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            </div>
         </div>
         <div class="supp-detail-grid">
             <div class="supp-detail-item">
@@ -44,6 +47,12 @@
     </div>
     <div class="supp-modal-body">
         <form id="adminAddForm" novalidate enctype="multipart/form-data">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div class="image-upload-wrapper">
+                    <img id="addFotoPreview" src="/cardhaven/assets/image/user.svg" alt="Preview" 
+                        style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px dashed #0D47A1; padding: 3px;">
+                </div>
+            </div>
             <div class="supp-form-group">
                 <label class="supp-label" for="addUsername">Username<span class="supp-required">*</span></label>
                 <input type="text" id="addUsername" class="supp-input" placeholder="Enter username" autocomplete="off" style="width: 100%;">
@@ -96,7 +105,10 @@
         <form id="adminEditForm" novalidate enctype="multipart/form-data">
             <input type="hidden" id="editAdminId">
             <div style="text-align: center; margin-bottom: 15px;">
-                <img id="editFotoPreview" src="/cardhaven/assets/image/user.svg" alt="Current Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                <div class="image-upload-wrapper">
+                    <img id="editFotoPreview" src="/cardhaven/assets/image/user.svg" alt="Current Profile" 
+                        style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #0D47A1;">
+                </div>
             </div>
             <div class="supp-form-group">
                 <label class="supp-label" for="editUsername">Username<span class="supp-required">*</span></label>

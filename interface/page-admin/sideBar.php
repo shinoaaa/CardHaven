@@ -5,7 +5,10 @@
 
     <div class="profile-employee">
         <div class="photo-Profile">
-            <img id="profileImage" src="/cardhaven/image-profile/default.jpg" style="object-fit: cover; width: 100%; height: 100%;">
+            <img id="profileImage" 
+                src="/cardhaven/image-profile/default.jpg" 
+                style="object-fit: cover; width: 100%; height: 100%;"
+                onerror="handleSidebarImageError(this)">
         </div>
         <div class="userTag">
             <h2 class="coolveticaa" style="color: white; font-size: .65rem;" id="admin-role"></h2>
@@ -174,7 +177,53 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
     </div>
 </div>
+<script>
+// Fungsi Handler jika gambar gagal dimuat
+function handleSidebarImageError(img) {
+    const defaultImg = '/cardhaven/assets/image/user.svg'; // Gambar fallback terakhir
+    const currentSrc = img.src;
 
+    // Jika gagal saat mencoba path 'image-profile', coba cari di path root /cardhaven/
+    if (currentSrc.includes('/image-profile/')) {
+        img.src = currentSrc.replace('/image-profile/', '/');
+    } 
+    // Jika path root juga gagal, gunakan gambar default
+    else if (!currentSrc.endsWith(defaultImg)) {
+        img.src = defaultImg;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // ... selector nav lainnya (navDashboard, navTransaction, dll tetap sama) ...
+    const profileImageElement = document.getElementById('profileImage');
+
+    // Ambil Data User dari Storage
+    const userId = sessionStorage.getItem("id_pengguna") || localStorage.getItem("id_pengguna");
+    document.getElementById("userName").textContent  = sessionStorage.getItem("username")  || localStorage.getItem("username")  || '';
+    document.getElementById("userEmail").textContent = sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail") || '';
+
+    if (userId) {
+        fetch(`/CardHaven/interface/page-admin/controller.php?action=getProfileImage&id=${userId}`)
+            .then(response => response.json()) // Langsung parse ke JSON
+            .then(data => {
+                if (data.status === 'success' && data.image) {
+                    // Bersihkan nama file jika data.image mengandung path lama
+                    const fileName = data.image.split('/').pop(); 
+                    
+                    // Coba load dari folder image-profile sebagai prioritas utama
+                    profileImageElement.src = `/CardHaven/image-profile/${fileName}`;
+                }
+            })
+            .catch(error => {
+                console.error("Fetch profile image error:", error);
+            });
+    }
+
+    // ... sisa kode logic role dan navigasi segmen URL tetap sama ...
+    const role = Number.parseInt(sessionStorage.getItem("role")) || Number.parseInt(localStorage.getItem("role"));
+    // ... dst ...
+});
+</script>
 <script>
 (function(){
     const ADMIN_MAIL_API = '/cardhaven/interface/page-profile/controller/MailController.php';

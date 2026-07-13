@@ -2,7 +2,7 @@
 
 <div id="modalSupplierDetail" class="supp-modal" style="min-width: 30rem;">
     <div class="modal-header">
-        <h2 id="pTitle">Detail <span class="blue-text">Supplier</span></h2>
+        <h2 id="pTitle">Supplier <span class="blue-text">Details</span></h2>
         <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">

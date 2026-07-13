@@ -2,7 +2,7 @@
 
 <div id="modalAdminDetail" class="supp-modal" style="min-width: 30rem;">
     <div class="modal-header">
-        <h2 id="pTitle">Super Admin <span class="blue-text">Detail</span></h2>
+        <h2 id="pTitle">Manager <span class="blue-text">Details</span></h2>
         <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">

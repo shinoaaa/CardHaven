@@ -10,34 +10,34 @@ ob_start();
 try {
     $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 1));
 
-    // GET: list dengan search + sort + filter + pagination (kolom: nama_rarity, kode_rarity, game, status)
     if (isset($_GET['list'])) {
         $limit  = 3;
         $page   = max(1, (int)($_GET['page'] ?? 1));
         $search = trim($_GET['search'] ?? '');
-        $status = $_GET['status'] ?? '';
+        $status = ($_GET['status'] === '') ? -1 : (int)$_GET['status'];
         $idGame = (int)($_GET['id_game'] ?? 0);
-        $sortMap = ['nama_rarity' => 'r.nama_rarity', 'kode_rarity' => 'r.kode_rarity', 'aktif' => 'r.aktif'];
-        $sortCol = $sortMap[$_GET['sort_by'] ?? ''] ?? 'r.nama_rarity';
+        $sortBy = $_GET['sort_by'] ?? 'id_rarity';
         $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-        $where = 'r.is_deleted = 0';
-        $params = [];
-        if ($search !== '') { $where .= ' AND (r.nama_rarity LIKE ? OR r.kode_rarity LIKE ?)'; $params[] = "%$search%"; $params[] = "%$search%"; }
-        if ($status === '0' || $status === '1') { $where .= ' AND r.aktif = ?'; $params[] = (int)$status; }
-        if ($idGame > 0) { $where .= ' AND r.id_game = ?'; $params[] = $idGame; }
+        $sql = "{CALL dbo.sp_GetRarityList(?, ?, ?, ?, ?, ?, ?)}";
+        $params = [$search, $sortBy, $sortDir, $status, $idGame, $page, $limit];
+        $stmt = sqlsrv_query($conn, $sql, $params);
 
-        $cst = sqlsrv_query($conn, "SELECT COUNT(*) AS n FROM dbo.rarity r WHERE $where", $params);
-        $total = $cst ? (int)(sqlsrv_fetch_array($cst, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
-        $total_pages = max(1, (int)ceil($total / $limit));
-        $page   = min($page, $total_pages);
-        $offset = ($page - 1) * $limit;
+        if ($stmt === false) throw new Exception('Failed to execute sp_GetRarityList');
 
-        $sql = "SELECT r.*, g.nama_game FROM dbo.rarity r LEFT JOIN dbo.game g ON r.id_game = g.id_game
-                WHERE $where ORDER BY aktif DESC, $sortCol $sortDir, r.id_rarity DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        $st  = sqlsrv_query($conn, $sql, array_merge($params, [$offset, $limit]));
+        $total_rows = 0;
+        if ($rCount = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $total_rows = (int)$rCount['total_rows'];
+        }
+
+        sqlsrv_next_result($stmt);
         $rows = [];
-        if ($st) while ($r = sqlsrv_fetch_array($st, SQLSRV_FETCH_ASSOC)) $rows[] = $r;
+        while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $rows[] = $r;
+        }
+
+        $total_pages = max(1, (int)ceil($total_rows / $limit));
+
         ob_clean();
         echo json_encode(['status' => 'success', 'data' => $rows, 'total_pages' => $total_pages, 'current_page' => $page], JSON_UNESCAPED_UNICODE);
         exit;

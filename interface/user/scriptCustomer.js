@@ -25,6 +25,54 @@ document.addEventListener('DOMContentLoaded', () => {
     attachLiveClear('custChangeCreatedDate', 'err-cust-change-date');
     attachLiveClear('custChangeNewPassword', 'err-cust-change-pass');
     attachLiveClear('custChangeConfirmPassword', 'err-cust-change-confirm');
+
+    if (document.getElementById('customer-toolbar')) {
+    new UserMasterFilter({
+        api: CUST_URL,
+        toolbarId: 'customer-toolbar', 
+        tbodyId: 'customer-tbody', 
+        pagId: 'customer-pag',
+        colspan: 9, // Sesuaikan jumlah kolom (9)
+        searchPlaceholder: 'Search name or email...',
+        sortOptions: [
+            { val: 'username', label: 'Sort: Name' },
+            { val: 'email', label: 'Sort: Email' }
+        ],
+        renderRow: (r, no) => {
+            // Logika Foto
+            const fotoPath = r.foto_profil 
+                ? `/cardhaven/${mfEsc(r.foto_profil)}` 
+                : '/cardhaven/assets/image/user.svg';
+
+            return `<tr>
+                <td>${no}</td>
+                <td>
+                    <img src="${fotoPath}" 
+                        alt="Profile" 
+                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;"
+                        onerror="handleImageError(this)">
+                </td>
+                <td style="font-weight: 600; text-align: left;">${mfEsc(r.username)}</td>
+                <td style="text-align: left;">${mfEsc(r.email)}</td>
+                <td>${mfEsc(r.no_telepon || '-')}</td>
+                <td>${parseInt(r.shopping_amount || 0)} orders</td>
+                <td style="font-weight: bold;">Rp${Number(r.shopping_total || 0).toLocaleString('id-ID')}</td>
+                <td>${mfStatusPill(r.status_akun)}</td>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-view-icon" onclick="openCustomerModal(${r.id_pengguna})">...</button>
+                        <button class="btn-edit-icon" onclick="openCustomerEdit(${r.id_pengguna})"><img src="/cardhaven/assets/image/edit.svg"></button>
+                        <button class="btn-delete-icon" onclick="deleteCustomer(${r.id_pengguna})"><img src="/cardhaven/assets/image/delete.svg"></button>
+                        <label class="switch">
+                            <input type="checkbox" ${parseInt(r.status_akun) === 1 ? 'checked' : ''} onchange="toggleCustomer(${r.id_pengguna}, this.checked, this)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </td>
+            </tr>`;
+        }
+    });
+}
 });
 
 function attachLiveClear(inputId, errId) {
@@ -102,7 +150,7 @@ function openCustomerModal(id) {
             document.getElementById('detailCreated').textContent  = d.created_date || '-';
             
             const fotoEl = document.getElementById('detailFoto');
-            fotoEl.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
+            fotoEl.src = resolveProfilePath(d.foto_profil);
 
             const statusEl = document.getElementById('detailStatus');
             if (parseInt(d.status_akun) === 1) {
@@ -233,7 +281,7 @@ function openCustomerEdit(id) {
             document.getElementById('editNoTelp').value       = d.no_telepon || '';
             document.getElementById('custChangeEmail').value  = d.email || '';
             const preview = document.getElementById('editFotoPreview');
-            preview.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
+            preview.src = resolveProfilePath(d.foto_profil);
 
             clearAllErrors('edit');
             editFormSnapshot = snapshotForm('edit');

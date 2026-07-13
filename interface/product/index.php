@@ -26,6 +26,7 @@ require_once 'components/fetch_dashboard.php';
                 <h2 class="coolveticaa">Products</h2>
                 <button class="btn-add-green" onclick="openAddProductModal()">+ Add Product</button>
             </div>
+            <div id="produk-toolbar"></div>
         
             <table class="styled-table">
                 <thead>
@@ -40,7 +41,7 @@ require_once 'components/fetch_dashboard.php';
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="produk-tbody">
                     <?php if (!empty($data_produk)): ?>
                         <?php 
                             $no = $offset_produk + 1;
@@ -84,7 +85,7 @@ require_once 'components/fetch_dashboard.php';
                 </tbody>
             </table>
             
-            <div class="pagination-container">
+            <div class="pagination-container" id="produk-pag">
                 <?php if ($page_produk > 1): ?>
                     <a href="javascript:void(0)" onclick="loadProductPage(<?= $page_produk-1 ?>)" class="page-link">&lt;</a>
                 <?php else: ?>
@@ -94,20 +95,17 @@ require_once 'components/fetch_dashboard.php';
                 <?php
                 $range = 2; 
                 
-                // Halaman Pertama & Dots
                 if ($page_produk > ($range + 2)) {
                     echo '<a href="javascript:void(0)" onclick="loadProductPage(1)" class="page-link">1</a><span class="dots">...</span>';
                 } elseif ($page_produk > $range + 1) {
                     echo '<a href="javascript:void(0)" onclick="loadProductPage(1)" class="page-link">1</a>';
                 }
 
-                // Loop Angka Halaman
                 for ($i = max(1, $page_produk - $range); $i <= min($total_pages_produk, $page_produk + $range); $i++) {
                     $active = ($i == $page_produk) ? 'active' : '';
                     echo '<a href="javascript:void(0)" onclick="loadProductPage('.$i.')" class="page-link '.$active.'">'.$i.'</a>';
                 }
 
-                // Dots & Halaman Terakhir
                 if ($page_produk < ($total_pages_produk - $range - 1)) {
                     echo '<span class="dots">...</span><a href="javascript:void(0)" onclick="loadProductPage('.$total_pages_produk.')" class="page-link">'.$total_pages_produk.'</a>';
                 } elseif ($page_produk < $total_pages_produk - $range) {
