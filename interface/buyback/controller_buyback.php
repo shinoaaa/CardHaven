@@ -157,8 +157,9 @@ switch ($action) {
 
     case 'update_address':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackAddress(?, ?, ?)}", 
-                [$_POST['id_pembelian'], $_POST['id_pengguna'], $_POST['alamat_retur']]);
+        // FIX: Tukar posisi alamat_retur dan id_pengguna menyesuaikan struktur SP standar
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackAddress(?, ?, ?)}", 
+            [$_POST['id_pembelian'], $_POST['alamat_retur'], $_POST['id_pengguna']]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success", "message" => "Address saved successfully."]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }

@@ -551,7 +551,7 @@ function openDetailModal(id_pembelian) {
                            if (pem.status_pembelian == 2) {
     if (allAgreed) {
         // Semua kartu harganya sudah disepakati → lanjut ke shipping
-        footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices agreed! Proceed to shipping.')">Proceed to Shipping</button>`;
+        footerHtml += `<button class="btn-confirm" style="width:auto; padding:10px 20px; background:#27AE60;" onclick="proceedToShipping(${pem.id_pembelian})">Proceed to Shipping</button>`;
     } else if (anyPending) {
         // Ada kartu yang masih nunggu keputusan customer (admin udah nawar, belum respond)
         footerHtml += `<button class="btn-confirm" disabled style="width:auto; padding:10px 20px; opacity:0.4; cursor:not-allowed;" title="Respond to all card offers first">Respond to All Cards First</button>`;
@@ -701,6 +701,18 @@ function inputAddress(id_pembelian) {
         title: 'Input Return Address',
         input: 'textarea',
         inputPlaceholder: 'Enter your full address for card return shipment...',
+        inputAttributes: {
+            maxlength: '100' // FIX: Membatasi browser agar tidak bisa mengetik lebih dari 100 karakter
+        },
+        inputValidator: (value) => {
+            // Validasi tambahan sebelum form disubmit
+            if (!value || !value.trim()) {
+                return 'Address cannot be empty!';
+            }
+            if (value.length > 100) {
+                return 'Address cannot exceed 100 characters!';
+            }
+        },
         showCancelButton: true,
         confirmButtonText: 'Submit Address',
         customClass: { confirmButton: "btn-confirm", cancelButton: "btn-cancel-outline" }
@@ -726,6 +738,33 @@ function inputAddress(id_pembelian) {
         } else {
             // Jika user batal input, kembalikan modal detail
             document.getElementById('detailModal').style.display = 'flex';
+        }
+    });
+}
+
+function proceedToShipping(id_pembelian) {
+    closeDetailModal();
+
+    const formData = new URLSearchParams();
+    formData.append('action', 'update_status');
+    formData.append('id_pembelian', id_pembelian);
+    formData.append('status', 3); // Lanjut ke status Offer Accepted -> Shipping
+    formData.append('id_pengguna', idPengguna);
+
+    fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'success') {
+            Swal.fire({
+                icon: 'success', 
+                title: 'Success', 
+                text: 'All prices agreed! Proceed to shipping.', 
+                timer: 1500, 
+                showConfirmButton: false
+            });
+            loadRiwayat();
+        } else {
+            Swal.fire('Error', res.message || 'Failed to proceed.', 'error');
         }
     });
 }

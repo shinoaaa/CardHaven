@@ -302,7 +302,7 @@ function openDetailModal(id_pembelian) {
                         <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                             <p style="margin: 4px 0;"><strong>Customer Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
                             <p style="margin: 4px 0;"><strong>Admin Decision:</strong> ${adminOfferLabel}</p>
-                            <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${actualAttempts} / 3</span></p>
+                      html      <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${actualAttempts} / 3</span></p>
                         </div>
                         <div id="admin-action-${k.id_kartu}">${cardActionHtml}</div>
                     </div>`;
@@ -331,7 +331,7 @@ function openDetailModal(id_pembelian) {
 
                 if (!anyDecided && !customerHasCountered) {
                     // MODE 1: Belum ada keputusan sama sekali → cuma bisa Approve All
-                    footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
+                    footerHtml += `<button onclick="approveAllPrices(${pem.id_pembelian})" style="${btnBlue}">Approve All Prices</button>`;
                 } else if (allDecided) {
                     // MODE 2: Semua kartu udah ada keputusan admin
                     if (hasCounter) {
@@ -339,7 +339,7 @@ function openDetailModal(id_pembelian) {
                         footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 2, 'Counter offers sent to customer')" style="${btnPurple}">Send Counter Offers</button>`;
                     } else {
                         // Semua approve → Approve All
-                        footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 3, 'All prices approved')" style="${btnBlue}">Approve All Prices</button>`;
+                        footerHtml += `<button onclick="approveAllPrices(${pem.id_pembelian})" style="${btnBlue}">Approve All Prices</button>`;
                     }
                 } else {
                     // MODE 3: Sedang memproses (belum semua kartu diisi) → disabled
@@ -475,6 +475,62 @@ function uploadPayment(id_pembelian) {
         } else if (result.isDismissed) {
             document.getElementById('detailModal').style.display = 'flex';
         }
+    });
+}
+
+function approveAllPrices(idP) {
+    closeDetailModal();
+    Swal.fire({
+        title: 'Approving all prices...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    // Ambil data kartu terbaru
+    fetch(`${BUYBACK_CONTROLLER}?action=get_detail&id_pembelian=${idP}&role=2&id_pengguna=${idPengguna}`)
+    .then(res => res.json())
+    .then(res => {
+        const cards = res.data.kartu;
+
+        // Looping persetujuan (set harga admin = harga customer)
+        const promises = cards.map(k => {
+            const formData = new URLSearchParams();
+            formData.append('action', 'admin_negotiate');
+            formData.append('id_pembelian', idP);
+            formData.append('id_kartu', k.id_kartu);
+            formData.append('penawaran_admin', k.penawaran_customer); 
+            formData.append('id_pengguna', idPengguna);
+            return fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData });
+        });
+
+        // Setelah semua kartu berhasil di-approve, update status transaksi ke 3 (Offer Accepted)
+        Promise.all(promises)
+            .then(responses => Promise.all(responses.map(r => r.json()))) // Konversi semua respon ke JSON
+            .then(results => {
+                // Cek apakah ada proses penawaran harga kartu yang gagal di backend
+                const anyError = results.some(res => res.status === 'error');
+                
+                if (anyError) {
+                    Swal.fire('Error', 'Gagal memproses persetujuan harga pada beberapa kartu.', 'error');
+                    return; // Hentikan proses, jangan update status transaksi ke 3
+                }
+
+                // Jika semua kartu aman, baru tembak update_status ke 3
+                const statusData = new URLSearchParams();
+                statusData.append('action', 'update_status');
+                statusData.append('id_pembelian', idP);
+                statusData.append('status', 3);
+                statusData.append('id_pengguna', idPengguna);
+                
+                return fetch(BUYBACK_CONTROLLER, { method: 'POST', body: statusData });
+            })
+            .then(res => res && res.json())
+            .then(res => {
+                if(res && res.status === 'success') {
+                    Swal.fire('Success', 'All prices approved successfully!', 'success');
+                    loadDaftar();
+                }
+            });
     });
 }
 
