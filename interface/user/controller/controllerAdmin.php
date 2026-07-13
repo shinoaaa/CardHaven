@@ -77,15 +77,21 @@ if ($isAjax) {
         switch ($action) {
             case 'getAdmin':
                 $id = (int)($_GET['id'] ?? 0);
-                if (!$id) jsonOut(false, 'Invalid Admin ID.');
+                if (!$id) jsonOut(false, 'Invalid Super Admin ID.');
                 $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetPenggunaDetail(?, ?)}", [$id, $role]);
                 if ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                    if (isset($row['created_date']) && $row['created_date'] instanceof DateTime) {
-                        $row['created_date'] = $row['created_date']->format('d M Y');
+                    
+                    // FIX: Konversi object DateTime ke String
+                    foreach ($row as $key => $val) {
+                        if ($val instanceof DateTime) {
+                            $row[$key] = $val->format('d M Y, H:i');
+                        }
                     }
+                    
                     jsonOut(true, '', $row);
                 }
-                jsonOut(false, 'Admin not found.');
+                jsonOut(false, 'Super Admin not found.');
+                break;
 
             case 'addAdmin':
                 $pw = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
