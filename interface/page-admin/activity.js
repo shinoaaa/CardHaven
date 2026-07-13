@@ -104,8 +104,8 @@ function dashRenderChart(sales, buyback, restok) {
 
     const datasets = [
         mk('Sales', sales, '#0088FF'),
-        mk('Buyback', buyback, '#fcdc4e'),
-        mk('Restock', restok, '#e39037'),
+        mk('Buyback', buyback, '#FFC200'),
+        mk('Restock', restok, '#FF4F00'),
     ];
 
     if (dashChartInstance) {
