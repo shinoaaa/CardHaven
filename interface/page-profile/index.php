@@ -13,8 +13,6 @@
 </head>
 
 <body>
-    <!-- Navbar Placeholder (Jika ada) -->
-    <!-- <?php include __DIR__ . '/../page-customer/navBar.php'; ?> -->
 
     <!-- Placeholder Banner Top (TRUTH NUKE) -->
     <div class="profile-banner">

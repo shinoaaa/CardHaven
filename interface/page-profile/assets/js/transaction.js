@@ -37,23 +37,39 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchTab(tabName) {
     currentTab = tabName;
 
+    // 1. Matikan semua garis bawah (active) di tombol tab
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    // 2. Sembunyikan semua isi tabel
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
 
+    // 3. Nyalakan tab yang diklik
     const targetBtn = document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`);
     if (targetBtn) targetBtn.classList.add('active');
     const targetContent = document.getElementById(`tab-${tabName}`);
     if (targetContent) targetContent.style.display = 'block';
 
-    // Toolbar & pagination hanya relevan untuk Buy Product
-    const toolbar = document.getElementById('bp-toolbar');
-    const pag     = document.getElementById('bp-pagination');
-    const showTools = tabName === 'buyproduct';
-    if (toolbar) toolbar.style.display = showTools ? 'flex' : 'none';
-    if (pag)     pag.style.display = showTools ? '' : 'none';
+    // 4. LOGIKA PEMISAH TOOLBAR (PASTI BERHASIL)
+    const bpToolbar = document.getElementById('bp-toolbar');
+    const bpPagination = document.getElementById('bp-pagination');
 
-    if (tabName === 'buyproduct') renderOrders();
-    if (tabName === 'buyback' && typeof loadRiwayat === 'function') loadRiwayat();
+    if (tabName === 'buyback') {
+        // JIKA BUYBACK: Hancurkan/sembunyikan toolbar Buy Product
+        if (bpToolbar) bpToolbar.style.display = 'none';
+        if (bpPagination) bpPagination.style.display = 'none';
+        
+        // Render data buyback
+        if (typeof loadRiwayat === 'function') loadRiwayat();
+    } else {
+        // JIKA PREORDER ATAU BUY PRODUCT: Munculkan toolbarnya
+        if (bpToolbar) bpToolbar.style.display = 'flex';
+        if (bpPagination) bpPagination.style.display = 'flex';
+        
+        // Render datanya masing-masing
+        if (tabName === 'buyproduct') renderOrders();
+        if (tabName === 'preorder') {
+            if (typeof renderPreorders === 'function') renderPreorders();
+        }
+    }
 }
 
 // ── Buy Product: load + filter + sort + paginate ─────────────────────

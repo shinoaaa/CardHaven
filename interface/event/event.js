@@ -308,16 +308,35 @@ function aeSelectProduct(id, nama, hargaJual, stok) {
     document.getElementById('ae_search_results').innerHTML  = '';
 }
 
+// ── Validasi Real-Time Input Diskon ───────────────────────────────────────────
 document.addEventListener('input', function (e) {
-    if (e.target && e.target.id === 'ae_persen_diskon') {
-        aeRecalcHarga();
+    // Cek jika yang sedang diketik adalah input diskon (Add Event atau Edit Event)
+    if (e.target && (e.target.id === 'ae_persen_diskon' || e.target.id === 'ee_persen_diskon')) {
         
-        const currentDiskon = parseFloat(e.target.value);
-        if (!isNaN(currentDiskon)) {
-            aeProductList.forEach(p => {
-                p.harga_event = Math.round(((100 - currentDiskon) * p.harga_jual) / 100);
-            });
-            aeRenderProductTable();
+        // 1. LIMITER REAL-TIME (Cegah angka < 1 dan > 100)
+        if (e.target.value !== '') {
+            let val = parseFloat(e.target.value);
+            if (val > 100) {
+                e.target.value = 100; // Mentok di 100
+            } else if (val < 1) {
+                e.target.value = 1;   // Mentok bawah di 1
+            }
+        }
+
+        // 2. Kalkulasi ulang harga setelah angka divalidasi
+        if (e.target.id === 'ae_persen_diskon') {
+            aeRecalcHarga();
+            
+            const currentDiskon = parseFloat(e.target.value);
+            if (!isNaN(currentDiskon)) {
+                // Update otomatis harga event semua barang di list
+                aeProductList.forEach(p => {
+                    p.harga_event = Math.round(((100 - currentDiskon) * p.harga_jual) / 100);
+                });
+                aeRenderProductTable();
+            }
+        } else if (e.target.id === 'ee_persen_diskon') {
+            eeRecalcHarga();
         }
     }
 });
@@ -358,8 +377,9 @@ function aeAddProductToList() {
 
     if (errProduk) errProduk.textContent = '';
     
-    if (isNaN(diskon)) {
-        if (errProduk) errProduk.textContent = 'Fill in the "Discount (%)" field in the form above first!';
+    // VALIDASI DISKON TIDAK BOLEH < 1 ATAU > 100
+    if (isNaN(diskon) || diskon < 1 || diskon > 100) {
+        if (errProduk) errProduk.textContent = 'Discount must be between 1 and 100.';
         return;
     }
 
@@ -384,14 +404,15 @@ function aeAddProductToList() {
         return;
     }
 
-    const hargaEvent = Math.round(((100- diskon) * hargaJual) / 100);
+    const hargaEvent = Math.round(((100 - diskon) * hargaJual) / 100);
         
     aeProductList.push({ 
         id_produk: idProduk, 
         nama_produk: namaProduk, 
         harga_jual: hargaJual, 
         harga_event: hargaEvent, 
-        stok_event: stok 
+        stok_event: stok,
+        max_stok: aeSelectedMaxStok // <--- SIMPAN BATAS MAKSIMAL STOK PRODUK INI!
     });
     
     aeRenderProductTable();
@@ -431,7 +452,8 @@ function aeRenderProductTable() {
                 <td style="font-weight:600;">${escHtml(p.nama_produk)}</td>
                 <td>Rp ${Math.round(p.harga_event).toLocaleString('id-ID')}</td>
                 <td>${p.stok_event}</td>
-                <td><button class="ae-btn-del-prod" onclick="aeRemoveProduct(${i})" title="Delete">🗑</button></td>
+                <td><button class="btn-edit-icon" onclick="aeEditProductStock(${i})" title="Edit Stock">✏️</button></td>
+                <td><button class="btn-delete-icon" onclick="aeRemoveProduct(${i})" title="Delete">🗑</button></td>
             </tr>
         `;
     }).join('');
@@ -754,48 +776,76 @@ async function eeAddProductToList(idEvent) {
     }
 }
 
-async function eeEditStock(idProdukEvent, currentStok) {
+async function eeEditStock(idProdukEvent, currentStok, sisaStokGudang) {
+    const modalEl = document.getElementById('eventModal');
+    
+    // 1. Sembunyikan Modal Edit Event sementara
+    modalEl.classList.remove('show');
+
+    // 2. Hitung batas maksimal yang diizinkan 
+    // (Stok yang terpakai di event ini + Sisa stok di gudang)
+    const maxStok =(sisaStokGudang || 0);
+
+    // 3. Munculkan Pop-up SweetAlert bergaya CardHaven
     const { value: newStok } = await Swal.fire({
         title: 'Edit Stock',
+        html: `<p style="margin:0 0 10px 0; font-size:14px; color:#666;">Available Stock: <b>${maxStok}</b> pcs</p>`,
         input: 'number',
         inputValue: currentStok,
-        inputAttributes: { min: 1 },
         showCancelButton: true,
         confirmButtonText: 'Save',
         cancelButtonText: 'Cancel',
+        iconColor: "#0D47A1",
+        customClass: {
+            popup: "cardhaven-popup",
+            title: "coolveticaa cardhaven-title",
+            confirmButton: "btn-confirm",
+            cancelButton: "btn-cancel-outline"
+        },
         inputValidator: (value) => {
-            if (!value || parseInt(value) <= 0) return 'The stock must be greater than 0.';
-            return null;
+            if (!value) return 'Please enter a number.';
+            const valInt = parseInt(value, 10);
+            if (valInt < 1) return 'The stock must be greater than 0.';
+            if (valInt > maxStok) return `Stock cannot exceed ${maxStok + currentStok}.`;
+            return null; // Valid
         }
     });
 
-    if (!newStok) return;
+    if (newStok) {
+        // Jika User klik Save dan lolos validasi
+        try {
+            const data = await eePost('update_stock', {
+                id_produk_event: idProdukEvent,
+                stok_event: parseInt(newStok, 10)
+            });
 
-    try {
-        const data = await eePost('update_stock', {
-            id_produk_event: idProdukEvent,
-            stok_event: parseInt(newStok, 10)
-        });
-
-        if (data.success) {
-            Swal.fire({
-                icon: "success",
-                title: "Completed",
-                text: "Stock has been updated."
-            }).then(() => location.reload());
-        } else {
+            if (data.success) {
+                // Notifikasi Sukses Kecil (Toast)
+                Swal.fire({
+                    toast: true, position: 'top-end',
+                    icon: 'success', title: 'Stock updated',
+                    showConfirmButton: false, timer: 1500
+                }).then(() => location.reload());
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed",
+                    text: data.error || "Unable to update stock."
+                });
+                // Munculkan lagi modal utama jika gagal
+                setTimeout(() => { modalEl.classList.add('show'); }, 100);
+            }
+        } catch (err) {
             Swal.fire({
                 icon: "error",
-                title: "Failed",
-                text: data.error || "Unable to update stock."
+                title: "Error",
+                text: "Something went wrong while processing the request."
             });
+            setTimeout(() => { modalEl.classList.add('show'); }, 100);
         }
-    } catch (err) {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Something went wrong while processing the request."
-        });
+    } else {
+        // Jika User klik Cancel, munculkan lagi modal utama
+        setTimeout(() => { modalEl.classList.add('show'); }, 100);
     }
 }
 
@@ -1077,3 +1127,256 @@ function hideEvent(idEvent, isHidden, element) {
         });
     });
 }
+
+// ── Fungsi Edit Stok Produk di List ────────────────────────────────────────────
+function aeEditProductStock(index) {
+    const p = aeProductList[index];
+    const modalEl = document.getElementById('eventModal');
+
+    // 1. Sembunyikan Modal Add Event sementara
+    modalEl.classList.remove('show');
+
+    // 2. Munculkan Pop-up SweetAlert untuk input angka
+    Swal.fire({
+        title: 'Edit Stock',
+        html: `<p style="margin:0 0 10px 0; font-size:14px; color:#666;">Available Stock: <b>${p.max_stok}</b> pcs</p>`,
+        input: 'number',
+        inputValue: p.stok_event,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        iconColor: "#0D47A1",
+        customClass: {
+            popup: "cardhaven-popup",
+            title: "coolveticaa cardhaven-title",
+            confirmButton: "btn-confirm",
+            cancelButton: "btn-cancel-outline"
+        },
+        inputValidator: (value) => {
+            if (!value) return 'Please enter a number.';
+            const valInt = parseInt(value, 10);
+            if (valInt < 1) return 'The stock must be greater than 0.';
+            if (valInt > p.max_stok) return `Stock cannot exceed ${p.max_stok}.`;
+            return null; // Valid
+        }
+    }).then((result) => {
+        // Jika user klik Save dan Lolos Validasi
+        if (result.isConfirmed) {
+            aeProductList[index].stok_event = parseInt(result.value, 10);
+            aeRenderProductTable(); // Render ulang tabel
+            
+            // Notifikasi Sukses Kecil (Toast)
+            Swal.fire({
+                toast: true, position: 'top-end',
+                icon: 'success', title: 'Stock updated',
+                showConfirmButton: false, timer: 1500
+            });
+        }
+        
+        // 3. Munculkan kembali Modal Add Event (Delay 100ms mencegah glitch UI)
+        setTimeout(() => {
+            modalEl.classList.add('show');
+        }, 100);
+    });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// AJAX SEARCH, FILTER & PAGINATION LOGIC (BERSIH)
+// ════════════════════════════════════════════════════════════════════════════
+
+let currentEventSortDir = 'desc';
+
+function parseInitialUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('search')) document.getElementById('filterSearch').value = urlParams.get('search');
+    if (urlParams.has('status')) document.getElementById('filterStatus').value = urlParams.get('status');
+    if (urlParams.has('type'))   document.getElementById('filterType').value = urlParams.get('type');
+    if (urlParams.has('sort'))   document.getElementById('filterSort').value = urlParams.get('sort');
+    if (urlParams.has('dir'))    currentEventSortDir = urlParams.get('dir');
+
+    const initialPage = urlParams.has('page') ? parseInt(urlParams.get('page')) : 1;
+    applyEventFilters(initialPage);
+}
+
+function escapeHTMLStr(str) {
+    if (!str) return '-';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function applyEventFilters(page = 1) {
+    const search = document.getElementById('filterSearch').value.trim();
+    const status = document.getElementById('filterStatus').value;
+    const type   = document.getElementById('filterType').value;
+    const sort   = document.getElementById('filterSort').value;
+    
+    const params = new URLSearchParams();
+    params.append('action', 'get_events_json');
+    params.append('page', page);
+    if (search) params.append('search', search);
+    if (status !== '-1') params.append('status', status);
+    if (type) params.append('type', type);
+    params.append('sort', sort);
+    params.append('dir', currentEventSortDir);
+
+    const tbody = document.getElementById('event-tbody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="padding: 30px; text-align: center; color:#173C99; font-weight:bold;">Loading data...</td></tr>';
+
+    fetch('/cardhaven/interface/event/apifetch.php?' + params.toString())
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success') {
+                // PERBAIKAN: Kirim res.page ke fungsi render agar Nomor Urut bisa dihitung!
+                renderEventTable(res.data, res.page);
+                renderPaginationUI(res.page, res.total_pages);
+                
+                // Update URL diam-diam
+                const stateParams = new URLSearchParams(params.toString());
+                stateParams.delete('action');
+                window.history.pushState({}, '', '?' + stateParams.toString());
+            } else {
+                console.error("Backend Error:", res.msg);
+                if (tbody) tbody.innerHTML = `<tr><td colspan="9" style="padding: 30px; text-align: center; color:red;">Gagal memuat data: ${res.msg}</td></tr>`;
+            }
+        })
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="padding: 30px; text-align: center; color:red;">Terjadi kesalahan sistem. Cek Console.</td></tr>';
+        });
+}
+
+function renderEventTable(data, currentPage = 1) {
+    const tbody = document.getElementById('event-tbody');
+    if (!tbody) return;
+
+    if(data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px;">No events found.</td></tr>';
+        return;
+    }
+
+    let html = '';
+    // Menghitung Nomor Urut (Limit = 7 per halaman)
+    let no = ((currentPage - 1) * 7) + 1;
+
+    data.forEach(row => {
+        const estatus = parseInt(row.status_event);
+        const isHide = parseInt(row.is_hide);
+        
+        // ── 1. LOGIKA STATUS & WARNA (Sama Persis Seperti PHP Lama) ──
+        let statusHtml = '';
+        const hideBadge = (isHide === 1) ? ' <span style="color: #7F8C8D; font-weight: normal; font-size: 0.9em;">(Hidden)</span>' : '';
+        
+        if (estatus === 1) {
+            statusHtml = `<span style="color: #27AE60; font-weight: bold;">Running</span>${hideBadge}`;
+        } else if (estatus === 2) {
+            statusHtml = `<span style="color: #F39C12; font-weight: bold;">Upcoming</span>${hideBadge}`;
+        } else {
+            statusHtml = `<span style="color: var(--primary-color); font-weight: bold;">Complete</span>${hideBadge}`;
+        }
+        
+        // ── 2. LOGIKA BUTTON ACTION (Class Asli Milikmu) ──
+        let actionHtml = `
+            <div class="btn-action-group">
+                <button class="btn-view-icon" onclick="openEventModal(${row.id_event})">...</button>
+        `;
+
+        // Tombol Edit
+        if (estatus === 1 || estatus === 2) {
+            actionHtml += `<button class="btn-edit-icon" onclick="openEditModal(${row.id_event})"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>`;
+        } else if (estatus === 0) {
+            actionHtml += `<button class="btn-complete-icon" style="cursor: default;"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>`;
+        }
+
+        // Tombol Complete / Move Up (Start)
+        if (estatus === 1) {
+            actionHtml += `<button class="btn-delete-icon" onclick="completeEvent(${row.id_event})"><img src="/cardhaven/assets/image/clock-arrow-down.svg" alt=""></button>`;
+        } else if (estatus === 0) {
+            actionHtml += `<button class="btn-complete-icon" style="cursor: default;"><img src="/cardhaven/assets/image/clock-check.svg" alt=""></button>`;
+        } else if (estatus === 2) {
+            actionHtml += `<button class="btn-edit-icon" onclick="moveUp(${row.id_event})"><img src="/cardhaven/assets/image/clock-arrow-up.svg" alt=""></button>`;
+        }
+
+        // Tombol Delete & Switch Hide
+        actionHtml += `
+                <button class="btn-delete-icon" onclick="deleteEvent(${row.id_event})"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
+                <label class="switch" title="Hide Event from Customers">
+                    <input type="checkbox" ${isHide === 0 ? 'checked="checked"' : ''} onchange="hideEvent(${row.id_event}, this.checked, this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        `;
+
+        // ── 3. SUSUN HTML BARIS TABEL ──
+        html += `<tr>
+            <td>${no++}</td>
+            <td style="font-weight: 600; text-align: center;">${escapeHTMLStr(row.nama_event)}</td>
+            <td>${escapeHTMLStr(row.tipe_event)}</td>
+            <td>${row.tanggal_mulai || '-'}</td>
+            <td>${row.tanggal_berakhir || '-'}</td>
+            <td style="font-weight: bold; text-align: right;">${Number(row.persen_diskon || 0)}%</td>
+            <td style="text-align: right;">${Number(row.total_item || 0)}</td>
+            <td>${statusHtml}</td>
+            <td>${actionHtml}</td>
+        </tr>`;
+    });
+
+    tbody.innerHTML = html;
+}
+
+function toggleEventSortDir() {
+    currentEventSortDir = currentEventSortDir === 'desc' ? 'asc' : 'desc';
+    applyEventFilters(1);
+}
+
+function renderPaginationUI(current, total) {
+    const cont = document.getElementById('event-pagination');
+    if(!cont) return;
+    cont.innerHTML = '';
+    if(total <= 1) return;
+
+    let html = '';
+    if(current > 1) {
+        html += `<button class="page-link" onclick="applyEventFilters(${current - 1})">&lt;</button>`;
+    } else {
+        html += `<button class="page-link disabled" disabled>&lt;</button>`;
+    }
+
+    const start = Math.max(1, current - 1);
+    const end = Math.min(total, current + 1);
+
+    if(start > 1) {
+        html += `<button class="page-link ${current === 1 ? 'active' : ''}" onclick="applyEventFilters(1)">1</button>`;
+        if(start > 2) html += `<span class="page-link disabled">...</span>`;
+    }
+
+    for(let i=start; i<=end; i++) {
+        html += `<button class="page-link ${current === i ? 'active' : ''}" onclick="applyEventFilters(${i})">${i}</button>`;
+    }
+
+    if(end < total) {
+        if(end < total - 1) html += `<span class="page-link disabled">...</span>`;
+        html += `<button class="page-link ${current === total ? 'active' : ''}" onclick="applyEventFilters(${total})">${total}</button>`;
+    }
+
+    if(current < total) {
+        html += `<button class="page-link" onclick="applyEventFilters(${current + 1})">&gt;</button>`;
+    } else {
+        html += `<button class="page-link disabled" disabled>&gt;</button>`;
+    }
+    cont.innerHTML = html;
+}
+
+// Jalankan ketika halaman ter-load
+document.addEventListener('DOMContentLoaded', () => {
+    parseInitialUrl();
+
+    const searchInput = document.getElementById('filterSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyEventFilters(1);
+            }
+        });
+    }
+});

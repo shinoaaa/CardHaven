@@ -7,7 +7,7 @@ require __DIR__ . '/../../connection.php';
 require __DIR__ . '/../../diagnose.php';
 
 $client_id = $_ENV['FACEBOOK_CLIENT_ID'];
-$client_secret = $_ENV['FACEBOOK_CLIENT_CLIENT'];
+$client_secret = $_ENV['FACEBOOK_CLIENT_SECRET'];
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/facebook-callback.php";
 
 if (isset($_GET['code'])) {

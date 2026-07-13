@@ -290,8 +290,9 @@ function escHtml($str) {
                                     <td>
                                         <div class="btn-action-group">
                                             <button class="btn-edit-icon"
-                                                    onclick="eeEditStock(<?= (int)($p['id_produk_event'] ?? 0) ?>, <?= (int)($p['stok_event'] ?? 0) ?>)">
-                                                <img src="/cardhaven/assets/image/edit.svg" alt="">
+                                                    onclick="eeEditStock(<?= (int)($p['id_produk_event'] ?? 0) ?>, <?= (int)($p['stok_event'] ?? 0) ?>, <?= (int)($p['stok'] ?? 0) ?>)" 
+                                                    title="Edit Stock">
+                                                <img src="/cardhaven/assets/image/edit.svg" alt="Edit">
                                             </button>
 
                                             <button class="btn-delete-icon"

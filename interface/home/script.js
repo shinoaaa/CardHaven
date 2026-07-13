@@ -49,6 +49,28 @@ document.addEventListener("DOMContentLoaded", function() {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
     }
 
+    // ==========================================
+    // ISI DROPDOWN GAME EXPLORE (FULL DATA)
+    // ==========================================
+    const gameSelect = document.getElementById('homeGameName');
+    if (gameSelect) {
+        // Nembak ke controller katalog buat ngambil FULL list game
+        fetch('/CardHaven/interface/catalogue/controller/CatalogueController.php?action=get_filters')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.games) {
+                    gameSelect.innerHTML = '<option value="">All Games</option>';
+                    data.games.forEach(game => {
+                        const opt = document.createElement('option');
+                        opt.value = game.nama_game; 
+                        opt.textContent = game.nama_game;
+                        gameSelect.appendChild(opt);
+                    });
+                }
+            })
+            .catch(err => console.error('Gagal meload filter game:', err));
+    }
+
     function loadData() {
         // Update URL kirim semua parameter halaman termasuk halaman_promo (Ganti ke /CardHaven/)
         const urlController = `/CardHaven/interface/home/controller/getData.php?halaman_event=${currentEventPage}&halaman_game_bar=${currentGameBarPage}&halaman_game_card=${currentGameCardPage}&halaman_product=${currentProductPage}&halaman_promo=${currentPromoPage}`;
@@ -309,20 +331,7 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         // --- 7. ISI DROPDOWN GAME EXPLORE FILTER ---
-        const gameSelect = document.getElementById('homeGameName');
-        if (gameSelect && data.list_game_bar) {
-            // Bersihkan dulu biar kalau user pindah page, gamenya ga numpuk ganda
-            gameSelect.innerHTML = '<option value="">All Games</option>';
-            
-            // Loop data game dan jadikan opsi <option>
-            data.list_game_bar.forEach(game => {
-                const opt = document.createElement('option');
-                // Value pakai nama game agar ditangkap parameter `?game_name=` di Katalog
-                opt.value = game.nama_game; 
-                opt.textContent = game.nama_game;
-                gameSelect.appendChild(opt);
-            });
-        }
+        // 
 
         // Event Preorder
         setBtnState(document.getElementById('btn-prev-event'), currentEventPage <= 1);
