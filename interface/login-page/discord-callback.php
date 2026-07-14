@@ -6,7 +6,7 @@ require __DIR__ . '/../../connection.php';
 require __DIR__ . '/../../diagnose.php';
 
 $client_id = $_ENV['DISCORD_CLIENT_ID'];
-$client_secret = $_ENV['DISCORD_CLIENT_CLIENT'];
+$client_secret = $_ENV['DISCORD_CLIENT_SECRET'];
 $redirect_uri  = "http://localhost/cardhaven/interface/login-page/discord-callback.php";
 
 if (isset($_GET['code'])) {

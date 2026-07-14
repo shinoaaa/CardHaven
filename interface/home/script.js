@@ -49,6 +49,28 @@ document.addEventListener("DOMContentLoaded", function() {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
     }
 
+    // ==========================================
+    // ISI DROPDOWN GAME EXPLORE (FULL DATA)
+    // ==========================================
+    const gameSelect = document.getElementById('homeGameName');
+    if (gameSelect) {
+        // Nembak ke controller katalog buat ngambil FULL list game
+        fetch('/CardHaven/interface/catalogue/controller/CatalogueController.php?action=get_filters')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.games) {
+                    gameSelect.innerHTML = '<option value="">All Games</option>';
+                    data.games.forEach(game => {
+                        const opt = document.createElement('option');
+                        opt.value = game.nama_game; 
+                        opt.textContent = game.nama_game;
+                        gameSelect.appendChild(opt);
+                    });
+                }
+            })
+            .catch(err => console.error('Gagal meload filter game:', err));
+    }
+
     function loadData() {
         // Update URL kirim semua parameter halaman termasuk halaman_promo (Ganti ke /CardHaven/)
         const urlController = `/CardHaven/interface/home/controller/getData.php?halaman_event=${currentEventPage}&halaman_game_bar=${currentGameBarPage}&halaman_game_card=${currentGameCardPage}&halaman_product=${currentProductPage}&halaman_promo=${currentPromoPage}`;

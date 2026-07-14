@@ -2,6 +2,9 @@
 header('Content-Type: application/json');
 require __DIR__ . '/../../../connection.php'; 
 
+$autoUpdateSql = "EXEC dbo.sp_AutoUpdateEventStatus";
+$stmtUpdate = sqlsrv_query($conn, $autoUpdateSql);
+
 // 1. Ambil Parameter & Validasi Minimal 1
 $p_event     = max(1, (int)($_GET['halaman_event'] ?? 1));
 $p_promo     = max(1, (int)($_GET['halaman_promo'] ?? 1));
