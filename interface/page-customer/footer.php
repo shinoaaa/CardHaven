@@ -19,20 +19,23 @@
         <div class="foot-service">
             <div class="list-header">
                 <div style="width: 2rem; height: 2rem;">
-                    <img src="/cardhaven/assets/image/service.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/product-foot.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
-                <h1 style="font-size: 1.25rem;">Services</h1>
+                <h1 style="font-size: 1.25rem;">Product</h1>
             </div>
             <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
-                <li>Contact Us</li>
-                <li>Privacy And Policy</li>
-                <li>FAQ</li>
+                <li>Single Card</li>
+                <li>Booster Pack</li>
+                <li>Booster Box</li>
+                <li>Sleeve</li>
+                <li>Playmat</li>
+                <li>Toploader</li>
             </ul>
         </div>
         <div class="foot-about">
             <div class="list-header">
                 <div style="width: 2rem; height: 2rem;">
-                    <img src="/cardhaven/assets/image/product-foot.svg" style="object-fit: cover; width: 100%; height: 100%;">
+                    <img src="/cardhaven/assets/image/service.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <h1 style="font-size: 1.25rem;">About Us</h1>
             </div>
