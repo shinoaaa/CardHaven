@@ -40,6 +40,18 @@
             <?php include __DIR__ . '/../catalogue/index.php' ?>
         <?php elseif($segments[1] === 'buyback'): ?>
             <?php include __DIR__ . '/../buyback/customer.php' ?>
+        <?php elseif($segments[1] === 'contactus'): ?>
+            <div style="flex: 1; overflow-y: auto; width: 100%;">
+                <?php include __DIR__ . '/../about-us/contact.php' ?>
+            </div>
+        <?php elseif($segments[1] === 'privacy'): ?>
+            <div style="flex: 1; overflow-y: auto; width: 100%;">
+                <?php include __DIR__ . '/../about-us/privacy.php' ?>
+            </div>
+        <?php elseif($segments[1] === 'faq'): ?>
+            <div style="flex: 1; overflow-y: auto; width: 100%;">
+                <?php include __DIR__ . '/../about-us/faq.php' ?>
+            </div>
         <?php endif; ?>
     </div>
 

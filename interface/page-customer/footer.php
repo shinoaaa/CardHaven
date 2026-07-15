@@ -39,10 +39,11 @@
                 </div>
                 <h1 style="font-size: 1.25rem;">About Us</h1>
             </div>
-            <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2; gap: 1000px;">
-                <li>Contact Us</li>
-                <li>Privacy And Policy</li>
-                <li>FAQ</li>
+            <!-- gap: 1000px dihapus, dan ditambahkan tag <a> untuk link -->
+            <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
+                <li><a href="/CardHaven/home/contactus" style="color: inherit;">Contact Us</a></li>
+                <li><a href="/CardHaven/home/privacy" style="color: inherit;">Privacy And Policy</a></li>
+                <li><a href="/CardHaven/home/faq" style="color: inherit;">FAQ</a></li>
             </ul>
         </div>
         <div class="footer-community">

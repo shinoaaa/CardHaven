@@ -113,12 +113,14 @@ async function loadData() {
         const user = data.data;
         setValue("nama", user.username || "");
         setValue("email", user.email || "");
+        setValue("no_telepon", user.no_telepon || "");
+
         setText("statusAkun", `Status: ${user.status_akun == 1 ? "Active" : "Inactive"}`);
         setText("profileInfo", `${user.username || "-"} • ${user.email || "-"}`);
 
         const foto = document.getElementById("fotoProfil");
         if (foto && user.foto_profil) {
-            foto.src = `/cardhaven/image-profile/${user.foto_profil}`;
+            foto.src = user.foto_profil;
         }
     } catch (err) {
         cardhavenAlert('error', 'Server Error', "Failed to connect to the server.");
@@ -130,6 +132,30 @@ async function handleSubmit(e) {
     e.preventDefault();
     const nama = document.getElementById("nama").value.trim();
     const email = document.getElementById("email").value.trim();
+    const no_telepon = document.getElementById("no_telepon").value.trim();
+    const fotoInput = document.getElementById("fotoFile");
+
+    if (!nama || !email || !no_telepon) {
+        cardhavenAlert('error', 'Error', "Name, Email, and Phone Number cannot be empty!");
+        return;
+    }
+
+    const rawPhone = no_telepon.replace(/[\-\s]/g, ""); 
+    const phoneRegex = /^\+?[0-9]{9,15}$/; 
+    
+    if (!phoneRegex.test(rawPhone) || no_telepon.length > 20) {
+        cardhavenAlert('error', 'Error', "Invalid phone number! Please enter 9-15 valid digits.");
+        return;
+    }
+
+    if (fotoInput.files.length > 0) {
+        const file = fotoInput.files[0];
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size > maxSize) {
+            cardhavenAlert('error', 'Error', "Profile picture size must be less than 2MB!");
+            return;
+        }
+    }
 
     try {
         const formData = new FormData();
@@ -137,6 +163,11 @@ async function handleSubmit(e) {
         formData.append("id_pengguna", userId);
         formData.append("nama", nama);
         formData.append("email", email);
+        formData.append("no_telepon", no_telepon);
+        
+        if (fotoInput.files.length > 0) {
+            formData.append("fotoFile", fotoInput.files[0]);
+        }
 
         const res = await fetch(controllerUrl, { method: "POST", body: formData });
         const data = await res.json();
