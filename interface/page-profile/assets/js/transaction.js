@@ -225,6 +225,67 @@ function cancelOrderCustomer(id_penjualan) {
     );
 }
 
+function completeOrderCustomer(id_penjualan) {
+    cardhavenConfirm(
+        'Complete the Order?', 
+        'Are you sure you want to complete this order? This action cannot be undone.', 
+        'Yes, Complete', 
+        () => {
+            fetch(`${PROFILE_CONTROLLER}?action=completeOrder`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id_penjualan: id_penjualan, 
+                    id_pengguna: profileUserId 
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    cardhavenAlert('Success', 'success', 'Order completed successfully. Thank you!');
+                    closeOrderDetail();
+                    loadOrders(); // Refresh tabel
+                } else {
+                    cardhavenAlert('Error', 'error', res.message || 'Failed to complete order.');
+                }
+            })
+            .catch(err => console.error(err));
+        }, 
+        null
+    );
+}
+
+// ── AJUKAN PENGEMBALIAN (RETURN) OLEH CUSTOMER ───────────────────────
+function returnOrderCustomer(id_penjualan) {
+    cardhavenConfirm(
+        'Request a Return?', 
+        'Are you sure you want to request a return for this order?', 
+        'Yes, Request Return', 
+        () => {
+            fetch(`${PROFILE_CONTROLLER}?action=returnOrder`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id_penjualan: id_penjualan, 
+                    id_pengguna: profileUserId 
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    cardhavenAlert('Success', 'success', 'Return request submitted successfully.');
+                    closeOrderDetail();
+                    loadOrders(); // Refresh tabel
+                } else {
+                    cardhavenAlert('Error', 'error', res.message || 'Failed to submit return request.');
+                }
+            })
+            .catch(err => console.error(err));
+        }, 
+        null
+    );
+}
+
 function continuePayment(idPenjualan) {
     window.location.href = `/CardHaven/checkout?resume=${idPenjualan}`;
 }
@@ -255,6 +316,48 @@ function openOrderDetail(idPenjualan) {
                     <div style="font-weight:700;color:var(--primary-color,#1a3a6b);">${fmtRp(it.subtotal_harga)}</div>
                 </div>`).join('');
 
+            // ── LOGIKA DINAMIS UNTUK TOMBOL AKSI ──
+            const statusNum = parseInt(o.status_penjualan);
+            let actionButtonsHtml = '';
+
+            if (statusNum === 0) {
+                // Status 0: Pending Payment
+                actionButtonsHtml = `
+                    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #eee;">
+                        <p style="margin:0 0 .6rem;font-size:.78rem;color:#888;text-align:center;">
+                            This order is awaiting payment. Complete it now to start processing.
+                        </p>
+                        <div style="display:flex; gap: 10px;">
+                            <button class="action-pay-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px;"
+                                    onclick="continuePayment(${o.id_penjualan})">
+                                Continue Payment
+                            </button>
+                            <button class="action-dots-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px; background:#b91c1c;"
+                                    onclick="cancelOrderCustomer(${o.id_penjualan})">
+                                Cancel Order
+                            </button>
+                        </div>
+                    </div>`;
+            } else if (statusNum === 5) {
+                actionButtonsHtml = `
+                    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #eee;">
+                        <p style="margin:0 0 .6rem;font-size:.78rem;color:#888;text-align:center;">
+                            Please confirm below whether your order has been completed or if you would like to request a return.
+                        </p>
+                        <div style="display:flex; gap: 10px;">
+                            <button class="action-pay-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px; background:#16a34a;"
+                                    onclick="completeOrderCustomer(${o.id_penjualan})">
+                                Complete the Order
+                            </button>
+                            ${statusNum === 5 ? `
+                            <button class="action-dots-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px; background:#dc2626;"
+                                    onclick="returnOrderCustomer(${o.id_penjualan})">
+                                Request a Return
+                            </button>` : ''}
+                        </div>
+                    </div>`;
+            }
+
             content.innerHTML = `
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #eee;padding-bottom:.85rem;margin-bottom:1rem;">
                     <div>
@@ -274,22 +377,7 @@ function openOrderDetail(idPenjualan) {
                     <span style="font-weight:700;">Total (${o.total_barang || 0} pcs)</span>
                     <span style="font-weight:800;color:var(--primary-color,#1a3a6b);">${fmtRp(o.total_harga)}</span>
                 </div>
-                ${parseInt(o.status_penjualan) === 0 ? `
-                <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #eee;">
-                    <p style="margin:0 0 .6rem;font-size:.78rem;color:#888;text-align:center;">
-                        This order is awaiting payment. Complete it now to start processing.
-                    </p>
-                    <div style="display:flex; gap: 10px;">
-                        <button class="action-pay-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px;"
-                                onclick="continuePayment(${o.id_penjualan})">
-                            💳 Continue Payment
-                        </button>
-                        <button class="action-dots-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px; background:#b91c1c;"
-                                onclick="cancelOrderCustomer(${o.id_penjualan})">
-                            ❌ Cancel Order
-                        </button>
-                    </div>
-                </div>` : ''}`;
+                ${actionButtonsHtml}`;
         })
         .catch(err => {
             console.error('Failed to load order detail:', err);
