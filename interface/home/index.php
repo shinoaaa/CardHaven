@@ -54,9 +54,9 @@ $baseUrl = '/CardHaven';
         <div class="promo-header">
             <h3 class="coolveticaa">Promo🔥</h3>
             <div style="width: 25%;">
-                <select name="" class="modal-input">
+                <!-- <select name="" class="modal-input">
                     <option value="">-- Select Game --</option>
-                </select>
+                </select> -->
             </div>
         </div>
         <div class="promo-content"></div>
