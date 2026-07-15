@@ -195,7 +195,36 @@ function toggleOrderDateSort() {
     renderOrders();
 }
 
-// Lanjutkan pembayaran order Pending Payment → halaman checkout step Upload Payment
+function cancelOrderCustomer(id_penjualan) {
+    cardhavenConfirm(
+        'Are you sure you want to cancel this order?', 
+        'This action cannot be undone.', 
+        'Yes, Cancel', 
+        () => {
+            fetch(`${PROFILE_CONTROLLER}?action=cancelOrder`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id_penjualan: id_penjualan, 
+                    id_pengguna: profileUserId 
+                })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    cardhavenAlert('Success', 'success', 'Order cancelled successfully.');
+                    closeOrderDetail();
+                    loadOrders(); // Re-render table list
+                } else {
+                    cardhavenAlert('Error', 'error', res.message || 'Failed to cancel order.');
+                }
+            })
+            .catch(err => console.error(err));
+        }, 
+        null // Parameter ke-5 untuk aksi jika cancel (jika fungsimu membutuhkan parameter ini seperti di doAction)
+    );
+}
+
 function continuePayment(idPenjualan) {
     window.location.href = `/CardHaven/checkout?resume=${idPenjualan}`;
 }
@@ -250,10 +279,16 @@ function openOrderDetail(idPenjualan) {
                     <p style="margin:0 0 .6rem;font-size:.78rem;color:#888;text-align:center;">
                         This order is awaiting payment. Complete it now to start processing.
                     </p>
-                    <button class="action-pay-btn" style="width:100%;padding:12px 0;font-size:.9rem;border-radius:8px;"
-                            onclick="continuePayment(${o.id_penjualan})">
-                        💳 Continue Payment
-                    </button>
+                    <div style="display:flex; gap: 10px;">
+                        <button class="action-pay-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px;"
+                                onclick="continuePayment(${o.id_penjualan})">
+                            💳 Continue Payment
+                        </button>
+                        <button class="action-dots-btn" style="flex:1; padding:12px 0; font-size:.9rem; border-radius:8px; background:#b91c1c;"
+                                onclick="cancelOrderCustomer(${o.id_penjualan})">
+                            ❌ Cancel Order
+                        </button>
+                    </div>
                 </div>` : ''}`;
         })
         .catch(err => {

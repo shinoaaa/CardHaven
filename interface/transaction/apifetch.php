@@ -48,6 +48,20 @@ if ($action !== '') {
                         echo json_encode(['status' => 'error', 'message' => 'Failed to confirm payment']);
                     }
                     exit;
+                case 'reject_payment':
+                    $id = (int)($body['id_penjualan'] ?? 0);
+                    $reason = trim($body['reason'] ?? '');
+                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    
+                    if ($reason === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'Alasan penolakan harus diisi.']); exit;
+                    }
+                    if ($ctrl->rejectPayment($id, $mod_by, $reason)) {
+                        echo json_encode(['status' => 'success', 'message' => 'Payment ditolak dan notifikasi berhasil dikirim.']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'Gagal menolak payment.']);
+                    }
+                    exit;
                 case 'kirim':
                     $no_resi = trim($body['no_resi'] ?? '');
                     if ($no_resi === '') { 
