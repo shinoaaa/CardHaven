@@ -290,6 +290,11 @@ if (isset($conn) && $conn !== false) {
         /* ── Table clickable row ── */
         .trx-row { cursor: pointer; }
         .trx-row:hover td { background-color: rgba(15, 56, 145, 0.05) !important; }
+        
+        /* ── Tambahan CSS AJAX Loader ── */
+        #tableContainer {
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -330,95 +335,97 @@ if (isset($conn) && $conn !== false) {
                     <input type="text" placeholder="Search username or Order ID..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)" style="width:100%; box-sizing:border-box; <?= $trxPill ?>">
                 </div>
 
-                <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Customer</th>
-                            <th>Products</th>
-                            <th>Date</th>
-                            <th>Payment Method</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th style="text-align:center;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($stmt_trx)): ?>
-                            <?php
-                                $limit = 10;
-                                $no    = (($page - 1) * $limit) + 1;
-                            ?>
-                            <?php foreach ($stmt_trx as $row): ?>
-                                <?php $s = (int)$row['status_penjualan']; ?>
-                                <tr>
-                                    <td><?= $no++ ?></td>
-                                    <td>
-                                        <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
-                                        <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
-                                    </td>
-                                    <td>
-                                        <div style="max-width:240px; font-size:.78rem; opacity:.85; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;" title="<?= htmlspecialchars($row['daftar_produk'] ?? '') ?>">
-                                            <?= htmlspecialchars($row['daftar_produk'] ?? '') ?: '-' ?>
-                                        </div>
-                                    </td>
-                                    <td style="white-space:nowrap;font-size:.82rem;"><?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?></td>
-                                    <td style="font-size:.8rem;">
-                                        <?= htmlspecialchars($row['nama_metode'] ?? '-') ?>
-                                        <?php if (!empty($row['provider'])): ?>
-                                            <span style="opacity:.5;"> · <?= htmlspecialchars($row['provider']) ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td style="text-align:right;"><?= (int)$row['total_barang'] ?></td>
-                                    <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
-                                    <td>
-                                        <span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>; color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>; white-space:nowrap;">
-                                            <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
-                                        </span>
-                                    </td>
-                                    <td style="text-align:center;">
-                                        <div class="btn-action-group" style="justify-content:center;">
-                                            <button class="btn-view-icon" title="View detail" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">...</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr><td colspan="9" style="text-align:center;padding:2rem 0;opacity:.5;">No transactions found.</td></tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                <div id="tableContainer">
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Date</th>
+                                <th>Payment Method</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th style="text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($stmt_trx)): ?>
+                                <?php
+                                    $limit = 10;
+                                    $no    = (($page - 1) * $limit) + 1;
+                                ?>
+                                <?php foreach ($stmt_trx as $row): ?>
+                                    <?php $s = (int)$row['status_penjualan']; ?>
+                                    <tr>
+                                        <td><?= $no++ ?></td>
+                                        <td>
+                                            <div style="font-weight:600;font-size:.85rem;"><?= htmlspecialchars($row['username'] ?? '-') ?></div>
+                                            <div style="font-size:.73rem;opacity:.5;"><?= htmlspecialchars($row['email'] ?? '') ?></div>
+                                        </td>
+                                        <td>
+                                            <div style="max-width:240px; font-size:.78rem; opacity:.85; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;" title="<?= htmlspecialchars($row['daftar_produk'] ?? '') ?>">
+                                                <?= htmlspecialchars($row['daftar_produk'] ?? '') ?: '-' ?>
+                                            </div>
+                                        </td>
+                                        <td style="white-space:nowrap;font-size:.82rem;"><?= htmlspecialchars($row['tanggal_penjualan'] ?? '-') ?></td>
+                                        <td style="font-size:.8rem;">
+                                            <?= htmlspecialchars($row['nama_metode'] ?? '-') ?>
+                                            <?php if (!empty($row['provider'])): ?>
+                                                <span style="opacity:.5;"> · <?= htmlspecialchars($row['provider']) ?></span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="text-align:right;"><?= (int)$row['total_barang'] ?></td>
+                                        <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
+                                        <td>
+                                            <span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>; color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>; white-space:nowrap;">
+                                                <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center;">
+                                            <div class="btn-action-group" style="justify-content:center;">
+                                                <button class="btn-view-icon" title="View detail" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">...</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr><td colspan="9" style="text-align:center;padding:2rem 0;opacity:.5;">No transactions found.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
 
-                <div class="pagination-container">
-                    <?php
-                    $baseUrl = '?type=sales&status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch) . '&sort_by=' . urlencode($activeSortBy) . '&sort_order=' . urlencode($activeSortOrder);
-                    ?>
-                    <?php if ($page > 1): ?>
-                        <a href="<?= $baseUrl ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
-                    <?php else: ?>
-                        <span class="page-link disabled">&lt;</span>
-                    <?php endif; ?>
-                    <?php
-                    $start = max(1, $page - 1);
-                    $end   = min($total_pages, $page + 1);
-                    if ($start > 1):
-                    ?>
-                        <a href="<?= $baseUrl ?>&page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
-                        <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
-                    <?php endif; ?>
-                    <?php for ($i = $start; $i <= $end; $i++): ?>
-                        <a href="<?= $baseUrl ?>&page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
-                    <?php endfor; ?>
-                    <?php if ($end < $total_pages): ?>
-                        <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
-                        <a href="<?= $baseUrl ?>&page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
-                    <?php endif; ?>
-                    <?php if ($page < $total_pages): ?>
-                        <a href="<?= $baseUrl ?>&page=<?= $page + 1 ?>" class="page-link">&gt;</a>
-                    <?php else: ?>
-                        <span class="page-link disabled">&gt;</span>
-                    <?php endif; ?>
+                    <div class="pagination-container">
+                        <?php
+                        $baseUrl = '?type=sales&status=' . urlencode($activeStatus ?? '') . '&search=' . urlencode($activeSearch) . '&sort_by=' . urlencode($activeSortBy) . '&sort_order=' . urlencode($activeSortOrder);
+                        ?>
+                        <?php if ($page > 1): ?>
+                            <a href="<?= $baseUrl ?>&page=<?= $page - 1 ?>" class="page-link">&lt;</a>
+                        <?php else: ?>
+                            <span class="page-link disabled">&lt;</span>
+                        <?php endif; ?>
+                        <?php
+                        $start = max(1, $page - 1);
+                        $end   = min($total_pages, $page + 1);
+                        if ($start > 1):
+                        ?>
+                            <a href="<?= $baseUrl ?>&page=1" class="page-link <?= $page == 1 ? 'active' : '' ?>">1</a>
+                            <?php if ($start > 2): ?><span class="dots">...</span><?php endif; ?>
+                        <?php endif; ?>
+                        <?php for ($i = $start; $i <= $end; $i++): ?>
+                            <a href="<?= $baseUrl ?>&page=<?= $i ?>" class="page-link <?= $i == $page ? 'active' : '' ?>"><?= $i ?></a>
+                        <?php endfor; ?>
+                        <?php if ($end < $total_pages): ?>
+                            <?php if ($end < $total_pages - 1): ?><span class="dots">...</span><?php endif; ?>
+                            <a href="<?= $baseUrl ?>&page=<?= $total_pages ?>" class="page-link <?= $page == $total_pages ? 'active' : '' ?>"><?= $total_pages ?></a>
+                        <?php endif; ?>
+                        <?php if ($page < $total_pages): ?>
+                            <a href="<?= $baseUrl ?>&page=<?= $page + 1 ?>" class="page-link">&gt;</a>
+                        <?php else: ?>
+                            <span class="page-link disabled">&gt;</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
             <?php endif; ?>
