@@ -373,18 +373,37 @@ function inputResi(id_pembelian) {
         inputPlaceholder: 'Enter shipping tracking number',
         showCancelButton: true,
         confirmButtonText: 'Submit',
-        customClass: { confirmButton: "btn-confirm", cancelButton: "btn-cancel-outline" }
+        customClass: { 
+            confirmButton: "btn-confirm", 
+            cancelButton: "btn-cancel-outline" 
+        },
+    
+        inputValidator: (value) => {
+            if (!value || value.trim() === "") {
+                return 'Tracking number is required!'; 
+            }
+        }
+       
     }).then((result) => {
-        if (result.isConfirmed && result.value) {
+        // Jika validasi lolos dan user menekan Confirm
+        if (result.isConfirmed) {
             const formData = new URLSearchParams();
             formData.append('action', 'update_status');
             formData.append('id_pembelian', id_pembelian);
             formData.append('status', 4);
-            formData.append('no_resi', result.value);
+            formData.append('no_resi', result.value.trim()); 
             formData.append('id_pengguna', idPengguna);
 
             fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
-            .then(() => loadRiwayat());
+            .then(response => {
+                if(response.ok) {
+                    Swal.fire('Success', 'Tracking number updated.', 'success');
+                    loadRiwayat();
+                } else {
+                    Swal.fire('Error', 'Failed to update tracking number.', 'error');
+                }
+            })
+            .catch(err => console.error('Error:', err));
         }
     });
 }
@@ -524,8 +543,8 @@ function openDetailModal(id_pembelian) {
                 htmlContent += `
                 <div style="background: #E1EBFF; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
                     <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">Payment Proof</h4>
-                    <a href="../../${pem.bukti_pembayaran}" target="_blank">
-                        <img src="../../${pem.bukti_pembayaran}" style="max-width: 100%; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <a href="/CardHaven/${pem.bukti_pembayaran}" target="_blank">
+                        <img src="/CardHaven/${pem.bukti_pembayaran}" style="max-width: 100%; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                     </a>
                 </div>`;
             }
