@@ -248,13 +248,13 @@ function openShipModal(id_penjualan) {
             <div class="trx-section-title">Shipping Details</div>
             <div style="margin-bottom:.85rem;">
                 <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Tracking Number *</label>
-                <input id="inputResi" type="text" placeholder="Example: JNE1234567890
+                <input id="inputResi" type="text" placeholder="Example: JNE1234567890"
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
             </div>
             <div>
                 <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Shipping Date</label>
-                <input id="inputTglKirim" type="date" value="${today}"
+                <input id="inputTglKirim" type="date" value="${today}" min="${today}"
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
             </div>
@@ -273,13 +273,25 @@ function openShipModal(id_penjualan) {
 async function submitKirim(id_penjualan) {
     const no_resi   = document.getElementById('inputResi').value.trim();
     const tgl_kirim = document.getElementById('inputTglKirim').value;
+    const today     = new Date().toISOString().split('T')[0];
 
     if (!no_resi) {
         cardhavenAlert('Alert',  'warning', 'Tracking number is required!');
         return;
     }
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(no_resi)) {
+        cardhavenAlert('Alert', 'warning', 'Invalid tracking number!');
+        return;
+        }
 
-    const res  = await postAction('kirim', id_penjualan, { no_resi, tanggal_pengiriman: tgl_kirim });
+    // 3. Validasi Tanggal
+    if (tgl_kirim < today) {
+        cardhavenAlert('Alert', 'warning', 'Invalid shipment date!');
+        return;
+    }
+
+    const res = await postAction('kirim', id_penjualan, { no_resi: no_resi, tgl_kirim: tgl_kirim });
     if (res.status === 'success') {
         cardhavenAlert('Success', 'success', 'Package shipment has been confirmed.');
         closeTrxModal();

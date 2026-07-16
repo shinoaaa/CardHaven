@@ -104,6 +104,21 @@ session_start();
             position: sticky;
             top: 120px;
         }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-color, #1a3a6b);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--highlight); }
         .order-summary-box { background: white; border: 1.5px solid #dde4f8; border-radius: 10px; overflow: hidden; }
         .summary-header { background: var(--primary-color, #1a3a6b); padding: 18px 24px; }
         .summary-header h2 { font-size: 1rem; font-weight: 800; color: white; text-transform: uppercase; margin: 0; }
@@ -157,6 +172,7 @@ session_start();
 
     <main class="main-content">
         <div class="cart-page-wrapper">
+            <a href="/CardHaven/home" class="back-link">← Back to Home</a>
             <h1 class="cart-page-title">MY <span class="accent">CART</span></h1>
 
             <div class="cart-wrapper">

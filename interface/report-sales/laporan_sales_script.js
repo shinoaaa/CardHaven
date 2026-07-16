@@ -143,7 +143,7 @@ function renderTable() {
             <td style="text-align:center;">${startNo++}</td>
             <td style="white-space:nowrap;">${tanggal}</td>
             <td style="font-weight:600;">${row.nama_customer}</td>
-            <td><div class="card-list-cell">${row.daftar_produk || '-'}</div></td>
+            <td><div class="card-list-cell" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${row.daftar_produk || '-'}</div></td>
             <td style="text-align:center;">${row.nama_metode || '-'}</td>
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>

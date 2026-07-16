@@ -20,7 +20,7 @@ require_once 'components/fetch_dashboard.php';
         </svg>
     </button>
     <div class="main-content">
-        <h1 class="coolveticaa" style="color: #a0beff;font-size: 1.5rem;font-weight: 700;">Dashboard / Product</h1>
+        <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 1.8rem; font-weight: 700; margin: 0;">Dashboard / Product</h1>
         <div class="content-card" id="container-produk">
             <div class="card-title-row">
                 <h2 class="coolveticaa">Products</h2>

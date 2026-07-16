@@ -38,11 +38,9 @@ $BUYBACK_STATUS = [
 </head>
 <body>
     <div class="main-content">
-        <h1 class="coolveticaa" style="color:#a0beff; font-size:1.5rem; font-weight:700;">
-            Dashboard / Purchase
-        </h1>
+        <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 1.8rem; font-weight: 700; margin: 0;">Dashboard / Purchase</h1>
 
-        <div class="content-card" style="min-height: 540px;">
+        <div class="content-card" style="min-height: 540px;"
 
             <!-- Title row + Toggle Restok | Buyback -->
             <div class="card-title-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
