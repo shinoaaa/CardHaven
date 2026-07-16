@@ -17,7 +17,6 @@ session_start();
     
 </head>
 <body>
-    <?php include '../page-customer/navBar.php'; ?>
 
     <main class="main-content">
         <div class="checkout-page-wrapper">
@@ -48,10 +47,8 @@ session_start();
 
                 <div class="checkout-layout">
 
-                    <!-- LEFT: Form -->
-                    <div class="checkout-form-section">
-
-                        <!-- Order Items (moved to top for better UX) -->
+                    <!-- Order Items (moved to top for better UX) -->
+                    <div class="order-item-wrapper">
                         <div class="checkout-card">
                             <div class="checkout-card-header">
                                 <span class="header-icon">🃏</span>
@@ -65,85 +62,81 @@ session_start();
                                 <div id="checkout-item-list" class="checkout-item-list" style="display:none;"></div>
                             </div>
                         </div>
-
-                        <!-- Shipping Address -->
-                        <div class="checkout-card">
-                            <div class="checkout-card-header">
-                                <span class="header-icon">📦</span>
-                                <h2>Shipping Address</h2>
-                            </div>
-                            <div class="checkout-card-body">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Full Name <span class="required">*</span></label>
-                                        <input type="text" id="field-name" class="form-input" placeholder="Your full name" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Phone Number <span class="required">*</span></label>
-                                        <input type="text" id="field-phone" class="form-input" placeholder="+62...">
-                                    </div>
-                                </div>
-                                <div class="form-row full">
-                                    <div class="form-group">
-                                        <label class="form-label">Shipping Address <span class="required">*</span></label>
-                                        <textarea id="field-alamat" class="form-textarea" placeholder="Full address including city and postal code..."></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
-                    <!-- RIGHT: Summary + Payment -->
-                    <aside class="checkout-aside">
-                        <div class="checkout-summary-card">
-                            <div class="summary-header">
-                                <h2>Order Summary</h2>
+                    <div class="checkout-summary-card">
+                        <div class="summary-header">
+                            <h2>Order Summary</h2>
+                        </div>
+                        <div class="summary-body">
+                            <div id="summary-items-label" class="summary-items-label">Items</div>
+                            <div id="summary-items" class="summary-items"></div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span class="val" id="summary-subtotal">Rp 0</span>
                             </div>
-                            <div class="summary-body">
-                                <div id="summary-items-label" class="summary-items-label">Items</div>
-                                <div id="summary-items" class="summary-items"></div>
-                                <div class="summary-divider"></div>
-                                <div class="summary-row">
-                                    <span>Subtotal</span>
-                                    <span class="val" id="summary-subtotal">Rp 0</span>
-                                </div>
-                                <div class="summary-row" id="summary-fee-row" style="display:none;">
-                                    <span>Payment Fee</span>
-                                    <span class="val fee" id="summary-fee">Rp 0</span>
-                                </div>
-                            </div>
-                            <div class="summary-total-row">
-                                <span class="summary-total-label">Total</span>
-                                <span class="summary-total-value" id="summary-grand-total">Rp 0</span>
-                            </div>
-                            <div class="checkout-cta-area">
-                                <button class="btn-place-order" id="btn-place-order" disabled onclick="placeOrder()">
-                                    Place Order →
-                                </button>
-                                <p class="checkout-note">
-                                    By placing your order, you agree to CardHaven's<br>
-                                    terms and conditions.
-                                </p>
+                            <div class="summary-row" id="summary-fee-row" style="display:none;">
+                                <span>Payment Fee</span>
+                                <span class="val fee" id="summary-fee">Rp 0</span>
                             </div>
                         </div>
+                        <div class="summary-total-row">
+                            <span class="summary-total-label">Total</span>
+                            <span class="summary-total-value" id="summary-grand-total">Rp 0</span>
+                        </div>
+                        <div class="checkout-cta-area">
+                            <button class="btn-place-order" id="btn-place-order" disabled onclick="placeOrder()">
+                                Place Order →
+                            </button>
+                            <p class="checkout-note">
+                                By placing your order, you agree to CardHaven's<br>
+                                terms and conditions.
+                            </p>
+                        </div>
+                    </div>
 
-                        <!-- Payment Method (di kolom kanan, sejajar dengan Shipping Address) -->
-                        <div class="checkout-card">
-                            <div class="checkout-card-header">
-                                <span class="header-icon">💳</span>
-                                <h2>Payment Method</h2>
-                            </div>
-                            <div class="checkout-card-body">
-                                <div id="payment-method-loading" class="checkout-loading" style="padding:30px 0;">
-                                    <div class="loading-spinner"></div>
-                                    <span class="loading-text">Loading payment methods...</span>
+                    <!-- Shipping Address -->
+                    <div class="checkout-card">
+                        <div class="checkout-card-header">
+                            <span class="header-icon">📦</span>
+                            <h2>Shipping Address</h2>
+                        </div>
+                        <div class="checkout-card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name <span class="required">*</span></label>
+                                    <input type="text" id="field-name" class="form-input" placeholder="Your full name" readonly>
                                 </div>
-                                <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
-                                <div id="payment-method-pagination" class="payment-method-pagination"></div>
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                                    <input type="text" id="field-phone" class="form-input" placeholder="+62...">
+                                </div>
+                            </div>
+                            <div class="form-row full">
+                                <div class="form-group">
+                                    <label class="form-label">Shipping Address <span class="required">*</span></label>
+                                    <textarea id="field-alamat" class="form-textarea" placeholder="Full address including city and postal code..."></textarea>
+                                </div>
                             </div>
                         </div>
-                    </aside>
+                    </div>
+
+                    <!-- Payment Method (di kolom kanan, sejajar dengan Shipping Address) -->
+                    <div class="checkout-card">
+                        <div class="checkout-card-header">
+                            <span class="header-icon">💳</span>
+                            <h2>Payment Method</h2>
+                        </div>
+                        <div class="checkout-card-body">
+                            <div id="payment-method-loading" class="checkout-loading" style="padding:30px 0;">
+                                <div class="loading-spinner"></div>
+                                <span class="loading-text">Loading payment methods...</span>
+                            </div>
+                            <div id="payment-method-list" class="payment-method-list" style="display:none;"></div>
+                            <div id="payment-method-pagination" class="payment-method-pagination"></div>
+                        </div>
+                    </div>
 
                 </div>
             </div>

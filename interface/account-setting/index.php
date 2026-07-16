@@ -44,12 +44,22 @@
                 <form id="accountForm">
                     <div class="field">
                         <label>Name</label>
-                        <input type="text" id="nama" autocomplete="off">
+                        <input type="text" id="nama" name="nama" autocomplete="off">
                     </div>
 
                     <div class="field">
                         <label>Email</label>
-                        <input type="email" id="email" autocomplete="off">
+                        <input type="email" id="email" name="email" autocomplete="off">
+                    </div>
+
+                    <div class="field">
+                        <label>Phone Number</label>
+                        <input type="text" id="no_telepon" name="no_telepon" autocomplete="off" maxlength="20">
+                    </div>
+
+                    <div class="field" style="margin-top: 10px;">
+                        <label>Profile Picture</label>
+                        <input type="file" id="fotoFile" name="fotoFile" class="file-input-custom" accept="image/*">
                     </div>
 
                     <div class="field" style="margin-top: 1.5rem;">
@@ -64,6 +74,7 @@
                     </div>
                 </form>
             </div>
+            
             <div class="modal-overlay" id="pwModal">
                 <div class="event-modal" style="width: 450px;"> 
                     <button class="event-modal-close" id="btnClosePwModal">&times;</button>
@@ -125,7 +136,6 @@
         </section>
     </main>
 </div>
-
 
 <script src="/cardhaven/interface/account-setting/account-setting.js?v=<?= time() ?>"></script>
 </body>

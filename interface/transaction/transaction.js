@@ -297,7 +297,7 @@ async function submitKirim(id_penjualan) {
         closeTrxModal();
         setTimeout(() => location.reload(), 1200);
     } else {
-        cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.', );
+        cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.');
     }
 }
 
@@ -347,7 +347,7 @@ function promptRejectPayment(id_penjualan) {
 async function doAction(action, id_penjualan) {
     const CONFIRM_MSG = {
         confirm_payment: ['Confirm Payment?', 'The payment will be marked as received.', 'Yes, Confirm'],
-        proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Processs'],
+        proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Process'],
         delivered:        ['Mark as Delivered?', 'The order will be marked as delivered to the customer.', 'Yes, Mark as Delivered'],
         cancel:           ['Cancel Order?', 'The product stock will be restored. This action cannot be undone.', 'Yes, Cancel'],
     };
@@ -361,36 +361,71 @@ async function doAction(action, id_penjualan) {
             closeTrxModal();
             setTimeout(() => location.reload(), 1200);
         } else {
-            cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.', );
+            cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.');
         }
     }, null);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// SEARCH (debounce)
+// AJAX TABLE UPDATE (Refresh tabel tanpa reload halaman)
+// ════════════════════════════════════════════════════════════════════════════
+
+async function updateTableHTML(url) {
+    try {
+        // Ganti URL di atas browser agar jika direfresh datanya tetap
+        window.history.pushState({ path: url }, '', url);
+        
+        const container = document.getElementById('tableContainer');
+        container.style.opacity = '0.4'; // Beri efek loading transparan
+
+        // Ambil HTML baru dari server
+        const res = await fetch(url);
+        const html = await res.text();
+
+        // Ekstrak hanya bagian <div id="tableContainer"> dari HTML baru
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newContainer = doc.getElementById('tableContainer');
+
+        if (newContainer) {
+            container.innerHTML = newContainer.innerHTML;
+        }
+        
+        container.style.opacity = '1'; // Kembalikan opacity
+        attachPaginationEvents(); // Pasang event click lagi untuk tombol halaman (pagination)
+
+    } catch (err) {
+        console.error("Gagal memuat tabel:", err);
+        window.location.href = url; // Fallback jika AJAX error
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SEARCH (Otomatis saat ngetik)
 // ════════════════════════════════════════════════════════════════════════════
 
 let _searchTimer = null;
-
 function onSearchInput(val) {
     clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => {
         const url = new URL(window.location.href);
         url.searchParams.set('search', val);
         url.searchParams.set('page', 1);
-        window.location.href = url.toString();
-    }, 500);
+        url.searchParams.delete('open_sales'); // Cegah modal terbuka otomatis
+        updateTableHTML(url.toString()); // Gunakan AJAX!
+    }, 400); // 400ms delay setelah berhenti ngetik
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// FILTER BY / SORT BY (navigasi via URL, param lain dipertahankan)
+// FILTER BY / SORT BY
 // ════════════════════════════════════════════════════════════════════════════
 
 function trxNavigate(params) {
     const url = new URL(window.location.href);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-    url.searchParams.set('page', 1);
-    window.location.href = url.toString();
+    if(params.page === undefined) url.searchParams.set('page', 1);
+    url.searchParams.delete('open_sales'); // Cegah modal terbuka otomatis
+    updateTableHTML(url.toString()); // Gunakan AJAX!
 }
 
 function setTrxStatus(val) { trxNavigate({ status: val }); }
@@ -398,9 +433,24 @@ function setTrxSort(val)   { trxNavigate({ sort_by: val }); }
 function toggleTrxOrder(current) { trxNavigate({ sort_order: current === 'ASC' ? 'DESC' : 'ASC' }); }
 
 // ════════════════════════════════════════════════════════════════════════════
-// SHORTCUT DARI DASHBOARD: buka modal detail langsung via ?open_sales=<id>
+// EVENT LISTENER AWAL
 // ════════════════════════════════════════════════════════════════════════════
+
+// Fungsi agar klik nomor halaman (Pagination) pakai AJAX juga
+function attachPaginationEvents() {
+    const links = document.querySelectorAll('.pagination-container a.page-link');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            updateTableHTML(this.href);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    attachPaginationEvents();
+
+    // Buka modal jika ada param open_sales di URL
     const id = new URLSearchParams(window.location.search).get('open_sales');
     if (id) openDetailModal(parseInt(id));
 });

@@ -525,7 +525,7 @@ window.buyNow = function(idProduk, hargaSatuan) {
     const stok   = parseInt(qtyEl.dataset.stok) || 0;
 
     if (!userId || userId === "0") {
-        cardhavenAlert('error', 'Failed', 'Please login first to checkout!');
+        window.location.replace('login')
         return;
     }
     if (stok <= 0) {

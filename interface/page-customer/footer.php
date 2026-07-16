@@ -39,26 +39,35 @@
                 </div>
                 <h1 style="font-size: 1.25rem;">About Us</h1>
             </div>
-            <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2; gap: 1000px;">
-                <li>Contact Us</li>
-                <li>Privacy And Policy</li>
-                <li>FAQ</li>
+            <!-- gap: 1000px dihapus, dan ditambahkan tag <a> untuk link -->
+            <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
+                <li><a href="/CardHaven/home/contactus" style="color: inherit;">Contact Us</a></li>
+                <li><a href="/CardHaven/home/privacy" style="color: inherit;">Privacy And Policy</a></li>
+                <li><a href="/CardHaven/home/faq" style="color: inherit;">FAQ</a></li>
             </ul>
         </div>
         <div class="footer-community">
             <h1 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Join Us On</h1>
             <div style="height: 2px; background-color: var(--primary-color); width: 12rem;"></div>
             <div style="display: flex; gap: 1rem;">
-                <div class="community-icon">
+                
+                <!-- Ganti '#' dengan link Instagram nanti -->
+                <a href="#" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/instagram.svg" style="object-fit: cover; width: 100%; height: 100%;">
-                </div>
-                <div class="community-icon">
+                </a>
+                
+                <!-- Ganti '#' dengan link X (Twitter) nanti -->
+                <a href="#" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/x.svg" style="object-fit: cover; width: 100%; height: 100%;">
-                </div>
-                <div class="community-icon">
+                </a>
+                
+                <!-- Ganti '#' dengan link Discord nanti -->
+                <a href="#" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
-                </div>
+                </a>
+
             </div>
+        </div>
         </div>
     </div>
     <div class="foot-bottom">
