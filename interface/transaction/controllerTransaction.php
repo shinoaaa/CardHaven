@@ -81,8 +81,13 @@ class controllerTransaction {
         return $order;
     }
 
-    public function updateStatus($id, $status, $mod_by, $resi = null) {
-        $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?)}", [$id, $status, $mod_by, $resi]);
+    public function updateStatus($id, $status, $mod_by, $resi = null, $tgl_kirim = null) {
+        $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", [$id, $status, $mod_by, $resi, $tgl_kirim, null]);
+        return $stmt !== false;
+    }
+    public function rejectPayment($id, $mod_by, $reason) {
+        $params = [$id, 0, $mod_by,  null, null, $reason];
+        $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);   
         return $stmt !== false;
     }
 

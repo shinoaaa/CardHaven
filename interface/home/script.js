@@ -21,8 +21,7 @@ function formatTanggal(dateInput) {
     // Proteksi kalau date-nya invalid / ngaco
     if (isNaN(targetDate.getTime())) return '-';
 
-    // Format ke Indonesia (Contoh: 25 Juni 2026)
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat('en-GB', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'

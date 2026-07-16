@@ -193,3 +193,142 @@ elseif ($action === 'getOrderDetail') {
 
     echo json_encode(['status' => 'success', 'data' => $order]);
 }
+
+elseif($action === 'cancelOrder'){
+    // 1. Ambil data JSON dari request body
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
+    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+
+    if ($id_penjualan === 0 || $id_pengguna === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Data tidak valid.']);
+        exit;
+    }
+
+    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
+    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+        echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
+        exit;
+    }
+
+    $params = [
+        $id_penjualan, 
+        8, 
+        $id_pengguna, 
+        null, 
+        null, 
+        null
+    ];
+    
+    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+
+    if ($stmt) {
+        echo json_encode(['status' => 'success', 'message' => 'The order was successfully canceled.']);
+    } else {
+        $errors = sqlsrv_errors();
+        $error_msg = 'Failed to cancel the order.';
+        if ($errors !== null) {
+            // Ambil pesan error SQL Server yang dilempar dari blok THROW
+            $error_msg = $errors[0]['message']; 
+            
+        }
+        
+        echo json_encode(['status' => 'error', 'message' => $error_msg]);
+    }
+}
+elseif ($action === 'completeOrder') {
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
+    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+
+    if ($id_penjualan === 0 || $id_pengguna === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid data provided.']);
+        exit;
+    }
+
+    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
+    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+        echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
+        exit;
+    }
+
+    // Update status menjadi 8 (Completed)
+    $params = [
+        $id_penjualan, 
+        8, 
+        $id_pengguna, 
+        null, 
+        null, 
+        null
+    ];
+    
+    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+
+    if ($stmt) {
+        echo json_encode(['status' => 'success', 'message' => 'The order has been successfully completed.']);
+    } else {
+        $errors = sqlsrv_errors();
+        $error_msg = 'Failed to complete the order.';
+        if ($errors !== null) {
+            // Ambil pesan error SQL Server yang dilempar dari blok THROW
+            $error_msg = $errors[0]['message']; 
+            
+        }
+        
+        echo json_encode(['status' => 'error', 'message' => $error_msg]);
+    }
+}
+elseif ($action === 'returnOrder') {
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
+    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+
+    if ($id_penjualan === 0 || $id_pengguna === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid data provided.']);
+        exit;
+    }
+
+    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
+    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+        echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
+        exit;
+    }
+
+    // Update status menjadi 9 (Return Requested)
+    $params = [
+        $id_penjualan, 
+        9, 
+        $id_pengguna, 
+        null, 
+        null, 
+        null
+    ];
+    
+    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+
+    if ($stmt) {
+        echo json_encode(['status' => 'success', 'message' => 'Return request has been successfully submitted.']);
+    } else {
+        $errors = sqlsrv_errors();
+        $error_msg = 'Failed to submit return request.';
+        if ($errors !== null) {
+            // Ambil pesan error SQL Server yang dilempar dari blok THROW
+            $error_msg = $errors[0]['message']; 
+            
+        }
+        
+        echo json_encode(['status' => 'error', 'message' => $error_msg]);
+    }
+}

@@ -48,15 +48,48 @@ if ($action !== '') {
                         echo json_encode(['status' => 'error', 'message' => 'Failed to confirm payment']);
                     }
                     exit;
+                case 'reject_payment':
+                    $id = (int)($body['id_penjualan'] ?? 0);
+                    $reason = trim($body['reason'] ?? '');
+                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    
+                    if ($reason === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'Alasan penolakan harus diisi.']); exit;
+                    }
+                    if ($ctrl->rejectPayment($id, $mod_by, $reason)) {
+                        echo json_encode(['status' => 'success', 'message' => 'Payment ditolak dan notifikasi berhasil dikirim.']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'Gagal menolak payment.']);
+                    }
+                    exit;
                 case 'kirim':
-                    $no_resi = trim($body['no_resi'] ?? '');
+                   $no_resi = trim($body['no_resi'] ?? '');
+                    $tgl_kirim = trim($body['tgl_kirim'] ?? '');
+                    $today = date('Y-m-d');
+
                     if ($no_resi === '') { 
                         echo json_encode(['status' => 'error', 'message' => 'Tracking number is required']); exit;
                     }
-                    $ok = $ctrl->kirimOrder($id, $modified_by, $no_resi);
+                    // Validasi: Resi hanya boleh kombinasi huruf dan angka tanpa spasi atau karakter unik
+                    if (!preg_match('/^[a-zA-Z0-9]+$/', $no_resi)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Tracking number hanya boleh kombinasi huruf dan angka tanpa spasi.']); exit;
+                    }
+
+                    if (strtotime($tgl_kirim) < strtotime($today)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Tanggal pengiriman tidak boleh di masa lalu.']); exit;
+                    }
+                    
+                    $ok = $ctrl->updateStatus($id, 4, $modified_by, $no_resi, $tgl_kirim);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
                 case 'delivered':
                     $ok = $ctrl->setDelivered($id, $modified_by);
+                    echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
+                case 'completed': // Status 6 (Selesai)
+                    $ok = $ctrl->updateStatus($id, 6, $modified_by);
+                    echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
+
+                case 'returned': // Status 7 (Dikembalikan/Restorasi Stok)
+                    $ok = $ctrl->updateStatus($id, 7, $modified_by);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
                 case 'cancel':
                     $ok = $ctrl->cancelOrder($id, $modified_by);

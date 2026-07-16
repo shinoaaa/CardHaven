@@ -97,29 +97,35 @@ async function openDetailModal(id_penjualan) {
             // view-only: tidak ada tombol aksi untuk Owner
         } else if (st === 0) {
             actionBtns = `
-                <button class="btn-trx-action btn-confirm" onclick="doAction('confirm_payment', ${id_penjualan})">
-                    ✅ Confirm Payment
-                </button>
                 <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
-                    ❌ Reject / Cancel
+                    Cancel
                 </button>`;
-        } else if (st === 1 || st === 2) {
+        } else if (st === 1) {
+            // Jika sudah paid (1), admin bisa me-reject payment customer (kembali ke 0) 
             actionBtns = `
                 <button class="btn-trx-action btn-process" onclick="doAction('proses', ${id_penjualan})">
-                    ⚙️ Process Order
+                    Process Order
+                </button>
+                <button class="btn-trx-action btn-cancel" onclick="promptRejectPayment(${id_penjualan})">
+                    Reject Payment
+                </button>`;
+        } else if (st === 2) {
+            actionBtns = `
+                <button class="btn-trx-action btn-process" onclick="doAction('proses', ${id_penjualan})">
+                    Process Order
                 </button>
                 <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
-                    ❌ Cancel
+                    Cancel
                 </button>`;
         } else if (st === 3) {
             actionBtns = `
                 <button class="btn-trx-action btn-ship" onclick="openShipModal(${id_penjualan})">
-                    🚚 Ship Order
+                    Ship Order
                 </button>`;
         } else if (st === 4) {
             actionBtns = `
                 <button class="btn-trx-action btn-deliver" onclick="doAction('delivered', ${id_penjualan})">
-                    🏠 Set Delivered
+                    Set Delivered
                 </button>`;
         }
 
@@ -248,7 +254,7 @@ function openShipModal(id_penjualan) {
             </div>
             <div>
                 <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Shipping Date</label>
-                <input id="inputTglKirim" type="date" value="${today}"
+                <input id="inputTglKirim" type="date" value="${today}" min="${today}"
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
             </div>
@@ -267,13 +273,25 @@ function openShipModal(id_penjualan) {
 async function submitKirim(id_penjualan) {
     const no_resi   = document.getElementById('inputResi').value.trim();
     const tgl_kirim = document.getElementById('inputTglKirim').value;
+    const today     = new Date().toISOString().split('T')[0];
 
     if (!no_resi) {
         cardhavenAlert('Alert',  'warning', 'Tracking number is required!');
         return;
     }
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(no_resi)) {
+        cardhavenAlert('Alert', 'warning', 'Invalid tracking number!');
+        return;
+        }
 
-    const res  = await postAction('kirim', id_penjualan, { no_resi, tanggal_pengiriman: tgl_kirim });
+    // 3. Validasi Tanggal
+    if (tgl_kirim < today) {
+        cardhavenAlert('Alert', 'warning', 'Invalid shipment date!');
+        return;
+    }
+
+    const res = await postAction('kirim', id_penjualan, { no_resi: no_resi, tgl_kirim: tgl_kirim });
     if (res.status === 'success') {
         cardhavenAlert('Success', 'success', 'Package shipment has been confirmed.');
         closeTrxModal();
@@ -295,6 +313,35 @@ async function postAction(action, id_penjualan, extra = {}) {
         body: JSON.stringify({ action, id_penjualan, modified_by: userId, ...extra }),
     });
     return await res.json();
+}
+
+function promptRejectPayment(id_penjualan) {
+    Swal.fire({
+        title: 'Reject Payment?',
+        text: 'Enter the reason why the payment was declined .',
+        input: 'textarea',
+        inputPlaceholder: 'Examples: Transfer amount is incorrect, receipt is blurry, etc...',
+        showCancelButton: true,
+        confirmButtonText: 'Reject & Notify',
+        confirmButtonColor: '#b91c1c',
+        preConfirm: (reason) => {
+            if (!reason) {
+                Swal.showValidationMessage('please provide a reason for rejecting the payment.');
+            }
+            return reason;
+        }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const res = await postAction('reject_payment', id_penjualan, { reason: result.value });
+            if (res.status === 'success') {
+                cardhavenAlert('Success', 'success', 'Payment rejected. Status reverted to Pending Payment.');
+                closeTrxModal();
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                cardhavenAlert('Error', 'error', res.message || 'Failed to reject payment.');
+            }
+        }
+    });
 }
 
 async function doAction(action, id_penjualan) {

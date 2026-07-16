@@ -36,6 +36,7 @@ $sort   = $_GET['sort'] ?? 'date';
 </head>
 <body>
     <div class="main-content" style="display: flex; justify-content: center; overflow-y: hidden;">
+        <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 1.8rem; font-weight: 700; margin: 0;">Dashboard / Event</h1>
         <div class="content-card">
             
             <div class="card-title-row">
