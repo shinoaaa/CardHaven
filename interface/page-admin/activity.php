@@ -105,7 +105,7 @@
 </style>
 
 <div class="main-content">
-    <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 2rem; font-weight: 700; margin: 0;">Dashboard</h1>
+    <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 1.8rem; font-weight: 700; margin: 0;">Dashboard / Activity</h1>
 
     <!-- Kartu statistik -->
     <div class="dash-stats">
