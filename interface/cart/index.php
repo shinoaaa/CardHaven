@@ -93,6 +93,24 @@ session_start();
         .cart-qty-btn { background: none; border: none; width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; color: var(--primary-color, #1a3a6b); font-weight: 700; display: flex; align-items: center; justify-content: center; }
         .cart-qty-btn:hover { background: #eef2ff; }
         .cart-qty-val { min-width: 36px; text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--text-dark, #111); border-left: 1px solid #dde4f8; border-right: 1px solid #dde4f8; padding: 0 4px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        input.cart-qty-val {
+            border-top: none;
+            border-bottom: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            box-sizing: border-box;
+            border-radius: 0;
+            width: 36px;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+        }
+        input.cart-qty-val::-webkit-outer-spin-button,
+        input.cart-qty-val::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
         .cart-btn-remove { width: 28px; height: 28px; border-radius: 50%; background: #f5f5f5; border: none; color: #aaa; cursor: pointer; font-size: 0.7rem; display: flex; justify-content: center; align-items: center; }
         .cart-btn-remove:hover { background: #fee2e2; color: #dc2626; }
         #cart-empty-msg { padding: 80px 0; text-align: center; }

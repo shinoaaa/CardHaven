@@ -124,7 +124,12 @@ function renderRow(item) {
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, -1)"
                         title="Subtract">−</button>
-                <span class="cart-qty-val">${item.jumlah_barang}</span>
+                <input type="number"
+                       class="cart-qty-val"
+                       min="1"
+                       value="${item.jumlah_barang}"
+                       data-qty="${item.jumlah_barang}"
+                       onchange="handleCartQtyTyped(${item.id_detail_keranjang}, this)">
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, 1)"
                         title="Add">+</button>
@@ -200,6 +205,26 @@ function updateQty(id, change) {
         .then(res => res.json())
         .then(json => { if (json.success) loadCart(); })
         .catch(err => console.error(err));
+}
+
+// ---- Dipanggil saat user mengetik langsung jumlah quantity lalu keluar dari kolom (blur / Enter) ----
+function handleCartQtyTyped(id, inputEl) {
+    const oldQty = parseInt(inputEl.dataset.qty) || 1;
+    let newQty   = parseInt(inputEl.value);
+
+    // Kalau kosong atau tidak valid, kembalikan ke jumlah sebelumnya
+    if (isNaN(newQty) || newQty < 1) {
+        newQty = 1;
+    }
+
+    if (newQty === oldQty) {
+        inputEl.value = oldQty; // rapikan tampilan, tidak perlu request ke server
+        return;
+    }
+
+    // Backend cuma terima perubahan (delta), jadi dihitung selisihnya dulu
+    const change = newQty - oldQty;
+    updateQty(id, change);
 }
  
 function toggleSelect(id, checked) {
