@@ -1,13 +1,7 @@
 <?php
-session_start();
-
-// Proteksi Halaman
-// if (!isset($_SESSION['id_pengguna'])) {
-//     header("Location: /cardhaven/interface/login-page/index.php?error=login_required");
-//     exit;
-// }
-
-// $session_id_pengguna = $_SESSION['id_pengguna'];
+// Proteksi halaman cart dilakukan di server oleh page-customer/index.php
+// (auth_require_login()), karena file ini di-include setelah output dimulai.
+require_once __DIR__ . '/../../auth/session.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -173,18 +167,8 @@ session_start();
             }
         }
     </style>
-    <script>
-        const isLogin = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
-
-        if(!isLogin){
-            window.location.replace("/CardHaven/login")
-        }
-    </script>
 </head>
 <body>
-    <!-- Simpan ID Session agar bisa dibaca JS -->
-    <input type="hidden" id="session-id-pengguna" value="<?php echo $session_id_pengguna; ?>">
-
     <!-- Path NavBar diperbaiki -->
     <?php include '../page-customer/navBar.php'; ?>
 
@@ -249,19 +233,6 @@ session_start();
         </div>
     </main>
 
-    <!-- <script>
-        // Logika Sinkronisasi Storage
-        const sessionIdEl = document.getElementById('session-id-pengguna');
-        if (sessionIdEl) {
-            const sessionId = sessionIdEl.value;
-            if (!localStorage.getItem('id_pengguna')) {
-                localStorage.setItem('id_pengguna', sessionId);
-            }
-            if (localStorage.getItem('id_pengguna') !== sessionId) {
-                localStorage.setItem('id_pengguna', sessionId);
-            }
-        }
-    </script> -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>
     <script src="/cardhaven/interface/cart/keranjang_script.js"></script>

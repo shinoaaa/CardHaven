@@ -1,7 +1,7 @@
 // NOTE: tab "Buy Back" ditangani oleh buyback.js (punya detail modal seperti
 // buyback_customer_script.js). File ini fokus ke Buy Product / orders saja.
 const PROFILE_CONTROLLER = '/cardhaven/interface/page-profile/controller/ProfileController.php';
-const profileUserId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+const profileUserId = CardHavenAuth.id() || null;
 
 const ORDER_STATUS = {
     0: { label: 'Pending Payment', bg: '#fef9c3', color: '#ca8a04' },
@@ -81,7 +81,7 @@ function loadOrders() {
         return;
     }
 
-    fetch(`${PROFILE_CONTROLLER}?action=getOrders&id_pengguna=${profileUserId}`)
+    fetch(`${PROFILE_CONTROLLER}?action=getOrders`)
         .then(res => res.json())
         .then(res => {
             allOrders = (res && res.data) ? res.data : [];
@@ -297,7 +297,7 @@ function openOrderDetail(idPenjualan) {
     overlay.classList.add('show');
     content.innerHTML = `<div style="text-align:center;padding:2rem;color:#888;">Loading...</div>`;
 
-    fetch(`${PROFILE_CONTROLLER}?action=getOrderDetail&id_pengguna=${profileUserId}&id_penjualan=${idPenjualan}`)
+    fetch(`${PROFILE_CONTROLLER}?action=getOrderDetail&id_penjualan=${idPenjualan}`)
         .then(res => res.json())
         .then(res => {
             if (res.status !== 'success') {
@@ -437,7 +437,7 @@ function loadPreorders() {
         return;
     }
 
-    fetch(`${PROFILE_CONTROLLER}?action=getPreorders&id_pengguna=${profileUserId}`)
+    fetch(`${PROFILE_CONTROLLER}?action=getPreorders`)
         .then(res => res.json())
         .then(res => {
             allPreorders = (res && res.data) ? res.data : [];

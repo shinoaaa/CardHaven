@@ -4,7 +4,7 @@
 const base = typeof BASE_URL !== 'undefined' ? BASE_URL : '/CardHaven';
 const CART_CONTROLLER = `${base}/interface/cart/controller_keranjang.php`;
 
-const getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+const getUserId = () => CardHavenAuth.id() || null;
 const userId = getUserId();
 
 function formatRupiah(angka) {
@@ -343,7 +343,6 @@ window.addCatToCart = function(idProduk, hargaSatuan) {
     fd.append('id_produk', idProduk);
     fd.append('harga_produk', hargaSatuan); 
     fd.append('jumlah', qty);               
-    fd.append('id_pengguna_js', userId);
 
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
     .then(res => res.json()).then(res => {
@@ -365,7 +364,6 @@ window.buyNowCat = function(idProduk, hargaSatuan) {
     fd.append('id_produk', idProduk);
     fd.append('harga_produk', hargaSatuan);
     fd.append('jumlah', qty);
-    fd.append('id_pengguna_js', userId);
 
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
     .then(res => res.json()).then(res => {

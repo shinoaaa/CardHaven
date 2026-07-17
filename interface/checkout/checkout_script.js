@@ -1,6 +1,6 @@
 const CHECKOUT_CONTROLLER = '/cardhaven/interface/checkout/controller_checkout.php';
 const BASE_IMG_URL        = '/cardhaven';
-const idPengguna          = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+const idPengguna          = CardHavenAuth.id() || null;
 
 const fmt = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
 
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function resumeOrderPayment(orderId) {
-    fetchWithTimeout(`/cardhaven/interface/page-profile/controller/ProfileController.php?action=getOrderDetail&id_pengguna=${idPengguna}&id_penjualan=${orderId}`)
+    fetchWithTimeout(`/cardhaven/interface/page-profile/controller/ProfileController.php?action=getOrderDetail&id_penjualan=${orderId}`)
         .then(r => r.json())
         .then(res => {
             const o = res.data;
@@ -109,7 +109,7 @@ window.addEventListener('pageshow', (e) => {
 });
 
 function loadUserInfo() {
-    fetch(`${CHECKOUT_CONTROLLER}?action=get_checkout_data&idpengguna=${idPengguna}`)
+    fetch(`${CHECKOUT_CONTROLLER}?action=get_checkout_data`)
         .then(r => r.json())
         .then(data => {
             if (data.success) {
@@ -202,7 +202,7 @@ function renderEventSpecialInfo() {
 // RENDER ITEMS (JALUR KERANJANG BIASA)
 // ============================================================
 function loadCartItems() {
-    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_checkout_data&idpengguna=${idPengguna}`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_checkout_data`)
         .then(r => r.json())
         .then(data => {
             const loading = document.getElementById('checkout-items-loading');
@@ -266,7 +266,7 @@ function renderCheckoutItem(item, outOfStock = false, stok = null, hargaCoretHtm
 // PAYMENT METHODS & SUMMARY
 // ============================================================
 function loadPaymentMethods() {
-    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_checkout_data&idpengguna=${idPengguna}`)
+    fetchWithTimeout(`${CHECKOUT_CONTROLLER}?action=get_checkout_data`)
         .then(r => r.json())
         .then(data => {
             document.getElementById('payment-method-loading').style.display = 'none';
@@ -396,8 +396,8 @@ function placeOrder() {
     btn.textContent = 'Processing...';
 
     if (directCheckoutData) {
+        // id_pengguna tidak dikirim — server memakai id dari session.
         const payload = {
-            id_pengguna: idPengguna,
             id_event: directCheckoutData.id_event,
             id_metode: selectedMethodId,
             tanggal_sampai: directCheckoutData.tanggal_sampai,
@@ -437,7 +437,6 @@ function placeOrder() {
     else {
         const fd = new FormData();
         fd.append('action',       'place_order');
-        fd.append('idpengguna',   idPengguna); 
         fd.append('alamat',       alamat);
         fd.append('id_metode',    selectedMethodId);
         fd.append('total_harga',  cartSubtotal + selectedMethodFee); 
@@ -536,7 +535,6 @@ function submitPayment() {
     
     const fd = new FormData();
     fd.append('action', 'upload_bukti');
-    fd.append('idpengguna', idPengguna); 
     fd.append('id_penjualan', currentOrderId);
     fd.append('bukti_pembayaran', selectedFile);
 

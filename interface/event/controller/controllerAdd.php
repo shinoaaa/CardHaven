@@ -1,8 +1,12 @@
 <?php
 ob_start();
 require __DIR__ . '/../../../connection.php';
+require_once __DIR__ . '/../../../auth/session.php';
 ob_end_clean();
 header('Content-Type: application/json');
+
+// Kelola Event: Manager & Owner saja (menu Event disembunyikan untuk Employee).
+$eventActor = auth_api_require_role([ROLE_MANAGER, ROLE_OWNER])['id'];
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { echo json_encode(['error' => 'Method not allowed']); exit; }
 
@@ -26,7 +30,7 @@ $status_event = isset($body['status_event']) ? (int)$body['status_event'] : 1;
 $stmt = sqlsrv_query($conn, "{CALL dbo.sp_AddEvent(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}", [
     trim($body['nama_event']), trim($body['tipe_event']), $body['tanggal_mulai'], $body['tanggal_berakhir'], 
     !empty($body['tanggal_sampai']) ? $body['tanggal_sampai'] : null, (float)$body['persen_diskon'], 
-    (int)$body['maks_pembelian'], $status_event, (int)($body['id_karyawan'] ?? 0), $itemsJson
+    (int)$body['maks_pembelian'], $status_event, $eventActor, $itemsJson
 ]);
 
 if ($stmt === false) { echo json_encode(['error' => sqlsrv_errors()[0]['message'] ?? 'Database Error']); exit; }

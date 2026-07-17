@@ -11,9 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Are you sure you want to logout from your account?", 
                 "Logout", 
                 () => {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = "/CardHaven/login";
+                    // Session dihapus di server; browser tidak menyimpan identitas apa pun.
+                    CardHavenAuth.logout();
                 }
             );
         });

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../auth/session.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -33,11 +33,10 @@ function getSqlError() {
     return $errors[0]['message'] ?? 'Unknown SQL Server Error';
 }
 
-$actor_id = (int)($_POST['actor_id'] ?? $_GET['actor_id'] ?? 0);
-if (!$actor_id) {
-    http_response_code(401);
-    jsonOut('error', 'You must be logged in.');
-}
+// Purchase (Restok/Buyback) ada di menu yang disembunyikan untuk Employee —
+// jadi hanya Manager & Owner. Pelaku aksi (jejak audit) diambil dari session,
+// bukan dari actor_id kiriman browser yang bisa diganti jadi id orang lain.
+$actor_id = auth_api_require_role([ROLE_MANAGER, ROLE_OWNER])['id'];
 
 $stmtActor = sqlsrv_query($conn, "SELECT role FROM dbo.pengguna WHERE id_pengguna = ? AND is_deleted = 0 AND status_akun = 1", [$actor_id]);
 $actor = sqlsrv_fetch_array($stmtActor, SQLSRV_FETCH_ASSOC);

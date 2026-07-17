@@ -8,7 +8,7 @@ var preorderEvent          = null;
 var preorderProduct        = null; 
 var preorderQty            = 0;
 var preorderAlreadyBought  = 0;
-var preorderIdPengguna     = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+var preorderIdPengguna     = CardHavenAuth.id() || null;
 
 /* ─────────────────────────────────────────────
    OPEN / CLOSE

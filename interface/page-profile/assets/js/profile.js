@@ -1,4 +1,4 @@
-const userId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+const userId = CardHavenAuth.id() || null;
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!userId) {
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchProfileData() {
-    fetch(`/cardhaven/interface/page-profile/controller/ProfileController.php?action=getProfile&id_pengguna=${userId}`)
+    fetch(`/cardhaven/interface/page-profile/controller/ProfileController.php?action=getProfile`)
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {

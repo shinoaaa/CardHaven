@@ -6,8 +6,13 @@
 
 header('Content-Type: application/json');
 require __DIR__ . '/../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 $action = $_GET['action'] ?? '';
+
+// Catatan: 'get_event' sengaja tetap bisa diakses tanpa login (halaman event
+// boleh dilihat pengunjung). Aksi yang menyangkut data pribadi / pesanan
+// mewajibkan login dan memakai id_pengguna dari session.
 
 switch ($action) {
 
@@ -79,10 +84,11 @@ switch ($action) {
        GET PURCHASE COUNT
     ────────────────────────────────────────────────────── */
     case 'get_purchase_count':
-        $idPengguna = (int)($_GET['id_pengguna'] ?? 0);
-        $idEvent    = (int)($_GET['id_event']    ?? 0);
+        // Jumlah pembelian milik user sendiri — id dari session.
+        $idPengguna = auth_api_require_login()['id'];
+        $idEvent    = (int)($_GET['id_event'] ?? 0);
 
-        if (!$idPengguna || !$idEvent) {
+        if (!$idEvent) {
             echo json_encode(['counts' => []]); exit;
         }
 
@@ -122,7 +128,8 @@ switch ($action) {
             exit;
         }
 
-        $idPengguna    = (int)($body['id_pengguna'] ?? 0);
+        // Pemesan = user yang sedang login (dari session), bukan id kiriman browser.
+        $idPengguna    = auth_api_require_login()['id'];
         $idEvent       = (int)($body['id_event']    ?? 0);
         $idMetode      = (int)($body['id_metode']   ?? 0);
         $alamat        = trim($body['alamat']        ?? '');

@@ -1,4 +1,11 @@
-<?php $pageTitle = 'My Profile – CardHaven'; ?>
+<?php
+require_once __DIR__ . '/../../auth/session.php';
+
+// Halaman profil wajib login (dicek di server).
+auth_require_login();
+
+$pageTitle = 'My Profile – CardHaven';
+?>
 
 <!DOCTYPE html>
 <html lang="id">
@@ -10,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <link rel="stylesheet" href="/cardhaven/interface/page-profile/assets/css/profile.css">
+    <?php auth_emit_js(); ?>
 </head>
 
 <body>

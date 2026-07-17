@@ -16,7 +16,7 @@ var promoAlreadyPurchased    = {};
 
 const PROMO_DETAIL_PAGE_SIZE  = 3;
 const PROMO_ORDER_PAGE_SIZE   = 2;
-var promoIdPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+var promoIdPengguna = CardHavenAuth.id() || null;
 
 /* ─────────────────────────────────────────────
    OPEN / CLOSE

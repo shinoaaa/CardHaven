@@ -1,8 +1,8 @@
 // 1. Tambahkan path controller keranjang di bagian atas (Menggunakan var agar aman dari crash redeclare)
 var CART_CONTROLLER = '/CardHaven/interface/cart/controller_keranjang.php';
 
-// 2. Fungsi untuk mengambil ID Pengguna (Pastikan ini ada)
-var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+// 2. Fungsi untuk mengambil ID Pengguna dari PHP session (window.CH_AUTH)
+var getUserId = () => CardHavenAuth.id() || null;
 let eventButton; 
 
 function formatTanggal(dateInput) {
@@ -138,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             
             const eventTitle = document.getElementById('btn-title');
-            const isLogin = sessionStorage.getItem('token') || localStorage.getItem('token');
 
             // SAKTI NYA DI SINI: Pakai .onclick supaya listener lama di-overwrite otomatis
             eventTitle.onclick = () => {
@@ -426,7 +425,6 @@ window.addToCart = function(idProduk, harga) {
     fd.append('action', 'add_to_cart');
     fd.append('id_produk', idProduk);
     fd.append('harga_produk', harga);
-    fd.append('id_pengguna_js', userId); // Menggunakan ID dari storage agar sinkron
 
     // Kirim data ke controller_keranjang.php
     fetch(CART_CONTROLLER, {
@@ -547,7 +545,6 @@ window.addToCart = function(idProduk, hargaSatuan) {
     fd.append('id_produk', idProduk);
     fd.append('harga_produk', hargaSatuan); // Kirim harga satuan
     fd.append('jumlah', qty);               // Kirim jumlah yang dipilih
-    fd.append('id_pengguna_js', userId);
 
     fetch('/CardHaven/interface/cart/controller_keranjang.php', {
         method: 'POST',
@@ -586,7 +583,6 @@ window.buyNow = function(idProduk, hargaSatuan) {
     fd.append('id_produk', idProduk);
     fd.append('harga_produk', hargaSatuan);
     fd.append('jumlah', qty);
-    fd.append('id_pengguna_js', userId);
 
     fetch('/CardHaven/interface/cart/controller_keranjang.php', {
         method: 'POST',

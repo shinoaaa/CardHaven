@@ -1,7 +1,7 @@
 const modalRarity = document.getElementById('rarityModal');
 const rarityForm = document.getElementById('rarityForm');
 const API_URL = '/CardHaven/interface/product/controller_rarity.php'; // Pastikan path sesuai dengan foldermu
-// var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+// getEmpId() didefinisikan di produk_script.js (ambil id dari PHP session via CardHavenAuth).
 
 async function isDuplicate(idGame, nama, kode, excludeId) {
     const resp = await fetch(`${API_URL}?check_duplicate=1&id_game=${idGame}&nama_rarity=${encodeURIComponent(nama)}&kode_rarity=${encodeURIComponent(kode)}&exclude_id=${excludeId}`);
@@ -143,7 +143,6 @@ if (!kode.value.trim()) {
         }
 
         const formData = new FormData(rarityForm);
-        formData.append('id_pengguna_js', getEmpId());
 
         const res = await fetch(API_URL, { method: 'POST', body: formData });
         const result = JSON.parse(await res.text());
@@ -178,7 +177,6 @@ function toggleRarityStatus(id, isActive, el) {
             const fd = new FormData();
             fd.append('action', action);
             fd.append('id_rarity', id);
-            fd.append('id_pengguna_js', getEmpId());
 
             fetch(API_URL, { method: 'POST', body: fd })
             .then(res => res.json())
@@ -204,7 +202,6 @@ function confirmDeleteRarity(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_rarity', id);
-        fd.append('id_pengguna_js', getEmpId());
 
         fetch(API_URL, { method: 'POST', body: fd })
             .then(res => res.json())

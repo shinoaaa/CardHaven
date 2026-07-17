@@ -1,14 +1,15 @@
 <?php
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
 require_once '../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 ob_start();
 
 try {
-    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 1));
+    // Master data rarity: khusus pegawai. id_user (jejak audit) diambil dari session.
+    $id_user = auth_api_require_role(auth_staff_roles())['id'];
 
     if (isset($_GET['list'])) {
         $limit  = 3;

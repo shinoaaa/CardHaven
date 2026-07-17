@@ -1,7 +1,7 @@
 const setModal = document.getElementById('setModal');
 const setForm  = document.getElementById('setForm');
 const SET_API  = '/CardHaven/interface/product/controller_set.php';
-// var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+// getEmpId() didefinisikan di produk_script.js (ambil id dari PHP session via CardHavenAuth).
 
 let setGamesLoaded = false;
 
@@ -126,7 +126,6 @@ if (!kode.value.trim()) {
 
     try {
         const formData = new FormData(setForm);
-        formData.append('id_pengguna_js', getEmpId());
 
         const res    = await fetch(SET_API, { method: 'POST', body: formData });
         const result = JSON.parse(await res.text());
@@ -161,7 +160,6 @@ function toggleSetStatus(id, isActive, el) {
             const fd = new FormData();
             fd.append('action', action);
             fd.append('id_set', id);
-            fd.append('id_pengguna_js', getEmpId());
 
             fetch(SET_API, { method: 'POST', body: fd })
                 .then(async res => JSON.parse(await res.text()))
@@ -188,7 +186,6 @@ function confirmDeleteSet(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_set', id);
-        fd.append('id_pengguna_js', getEmpId());
 
         fetch(SET_API, { method: 'POST', body: fd })
             .then(async res => JSON.parse(await res.text()))

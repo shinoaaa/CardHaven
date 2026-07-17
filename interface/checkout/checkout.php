@@ -1,9 +1,8 @@
 <?php
-session_start();
-// if (!isset($_SESSION['id_pengguna'])) {
-//     header("Location: /cardhaven/interface/login-page/index.php?error=login_required");
-//     exit;
-// }
+require_once __DIR__ . '/../../auth/session.php';
+
+// Checkout wajib login (dicek di server, bukan di JS).
+auth_require_login();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -14,7 +13,7 @@ session_start();
     <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
     <link rel="stylesheet" href="/cardhaven/interface/checkout/style.css">
-    
+    <?php auth_emit_js(); ?>
 </head>
 <body>
 
