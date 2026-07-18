@@ -166,6 +166,20 @@ require_once __DIR__ . '/../../auth/session.php';
                 max-width: 100%;
             }
         }
+        /* HP/tablet: tabel keranjang bisa discroll horizontal supaya kolom
+           (Price/Qty/Subtotal) tidak memaksa halaman melebar. */
+        @media (max-width: 768px) {
+            /* .main-content global (flex/height:100vh) dinetralkan agar konten
+               mengalir normal & tidak memaksa lebar di HP. */
+            .main-content { display: block; height: auto; padding: 0; overflow: visible; }
+            .cart-page-wrapper { padding: 0 1rem 3rem; max-width: 100%; }
+            .cart-page-title { font-size: 2rem; }
+            .cart-items-section { width: 100%; overflow-x: auto; min-width: 0; }
+            .cart-table { min-width: 440px; }
+            .cart-img-wrap { width: 60px; height: 78px; }
+            .cart-table tbody td { padding: 14px 8px; }
+            .btn-cart-checkout { width: calc(100% - 32px); margin: 16px 16px 20px; }
+        }
     </style>
 </head>
 <body>

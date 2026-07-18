@@ -2060,3 +2060,141 @@ p.product-paragraf {
     color: var(--primary-color);
     font-size: 1.15rem;
 }
+
+/* ============================================================
+   RESPONSIVE / MOBILE REFLOW
+   Ditambahkan untuk membuat tampilan HP/tablet reflow (bukan sekadar
+   di-zoom kecil). Desktop (>1024px) TIDAK diubah sama sekali — blok ini
+   hanya aktif di <=768px (tablet & HP) dan <=480px (HP kecil).
+   Karena urut-sumber, aturan html{font-size} di sini menang atas aturan
+   shrink 8px di bagian atas file tanpa perlu mengubahnya.
+   ============================================================ */
+
+@media screen and (max-width: 768px) {
+    /* Base font: naikkan dari 8px (shrink lama) supaya kebaca di HP */
+    html { font-size: 12px; }
+
+    /* Cegah overflow horizontal akibat width:100vw + lebar scrollbar */
+    html, body { overflow-x: hidden; }
+    body > div[style*="100vw"] { width: 100% !important; }
+    .home-container, .container { width: 100%; }
+
+    /* ---------- NAVBAR (shared halaman customer) ---------- */
+    .nav-bar   { padding: 0.5rem 1rem; height: 4.75rem; }
+    .nav-menu  { width: auto; flex: 1 1 auto; gap: 0.5rem; margin-left: 0.5rem; }
+    .nav-search{ width: auto; flex: 1 1 auto; gap: 0.5rem; }
+    .nav-profile{ width: auto; flex: 0 0 auto; gap: 0.75rem; }
+    #btn-sign  { width: auto !important; min-width: 5rem; padding: 0 0.85rem; }
+    .modal-popup { width: min(280px, 90vw); }
+
+    /* ---------- HOME: hero ---------- */
+    .home-container, .scroll-area { height: auto; }
+    .hero-section { flex-direction: column; height: auto; padding: 1rem 1.25rem; gap: 1rem; }
+    .hero-desc { width: 100%; height: auto; }
+    .hero-img  { width: 100%; height: auto; transform: none; margin-top: 0.5rem; }
+    .hero-img img { position: static !important; transform: none !important; width: 78%; height: auto; margin: 0 auto; }
+    .hero-title { width: auto; font-size: 2.6rem; letter-spacing: -1px; }
+    .hero-text { width: 100%; }
+    .action-buttons { flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
+
+    /* bottom-bar (navigasi game) */
+    .bottom-bar { height: auto; padding: 0.6rem 1rem; }
+    .nav-links  { gap: 1.25rem; font-size: 1rem; overflow-x: auto; }
+
+    /* ---------- HOME: promo / game / product ---------- */
+    .promo, .product { padding: 1.5rem 1.25rem 0 1.25rem; }
+    .promo-content { grid-template-columns: 1fr; }
+    .promo-card { height: 12rem; }
+    .promo-card h2 { font-size: 1.5rem; }
+    .game-list { grid-template-columns: 1fr 1fr; padding: 1rem 1.25rem 1.5rem 1.25rem; }
+    .product-header h1 { font-size: 2rem !important; }
+    .product-header > div:last-child { grid-template-columns: 1fr 1fr !important; gap: 0.75rem; }
+    .product-list { grid-template-columns: 1fr; }
+    /* Kartu produk (flex row + gambar fixed 15rem) di-stack agar muat di HP */
+    .product-card { flex-direction: column; width: 100%; min-width: 0; height: auto; align-items: center; padding: 1rem 1.25rem; }
+    .product-card > div { width: 100% !important; }
+
+    /* ---------- HOME: buyback ---------- */
+    .buyback { padding: 2.5rem 1.25rem; min-height: 0; }
+    .buyback > div[style*="gap: 27rem"] { gap: 1.5rem !important; flex-direction: column !important; }
+    .buyback > div[style*="gap: 27rem"] > div:last-child { display: none !important; } /* stack kartu dekoratif */
+    .buyback > div[style*="blur"] { display: none !important; }                        /* glow blur di luar layar */
+    .buyback h2.coolveticaa { font-size: 2rem !important; }
+    .buyback > div[style*="z-index: 999"] > p { width: auto !important; max-width: 100%; }
+
+    /* ---------- FOOTER ---------- */
+    .foot-top { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .footer-community { align-items: flex-start; }
+
+    /* ---------- LOGIN / REGISTER (hanya .container yg memuat .card) ---------- */
+    .container:has(> .card) { height: auto; min-height: 100vh; padding: 1.5rem 0; align-items: center; }
+    .card { flex-direction: column; width: 92%; height: auto; padding: 1.5rem 1.25rem; gap: 1rem; }
+    .image-wrap { width: 100%; height: auto; max-height: 12rem; }
+    .image-wrap img { height: auto; max-height: 12rem; width: auto; max-width: 100%; }
+    .form-section { width: 100%; height: auto; padding: 0 0.5rem; }
+
+    /* ---------- ABOUT US (contact / faq / privacy) ---------- */
+    .content-card { flex-direction: column !important; gap: 1.5rem !important; padding: 1.5rem !important; }
+    .content-card > div { width: 100%; min-width: 0; }
+    div[style*="8rem 4rem"] { padding: 6rem 1.25rem 2rem !important; } /* kurangi padding luar halaman about-us */
+
+    /* ---------- ADMIN: tabel & modal (class shared di global.css) ---------- */
+    /* Tabel lebar bisa discroll horizontal supaya kolom tidak terpotong */
+    .styled-table { display: block; overflow-x: auto; white-space: nowrap; width: 100%; -webkit-overflow-scrolling: touch; }
+    /* Modal add/edit master menyesuaikan layar HP */
+    .modal-box { width: 92vw !important; max-width: 92vw; padding: 22px 18px; border-radius: 24px; max-height: 88vh; overflow-y: auto; }
+    .modal-overlay { padding: 12px; }
+    .modal-header h2 { font-size: 1.4rem; }
+
+    /* Modal sistem "supp-modal" (halaman User & Profile) — panel di-cap ke layar */
+    .supp-modal { width: 92vw !important; max-width: 92vw !important; max-height: 88vh; overflow-y: auto; padding: 20px !important; border-radius: 22px !important; }
+    .supp-input { width: 100% !important; }
+    .badge-active, .badge-inactive { padding: 7px 24px !important; }
+
+    /* Modal Event (sistem sendiri) + grid form-nya di-stack */
+    .event-modal { width: 92vw !important; max-width: 92vw !important; max-height: 88vh; overflow-y: auto; }
+    .ae-grid-2, .ee-grid-2, .ae-product-form-grid, .ee-product-form-grid { grid-template-columns: 1fr !important; }
+}
+
+@media screen and (max-width: 480px) {
+    html { font-size: 12px; }
+    #namaUser { display: none !important; }   /* hemat ruang di HP kecil */
+    .game-list { grid-template-columns: 1fr; }
+    .foot-top  { grid-template-columns: 1fr; }
+    .hero-title { font-size: 2.2rem; }
+    .product-header > div:last-child { grid-template-columns: 1fr !important; }
+}
+
+/* ============================================================
+   ADMIN SIDEBAR → DRAWER (mobile). Tombol hamburger & overlay
+   di-inject via JS di sideBar.php. Desktop (>768) tidak berubah:
+   hamburger & overlay disembunyikan, sidebar tetap di tempatnya.
+   ============================================================ */
+.admin-hamburger { display: none; }
+.sidebar-overlay { display: none; }
+
+@media screen and (max-width: 768px) {
+    .admin-hamburger {
+        display: flex; flex-direction: column; justify-content: center; gap: 4px;
+        position: fixed; top: 12px; left: 12px; z-index: 1200;
+        width: 42px; height: 42px; padding: 9px;
+        background: var(--primary-color); border: none; border-radius: 10px;
+        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .admin-hamburger span { display: block; width: 100%; height: 3px; background: #fff; border-radius: 2px; }
+
+    /* Sidebar jadi drawer off-canvas */
+    .container > .sideBar {
+        position: fixed; top: 0; left: 0; height: 100vh; width: 250px; max-width: 82vw;
+        transform: translateX(-100%); transition: transform .25s ease;
+        z-index: 1150; box-shadow: 2px 0 16px rgba(0,0,0,.2);
+        overflow-y: auto; padding-top: 3.5rem;
+    }
+    body.sidebar-open .container > .sideBar { transform: translateX(0); }
+
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1100; }
+    body.sidebar-open .sidebar-overlay { display: block; }
+
+    /* Konten admin full-width + ruang untuk tombol hamburger */
+    .container > .main-content { width: 100%; padding-top: 3.75rem; }
+}

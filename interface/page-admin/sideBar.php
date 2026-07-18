@@ -306,3 +306,40 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('DOMContentLoaded', function(){ if(adminMailId()) window.adminLoadMails(); });
 })();
 </script>
+
+<!-- Hamburger + overlay untuk drawer sidebar di HP (hanya tampil <=768px via CSS) -->
+<script>
+(function(){
+    function initSidebarDrawer(){
+        if (document.getElementById('adminHamburger')) return;
+
+        var btn = document.createElement('button');
+        btn.id = 'adminHamburger';
+        btn.className = 'admin-hamburger';
+        btn.setAttribute('aria-label', 'Toggle menu');
+        btn.innerHTML = '<span></span><span></span><span></span>';
+
+        var overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        overlay.id = 'adminSidebarOverlay';
+
+        document.body.appendChild(btn);
+        document.body.appendChild(overlay);
+
+        function close(){ document.body.classList.remove('sidebar-open'); }
+        btn.addEventListener('click', function(e){ e.stopPropagation(); document.body.classList.toggle('sidebar-open'); });
+        overlay.addEventListener('click', close);
+
+        // Tutup drawer setelah memilih menu.
+        document.querySelectorAll('.sideBar .menuOption a').forEach(function(a){
+            a.addEventListener('click', close);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarDrawer);
+    } else {
+        initSidebarDrawer();
+    }
+})();
+</script>
