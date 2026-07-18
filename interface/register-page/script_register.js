@@ -1,4 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+// Hilangkan pesan error (dan border merah) di bawah field begitu user mengetik ulang.
+[
+    ['input[name="username"]', 'usernameError'],
+    ['input[name="email"]',    'emailError'],
+    ['#password',              'passwordError'],
+    ['#confirm_password',      'confirmPasswordError'],
+].forEach(([selector, errorId]) => {
+    const input = document.querySelector(selector);
+    const error = document.getElementById(errorId);
+    if (input && error) {
+        input.addEventListener('input', () => clearError(input, error));
+    }
+});
+
 document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -155,6 +170,12 @@ function showError(inputElement, errorElement, message) {
     inputElement.style.borderColor = "red";
     errorElement.innerText = message;
     errorElement.style.display = "block";
+}
+
+function clearError(inputElement, errorElement) {
+    inputElement.style.borderColor = "#0F3891";
+    errorElement.style.display = "none";
+    errorElement.innerText = "";
 }
 
 function resetErrors(inputs, errors) {

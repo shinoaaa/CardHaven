@@ -120,10 +120,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                             <th width="5%">No</th>
                             <th width="12%">Date</th>
                             <th width="18%">Customer</th>
-                            <th width="30%">Product Purchased</th>
+                            <th width="20%">Product Purchased</th>
                             <th width="15%">Payment Method</th>
                             <th width="10%">Quantity</th>
-                            <th width="15%">Price</th>
+                            <th width="25%">Price</th>
                             <th width="10%">Action</th>
                         </tr>
                     </thead>

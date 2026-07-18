@@ -378,7 +378,7 @@ if (isset($conn) && $conn !== false) {
                                             <?php endif; ?>
                                         </td>
                                         <td style="text-align:right;"><?= (int)$row['total_barang'] ?></td>
-                                        <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
+                                        <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= number_format((float)$row['total_harga'], 0, ',', '.') ?></td>
                                         <td>
                                             <span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>; color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>; white-space:nowrap;">
                                                 <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>
