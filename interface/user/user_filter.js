@@ -35,25 +35,25 @@ class UserMasterFilter {
         const tb = document.getElementById(c.toolbarId);
         if (!tb) return;
 
-        const style = 'padding:6px 10px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:.8rem; color:#334155; background:#fff; height: 34px; outline:none;';
+        const baseStyle = 'border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.8rem; color:#334155; background-color:#fff; height: 34px; box-sizing:border-box; outline:none;';
         
         let html = `<div style="display:flex; flex-wrap:nowrap; gap:8px; align-items:center; margin-bottom:15px; width:100%; overflow-x:auto; padding-bottom:5px;">`;
         
         // Search
-        html += `<input type="text" class="mf-search" placeholder="${c.searchPlaceholder}" style="${style} flex:1; min-width:200px;">`;
-        html += `<select class="mf-status" style="${style} cursor:pointer; min-width:110px; width: auto; flex-shrink: 0;">
+        html += `<input type="text" class="mf-search" placeholder="${c.searchPlaceholder}" style="${baseStyle} padding:6px 14px; flex:1; min-width:200px;">`;
+        html += `<select class="mf-status" style="${baseStyle} padding:6px 36px 6px 14px; cursor:pointer; min-width:110px; width: auto; flex-shrink: 0;">
                     <option value="">All Status</option>
                     <option value="1">Active</option>
                     <option value="0">Inactive</option>
                  </select>`;
         
         // Sort Dropdown
-        html += `<select class="mf-sort" style="${style} cursor:pointer; min-width:120px; width: auto; flex-shrink: 0;">`;
+        html += `<select class="mf-sort" style="${baseStyle} padding:6px 36px 6px 14px; cursor:pointer; min-width:120px; width: auto; flex-shrink: 0;">`;
         html += `<option value="${this.idField}">Sort: None</option>`;
         html += c.sortOptions.map(o => `<option value="${o.val}">${o.label}</option>`).join('') + `</select>`;
         
         // Order Direction (↑↓)
-        html += `<button type="button" class="mf-order" title="Change Order" style="${style} cursor:pointer; font-weight:bold; width:40px;">↑</button>`;
+        html += `<button type="button" class="mf-order" title="Change Order" style="${baseStyle} padding:6px 10px; cursor:pointer; font-weight:bold; width:40px;">↑</button>`;
         
         // Status Filter
         

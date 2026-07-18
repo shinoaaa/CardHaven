@@ -576,6 +576,8 @@ window.addToCart = function(idProduk, hargaSatuan) {
             // Reset qty ke 1 setelah berhasil
             document.getElementById(`qty-val-${idProduk}`).value = 1;
             document.getElementById(`display-price-${idProduk}`).textContent = formatRupiah(hargaSatuan);
+        } else {
+            cardhavenToast('error', res.message || 'Failed to add product to cart');
         }
     });
 };

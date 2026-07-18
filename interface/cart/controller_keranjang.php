@@ -31,6 +31,19 @@ try {
             $row['harga_produk'] = (float)$row['harga_produk'];
             $row['subtotal_harga'] = (float)$row['subtotal_harga'];
             $row['jumlah_barang'] = (int)$row['jumlah_barang'];
+            
+            if (!isset($row['stok'])) {
+                $rp = sqlsrv_query($conn, "SELECT stok FROM dbo.produk WHERE id_produk = ?", [$row['id_produk']]);
+                if ($rp) {
+                    $prod = sqlsrv_fetch_array($rp, SQLSRV_FETCH_ASSOC);
+                    $row['stok'] = (int)$prod['stok'];
+                } else {
+                    $row['stok'] = 0;
+                }
+            } else {
+                $row['stok'] = (int)$row['stok'];
+            }
+            
             $items[] = $row;
         }
         
@@ -106,6 +119,35 @@ try {
     if ($action === 'update_qty')  $qty = (int)($_POST['change'] ?? 0);
     
     $status = isset($_POST['status']) ? (int)$_POST['status'] : 0;
+    
+    // Validasi stok sebelum update
+    if ($action === 'add_to_cart') {
+        $rp = sqlsrv_query($conn, "SELECT stok FROM dbo.produk WHERE id_produk = ?", [$id_produk]);
+        $prod = sqlsrv_fetch_array($rp, SQLSRV_FETCH_ASSOC);
+        if ($prod) {
+            $stok = (int)$prod['stok'];
+            $rk = sqlsrv_query($conn, "SELECT dk.jumlah_barang FROM dbo.detail_keranjang dk JOIN dbo.keranjang k ON dk.id_keranjang = k.id_keranjang WHERE k.id_pengguna = ? AND dk.id_produk = ?", [$id_pengguna, $id_produk]);
+            $ex = sqlsrv_fetch_array($rk, SQLSRV_FETCH_ASSOC);
+            $current_qty = $ex ? (int)$ex['jumlah_barang'] : 0;
+            if ($current_qty + $qty > $stok) {
+                ob_clean();
+                echo json_encode(['success' => false, 'message' => "Not enough stock! You already have $current_qty in your cart, remaining stock: $stok."]);
+                exit;
+            }
+        }
+    } else if ($action === 'update_qty') {
+        $rp = sqlsrv_query($conn, "SELECT p.stok, dk.jumlah_barang FROM dbo.detail_keranjang dk JOIN dbo.produk p ON dk.id_produk = p.id_produk WHERE dk.id_detail_keranjang = ?", [$id_detail]);
+        $prod = sqlsrv_fetch_array($rp, SQLSRV_FETCH_ASSOC);
+        if ($prod) {
+            $stok = (int)$prod['stok'];
+            $current_qty = (int)$prod['jumlah_barang'];
+            if ($current_qty + $qty > $stok) {
+                ob_clean();
+                echo json_encode(['success' => false, 'message' => "Exceeds available stock limit ($stok)."]);
+                exit;
+            }
+        }
+    }
     
     // Penerjemah aksi untuk Stored Procedure
     $sp_action = '';

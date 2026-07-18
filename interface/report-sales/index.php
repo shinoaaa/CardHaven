@@ -52,7 +52,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                             <div style="font-weight:700; color:var(--primary-color); font-size:1.05rem;"><?= htmlspecialchars($currentTitle) ?> Overview</div>
                             <div style="font-size:.72rem; color:#94a3b8;">Monthly total (Rp) per selected year</div>
                         </div>
-                        <select id="reportChartYear" onchange="reportLoadChart(this.value)" style="height:34px; padding:0 12px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.82rem; color:var(--primary-color); background:#fff; cursor:pointer;"></select>
+                        <select id="reportChartYear" onchange="reportLoadChart(this.value)" style="height:34px; padding:0 36px 0 12px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.82rem; color:var(--primary-color); background-color:#fff; cursor:pointer;"></select>
                     </div>
                     <div style="height:260px; position:relative;"><canvas id="reportChart"></canvas></div>
                 </div>
@@ -77,7 +77,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
                             
-                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 12px; border-radius: 8px;">
+                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="0">All Months</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -93,7 +93,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="12">December</option>
                             </select>
 
-                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 12px; border-radius: 8px;">
+                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
                                 <option value="NONE">None</option>
                                 <option value="DATE">Date</option>
@@ -105,13 +105,13 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
-                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
-                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
+                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
+                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
                         </div>
                     </div>
 
                     <div style="width: 100%;">
-                        <input type="text" id="searchReport" class="modal-input" placeholder="Search customer, card, date, receipt, or price..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 8px; margin: 0; box-sizing: border-box;">
+                        <input type="text" id="searchReport" class="modal-input" placeholder="Search customer, card, date, receipt, or price..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 9999px;">
                     </div>
                 </div>
                 <table class="styled-table" id="tableLaporan">
@@ -171,7 +171,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
                             
-                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 12px; border-radius: 8px;">
+                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="0">All Months</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -187,7 +187,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="12">December</option>
                             </select>
 
-                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 12px; border-radius: 8px;">
+                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
                                 <option value="NONE">None</option>
                                 <option value="DATE">Date</option>
@@ -199,13 +199,13 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
-                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
-                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
+                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
+                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
                         </div>
                     </div>
 
                     <div style="width: 100%;">
-                        <input type="text" id="searchReport" class="modal-input" placeholder="Search customer, card, date, receipt, or price..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 8px; margin: 0; box-sizing: border-box;">
+                        <input type="text" id="searchReport" class="modal-input" placeholder="Search customer, card, date, receipt, or price..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 9999px;">
                     </div>
                 </div>
 
@@ -264,7 +264,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
 
-                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 12px; border-radius: 8px;">
+                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="0">All Months</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -280,7 +280,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="12">December</option>
                             </select>
 
-                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 12px; border-radius: 8px;">
+                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
                                 <option value="NONE">None</option>
                                 <option value="DATE">Date</option>
@@ -292,13 +292,13 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
-                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
-                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
+                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
+                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
                         </div>
                     </div>
 
                     <div style="width: 100%;">
-                        <input type="text" id="searchReport" class="modal-input" placeholder="Search supplier, product, date, or price..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 8px; margin: 0; box-sizing: border-box;">
+                        <input type="text" id="searchReport" class="modal-input" placeholder="Search supplier, product, date, or price..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 9999px;">
                     </div>
                 </div>
 
@@ -357,7 +357,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
 
-                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 12px; border-radius: 8px;">
+                            <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="0">All Months</option>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
@@ -373,7 +373,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="12">December</option>
                             </select>
 
-                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 12px; border-radius: 8px;">
+                            <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
                                 <option value="NONE">None</option>
                                 <option value="DATE">Date</option>
@@ -385,13 +385,13 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
-                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
-                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 8px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
+                            <button class="btn-add-green" onclick="exportReport('excel')" style="background-color: #27AE60; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export Excel</button>
+                            <button class="btn-add-green" onclick="exportReport('pdf')" style="background-color: #E74C3C; border-radius: 9999px; height: 38px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;">Export PDF</button>
                         </div>
                     </div>
 
                     <div style="width: 100%;">
-                        <input type="text" id="searchReport" class="modal-input" placeholder="Search event name, type, product, date, or revenue..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 8px; margin: 0; box-sizing: border-box;">
+                        <input type="text" id="searchReport" class="modal-input" placeholder="Search event name, type, product, date, or revenue..." onkeyup="debounceSearch()" style="height: 38px; width: 100%; border-radius: 9999px;">
                     </div>
                 </div>
 

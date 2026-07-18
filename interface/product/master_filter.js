@@ -38,7 +38,7 @@ class MasterFilter {
         const tb = document.getElementById(c.toolbarId);
         if (!tb) return;
 
-        const inputStyle = 'padding:4px 8px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:.75rem;color:#334155;background:#fff; height: 30px; box-sizing:border-box; outline:none;';
+        const inputStyle = 'padding:4px 16px 4px 12px;border:1.5px solid #D0DAF0;border-radius:9999px;font-size:.75rem;color:#334155;background-color:#fff; height: 30px; box-sizing:border-box; outline:none;';
         
         let html = `<div style="display:flex; flex-wrap:nowrap; gap:6px; align-items:center; margin-bottom:12px; width:100%; overflow-x:auto; padding-bottom:5px;">`;
         

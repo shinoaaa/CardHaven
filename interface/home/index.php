@@ -60,9 +60,9 @@ $baseUrl = '/CardHaven';
         <div class="promo-header">
             <h3 class="coolveticaa">Promo🔥</h3>
             <div style="width: 25%;">
-                <!-- <select name="" class="modal-input">
+                <select name="" class="modal-input">
                     <option value="">-- Select Game --</option>
-                </select> -->
+                </select>
             </div>
         </div>
         <div class="promo-content"></div>
@@ -114,7 +114,7 @@ $baseUrl = '/CardHaven';
                 </div>
                 <div>
                     <label style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">Product Type</label>
-                    <select id="homeProductType" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color); background: white; margin-top: 5px; box-sizing: border-box; cursor: pointer;">
+                    <select id="homeProductType" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 36px 0 15px; outline: none; color: var(--primary-color); background-color: white; margin-top: 5px; box-sizing: border-box; cursor: pointer;">
                         <option value="">All Types</option>
                         <option value="Single card">Single card</option>
                         <option value="Booster pack">Booster pack</option>
@@ -126,7 +126,7 @@ $baseUrl = '/CardHaven';
                 </div>
                 <div>
                     <label style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">Game Name</label>
-                    <select id="homeGameName" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 15px; outline: none; color: var(--primary-color); background: white; margin-top: 5px; box-sizing: border-box; cursor: pointer;">
+                    <select id="homeGameName" style="width: 100%; height: 2.5rem; border: 1px solid var(--primary-color); border-radius: 9999px; padding: 0 36px 0 15px; outline: none; color: var(--primary-color); background-color: white; margin-top: 5px; box-sizing: border-box; cursor: pointer;">
                         <option value="">All Games</option>
                         <!-- Opsi Game Akan Diisi Otomatis oleh JS -->
                     </select>

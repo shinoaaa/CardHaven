@@ -30,7 +30,7 @@
                             <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                         </div>
                         
-                        <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 12px; border-radius: 8px;">
+                        <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
                             <option value="0">All Months</option>
                             <option value="1">January</option>
                             <option value="2">February</option>

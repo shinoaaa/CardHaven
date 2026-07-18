@@ -114,6 +114,7 @@ function renderRow(item) {
                 </div>
                 <div class="cart-product-details">
                     <span class="cart-product-title">${escapeHtml(item.nama_produk)}</span>
+                    <span style="font-size: 0.75rem; color: var(--primary-color, #173C99); font-weight: 600; display: block; margin-bottom: 3px;">Stock: ${item.stok}</span>
                     <span class="cart-product-meta">Official Card</span>
                 </div>
             </div>
@@ -123,16 +124,19 @@ function renderRow(item) {
             <div class="cart-qty-control">
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, -1)"
-                        title="Subtract">−</button>
+                        title="Subtract"
+                        ${item.jumlah_barang <= 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>−</button>
                 <input type="number"
                        class="cart-qty-val"
                        min="1"
+                       max="${item.stok}"
                        value="${item.jumlah_barang}"
                        data-qty="${item.jumlah_barang}"
-                       onchange="handleCartQtyTyped(${item.id_detail_keranjang}, this)">
+                       onchange="handleCartQtyTyped(${item.id_detail_keranjang}, this, ${item.stok})">
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, 1)"
-                        title="Add">+</button>
+                        title="Add"
+                        ${item.jumlah_barang >= item.stok ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>+</button>
             </div>
         </td>
         <td class="cart-total">${formatIDR(item.subtotal_harga)}</td>
@@ -202,18 +206,28 @@ function updateQty(id, change) {
  
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
         .then(res => res.json())
-        .then(json => { if (json.success) loadCart(); })
+        .then(json => { 
+            if (json.success) {
+                loadCart(); 
+            } else {
+                cardhavenToast('error', json.message || 'Cannot change quantity');
+                loadCart(); // reset value to what's in DB
+            }
+        })
         .catch(err => console.error(err));
 }
 
 // ---- Dipanggil saat user mengetik langsung jumlah quantity lalu keluar dari kolom (blur / Enter) ----
-function handleCartQtyTyped(id, inputEl) {
+function handleCartQtyTyped(id, inputEl, stok) {
     const oldQty = parseInt(inputEl.dataset.qty) || 1;
     let newQty   = parseInt(inputEl.value);
 
     // Kalau kosong atau tidak valid, kembalikan ke jumlah sebelumnya
     if (isNaN(newQty) || newQty < 1) {
         newQty = 1;
+    }
+    if (newQty > stok) {
+        newQty = stok;
     }
 
     if (newQty === oldQty) {

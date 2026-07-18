@@ -31,8 +31,8 @@ $BUYBACK_STATUS = [
         }
         .event-modal-close:hover { opacity: 1; }
         .purchase-filter-input {
-            padding: 8px 16px; border: 1.5px solid #D0DAF0; border-radius: 9999px;
-            font-size: 0.88rem; outline: none; background: white;
+            padding: 8px 36px 8px 16px; border: 1.5px solid #D0DAF0; border-radius: 9999px;
+            font-size: 0.88rem; outline: none; background-color: white;
         }
     </style>
 </head>

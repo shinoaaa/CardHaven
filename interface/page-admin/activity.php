@@ -57,8 +57,9 @@
     .dash-panel-sub   { font-size: .75rem; color: #9aa4b2; margin: .15rem 0 0 0; }
 
     .dash-year-select {
-        padding: 6px 12px; border: 1.5px solid #D0DAF0; border-radius: 9999px;
-        font-size: .82rem; color: var(--primary-color); background: #fff; cursor: pointer; outline: none;
+        padding: 6px 36px 6px 14px; border: 1.5px solid #D0DAF0; border-radius: 9999px;
+        font-size: .82rem; color: var(--primary-color); background-color: #fff; cursor: pointer; outline: none;
+        width: auto;
     }
 
     /* ── Recent Activity list ── */

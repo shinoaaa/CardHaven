@@ -309,7 +309,7 @@ if (isset($conn) && $conn !== false) {
             <?php if ($type === 'sales'): ?>
                 <!-- ================== START SALES ================== -->
                 <!-- Filter By + Sort By + Asc/Desc satu baris, Search full width di bawah -->
-                <?php $trxPill = 'padding:8px 16px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:0.88rem; outline:none; background:white;'; ?>
+                <?php $trxPill = 'padding:8px 36px 8px 16px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:0.88rem; outline:none; background-color:white;'; ?>
                 <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
                     <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
                         <select onchange="setTrxStatus(this.value)" style="width:200px; cursor:pointer; <?= $trxPill ?>">
@@ -328,7 +328,7 @@ if (isset($conn) && $conn !== false) {
                             <option value="QTY"   <?= $activeSortBy === 'QTY'   ? 'selected' : '' ?>>Sort: Items</option>
                         </select>
 
-                        <button onclick="toggleTrxOrder('<?= $activeSortOrder ?>')" style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color); <?= $trxPill ?>">
+                        <button id="btnSortOrder" onclick="toggleTrxOrder()" style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color); <?= $trxPill ?>">
                             <?= $activeSortOrder === 'ASC' ? 'Ascending ↑' : 'Descending ↓' ?>
                         </button>
                     </div>
@@ -378,7 +378,7 @@ if (isset($conn) && $conn !== false) {
                                             <?php endif; ?>
                                         </td>
                                         <td style="text-align:right;"><?= (int)$row['total_barang'] ?></td>
-                                        <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= htmlspecialchars($row['total_harga']) ?></td>
+                                        <td style="text-align:right;font-weight:700;white-space:nowrap;">Rp <?= number_format($row['total_harga'], 0, ',', '.') ?></td>
                                         <td>
                                             <span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:.72rem; font-weight:700; background:<?= $STATUS_COLOR[$s]['bg'] ?? '#f3f4f6' ?>; color:<?= $STATUS_COLOR[$s]['color'] ?? '#555' ?>; white-space:nowrap;">
                                                 <?= $STATUS_LABEL[$s] ?? 'Unknown' ?>

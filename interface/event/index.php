@@ -21,9 +21,9 @@ $sort   = $_GET['sort'] ?? 'date';
         /* CSS Minimalis untuk Toolbar agar sejajar dengan desainmu */
         .event-toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
         .filter-input, .filter-select {
-            padding: 8px 15px; border: 1px solid var(--primary-color, #173C99);
+            padding: 8px 36px 8px 15px; border: 1px solid var(--primary-color, #173C99);
             border-radius: 9999px; outline: none; color: var(--primary-color, #173C99);
-            font-family: inherit; font-size: 13px; background: #fff;
+            font-family: inherit; font-size: 13px; background-color: #fff;
         }
         .filter-input { width: 220px; }
         .filter-select { font-weight: 600; cursor: pointer; }
