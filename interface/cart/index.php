@@ -1,13 +1,7 @@
 <?php
-session_start();
-
-// Proteksi Halaman
-// if (!isset($_SESSION['id_pengguna'])) {
-//     header("Location: /cardhaven/interface/login-page/index.php?error=login_required");
-//     exit;
-// }
-
-// $session_id_pengguna = $_SESSION['id_pengguna'];
+// Proteksi halaman cart dilakukan di server oleh page-customer/index.php
+// (auth_require_login()), karena file ini di-include setelah output dimulai.
+require_once __DIR__ . '/../../auth/session.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -93,6 +87,24 @@ session_start();
         .cart-qty-btn { background: none; border: none; width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; color: var(--primary-color, #1a3a6b); font-weight: 700; display: flex; align-items: center; justify-content: center; }
         .cart-qty-btn:hover { background: #eef2ff; }
         .cart-qty-val { min-width: 36px; text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--text-dark, #111); border-left: 1px solid #dde4f8; border-right: 1px solid #dde4f8; padding: 0 4px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        input.cart-qty-val {
+            border-top: none;
+            border-bottom: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            box-sizing: border-box;
+            border-radius: 0;
+            width: 36px;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+        }
+        input.cart-qty-val::-webkit-outer-spin-button,
+        input.cart-qty-val::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
         .cart-btn-remove { width: 28px; height: 28px; border-radius: 50%; background: #f5f5f5; border: none; color: #aaa; cursor: pointer; font-size: 0.7rem; display: flex; justify-content: center; align-items: center; }
         .cart-btn-remove:hover { background: #fee2e2; color: #dc2626; }
         #cart-empty-msg { padding: 80px 0; text-align: center; }
@@ -104,6 +116,21 @@ session_start();
             position: sticky;
             top: 120px;
         }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-color, #1a3a6b);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--highlight); }
         .order-summary-box { background: white; border: 1.5px solid #dde4f8; border-radius: 10px; overflow: hidden; }
         .summary-header { background: var(--primary-color, #1a3a6b); padding: 18px 24px; }
         .summary-header h2 { font-size: 1rem; font-weight: 800; color: white; text-transform: uppercase; margin: 0; }
@@ -139,24 +166,29 @@ session_start();
                 max-width: 100%;
             }
         }
-    </style>
-    <script>
-        const isLogin = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
-
-        if(!isLogin){
-            window.location.replace("/CardHaven/login")
+        /* HP/tablet: tabel keranjang bisa discroll horizontal supaya kolom
+           (Price/Qty/Subtotal) tidak memaksa halaman melebar. */
+        @media (max-width: 768px) {
+            /* .main-content global (flex/height:100vh) dinetralkan agar konten
+               mengalir normal & tidak memaksa lebar di HP. */
+            .main-content { display: block; height: auto; padding: 0; overflow: visible; }
+            .cart-page-wrapper { padding: 0 1rem 3rem; max-width: 100%; }
+            .cart-page-title { font-size: 2rem; }
+            .cart-items-section { width: 100%; overflow-x: auto; min-width: 0; }
+            .cart-table { min-width: 440px; }
+            .cart-img-wrap { width: 60px; height: 78px; }
+            .cart-table tbody td { padding: 14px 8px; }
+            .btn-cart-checkout { width: calc(100% - 32px); margin: 16px 16px 20px; }
         }
-    </script>
+    </style>
 </head>
 <body>
-    <!-- Simpan ID Session agar bisa dibaca JS -->
-    <input type="hidden" id="session-id-pengguna" value="<?php echo $session_id_pengguna; ?>">
-
     <!-- Path NavBar diperbaiki -->
     <?php include '../page-customer/navBar.php'; ?>
 
     <main class="main-content">
         <div class="cart-page-wrapper">
+            <a href="/CardHaven/home" class="back-link">← Back to Home</a>
             <h1 class="cart-page-title">MY <span class="accent">CART</span></h1>
 
             <div class="cart-wrapper">
@@ -215,19 +247,6 @@ session_start();
         </div>
     </main>
 
-    <!-- <script>
-        // Logika Sinkronisasi Storage
-        const sessionIdEl = document.getElementById('session-id-pengguna');
-        if (sessionIdEl) {
-            const sessionId = sessionIdEl.value;
-            if (!localStorage.getItem('id_pengguna')) {
-                localStorage.setItem('id_pengguna', sessionId);
-            }
-            if (localStorage.getItem('id_pengguna') !== sessionId) {
-                localStorage.setItem('id_pengguna', sessionId);
-            }
-        }
-    </script> -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>
     <script src="/cardhaven/interface/cart/keranjang_script.js"></script>

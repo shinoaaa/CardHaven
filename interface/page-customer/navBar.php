@@ -339,7 +339,8 @@
 </style>
 
 <script>
-    const isUser = localStorage.getItem('username') || sessionStorage.getItem('username');
+    // Identitas diambil dari PHP session lewat CardHavenAuth (window.CH_AUTH).
+    const isUser = CardHavenAuth.isLoggedIn() ? CardHavenAuth.username() : '';
     const signBtn = document.getElementById('btn-sign');
     const namaUser = document.getElementById('namaUser');
     const popNamaUser = document.getElementById('popNamaUser');
@@ -379,11 +380,11 @@
     });
 
     async function fetchUserData() {
-        const idPengguna = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
-        if (!idPengguna) return;
+        if (!CardHavenAuth.isLoggedIn()) return;
 
         try {
-            const response = await fetch(`/cardhaven/interface/page-customer/controller.php?id_pengguna=${idPengguna}`);
+            // Tanpa id_pengguna di URL — server memakai id dari session.
+            const response = await fetch(`/cardhaven/interface/page-customer/controller.php`);
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
             const result = await response.json();
@@ -391,7 +392,7 @@
             if (result.status === 'success' && result.data) {
                 // ✅ Pakai variabel yang benar (result.data, bukan user)
                 const avatarSrc = result.data.foto_profil
-                    ? `/cardhaven/${result.data.foto_profil}`
+                    ? `/cardhaven/image-profile/${result.data.foto_profil}`
                     : '/cardhaven/assets/image/user.svg';
 
                 // ✅ Set ke semua elemen avatar di navbar
@@ -434,16 +435,15 @@
             "Are you sure you want to logout from your account?",
             "Logout",
             () => {
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = "/CardHaven/login";
+                // Session dihapus di server; browser tidak menyimpan identitas apa pun.
+                CardHavenAuth.logout();
             }
         );
     });
 
     // ── Mailbox / Notifikasi ──────────────────────────────────────────────
     const NAV_MAIL_API = '/cardhaven/interface/page-profile/controller/MailController.php';
-    const navMailUserId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const navMailUserId = CardHavenAuth.id() || null;
 
     // Notif lama tersimpan dalam Bahasa Indonesia; terjemahkan frasa template ke Inggris.
     const NAV_NOTIF_TR = [

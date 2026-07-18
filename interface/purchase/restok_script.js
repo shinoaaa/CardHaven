@@ -1,6 +1,6 @@
 const API       = '/cardhaven/interface/purchase/controller_restok.php';
-const ACTOR_ID  = parseInt(sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0);
-const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
+const ACTOR_ID  = CardHavenAuth.id();
+const USER_ROLE = CardHavenAuth.role();
 const RESTOK_PER_PAGE = 7;
 let currentPage = 1;
 let searchTimer = null;

@@ -97,21 +97,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminRole      = document.getElementById('admin-role');
     const profileImageElement = document.getElementById('profileImage');
 
-    // Ambil Data User dari Storage
-    const userId = sessionStorage.getItem("id_pengguna") || localStorage.getItem("id_pengguna");
-    document.getElementById("userName").textContent  = sessionStorage.getItem("username")  || localStorage.getItem("username")  || '';
-    document.getElementById("userEmail").textContent = sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail") || '';
+    // Ambil Data User dari PHP session (window.CH_AUTH), bukan dari storage browser.
+    const userId = CardHavenAuth.id();
+    document.getElementById("userName").textContent  = CardHavenAuth.username();
+    document.getElementById("userEmail").textContent = CardHavenAuth.email();
 
     if (userId) {
-        fetch(`/CardHaven/interface/page-admin/controller.php?action=getProfileImage&id=${userId}`)
+        // Tanpa parameter id — server memakai id dari session.
+        fetch(`/CardHaven/interface/page-admin/controller.php?action=getProfileImage`)
             .then(response => response.text())
             .then(textData => {
                 try {
                     const data = JSON.parse(textData);
                     if (data.status === 'success' && data.image) {
-                        // [FIX] data.image sudah berisi full path relatif (misal: image-profile/foto.jpg)
-                        // langsung pakai /CardHaven/ + data.image, JANGAN tambah image-profile lagi
-                        profileImageElement.src = `/CardHaven/${data.image}`;
+                        // DB menyimpan nama file saja. Ambil nama file (buang path lama jika ada)
+                        // lalu tambahkan folder image-profile.
+                        const fileName = data.image.split('/').pop();
+                        profileImageElement.src = `/CardHaven/image-profile/${fileName}`;
                     }
                     // [FIX] Kalau gagal atau user tidak punya foto, biarkan default.jpg tetap tampil
                 } catch (e) {
@@ -124,7 +126,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    const role = Number.parseInt(sessionStorage.getItem("role")) || Number.parseInt(localStorage.getItem("role"));
+    // Role dari PHP session. Menyembunyikan menu di sini hanya untuk kerapian UI —
+    // pembatasan sesungguhnya tetap dicek server di tiap halaman & controller.
+    const role = CardHavenAuth.role();
 
     if (role === 2 || role === 1) {
         navUser.style.display  = 'none';
@@ -135,13 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         navPurchase.style.display = 'none';
     }
 
-    if (role === 1) {
-        adminRole.textContent = 'Employee';
-    } else if (role === 2) {
-        adminRole.textContent = 'Manager';
-    } else {
-        adminRole.textContent = 'Owner';
-    }
+    adminRole.textContent = CardHavenAuth.roleLabel();
 
     const request  = window.location.pathname;
     const url      = request.replace('/CardHaven', '');
@@ -197,13 +195,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // ... selector nav lainnya (navDashboard, navTransaction, dll tetap sama) ...
     const profileImageElement = document.getElementById('profileImage');
 
-    // Ambil Data User dari Storage
-    const userId = sessionStorage.getItem("id_pengguna") || localStorage.getItem("id_pengguna");
-    document.getElementById("userName").textContent  = sessionStorage.getItem("username")  || localStorage.getItem("username")  || '';
-    document.getElementById("userEmail").textContent = sessionStorage.getItem("userEmail") || localStorage.getItem("userEmail") || '';
+    // Ambil Data User dari PHP session (window.CH_AUTH), bukan dari storage browser.
+    const userId = CardHavenAuth.id();
+    document.getElementById("userName").textContent  = CardHavenAuth.username();
+    document.getElementById("userEmail").textContent = CardHavenAuth.email();
 
     if (userId) {
-        fetch(`/CardHaven/interface/page-admin/controller.php?action=getProfileImage&id=${userId}`)
+        // Tanpa parameter id — server memakai id dari session.
+        fetch(`/CardHaven/interface/page-admin/controller.php?action=getProfileImage`)
             .then(response => response.json()) // Langsung parse ke JSON
             .then(data => {
                 if (data.status === 'success' && data.image) {
@@ -220,14 +219,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ... sisa kode logic role dan navigasi segmen URL tetap sama ...
-    const role = Number.parseInt(sessionStorage.getItem("role")) || Number.parseInt(localStorage.getItem("role"));
+    const role = CardHavenAuth.role();
     // ... dst ...
 });
 </script>
 <script>
 (function(){
     const ADMIN_MAIL_API = '/cardhaven/interface/page-profile/controller/MailController.php';
-    function adminMailId(){ return sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna'); }
+    function adminMailId(){ return CardHavenAuth.id() || null; }
 
     // Notif tersimpan dalam Bahasa Indonesia; terjemahkan frasa template yang dikenal ke Inggris.
     const ADM_NOTIF_TR = [
@@ -306,5 +305,42 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     document.addEventListener('DOMContentLoaded', function(){ if(adminMailId()) window.adminLoadMails(); });
+})();
+</script>
+
+<!-- Hamburger + overlay untuk drawer sidebar di HP (hanya tampil <=768px via CSS) -->
+<script>
+(function(){
+    function initSidebarDrawer(){
+        if (document.getElementById('adminHamburger')) return;
+
+        var btn = document.createElement('button');
+        btn.id = 'adminHamburger';
+        btn.className = 'admin-hamburger';
+        btn.setAttribute('aria-label', 'Toggle menu');
+        btn.innerHTML = '<span></span><span></span><span></span>';
+
+        var overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        overlay.id = 'adminSidebarOverlay';
+
+        document.body.appendChild(btn);
+        document.body.appendChild(overlay);
+
+        function close(){ document.body.classList.remove('sidebar-open'); }
+        btn.addEventListener('click', function(e){ e.stopPropagation(); document.body.classList.toggle('sidebar-open'); });
+        overlay.addEventListener('click', close);
+
+        // Tutup drawer setelah memilih menu.
+        document.querySelectorAll('.sideBar .menuOption a').forEach(function(a){
+            a.addEventListener('click', close);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarDrawer);
+    } else {
+        initSidebarDrawer();
+    }
 })();
 </script>

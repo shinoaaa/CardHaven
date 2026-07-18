@@ -1,6 +1,6 @@
 const REPORT_CONTROLLER = '/cardhaven/interface/report-restok/controller_laporan_restok.php';
-const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
-const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+const idPengguna = CardHavenAuth.id() || null;
+const userRole = CardHavenAuth.role();
 
 let allData = [];
 let filteredData = [];
@@ -131,7 +131,7 @@ function renderTable() {
             <td style="text-align:center;">${startNo++}</td>
             <td style="white-space:nowrap;">${tanggal}</td>
             <td style="font-weight:600;">${row.nama_suplier || '-'}</td>
-            <td><div class="card-list-cell">${row.daftar_produk || '-'}</div></td>
+            <td><div class="card-list-cell" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${row.daftar_produk || '-'}</div></td>
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">

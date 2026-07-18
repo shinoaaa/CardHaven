@@ -1,6 +1,11 @@
 <?php
 ini_set('display_errors', 0);
 
+// Session dimulai paling awal (sebelum ada output apa pun) supaya $_SESSION
+// selalu terisi di semua halaman yang di-include router ini.
+require_once __DIR__ . '/../auth/session.php';
+auth_session_start();
+
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $url = str_replace('/CardHaven', '', $request);
 $segments = explode('/', trim($url, '/'));

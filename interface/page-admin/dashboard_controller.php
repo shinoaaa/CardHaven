@@ -53,7 +53,7 @@ try {
         exit;
     }
 
-    // ── 10 transaksi terbaru gabungan ─────────────────────────────────────
+    // ── 15 transaksi terbaru gabungan
     if ($action === 'recent') {
         $limit = max(1, (int)($_GET['limit'] ?? 15));
         $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetRecentActivity(?)}', [$limit]);

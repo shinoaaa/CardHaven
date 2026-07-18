@@ -1,5 +1,5 @@
 const URL_PRODUK = '/cardhaven/interface/product/controller_produk.php'; 
-var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+var getEmpId = () => CardHavenAuth.id() || null;
 
 function showError(el, msg) {
     el.style.border = "2px solid #E74C3C"; 
@@ -204,7 +204,6 @@ document.getElementById('productForm').onsubmit = async function(e) {
     submitBtn.innerText = "Saving...";
 
     const fd = new FormData(this);
-    fd.append('id_pengguna_js', getEmpId());
 
     try {
         const response = await fetch(URL_PRODUK, { method: 'POST', body: fd });
@@ -267,7 +266,6 @@ function toggleProductStatus(id, isActive, el) {
     const fd = new FormData();
     fd.append('action', action);
     fd.append('id_produk', id);
-    fd.append('id_pengguna_js', getEmpId()); 
 
     fetch(URL_PRODUK, { method: 'POST', body: fd })
     .then(res => res.json())
@@ -344,7 +342,6 @@ function confirmDeleteProduct(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_produk', id);
-        fd.append('id_pengguna_js', getEmpId());
 
         fetch(URL_PRODUK, { method: 'POST', body: fd })
         .then(res => res.json())

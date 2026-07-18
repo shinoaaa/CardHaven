@@ -6,7 +6,8 @@
  * (2) dipanggil langsung via fetch untuk aksi AJAX (mode JSON).
  */
 error_reporting(E_ALL);
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../../../auth/session.php';
+auth_session_start();
 
 $action = $_REQUEST['action'] ?? '';
 $isAjax = ($action !== '');
@@ -67,8 +68,13 @@ function saveProfilePhoto(?array $file): ?string {
     return $name;
 }
 
-$role    = 1;
-$actorId = trim((string)($_POST['actor_id'] ?? ''));
+$role = 1;
+
+// Manajemen pengguna hanya untuk Owner.
+if ($isAjax) auth_api_require_role([ROLE_OWNER]);
+
+// Pelaku aksi (jejak audit) diambil dari session, bukan dari actor_id kiriman browser.
+$actorId = (string)auth_id();
 
 if ($isAjax) {
     if (!isset($conn) || $conn === false) jsonOut(false, 'Database connection failed. Please try again.');

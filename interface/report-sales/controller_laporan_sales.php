@@ -1,15 +1,16 @@
 <?php
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 
-require_once '../../connection.php'; 
+require_once '../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 $action = $_GET['action'] ?? '';
-$role = (int)($_GET['role'] ?? 0);
-if ($role !== 2 && $role !== 3) {
-    die(json_encode(["status" => "error", "message" => "Unauthorized access."]));
-}
+
+// Laporan Sales: Manager (2) & Owner (3).
+// Role diambil dari session — sebelumnya dibaca dari ?role= di URL, sehingga
+// siapa pun bisa membuka laporan ini hanya dengan menambahkan &role=3.
+auth_api_require_role([ROLE_MANAGER, ROLE_OWNER]);
 
 $tahun = (int)($_GET['tahun'] ?? 0);
 $bulan = (int)($_GET['bulan'] ?? 0);

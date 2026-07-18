@@ -1,16 +1,21 @@
 <?php
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 ob_start();
 
 try {
-    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 1));
+    // Master Payment Method: dibaca semua pegawai (dipakai filter di halaman
+    // Transaction), tapi hanya Owner yang boleh mengubah — sama seperti aturan
+    // di UI (kartu Master Payment Method cuma tampil untuk Owner).
+    $id_user = auth_api_require_role(auth_staff_roles())['id'];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        auth_api_require_role([ROLE_OWNER]);
+
         $action    = $_POST['action'] ?? '';
         $id_metode = isset($_POST['id_metode']) && $_POST['id_metode'] !== '' ? (int)$_POST['id_metode'] : null;
         $nama      = trim($_POST['nama_metode'] ?? '');

@@ -1,5 +1,4 @@
 <?php
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
@@ -8,16 +7,16 @@ ob_start();
 
 try {
     require_once '../../connection.php';
+    require_once __DIR__ . '/../../auth/session.php';
     if (!isset($conn) || !is_resource($conn)) {
         throw new Exception("Invalid database connection.");
     }
 
-    $id_pengguna = (int)($_POST['id_pengguna_js'] ?? ($_GET['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0)));
+    // Keranjang itu milik pribadi: id_pengguna SELALU dari session.
+    // Dulu id dibaca dari POST/GET (id_pengguna_js), jadi siapa pun bisa
+    // melihat & mengubah keranjang orang lain dengan mengganti angka id.
+    $id_pengguna = auth_api_require_login()['id'];
     $action      = $_POST['action'] ?? ($_GET['action'] ?? '');
-
-    if ($id_pengguna === 0) {
-        throw new Exception("Unauthorized access. Session not found.");
-    }
 
     // =====================================
     // 1. GET ITEMS (Pembacaan Data)

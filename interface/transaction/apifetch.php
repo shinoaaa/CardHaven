@@ -1,7 +1,10 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../../auth/session.php';
 require_once __DIR__ . '/../../connection.php';
 require_once __DIR__ . '/controllerTransaction.php';
+
+// Seluruh data transaksi khusus pegawai (employee/manager/owner).
+auth_api_require_role(auth_staff_roles());
 
 $action = $_REQUEST['action'] ?? '';
 
@@ -16,20 +19,18 @@ if ($action !== '') {
     header('Content-Type: application/json');
     try {
         $ctrl = new controllerTransaction($conn);
-        $modified_by = $_SESSION['id_pengguna'] ?? 1;
+        // Pelaku aksi (jejak audit) diambil dari session, bukan dari body request.
+        $modified_by = auth_id();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $body = $postBody;
             $id = (int)($body['id_penjualan'] ?? 0);
 
             // Owner (role 3) view-only: tolak semua aksi mutasi transaksi.
-            $actorId = (int)($body['modified_by'] ?? $_SESSION['id_pengguna'] ?? 0);
-            if ($actorId) {
-                $rq = sqlsrv_query($conn, "SELECT role FROM dbo.pengguna WHERE id_pengguna = ?", [$actorId]);
-                $rr = $rq ? sqlsrv_fetch_array($rq, SQLSRV_FETCH_ASSOC) : null;
-                if ($rr && (int)$rr['role'] === 3) {
-                    echo json_encode(['status' => 'error', 'message' => 'Owner has view-only access to transactions.']); exit;
-                }
+            // Role dibaca dari session, jadi tidak perlu lagi query role
+            // berdasarkan id kiriman browser (yang bisa dipalsukan).
+            if (auth_role() === ROLE_OWNER) {
+                echo json_encode(['status' => 'error', 'message' => 'Owner has view-only access to transactions.']); exit;
             }
 
             switch ($action) {
@@ -39,7 +40,7 @@ if ($action !== '') {
                 case 'confirm_payment': // Harus sama persis dengan yang di JS
                     $id = (int)($body['id_penjualan'] ?? 0);
                     $status = (int)($body['status'] ?? 1); // Status 1 = Paid
-                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    $mod_by = $modified_by;
                     
                     // Panggil fungsi updateStatus dari controllerTransaction
                     if ($ctrl->updateStatus($id, $status, $mod_by)) {
@@ -51,7 +52,7 @@ if ($action !== '') {
                 case 'reject_payment':
                     $id = (int)($body['id_penjualan'] ?? 0);
                     $reason = trim($body['reason'] ?? '');
-                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    $mod_by = $modified_by;
                     
                     if ($reason === '') {
                         echo json_encode(['status' => 'error', 'message' => 'Alasan penolakan harus diisi.']); exit;
@@ -63,14 +64,33 @@ if ($action !== '') {
                     }
                     exit;
                 case 'kirim':
-                    $no_resi = trim($body['no_resi'] ?? '');
+                   $no_resi = trim($body['no_resi'] ?? '');
+                    $tgl_kirim = trim($body['tgl_kirim'] ?? '');
+                    $today = date('Y-m-d');
+
                     if ($no_resi === '') { 
                         echo json_encode(['status' => 'error', 'message' => 'Tracking number is required']); exit;
                     }
-                    $ok = $ctrl->kirimOrder($id, $modified_by, $no_resi);
+                    // Validasi: Resi hanya boleh kombinasi huruf dan angka tanpa spasi atau karakter unik
+                    if (!preg_match('/^[a-zA-Z0-9]+$/', $no_resi)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Tracking number hanya boleh kombinasi huruf dan angka tanpa spasi.']); exit;
+                    }
+
+                    if (strtotime($tgl_kirim) < strtotime($today)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Tanggal pengiriman tidak boleh di masa lalu.']); exit;
+                    }
+                    
+                    $ok = $ctrl->updateStatus($id, 4, $modified_by, $no_resi, $tgl_kirim);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
                 case 'delivered':
                     $ok = $ctrl->setDelivered($id, $modified_by);
+                    echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
+                case 'completed': // Status 6 (Selesai)
+                    $ok = $ctrl->updateStatus($id, 6, $modified_by);
+                    echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
+
+                case 'returned': // Status 7 (Dikembalikan/Restorasi Stok)
+                    $ok = $ctrl->updateStatus($id, 7, $modified_by);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
                 case 'cancel':
                     $ok = $ctrl->cancelOrder($id, $modified_by);

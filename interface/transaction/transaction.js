@@ -41,7 +41,7 @@ const STATUS_BG = {
 // ════════════════════════════════════════════════════════════════════════════
 
 function getUserId() {
-    return sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0;
+    return CardHavenAuth.id();
 }
 
 // Resolusi path foto produk yang konsisten: path lengkap dipakai apa adanya,
@@ -90,7 +90,7 @@ async function openDetailModal(id_penjualan) {
         const st = parseInt(h.status_penjualan);
 
         // Tentukan tombol aksi yang tampil. Owner (role 3) view-only — tanpa tombol aksi.
-        const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
+        const USER_ROLE = CardHavenAuth.role();
         let actionBtns = '';
 
         if (USER_ROLE === 3) {
@@ -148,9 +148,9 @@ async function openDetailModal(id_penjualan) {
                         <div style="font-size:.72rem;opacity:.55;">${item.tipe_produk ?? ''} · ${item.kondisi ?? ''}</div>
                     </div>
                 </td>
-                <td style="text-align:right;white-space:nowrap;">Rp ${item.harga_produk}</td>
+                <td style="text-align:right;white-space:nowrap;">Rp ${parseInt(item.harga_produk || 0).toLocaleString('id-ID')}</td>
                 <td style="text-align:center;">${item.jumlah_barang}</td>
-                <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${item.subtotal_harga}</td>
+                <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${parseInt(item.subtotal_harga || 0).toLocaleString('id-ID')}</td>
             </tr>
         `).join('');
 
@@ -180,7 +180,7 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Number</span><b>${h.rek_tujuan ?? h.no_rekening ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin ?? 0}</b></div>
+                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${parseInt(h.biaya_admin || 0).toLocaleString('id-ID')}</b></div>
                 </div>
 
                 <!-- Shipping -->
@@ -213,7 +213,7 @@ async function openDetailModal(id_penjualan) {
 
             <div style="display:flex;justify-content:flex-end;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.1);">
                 <span style="font-size:.85rem;opacity:.65;margin-right:.5rem;">${h.total_barang} item · Total</span>
-                <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${h.total_harga}</span>
+                <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${parseInt(h.total_harga || 0).toLocaleString('id-ID')}</span>
             </div>
 
             ${actionBtns ? `<div class="trx-action-row">${actionBtns}</div>` : ''}
@@ -248,13 +248,13 @@ function openShipModal(id_penjualan) {
             <div class="trx-section-title">Shipping Details</div>
             <div style="margin-bottom:.85rem;">
                 <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Tracking Number *</label>
-                <input id="inputResi" type="text" placeholder="Example: JNE1234567890
+                <input id="inputResi" type="text" placeholder="Example: JNE1234567890"
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
             </div>
             <div>
                 <label style="display:block;font-size:.8rem;opacity:.65;margin-bottom:.3rem;">Shipping Date</label>
-                <input id="inputTglKirim" type="date" value="${today}"
+                <input id="inputTglKirim" type="date" value="${today}" min="${today}"
                     style="width:100%;padding:.6rem .85rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);
                     background:rgba(255,255,255,.07);color:inherit;font-size:.9rem;box-sizing:border-box;">
             </div>
@@ -273,19 +273,31 @@ function openShipModal(id_penjualan) {
 async function submitKirim(id_penjualan) {
     const no_resi   = document.getElementById('inputResi').value.trim();
     const tgl_kirim = document.getElementById('inputTglKirim').value;
+    const today     = new Date().toISOString().split('T')[0];
 
     if (!no_resi) {
         cardhavenAlert('Alert',  'warning', 'Tracking number is required!');
         return;
     }
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(no_resi)) {
+        cardhavenAlert('Alert', 'warning', 'Invalid tracking number!');
+        return;
+        }
 
-    const res  = await postAction('kirim', id_penjualan, { no_resi, tanggal_pengiriman: tgl_kirim });
+    // 3. Validasi Tanggal
+    if (tgl_kirim < today) {
+        cardhavenAlert('Alert', 'warning', 'Invalid shipment date!');
+        return;
+    }
+
+    const res = await postAction('kirim', id_penjualan, { no_resi: no_resi, tgl_kirim: tgl_kirim });
     if (res.status === 'success') {
         cardhavenAlert('Success', 'success', 'Package shipment has been confirmed.');
         closeTrxModal();
         setTimeout(() => location.reload(), 1200);
     } else {
-        cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.', );
+        cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.');
     }
 }
 
@@ -335,7 +347,7 @@ function promptRejectPayment(id_penjualan) {
 async function doAction(action, id_penjualan) {
     const CONFIRM_MSG = {
         confirm_payment: ['Confirm Payment?', 'The payment will be marked as received.', 'Yes, Confirm'],
-        proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Processs'],
+        proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Process'],
         delivered:        ['Mark as Delivered?', 'The order will be marked as delivered to the customer.', 'Yes, Mark as Delivered'],
         cancel:           ['Cancel Order?', 'The product stock will be restored. This action cannot be undone.', 'Yes, Cancel'],
     };
@@ -349,36 +361,71 @@ async function doAction(action, id_penjualan) {
             closeTrxModal();
             setTimeout(() => location.reload(), 1200);
         } else {
-            cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.', );
+            cardhavenAlert('Error', 'error', res.message ?? 'Failed to update status.');
         }
     }, null);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// SEARCH (debounce)
+// AJAX TABLE UPDATE (Refresh tabel tanpa reload halaman)
+// ════════════════════════════════════════════════════════════════════════════
+
+async function updateTableHTML(url) {
+    try {
+        // Ganti URL di atas browser agar jika direfresh datanya tetap
+        window.history.pushState({ path: url }, '', url);
+        
+        const container = document.getElementById('tableContainer');
+        container.style.opacity = '0.4'; // Beri efek loading transparan
+
+        // Ambil HTML baru dari server
+        const res = await fetch(url);
+        const html = await res.text();
+
+        // Ekstrak hanya bagian <div id="tableContainer"> dari HTML baru
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newContainer = doc.getElementById('tableContainer');
+
+        if (newContainer) {
+            container.innerHTML = newContainer.innerHTML;
+        }
+        
+        container.style.opacity = '1'; // Kembalikan opacity
+        attachPaginationEvents(); // Pasang event click lagi untuk tombol halaman (pagination)
+
+    } catch (err) {
+        console.error("Gagal memuat tabel:", err);
+        window.location.href = url; // Fallback jika AJAX error
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SEARCH (Otomatis saat ngetik)
 // ════════════════════════════════════════════════════════════════════════════
 
 let _searchTimer = null;
-
 function onSearchInput(val) {
     clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => {
         const url = new URL(window.location.href);
         url.searchParams.set('search', val);
         url.searchParams.set('page', 1);
-        window.location.href = url.toString();
-    }, 500);
+        url.searchParams.delete('open_sales'); // Cegah modal terbuka otomatis
+        updateTableHTML(url.toString()); // Gunakan AJAX!
+    }, 400); // 400ms delay setelah berhenti ngetik
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// FILTER BY / SORT BY (navigasi via URL, param lain dipertahankan)
+// FILTER BY / SORT BY
 // ════════════════════════════════════════════════════════════════════════════
 
 function trxNavigate(params) {
     const url = new URL(window.location.href);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-    url.searchParams.set('page', 1);
-    window.location.href = url.toString();
+    if(params.page === undefined) url.searchParams.set('page', 1);
+    url.searchParams.delete('open_sales'); // Cegah modal terbuka otomatis
+    updateTableHTML(url.toString()); // Gunakan AJAX!
 }
 
 function setTrxStatus(val) { trxNavigate({ status: val }); }
@@ -386,9 +433,24 @@ function setTrxSort(val)   { trxNavigate({ sort_by: val }); }
 function toggleTrxOrder(current) { trxNavigate({ sort_order: current === 'ASC' ? 'DESC' : 'ASC' }); }
 
 // ════════════════════════════════════════════════════════════════════════════
-// SHORTCUT DARI DASHBOARD: buka modal detail langsung via ?open_sales=<id>
+// EVENT LISTENER AWAL
 // ════════════════════════════════════════════════════════════════════════════
+
+// Fungsi agar klik nomor halaman (Pagination) pakai AJAX juga
+function attachPaginationEvents() {
+    const links = document.querySelectorAll('.pagination-container a.page-link');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            updateTableHTML(this.href);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    attachPaginationEvents();
+
+    // Buka modal jika ada param open_sales di URL
     const id = new URLSearchParams(window.location.search).get('open_sales');
     if (id) openDetailModal(parseInt(id));
 });

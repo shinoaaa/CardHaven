@@ -1,4 +1,10 @@
-<?php require_once '../CardHaven/route/route.php' ?>
+<?php
+require_once '../CardHaven/route/route.php';
+require_once __DIR__ . '/../../auth/session.php';
+
+// Halaman dashboard: hanya pegawai (dicek di server).
+auth_require_role(auth_staff_roles());
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,15 +14,7 @@
     <title>DashBoard</title>
     <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css">
-    <script>
-        (function() {
-            const token = localStorage.getItem("id_pengguna") || sessionStorage.getItem("id_pengguna");
-            const role = localStorage.getItem("role") || sessionStorage.getItem("role");
-            if (!token || (role !== "2" && role !== "1" && role !== "3" )) {
-                window.location.replace("/CardHaven");
-            }
-        })();
-    </script>
+    <?php auth_emit_js(); ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
 </head>

@@ -1,6 +1,6 @@
 const CUST_URL = '/cardhaven/interface/user/controller/controllerCustomer.php';
 // id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
-function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
+function getActorId() { return CardHavenAuth.id() || ''; }
 let overlay, modalDetail, modalAdd, modalEdit, modalCustChange;
 let custVerifyStepDone = false;
 
@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         renderRow: (r, no) => {
             // Logika Foto
-            const fotoPath = r.foto_profil 
-                ? `/cardhaven/${mfEsc(r.foto_profil)}` 
+            const fotoPath = r.foto_profil
+                ? `/cardhaven/image-profile/${mfEsc(r.foto_profil)}`
                 : '/cardhaven/assets/image/user.svg';
 
             return `<tr>
@@ -470,7 +470,7 @@ function handleCustPasswordStep() {
 async function verifyCustIdentity() {
     const email = document.getElementById('custChangeEmail').value;
     const date  = document.getElementById('custChangeCreatedDate').value;
-    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const actorId = CardHavenAuth.id() || null;
 
     if (!date) {
         showErr('custChangeCreatedDate', 'err-cust-change-date', 'Date is required');
@@ -503,7 +503,7 @@ async function verifyCustIdentity() {
 async function resetCustPassword() {
     const password = document.getElementById('custChangeNewPassword').value;
     const confirm  = document.getElementById('custChangeConfirmPassword').value;
-    const actorId  = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const actorId  = CardHavenAuth.id() || null;
     let valid = true;
     if (password.length < 8 || password.length > 12 || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
         showErr('custChangeNewPassword', 'err-cust-change-pass', 'Password must be 8-12 chars + symbol');

@@ -1,6 +1,6 @@
 const ADMIN_URL = '/cardhaven/interface/user/controller/controllerSuperAdmin.php';
 // id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
-function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
+function getActorId() { return CardHavenAuth.id() || ''; }
 let overlay, modalDetail, modalAdd, modalEdit;
 let superVerifyStepDone = false;
 let modalSuperChange;
@@ -451,7 +451,7 @@ function handleSuperPasswordStep() {
 async function verifySuperIdentity() {
     const email = document.getElementById('superChangeEmail').value;
     const date  = document.getElementById('superChangeCreatedDate').value;
-    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const actorId = CardHavenAuth.id() || null;
 
     if (!date) {
         showErr('superChangeCreatedDate', 'err-super-change-date', 'Date is required');
@@ -485,7 +485,7 @@ async function verifySuperIdentity() {
 async function resetSuperPassword() {
     const password = document.getElementById('superChangeNewPassword').value;
     const confirm  = document.getElementById('superChangeConfirmPassword').value;
-    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const actorId = CardHavenAuth.id() || null;
 
     let valid = true;
     if (password.length < 8 || password.length > 12 || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {

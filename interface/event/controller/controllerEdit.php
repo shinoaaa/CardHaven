@@ -1,8 +1,12 @@
 <?php
 ob_start();
 require __DIR__ . '/../../../connection.php';
+require_once __DIR__ . '/../../../auth/session.php';
 ob_end_clean();
 header('Content-Type: application/json');
+
+// Kelola Event: Manager & Owner saja.
+$eventActor = auth_api_require_role([ROLE_MANAGER, ROLE_OWNER])['id'];
 
 function jsonOut($ok, $data = []) { echo json_encode(array_merge(['success' => $ok], $data)); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonOut(false, ['error' => 'Method not allowed']);
@@ -14,7 +18,7 @@ switch ($action) {
     case 'save_event':
         $stmt = sqlsrv_query($conn, "{CALL dbo.sp_EditEvent(?, ?, ?, ?, ?, ?, ?, ?, ?)}", [
             (int)$body['id_event'], trim($body['nama_event']), trim($body['tipe_event']), $body['tanggal_mulai'], $body['tanggal_berakhir'], 
-            ($body['tanggal_sampai'] !== '' ? $body['tanggal_sampai'] : null), (float)$body['persen_diskon'], (int)$body['maks_pembelian'], (int)$body['id_karyawan']
+            ($body['tanggal_sampai'] !== '' ? $body['tanggal_sampai'] : null), (float)$body['persen_diskon'], (int)$body['maks_pembelian'], $eventActor
         ]);
         if ($stmt === false) jsonOut(false, ['error' => sqlsrv_errors()[0]['message']]);
         jsonOut(true, ['message' => 'Event updated']);

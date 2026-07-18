@@ -1,9 +1,9 @@
 <?php
-session_start();
-if (!isset($_SESSION['id_pengguna'])) {
-    header("Location: /cardhaven/interface/auth/login.php");
-    exit;
-}
+require_once __DIR__ . '/../../auth/session.php';
+
+// Wajib login (dicek di server).
+auth_require_login();
+
 $id_penjualan = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id_penjualan) {
     header("Location: /cardhaven/interface/orders/");

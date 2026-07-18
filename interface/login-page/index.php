@@ -50,8 +50,9 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
-    <link rel="stylesheet" href="/cardhaven/interface/global.css">
+    <link rel="stylesheet" href="/cardhaven/interface/global.css?v=<?= filemtime(__DIR__ . '/../global.css') ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <?php require_once __DIR__ . '/../../auth/session.php'; auth_emit_js(); ?>
 </head>
 <body>
     <div class="container">
@@ -91,7 +92,12 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" id="passwordInput" name="password" placeholder="enter password..." required>
+                            <div class="password-wrap">
+                                <input type="password" id="passwordInput" name="password" placeholder="enter password..." required>
+                                <button type="button" class="password-toggle" data-target="passwordInput" aria-label="Show password" aria-pressed="false">
+                                    <img src="/cardhaven/assets/image/view.svg" alt="">
+                                </button>
+                            </div>
                             <small id="error-pass" class="error-message"></small>
                         </div>
                         
@@ -116,6 +122,7 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
         </div>
     </div>
 
+    <script src="/cardhaven/interface/password-toggle.js"></script>
     <script src="/cardhaven/interface/login-page/script.js"></script>
 </body>
 </html>

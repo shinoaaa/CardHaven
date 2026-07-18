@@ -1,17 +1,14 @@
 <?php
-// Session start dihapus jika memang murni tidak digunakan di server
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 $action = $_REQUEST['action'] ?? '';
-// Mengambil ID secara eksplisit dari parameter klien
-$id_sekarang = (int)($_REQUEST['idpengguna'] ?? 0);
 
-if ($id_sekarang === 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid or missing user ID.']);
-    exit;
-}
+// Pembeli = user yang sedang login. Sebelumnya id diambil dari parameter klien
+// (idpengguna), jadi siapa pun bisa checkout memakai keranjang & alamat orang lain.
+$id_sekarang = auth_api_require_login()['id'];
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {

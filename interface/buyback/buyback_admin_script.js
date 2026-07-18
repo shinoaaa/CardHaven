@@ -1,7 +1,7 @@
 const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php';
 
-const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
-const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+const idPengguna = CardHavenAuth.id() || null;
+const userRole = CardHavenAuth.role();
 
 // State ala halaman laporan: tarik semua data sekali, filter/sort/paginate di client.
 let allBuyback = [];
@@ -206,11 +206,32 @@ function openDetailModal(id_pembelian) {
             document.getElementById('modalTxId').innerText = `${pem.id_pembelian}`;
             document.getElementById('modalStatus').innerHTML = parseStatus(pem.status_pembelian);
 
+            let proofHtml = '';
+            if (pem.bukti_pembayaran) {
+                proofHtml = `
+                    <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed #ccc;">
+                        <strong style="display:block; margin-bottom:5px; font-size:0.75rem; text-transform:uppercase; color:#666;">Payment Proof:</strong>
+                        <a href="/CardHaven/${pem.bukti_pembayaran}" target="_blank">
+                            <img src="/CardHaven/${pem.bukti_pembayaran}" 
+                                style="max-width: 150px; max-height: 100px; border-radius: 6px; border: 1px solid #ddd; object-fit: cover; cursor: pointer;"
+                                title="Click to enlarge">
+                        </a>
+                    </div>
+                `;
+            } else {
+                proofHtml = `
+                    <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed #ccc;">
+                        <strong style="display:block; margin-bottom:5px; font-size:0.75rem; text-transform:uppercase; color:#666;">Payment Proof:</strong>
+                        <span style="font-size: 0.85rem; color: #999; font-style: italic;">No payment proof uploaded yet</span>
+                    </div>
+                `;
+            }
             let htmlContent = `
                 <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
                     <strong>Customer:</strong> ${pem.username}<br>
                     <strong>Receipt:</strong> ${pem.no_resi || '-'}<br>
                     <strong>Notes / Return Addr:</strong> <span style="color: #E74C3C; font-weight: 600;">${pem.alamat || 'None'}</span>
+                    ${proofHtml}
                 </div>
             `;
 

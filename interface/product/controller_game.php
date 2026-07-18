@@ -1,15 +1,16 @@
 <?php
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 require_once '../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 header('Content-Type: application/json');
 
 // [FIX] Pastikan tidak ada output PHP error yang merusak JSON
 ob_start();
 
 try {
-    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0));
+    // Master data game: khusus pegawai. id_user (jejak audit) diambil dari session.
+    $id_user = auth_api_require_role(auth_staff_roles())['id'];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action   = $_POST['action'] ?? '';

@@ -44,12 +44,26 @@
                 <form id="accountForm">
                     <div class="field">
                         <label>Name</label>
-                        <input type="text" id="nama" autocomplete="off">
+                        <input type="text" id="nama" name="nama" autocomplete="off" readonly>
+                        <small class="error-message" id="namaError"></small>
                     </div>
 
                     <div class="field">
                         <label>Email</label>
-                        <input type="email" id="email" autocomplete="off">
+                        <input type="email" id="email" name="email" autocomplete="off" readonly>
+                        <small class="error-message" id="emailError"></small>
+                    </div>
+
+                    <div class="field">
+                        <label>Phone Number</label>
+                        <input type="text" id="no_telepon" name="no_telepon" autocomplete="off" maxlength="20" readonly>
+                        <small class="error-message" id="noTeleponError"></small>
+                    </div>
+
+                    <div class="field" id="fotoField" style="margin-top: 10px; display: none;">
+                        <label>Profile Picture</label>
+                        <input type="file" id="fotoFile" name="fotoFile" class="file-input-custom" accept="image/*">
+                        <small class="error-message" id="fotoError"></small>
                     </div>
 
                     <div class="field" style="margin-top: 1.5rem;">
@@ -59,11 +73,13 @@
                     </div>
 
                     <div class="btn-row">
-                        <button type="submit" class="btn btn-save">Save Changes</button>
+                        <button type="submit" class="btn btn-save" id="btnEditSave">Change Detail</button>
+                        <button type="button" class="btn btn-cancel" id="btnCancel" style="display: none;">Cancel</button>
                         <button type="button" id="btnDelete" class="btn btn-delete">Delete Account</button>
                     </div>
                 </form>
             </div>
+            
             <div class="modal-overlay" id="pwModal">
                 <div class="event-modal" style="width: 450px;"> 
                     <button class="event-modal-close" id="btnClosePwModal">&times;</button>
@@ -125,7 +141,6 @@
         </section>
     </main>
 </div>
-
 
 <script src="/cardhaven/interface/account-setting/account-setting.js?v=<?= time() ?>"></script>
 </body>

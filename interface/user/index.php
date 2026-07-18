@@ -1,5 +1,5 @@
 <div class="main-content" style="display: flex;">
-    <h1 class="coolveticaa" style="color: #a0beff;font-size: 1.5rem;font-weight: 700;">Dashboard / User</h1>
+    <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 1.8rem; font-weight: 700; margin: 0;">Dashboard / User</h1>
     <div class="content-card">
         <div class="list-user">
             <button class="unselectedRole" id="superAdminButton">Manager</button>

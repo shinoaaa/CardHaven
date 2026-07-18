@@ -22,6 +22,7 @@ $currentTitle = $titles[$type] ?? 'Report';
 </head>
 <body>
     <div class="main-content">
+        <h1 class="coolveticaa" style="color: var(--primary-color); font-size: 1.8rem; font-weight: 700; margin: 0;">Dashboard / Report</h1>
         <div class="content-card">
             
             <div class="card-title-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
@@ -119,10 +120,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                             <th width="5%">No</th>
                             <th width="12%">Date</th>
                             <th width="18%">Customer</th>
-                            <th width="30%">Product Purchased</th>
+                            <th width="20%">Product Purchased</th>
                             <th width="15%">Payment Method</th>
                             <th width="10%">Quantity</th>
-                            <th width="15%">Price</th>
+                            <th width="25%">Price</th>
                             <th width="10%">Action</th>
                         </tr>
                     </thead>

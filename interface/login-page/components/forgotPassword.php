@@ -19,13 +19,23 @@
         <div id="password-section" style="display: none;">
             <div class="form-group">
                 <label>New Password</label>
-                <input type="password" id="forgot-password" name="password" placeholder="enter new password...">
+                <div class="password-wrap">
+                    <input type="password" id="forgot-password" name="password" placeholder="enter new password...">
+                    <button type="button" class="password-toggle" data-target="forgot-password" aria-label="Show password" aria-pressed="false">
+                        <img src="/cardhaven/assets/image/view.svg" alt="">
+                    </button>
+                </div>
                 <small id="forgot-error-password" class="error-message"></small>
             </div>
 
             <div class="form-group">
                 <label>Confirm Password</label>
-                <input type="password" id="forgot-confirm-password" name="confirm_password" placeholder="confirm new password...">
+                <div class="password-wrap">
+                    <input type="password" id="forgot-confirm-password" name="confirm_password" placeholder="confirm new password...">
+                    <button type="button" class="password-toggle" data-target="forgot-confirm-password" aria-label="Show password" aria-pressed="false">
+                        <img src="/cardhaven/assets/image/view.svg" alt="">
+                    </button>
+                </div>
                 <small id="forgot-error-confirm-password" class="error-message"></small>
             </div>
         </div>

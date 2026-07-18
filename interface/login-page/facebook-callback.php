@@ -1,7 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../../auth/session.php';
+auth_session_start();
 
 require __DIR__ . '/../../connection.php';
 require __DIR__ . '/../../diagnose.php';
@@ -83,11 +82,15 @@ if (isset($_GET['code'])) {
                 }
             }
 
-            // Simpan sesi login backend PHP
-            $_SESSION['id_pengguna'] = $id_pengguna;
-            $_SESSION['role']        = $role;
+            // Simpan sesi login backend PHP. Identitas tidak dititipkan ke browser.
+            auth_login([
+                'id_pengguna' => $id_pengguna,
+                'role'        => $role,
+                'username'    => $username,
+                'email'       => $email,
+            ]);
 
-            // Tahap D: Set Sesi Javascript & Pengalihan Halaman
+            // Tahap D: Pengalihan Halaman sesuai role dari session.
             ?>
             <!DOCTYPE html>
             <html lang="en">
@@ -99,21 +102,8 @@ if (isset($_GET['code'])) {
             </head>
             <body>
                 <script>
-                    const emailInput = "<?php echo addslashes($email); ?>";
-                    const roleInput  = "<?php echo $role; ?>";
-                    const idInput    = "<?php echo $id_pengguna; ?>";
-                    const userInput  = "<?php echo addslashes($username); ?>";
-
-                    // SINKRONKAN DENGAN SCRIPT.JS KAMU
-                    localStorage.setItem("userEmail", emailInput);
-                    localStorage.setItem("role", roleInput);
-                    localStorage.setItem("id_pengguna", idInput);
-                    localStorage.setItem("username", userInput);
-
-                    sessionStorage.setItem("userEmail", emailInput);
-                    sessionStorage.setItem("role", roleInput);
-                    sessionStorage.setItem("id_pengguna", idInput);
-                    sessionStorage.setItem("username", userInput);
+                    // Tujuan redirect ditentukan server dari role di session.
+                    const redirectTo = "<?php echo auth_is_staff() ? '/CardHaven/dashboard/activity' : '/CardHaven/home'; ?>";
 
                     Swal.fire({
                         icon: 'success',
@@ -123,12 +113,7 @@ if (isset($_GET['code'])) {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                        const role = parseInt(roleInput);
-                        if (role === 1 || role === 2 || role === 3) {
-                            window.location.replace("/CardHaven/dashboard/activity");
-                        } else {
-                            window.location.replace("/CardHaven/home");
-                        }
+                        window.location.replace(redirectTo);
                     });
                 </script>
             </body>

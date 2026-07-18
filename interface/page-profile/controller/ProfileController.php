@@ -1,11 +1,17 @@
 <?php
 require_once __DIR__ . '/../../../connection.php'; // Asumsi pemanggilan conn DB
+require_once __DIR__ . '/../../../auth/session.php';
 header('Content-Type: application/json');
+
+// Semua data di halaman profil adalah milik user yang sedang login, jadi
+// id_pengguna SELALU dari session. Sebelumnya id dikirim browser, sehingga
+// siapa pun bisa melihat profil, pesanan, dan total belanja orang lain.
+$user_id = auth_api_require_login()['id'];
+
 $action = $_GET['action'] ?? '';
 
 if ($action === 'getProfile') {
-    $user_id = $_GET['id_pengguna'] ?? '';
-    
+
     // 1. Dapatkan Profil
     $sql = "SELECT username, email, foto_profil, no_telepon, created_date FROM pengguna WHERE id_pengguna = ?";
     $stmt = sqlsrv_query($conn, $sql, array($user_id));
@@ -35,7 +41,6 @@ if ($action === 'getProfile') {
     echo json_encode(['status'=>'success', 'data'=>$user]);
 } 
 elseif ($action === 'updateProfile') {
-    $user_id  = $_POST['id_pengguna'] ?? '';
     $username = $_POST['editUsername'] ?? '';
     $email    = $_POST['editEmail'] ?? '';
     $notelp   = $_POST['editNoTelp'] ?? '';
@@ -72,8 +77,9 @@ elseif ($action === 'updateProfile') {
             exit;
         }
 
-        // Path yang disimpan ke DB (relatif dari root cardhaven)
-        $foto_path = 'image-profile/' . $filename;
+        // Yang disimpan ke DB HANYA nama file. Path folder (image-profile/)
+        // ditambahkan saat menampilkan, bukan disimpan.
+        $foto_path = $filename;
     }
 
     // Query: update foto hanya kalau ada file baru
@@ -98,9 +104,6 @@ elseif ($action === 'updateProfile') {
 // MENGAMBIL DATA ORDER NORMAL (SALES)
 // ==========================================
 elseif ($action === 'getOrders') {
-    $user_id = (int)($_GET['id_pengguna'] ?? 0);
-    if ($user_id <= 0) { echo json_encode(['status' => 'error', 'data' => []]); exit; }
-
     // PERBAIKAN: Tambahkan AND p.tanggal_sampai IS NULL agar Preorder tidak ikut masuk ke sini
     $sql = "SELECT p.id_penjualan, p.tanggal_penjualan, p.alamat, p.total_barang, p.total_harga,
                    p.status_penjualan, p.no_resi, m.nama_metode
@@ -127,9 +130,6 @@ elseif ($action === 'getOrders') {
 // MENGAMBIL DATA PREORDER
 // ==========================================
 elseif ($action === 'getPreorders') {
-    $user_id = (int)($_GET['id_pengguna'] ?? 0);
-    if ($user_id <= 0) { echo json_encode(['status' => 'error', 'data' => []]); exit; }
-
     // AMBIL DATA YANG TANGGAL PENGIRIMANNYA TIDAK NULL
     // Serta kita Sub-Query untuk mengambil 1 nama produknya
     $sql = "SELECT 
@@ -172,9 +172,8 @@ elseif ($action === 'getPreorders') {
 
 // Detail satu pesanan (dipakai tombol ••• di tabel profil)
 elseif ($action === 'getOrderDetail') {
-    $user_id = (int)($_GET['id_pengguna'] ?? 0);
     $id_penjualan = (int)($_GET['id_penjualan'] ?? 0);
-    if ($user_id <= 0 || $id_penjualan <= 0) { echo json_encode(['status' => 'error', 'msg' => 'Invalid request.']); exit; }
+    if ($id_penjualan <= 0) { echo json_encode(['status' => 'error', 'msg' => 'Invalid request.']); exit; }
 
     // sp_GetSalesDetail(id, id_pengguna) -> hanya milik user tsb
     $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSalesDetail(?, ?)}", array($id_penjualan, $user_id));
@@ -200,9 +199,10 @@ elseif($action === 'cancelOrder'){
     $data = json_decode($json, true);
 
     $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
-    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+    // Pembatal pesanan = user yang sedang login (dari session), bukan id kiriman browser.
+    $id_pengguna = $user_id;
 
-    if ($id_penjualan === 0 || $id_pengguna === 0) {
+    if ($id_penjualan === 0) {
         echo json_encode(['status' => 'error', 'message' => 'Data tidak valid.']);
         exit;
     }
@@ -231,6 +231,98 @@ elseif($action === 'cancelOrder'){
     } else {
         $errors = sqlsrv_errors();
         $error_msg = 'Failed to cancel the order.';
+        if ($errors !== null) {
+            // Ambil pesan error SQL Server yang dilempar dari blok THROW
+            $error_msg = $errors[0]['message']; 
+            
+        }
+        
+        echo json_encode(['status' => 'error', 'message' => $error_msg]);
+    }
+}
+elseif ($action === 'completeOrder') {
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
+    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+
+    if ($id_penjualan === 0 || $id_pengguna === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid data provided.']);
+        exit;
+    }
+
+    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
+    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+        echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
+        exit;
+    }
+
+    // Update status menjadi 8 (Completed)
+    $params = [
+        $id_penjualan, 
+        8, 
+        $id_pengguna, 
+        null, 
+        null, 
+        null
+    ];
+    
+    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+
+    if ($stmt) {
+        echo json_encode(['status' => 'success', 'message' => 'The order has been successfully completed.']);
+    } else {
+        $errors = sqlsrv_errors();
+        $error_msg = 'Failed to complete the order.';
+        if ($errors !== null) {
+            // Ambil pesan error SQL Server yang dilempar dari blok THROW
+            $error_msg = $errors[0]['message']; 
+            
+        }
+        
+        echo json_encode(['status' => 'error', 'message' => $error_msg]);
+    }
+}
+elseif ($action === 'returnOrder') {
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
+    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+
+    if ($id_penjualan === 0 || $id_pengguna === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid data provided.']);
+        exit;
+    }
+
+    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
+    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+        echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
+        exit;
+    }
+
+    // Update status menjadi 9 (Return Requested)
+    $params = [
+        $id_penjualan, 
+        9, 
+        $id_pengguna, 
+        null, 
+        null, 
+        null
+    ];
+    
+    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+
+    if ($stmt) {
+        echo json_encode(['status' => 'success', 'message' => 'Return request has been successfully submitted.']);
+    } else {
+        $errors = sqlsrv_errors();
+        $error_msg = 'Failed to submit return request.';
         if ($errors !== null) {
             // Ambil pesan error SQL Server yang dilempar dari blok THROW
             $error_msg = $errors[0]['message']; 

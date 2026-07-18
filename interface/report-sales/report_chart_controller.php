@@ -3,11 +3,11 @@
 //  - action=monthly  : total per bulan (Rp + qty) untuk chart, per jenis laporan
 //  - action=top_selling : top N produk terjual (khusus tab Sales)
 // Data lewat UDF (tanpa query inline).
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 ob_start();
 
@@ -15,12 +15,8 @@ try {
     if (!isset($conn) || $conn === false) throw new Exception('Invalid database connection.');
 
     // Halaman Report memang owner-only; izinkan role 2 & 3 (konsisten dengan controller laporan lainnya).
-    $role = (int)($_GET['role'] ?? 0);
-    if ($role !== 2 && $role !== 3) {
-        ob_clean();
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
-        exit;
-    }
+    // Role diambil dari session, bukan dari ?role= di URL yang bisa dipalsukan.
+    auth_api_require_role([ROLE_MANAGER, ROLE_OWNER]);
 
     $action = $_GET['action'] ?? '';
 

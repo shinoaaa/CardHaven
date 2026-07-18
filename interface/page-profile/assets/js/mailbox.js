@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchMails() {
-    fetch(`/cardhaven/interface/page-profile/controller/MailController.php?action=getMails&id_pengguna=${userId}`)
+    fetch(`/cardhaven/interface/page-profile/controller/MailController.php?action=getMails`)
         .then(res => res.json())
         .then(data => {
             if(data.status === 'success') {

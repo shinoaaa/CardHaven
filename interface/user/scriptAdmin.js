@@ -1,6 +1,6 @@
 const ADMIN_URL = '/cardhaven/interface/user/controller/controllerAdmin.php';
 // id_pengguna pelaku untuk audit (created_by/modified_by/deleted_by).
-function getActorId() { return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || ''; }
+function getActorId() { return CardHavenAuth.id() || ''; }
 let overlay, modalDetail, modalAdd, modalEdit, modalAdminChange;
 let adminVerifyStepDone = false;
 
@@ -475,7 +475,7 @@ function handleAdminPasswordStep() {
 async function verifyAdminIdentity() {
     const email = document.getElementById('adminChangeEmail').value;
     const date  = document.getElementById('adminChangeCreatedDate').value;
-    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const actorId = CardHavenAuth.id() || null;
     if (!date) {
         showErr('adminChangeCreatedDate', 'err-admin-change-date', 'Date is required');
         return;
@@ -520,7 +520,7 @@ async function resetAdminPassword() {
     }
 
     if (!valid) return;
-    const actorId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+    const actorId = CardHavenAuth.id() || null;
     const body = new FormData();
     body.append('action', 'resetAdminPassword');
     body.append('password', password);

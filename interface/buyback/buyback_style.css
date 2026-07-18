@@ -37,3 +37,19 @@
     cursor: pointer;
 }
 .btn-add-green:hover { background-color: #1e8449; }
+
+/* ============================================================
+   RESPONSIVE (<=768). Desktop tidak diubah.
+   Grid form (2/3 + sidebar) & pasangan field jadi 1 kolom di HP.
+   ============================================================ */
+@media screen and (max-width: 768px) {
+    .main-content { display: block; height: auto; padding: 1rem; margin-top: 5rem; overflow: visible; }
+    .content-card { padding: 20px !important; }
+    .content-card > div[style*="grid-template-columns: 1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    .content-card div[style*="grid-column: span 2"] { grid-column: auto !important; }
+    .content-card div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    /* Cegah grid-item/form melebar karena min-content (auto min-size) */
+    .content-card > div[style*="grid-template-columns: 1fr 1fr 1fr"] > div { min-width: 0 !important; }
+    .content-card form { width: 100%; min-width: 0; }
+    .content-card input, .content-card select, .content-card textarea { min-width: 0; }
+}
