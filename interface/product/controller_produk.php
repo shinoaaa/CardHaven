@@ -1,14 +1,17 @@
 <?php
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
 require_once '../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 ob_start();
 
 try {
-    $id_user = (int)($_POST['id_pengguna_js'] ?? ($_SESSION['id_pengguna'] ?? 0));
+    // Master data produk: khusus pegawai. id_user dipakai sebagai jejak audit
+    // (created_by/modified_by), jadi WAJIB dari session — kalau dari browser,
+    // user bisa mengaku sebagai orang lain di catatan audit.
+    $id_user = auth_api_require_role(auth_staff_roles())['id'];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action   = $_POST['action'] ?? '';

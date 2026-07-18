@@ -3,10 +3,14 @@
  * interface/product-detail/controller/ProductDetailController.php
  */
 // Sesuai instruksi: Jika controller di dalam folder, pathnya /../../../connection.php
-require_once __DIR__ . '/../../../connection.php'; 
+require_once __DIR__ . '/../../../connection.php';
+require_once __DIR__ . '/../../../auth/session.php';
 
 header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
+
+// Catatan: get_detail & related sengaja tetap terbuka (detail produk boleh
+// dilihat pengunjung). Aksi yang menyentuh keranjang wajib login.
 
 if ($action === 'get_detail') {
     $id_produk = $_GET['id_produk'] ?? 0;
@@ -50,13 +54,15 @@ elseif ($action === 'get_related') {
     }
 }
 elseif ($action === 'add_to_cart') {
-    // Dipanggil melalui POST request
-    $id_pengguna = $_POST['id_pengguna'] ?? 0;
+    // Dipanggil melalui POST request.
+    // Pemilik keranjang = user yang sedang login (dari session). Sebelumnya id
+    // dikirim browser, jadi siapa pun bisa menambah barang ke keranjang orang lain.
+    $id_pengguna = auth_api_require_login()['id'];
     $id_produk = $_POST['id_produk'] ?? 0;
     $harga = $_POST['harga'] ?? 0;
     $qty = $_POST['qty'] ?? 1;
 
-    if (!$id_pengguna || !$id_produk) {
+    if (!$id_produk) {
         echo json_encode(['status' => 'error', 'msg' => 'Invalid parameters.']);
         exit;
     }

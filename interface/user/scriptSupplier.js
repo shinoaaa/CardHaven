@@ -102,7 +102,7 @@ function isValidPhone(phone) {
 }
 
 function getActiveUserId() {
-    return localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna') || '';
+    return CardHavenAuth.id() || '';
 }
 
 function validateSupplierNameInput(name) {

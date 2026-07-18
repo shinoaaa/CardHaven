@@ -1,7 +1,7 @@
 const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php';
 
-const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
-const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+const idPengguna = CardHavenAuth.id() || null;
+const userRole = CardHavenAuth.role();
 
 // State ala halaman laporan: tarik semua data sekali, filter/sort/paginate di client.
 let allBuyback = [];

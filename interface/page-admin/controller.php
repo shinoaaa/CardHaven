@@ -1,11 +1,13 @@
 <?php
 // Pastikan path ini bener-bener ngarah ke file connection.php lu
 // Kalau controller ini ada di interface/dashboard/, naik 2 level ke root: ../../connection.php
-include '../../connection.php'; 
+include '../../connection.php';
+require_once __DIR__ . '/../../auth/session.php';
 
 // Cek apakah ini request minta gambar profil
 if (isset($_GET['action']) && $_GET['action'] == 'getProfileImage') {
-    $id_pengguna = $_GET['id'] ?? '';
+    // id_pengguna diambil dari session — user hanya bisa melihat foto profilnya sendiri.
+    $id_pengguna = auth_api_require_login()['id'];
 
     if (!empty($id_pengguna)) {
         // Nama tabel diubah jadi 'pengguna'

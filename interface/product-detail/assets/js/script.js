@@ -3,7 +3,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const productId = urlParams.get('id_produk') || urlParams.get('id');
 
 // Mendapatkan ID Pengguna (User Session/Localstorage)
-const userId = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+const userId = CardHavenAuth.id() || null;
 console.log(productId);
 
 // State Variables
@@ -278,7 +278,6 @@ window.buyNow = function(idProduk, hargaSatuan) {
     fd.append('id_produk', idProduk);
     fd.append('harga_produk', hargaSatuan);
     fd.append('jumlah', qty);
-    fd.append('id_pengguna_js', userId);
 
     fetch(`${base}/interface/cart/controller_keranjang.php`, {
         method: 'POST',
@@ -392,7 +391,6 @@ function checkoutProduct() {
     fd.append('id_produk', productId);
     fd.append('harga_produk', currentProductPrice);
     fd.append('jumlah', currentQty);
-    fd.append('id_pengguna_js', userId);
 
     fetch(`${base}/interface/cart/controller_keranjang.php`, {
         method: 'POST',

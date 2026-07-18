@@ -7,7 +7,7 @@ const CART_CONTROLLER = '/cardhaven/interface/cart/controller_keranjang.php';
 const BASE_URL = '/cardhaven';
 
 // --- LOGIKA IDENTITAS ---
-var getUserId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+var getUserId = () => CardHavenAuth.id() || null;
 
 document.addEventListener('DOMContentLoaded', loadCart);
  
@@ -18,7 +18,7 @@ function loadCart() {
     // Jika tidak ada user, hentikan proses (keamanan tambahan)
     if (!userId || userId === "0") return;
 
-    fetch(`${CART_CONTROLLER}?action=get_items&id_pengguna_js=${userId}`)
+    fetch(`${CART_CONTROLLER}?action=get_items`)
         .then(res => {
             if (!res.ok) throw new Error('Network response was not ok');
             return res.json();
@@ -124,7 +124,12 @@ function renderRow(item) {
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, -1)"
                         title="Subtract">−</button>
-                <span class="cart-qty-val">${item.jumlah_barang}</span>
+                <input type="number"
+                       class="cart-qty-val"
+                       min="1"
+                       value="${item.jumlah_barang}"
+                       data-qty="${item.jumlah_barang}"
+                       onchange="handleCartQtyTyped(${item.id_detail_keranjang}, this)">
                 <button class="cart-qty-btn"
                         onclick="updateQty(${item.id_detail_keranjang}, 1)"
                         title="Add">+</button>
@@ -188,18 +193,37 @@ function setCheckoutState(enabled) {
     if (btn) btn.disabled = !enabled;
 }
  
-// ---- Aksi POST dengan id_pengguna_js ----
+// ---- Aksi POST (id_pengguna diambil server dari session) ----
 function updateQty(id, change) {
     const fd = new FormData();
     fd.append('action', 'update_qty');
     fd.append('id', id);
     fd.append('change', change);
-    fd.append('id_pengguna_js', getUserId());
  
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
         .then(res => res.json())
         .then(json => { if (json.success) loadCart(); })
         .catch(err => console.error(err));
+}
+
+// ---- Dipanggil saat user mengetik langsung jumlah quantity lalu keluar dari kolom (blur / Enter) ----
+function handleCartQtyTyped(id, inputEl) {
+    const oldQty = parseInt(inputEl.dataset.qty) || 1;
+    let newQty   = parseInt(inputEl.value);
+
+    // Kalau kosong atau tidak valid, kembalikan ke jumlah sebelumnya
+    if (isNaN(newQty) || newQty < 1) {
+        newQty = 1;
+    }
+
+    if (newQty === oldQty) {
+        inputEl.value = oldQty; // rapikan tampilan, tidak perlu request ke server
+        return;
+    }
+
+    // Backend cuma terima perubahan (delta), jadi dihitung selisihnya dulu
+    const change = newQty - oldQty;
+    updateQty(id, change);
 }
  
 function toggleSelect(id, checked) {
@@ -207,7 +231,6 @@ function toggleSelect(id, checked) {
     fd.append('action', 'toggle_select');
     fd.append('id', id);
     fd.append('status', checked ? 1 : 0);
-    fd.append('id_pengguna_js', getUserId());
  
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
         .then(res => res.json())
@@ -219,7 +242,6 @@ function toggleSelectAll(checked) {
     const fd = new FormData();
     fd.append('action', 'select_all');
     fd.append('status', checked ? 1 : 0);
-    fd.append('id_pengguna_js', getUserId());
  
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
         .then(res => res.json())
@@ -237,7 +259,6 @@ function deleteItem(id) {
             const fd = new FormData();
             fd.append('action', 'delete');
             fd.append('id', id);
-            fd.append('id_pengguna_js', getUserId());
          
             fetch(CART_CONTROLLER, { method: 'POST', body: fd })
                 .then(res => res.json())

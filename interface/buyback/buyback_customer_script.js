@@ -1,7 +1,7 @@
 const BUYBACK_CONTROLLER = '/cardhaven/interface/buyback/controller_buyback.php';
 
-const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
-const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+const idPengguna = CardHavenAuth.id() || null;
+const userRole = CardHavenAuth.role();
 let cardIndexCounter = 1;
 
 // ── Pagination/Filter State (dari buyback.js, untuk profile page) ──
@@ -557,7 +557,7 @@ function openDetailModal(id_pembelian) {
                 <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem;">
                     <strong style="color: #c2410c;">📦 Card Return</strong><br>
                     ${pem.alamat 
-                        ? `<span style="color: #065f46;">Return address submitted. Waiting for shipment.</span>`
+                        ? `<span style="color: #065f46;">Return address submitted.</span>`
                         : `<span style="color: #9a3412;">Please provide your return address so we can send the card back.</span>`
                     }
                 </div>`;

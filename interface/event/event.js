@@ -531,7 +531,7 @@ async function aeSubmitEvent() {
         persen_diskon:    parseFloat(diskon),
         maks_pembelian:   parseInt(maks, 10),
         status_event:     statusEvent, // <-- Lempar status ke PHP
-        id_karyawan:      sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna'),
+        id_karyawan:      CardHavenAuth.id() || null,
         products: aeProductList.map(p => ({
             id_produk:   p.id_produk,
             harga_event: Math.round(((100 - parseFloat(diskon)) * p.harga_jual) / 100),

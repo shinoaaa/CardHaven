@@ -4,7 +4,7 @@ const METODE_API  = '/CardHaven/interface/product/controller_metode.php';
 
 // ── Helper mandiri: metode master kini berdiri sendiri di halaman Transaction
 //    (tanpa produk_script.js). Definisikan hanya bila belum ada agar tidak bentrok. ──
-window.getEmpId = window.getEmpId || (() => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna'));
+window.getEmpId = window.getEmpId || (() => CardHavenAuth.id() || null);
 window.showError = window.showError || function (el, msg) {
     el.style.border = '2px solid #E74C3C';
     const err = el.closest('.modal-form-group').querySelector('.error-message');
@@ -148,7 +148,6 @@ if (biaya.value !== '' && parseFloat(biaya.value) < 0) {
 
     try {
         const formData = new FormData(metodeForm);
-        formData.append('id_pengguna_js', getEmpId());
 
         const res    = await fetch(METODE_API, { method: 'POST', body: formData });
         const result = JSON.parse(await res.text());
@@ -180,7 +179,6 @@ function toggleMetode(id, isActive, el) {
             const fd = new FormData();
             fd.append('action', action);
             fd.append('id_metode', id);
-            fd.append('id_pengguna_js', getEmpId());
 
             fetch(METODE_API, { method: 'POST', body: fd })
                 .then(async res => JSON.parse(await res.text()))
@@ -207,7 +205,6 @@ function confirmDeleteMetode(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_metode', id);
-        fd.append('id_pengguna_js', getEmpId());
 
         fetch(METODE_API, { method: 'POST', body: fd })
             .then(async res => JSON.parse(await res.text()))

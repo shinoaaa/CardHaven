@@ -86,3 +86,25 @@
     width: 35px; height: 35px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;
 }
 .page-info { color: #173C99; font-weight: bold; font-size: 0.9rem; }
+
+/* ============================================================
+   RESPONSIVE (<=768 tablet/HP). Desktop tidak diubah.
+   Sidebar filter di-stack ke atas, grid produk mengecil kolomnya.
+   ============================================================ */
+@media screen and (max-width: 768px) {
+    .cat-wrapper {
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 6rem;
+        padding: 0.25rem 1.25rem;
+    }
+    .cat-sidebar { width: 100%; }
+    .filter-list { max-height: 130px; }
+    .cat-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .cat-image { height: 140px; }
+}
+
+@media screen and (max-width: 420px) {
+    .cat-grid { grid-template-columns: 1fr; }
+    .cat-image { height: 180px; }
+}

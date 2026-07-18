@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 
 try {
     require __DIR__ . '/../../connection.php';
+    require_once __DIR__ . '/../../auth/session.php';
 
     if (!$conn) {
         echo json_encode([
@@ -55,28 +56,19 @@ try {
         }
 
 
-        if ($remember) {
-            ini_set('session.cookie_lifetime', 604800);
-            ini_set('session.gc_maxlifetime', 604800);
-        } else {
-            ini_set('session.cookie_lifetime', 0);
-        }
+        // Identitas disimpan HANYA di PHP session (server-side).
+        // auth_login() sekalian me-regenerate session id untuk cegah session fixation.
+        auth_login($user, $remember);
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Simpan identitas ke PHP session agar halaman berbasis session
-        // mengenali user yang login.
-        $_SESSION['id_pengguna'] = $user['id_pengguna'];
-        $_SESSION['role']        = $user['role'];
-
+        // id_pengguna & role sengaja TIDAK dikirim balik ke browser — browser
+        // tidak perlu tahu, dan tidak boleh dipakai sebagai dasar otorisasi.
+        // Frontend cukup tahu ke mana harus diarahkan setelah login.
         echo json_encode([
                             "status" => "success",
-                            "message" => "Login successful", 
-                            "role" => $user['role'], 
-                            "id_pengguna" => $user['id_pengguna'],
-                            "username" => $user['username']
+                            "message" => "Login successful",
+                            "redirect" => auth_is_staff()
+                                ? "/CardHaven/dashboard/activity"
+                                : "/CardHaven/home"
                         ]);
         sqlsrv_free_stmt($stmt);
 

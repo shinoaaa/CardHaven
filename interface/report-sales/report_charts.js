@@ -5,7 +5,7 @@
  * Semua data via UDF di report_chart_controller.php.
  */
 const RC_CTRL = '/cardhaven/interface/report-sales/report_chart_controller.php';
-const RC_ROLE = sessionStorage.getItem('role') || localStorage.getItem('role') || 0;
+const RC_ROLE = CardHavenAuth.role();
 const RC_TYPE = window.REPORT_TYPE || 'sales';
 const RC_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

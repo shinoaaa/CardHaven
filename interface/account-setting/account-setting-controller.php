@@ -7,7 +7,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../../auth/session.php';
+auth_session_start();
 
 ob_start();
 register_shutdown_function(function () {
@@ -45,13 +46,16 @@ if (!isset($conn) || $conn === false) {
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_REQUEST['action'] ?? '';
 
+// Halaman ini HANYA untuk akun milik sendiri, jadi id_pengguna selalu diambil
+// dari session. Sebelumnya id dikirim dari browser, sehingga siapa pun bisa
+// mengedit/menghapus akun orang lain hanya dengan mengganti angka id.
+$authUser    = auth_api_require_login();
+$id_pengguna = $authUser['id'];
+
 // ==========================================
 // MENGAMBIL DATA PENGGUNA
 // ==========================================
 if ($method === 'GET' && $action === 'get') {
-    $id_pengguna = (int)($_GET['id_pengguna'] ?? 0);
-    if ($id_pengguna === 0) jsonResponse(["status" => "error", "message" => "User ID not found."]);
-
     $stmt = sqlsrv_query($conn, "SELECT id_pengguna, username, email, role, foto_profil, status_akun, no_telepon FROM dbo.pengguna WHERE id_pengguna = ?", [$id_pengguna]);
     
     if ($stmt === false) {
@@ -75,9 +79,6 @@ if ($method === 'GET' && $action === 'get') {
 }
 
 if ($method === 'POST') {
-    $id_pengguna = (int)($_POST['id_pengguna'] ?? 0);
-    if ($id_pengguna === 0) jsonResponse(["status" => "error", "message" => "User ID not found."]);
-
     // --- SIMPAN PROFIL ---
     if ($action === 'update') {
         $nama       = trim($_POST['nama'] ?? '');
@@ -143,6 +144,11 @@ if ($method === 'POST') {
         if ($up === false) {
             jsonResponse(["status" => "error", "message" => "Failed to save your profile."]);
         }
+
+        // Session ikut diperbarui supaya nama/email di navbar & sidebar langsung sinkron.
+        $_SESSION['username'] = $nama;
+        $_SESSION['email']    = $email;
+
         jsonResponse(["status" => "success", "message" => "Profile updated successfully!"]);
     }
 
@@ -182,6 +188,10 @@ if ($method === 'POST') {
         if ($stmt === false) {
             jsonResponse(["status" => "error", "message" => "Failed to update account status."]);
         }
+
+        // Akun sudah tidak aktif/terhapus — session-nya wajib ikut dihapus.
+        auth_logout();
+
         $msg = ($action === 'delete') ? "Account successfully deleted." : "Account successfully deactivated.";
         jsonResponse(["status" => "success", "message" => $msg]);
     }

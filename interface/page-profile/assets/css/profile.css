@@ -160,4 +160,21 @@ body {
 .mail-item.unread { border-left: 4px solid #173C99; font-weight: bold; background: #f0f7ff; }
 .mail-item-title { margin: 0 0 5px 0; font-size: 1rem; color: #173C99; }
 .mail-item-date { margin: 0; font-size: 0.75rem; color: #888; }
+
+/* ============================================================
+   RESPONSIVE (<=768). Desktop tidak diubah.
+   Kartu profil (avatar|nama|info) di-stack; toolbar & tabs wrap.
+   ============================================================ */
+@media screen and (max-width: 768px) {
+    .profile-page-wrapper { padding: 0 1rem; }
+    .profile-card { flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 16px 20px 24px; }
+    .profile-center { flex: none; padding-left: 0; }
+    .profile-right { flex: none; width: 100%; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-item { justify-content: flex-start; }
+    .transaction-card { padding: 20px 16px; }
+    .transaction-tabs { gap: 16px; flex-wrap: wrap; }
+    .transaction-toolbar { flex-wrap: wrap; }
+    .filter-btn { flex: 1 1 120px; width: auto; }
+}
 .pagination-controls { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }

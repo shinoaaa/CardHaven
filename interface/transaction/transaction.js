@@ -41,7 +41,7 @@ const STATUS_BG = {
 // ════════════════════════════════════════════════════════════════════════════
 
 function getUserId() {
-    return sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna') || 0;
+    return CardHavenAuth.id();
 }
 
 // Resolusi path foto produk yang konsisten: path lengkap dipakai apa adanya,
@@ -90,7 +90,7 @@ async function openDetailModal(id_penjualan) {
         const st = parseInt(h.status_penjualan);
 
         // Tentukan tombol aksi yang tampil. Owner (role 3) view-only — tanpa tombol aksi.
-        const USER_ROLE = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
+        const USER_ROLE = CardHavenAuth.role();
         let actionBtns = '';
 
         if (USER_ROLE === 3) {

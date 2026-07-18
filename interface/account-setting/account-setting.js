@@ -1,5 +1,6 @@
 const controllerUrl = '/CardHaven/interface/account-setting/account-setting-controller.php';
-const userId = sessionStorage.getItem("id_pengguna") || localStorage.getItem("id_pengguna");
+// Identitas dari PHP session (window.CH_AUTH), bukan storage browser.
+const userId = CardHavenAuth.id() || null;
 const pwModal = document.getElementById("pwModal");
 const btnOpenPwModal = document.getElementById("btnOpenPwModal");
 const btnClosePwModal = document.getElementById("btnClosePwModal");
@@ -20,8 +21,8 @@ function setValue(id, value) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    setText("userName", sessionStorage.getItem("username") || sessionStorage.getItem("nama") || "Guest");
-    setText("userEmail", sessionStorage.getItem("userEmail") || "-");
+    setText("userName", CardHavenAuth.username() || "Guest");
+    setText("userEmail", CardHavenAuth.email() || "-");
 
     loadData();
 
@@ -75,9 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
+                // id_pengguna tidak dikirim — server memakai id dari session.
                 const formData = new FormData();
                 formData.append("action", "change_password");
-                formData.append("id_pengguna", userId);
                 formData.append("current_password", curPw);
                 formData.append("new_password", newPw);
 
@@ -102,7 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadData() {
     try {
-        const res = await fetch(`${controllerUrl}?action=get&id_pengguna=${encodeURIComponent(userId)}`);
+        // Tanpa id_pengguna — server memakai id dari session.
+        const res = await fetch(`${controllerUrl}?action=get`);
         const data = await res.json();
 
         if (data.status !== "success") {
@@ -158,9 +160,9 @@ async function handleSubmit(e) {
     }
 
     try {
+        // id_pengguna tidak dikirim — server memakai id dari session.
         const formData = new FormData();
         formData.append("action", "update");
-        formData.append("id_pengguna", userId);
         formData.append("nama", nama);
         formData.append("email", email);
         formData.append("no_telepon", no_telepon);
@@ -173,7 +175,7 @@ async function handleSubmit(e) {
         const data = await res.json();
 
         if (data.status === "success") {
-            sessionStorage.setItem("username", nama);
+            // Nama baru sudah disimpan server ke session; cukup reload halaman.
             cardhavenAlert('success', 'Success', data.message, () => location.reload());
         } else {
             cardhavenAlert('error', 'Failed', data.message);
@@ -186,16 +188,15 @@ async function handleSubmit(e) {
 async function handleDeactivate() {
     cardhavenConfirm("Deactivate Account", "Are you sure you want to deactivate this account?", "Yes, Deactivate", async () => {
         try {
+            // id_pengguna tidak dikirim — server memakai id dari session.
             const formData = new FormData();
             formData.append("action", "deactivate");
-            formData.append("id_pengguna", userId);
 
             const res = await fetch(controllerUrl, { method: "POST", body: formData });
             const data = await res.json();
 
             if (data.status === "success") {
-                sessionStorage.clear();
-                localStorage.clear();
+                // Session sudah dihapus server saat akun dinonaktifkan.
                 cardhavenAlert('success', 'Deactivated', data.message, () => {
                     window.location.href = "/CardHaven";
                 });
@@ -211,18 +212,17 @@ async function handleDeactivate() {
 async function handleDelete() {
     cardhavenConfirm("Delete Account", "Are you sure you want to delete this account? You will be logged out.", "Yes, Delete", async () => {
         try {
+            // id_pengguna tidak dikirim — server memakai id dari session.
             const formData = new FormData();
             formData.append("action", "delete");
-            formData.append("id_pengguna", userId);
 
             const res = await fetch(controllerUrl, { method: "POST", body: formData });
             const data = await res.json();
 
             if (data.status === "success") {
-                sessionStorage.clear();
-                localStorage.clear();
+                // Session sudah dihapus server saat akun dihapus.
                 cardhavenAlert('success', 'Deleted', data.message, () => {
-                    window.location.href = "../../login-page/";
+                    window.location.href = "/CardHaven/login";
                 });
             } else {
                 cardhavenAlert('error', 'Failed', data.message);

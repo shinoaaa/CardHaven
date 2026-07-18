@@ -1,6 +1,6 @@
 const REPORT_CONTROLLER = '/cardhaven/interface/report-buyback/controller_laporan_buyback.php';
-const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
-const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+const idPengguna = CardHavenAuth.id() || null;
+const userRole = CardHavenAuth.role();
 
 let allData = [];         // Menyimpan semua data mentah dari server
 let filteredData = [];    // Menyimpan data hasil pencarian & sorting

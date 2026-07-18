@@ -1,6 +1,6 @@
 const REPORT_CONTROLLER = '/cardhaven/interface/report-sales/controller_laporan_sales.php';
-const idPengguna = sessionStorage.getItem('id_pengguna') || localStorage.getItem('id_pengguna');
-const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+const idPengguna = CardHavenAuth.id() || null;
+const userRole = CardHavenAuth.role();
 
 let allData = [];         
 let filteredData = [];    

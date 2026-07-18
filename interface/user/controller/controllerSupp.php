@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../../../auth/session.php';
+auth_session_start();
 require_once __DIR__ . '/../../../connection.php';
 
 function jsonOut(bool $success, string $message = '', array $data = []): void {
@@ -13,15 +14,12 @@ $action = $_REQUEST['action'] ?? $body['action'] ?? '';
 
 if ($action !== '') {
     try {
-        // PERBAIKAN: Langsung ambil dari parameter yang dilempar oleh fetch JS
-        $userId = $body['user_id'] ?? $_POST['user_id'] ?? null;
-        $userId = $userId ? (int)$userId : null;
+        // Manajemen supplier ada di menu User — hanya untuk Owner.
+        auth_api_require_role([ROLE_OWNER]);
 
-        // Validasi mutasi data wajib menyertakan User ID dari JS
-        $mutationActions = ['addSupplier', 'updateSupplier', 'deleteSupplier', 'toggleSupplier'];
-        if (in_array($action, $mutationActions) && empty($userId)) {
-            jsonOut(false, 'Operation denied: Active User ID is missing from the request.');
-        }
+        // Pelaku aksi (jejak audit) diambil dari session, bukan dari user_id
+        // kiriman JS yang bisa diganti.
+        $userId = auth_id();
 
         switch ($action) {
             case 'getSupplier':

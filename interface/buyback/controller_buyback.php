@@ -3,6 +3,8 @@ ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
 
+require_once __DIR__ . '/../../auth/session.php';
+
 ob_start();
 
 try {
@@ -16,6 +18,23 @@ try {
     exit;
 }
 
+// Identitas pelaku SELALU dari session. Sebelumnya id_pengguna & role dikirim
+// dari browser, jadi customer bisa membuka/mengubah transaksi buyback milik
+// orang lain — atau mengaku sebagai admin cukup dengan menambahkan &role=2.
+$authUser = auth_api_require_login();
+$authId   = $authUser['id'];
+$authRole = $authUser['role'];
+
+/** Aksi khusus admin buyback (Manager & Owner). */
+function requireBuybackAdmin(): void {
+    auth_api_require_role([ROLE_MANAGER, ROLE_OWNER]);
+}
+
+/** Aksi khusus customer. */
+function requireBuybackCustomer(): void {
+    auth_api_require_role([ROLE_CUSTOMER]);
+}
+
 function getSqlError() {
     $errors = sqlsrv_errors();
     return $errors[0]['message'] ?? 'Unknown SQL Server Error';
@@ -26,11 +45,12 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 switch ($action) {
     case 'submit_buyback':
         try {
+            requireBuybackCustomer();
             if (!isset($_POST['nama_kartu']) || !is_array($_POST['nama_kartu'])) throw new Exception("Form data is invalid or empty.");
-            
-            $id_customer = (int)($_POST['id_pengguna'] ?? 0);
-            if ($id_customer === 0) throw new Exception("User session expired.");
-            
+
+            // Pengaju buyback = user yang sedang login.
+            $id_customer = $authId;
+
             $provider    = $_POST['provider'] ?? '';
             $no_rekening = $_POST['no_rekening'] ?? '';
             $total_barang= count($_POST['nama_kartu']);
@@ -80,8 +100,10 @@ switch ($action) {
 
     case 'get_buyback_list':
         try {
-            $role        = (int)($_GET['role'] ?? 0);
-            $id_pengguna = (int)($_GET['id_pengguna'] ?? 0);
+            // Role & id dari session: customer otomatis hanya melihat miliknya,
+            // admin melihat semua. Tidak bisa dinaikkan lewat URL.
+            $role        = $authRole;
+            $id_pengguna = $authId;
             $page        = max(1, intval($_GET['page'] ?? 1));
             // Limit bisa di-override lewat query (dipakai admin untuk menarik semua data
             // lalu difilter/sort/paginate di sisi client, sama seperti halaman laporan).
@@ -121,8 +143,10 @@ switch ($action) {
 
     case 'update_status':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackStatus(?, ?, ?, ?)}", 
-                [$_POST['id_pembelian'], $_POST['status'], $_POST['no_resi'] ?? null, $_POST['id_pengguna']]);
+            // Dipakai admin maupun customer; SP yang memvalidasi kepemilikan
+            // berdasarkan id_pengguna — yang kini selalu dari session.
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackStatus(?, ?, ?, ?)}",
+                [$_POST['id_pembelian'], $_POST['status'], $_POST['no_resi'] ?? null, $authId]);
             if ($stmt === false) throw new Exception(getSqlError());
             
             ob_clean(); echo json_encode(["status" => "success", "message" => "Status updated successfully."]);
@@ -131,16 +155,18 @@ switch ($action) {
 
     case 'admin_negotiate':
         try {
+            requireBuybackAdmin();
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_AdminNegotiateCard(?, ?)}", [$_POST['id_kartu'], $_POST['penawaran_admin']]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success"]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
         break;
 
-    case 'customer_negotiate_item': 
+    case 'customer_negotiate_item':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerNegotiateCard(?, ?, ?, ?)}", 
-                [$_POST['id_kartu'], $_POST['id_pembelian'], $_POST['id_pengguna'], $_POST['penawaran_customer']]);
+            requireBuybackCustomer();
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerNegotiateCard(?, ?, ?, ?)}",
+                [$_POST['id_kartu'], $_POST['id_pembelian'], $authId, $_POST['penawaran_customer']]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success"]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
@@ -148,8 +174,9 @@ switch ($action) {
 
     case 'customer_accept_item':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerAcceptCard(?, ?, ?, ?)}", 
-                [$_POST['id_kartu'], $_POST['id_pembelian'], $_POST['id_pengguna'], $_POST['harga_final']]);
+            requireBuybackCustomer();
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerAcceptCard(?, ?, ?, ?)}",
+                [$_POST['id_kartu'], $_POST['id_pembelian'], $authId, $_POST['harga_final']]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success"]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
@@ -157,17 +184,19 @@ switch ($action) {
 
     case 'update_address':
         try {
+        requireBuybackCustomer();
         // FIX: Tukar posisi alamat_retur dan id_pengguna menyesuaikan struktur SP standar
-        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackAddress(?, ?, ?)}", 
-            [$_POST['id_pembelian'], $_POST['alamat_retur'], $_POST['id_pengguna']]);
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackAddress(?, ?, ?)}",
+            [$_POST['id_pembelian'], $_POST['alamat_retur'], $authId]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success", "message" => "Address saved successfully."]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
         break;
     case 'customer_negotiate':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerNegotiateTransaction(?, ?, ?)}", 
-                [$_POST['id_pembelian'], $_POST['id_pengguna'], $_POST['penawaran_customer']]);
+            requireBuybackCustomer();
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerNegotiateTransaction(?, ?, ?)}",
+                [$_POST['id_pembelian'], $authId, $_POST['penawaran_customer']]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success", "message" => "Counter-offer submitted."]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
@@ -175,7 +204,9 @@ switch ($action) {
 
     case 'get_detail':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetBuybackDetail(?, ?, ?)}", [$_GET['id_pembelian'], $_GET['role'] ?? 0, $_GET['id_pengguna'] ?? 0]);
+            // Role & id dari session — SP inilah yang menolak akses kalau
+            // transaksi bukan milik customer yang bersangkutan.
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetBuybackDetail(?, ?, ?)}", [$_GET['id_pembelian'], $authRole, $authId]);
             if ($stmt === false) throw new Exception(getSqlError());
             
             $pembelian = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -196,6 +227,7 @@ switch ($action) {
 
     case 'admin_send_payment':
         try {
+            requireBuybackAdmin();
             if (!isset($_FILES['bukti_pembayaran']) || $_FILES['bukti_pembayaran']['error'] !== UPLOAD_ERR_OK) throw new Exception("Payment proof file is invalid or missing.");
 
             $uploadDir = '../../assets/image/buyback/payment/';
@@ -205,7 +237,8 @@ switch ($action) {
             $fileName = uniqid('pay_') . '.' . pathinfo($_FILES['bukti_pembayaran']['name'], PATHINFO_EXTENSION);
             if (!move_uploaded_file($_FILES['bukti_pembayaran']['tmp_name'], $uploadDir . $fileName)) throw new Exception("Failed to save the payment proof file.");
 
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_AdminSendPayment(?, ?, ?)}", [$_POST['id_pembelian'], $_POST['id_pengguna'], $dbPath . $fileName]);
+            // Admin pelaksana = user yang sedang login (jejak audit dari session).
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_AdminSendPayment(?, ?, ?)}", [$_POST['id_pembelian'], $authId, $dbPath . $fileName]);
             if ($stmt === false) throw new Exception(getSqlError());
 
             ob_clean(); echo json_encode(["status" => "success", "message" => "Payment sent and proof uploaded."]);
@@ -214,7 +247,8 @@ switch ($action) {
 
     case 'get_user_bank':
         try {
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetUserBank(?)}", [$_GET['id_pengguna'] ?? 0]);
+            // Data rekening milik sendiri — id dari session.
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetUserBank(?)}", [$authId]);
             $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
             ob_clean(); echo json_encode(["status" => "success", "data" => $row]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }

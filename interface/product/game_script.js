@@ -1,7 +1,7 @@
 const modal = document.getElementById('gameModal');
 const gameForm = document.getElementById('gameForm');
 const URL_GAME = '/cardhaven/interface/product/controller_game.php';
-// var getEmpId = () => localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
+// getEmpId() didefinisikan di produk_script.js (ambil id dari PHP session via CardHavenAuth).
 
 document.querySelectorAll('#gameForm .modal-input').forEach(input => {
     input.addEventListener('input', function() { clearError(this); });
@@ -168,7 +168,6 @@ function toggleStatus(id, isActive, el) {
             const fd = new FormData();
             fd.append('action', action);
             fd.append('id_game', id);
-            fd.append('id_pengguna_js', getEmpId());
 
             fetch(URL_GAME, { method: 'POST', body: fd })
             .then(res => res.json())
@@ -206,7 +205,6 @@ gameForm.onsubmit = function(e) {
     btnSubmit.disabled  = true;
 
     const formData = new FormData(gameForm);
-    formData.append('id_pengguna_js', getEmpId());
 
     fetch(URL_GAME, { method: 'POST', body: formData })
     .then(res => res.json())
@@ -235,7 +233,6 @@ function confirmDelete(id) {
         const fd = new FormData();
         fd.append('action', 'delete');
         fd.append('id_game', id);
-        fd.append('id_pengguna_js', getEmpId());
         
         fetch(URL_GAME, { method: 'POST', body: fd })
         .then(res => res.json())
@@ -258,7 +255,6 @@ function confirmRestore(id) {
         const fd = new FormData();
         fd.append('action', 'restore'); 
         fd.append('id_game', id);
-        fd.append('id_pengguna_js', getEmpId());
         
         fetch(URL_GAME, { method: 'POST', body: fd })
         .then(res => res.json())

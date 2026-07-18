@@ -454,9 +454,8 @@ if (isset($conn) && $conn !== false) {
     <script>
         // Master Payment Method hanya tampil untuk Owner (role 3).
         (function () {
-            var role = parseInt(sessionStorage.getItem('role') || localStorage.getItem('role') || 0);
             var card = document.getElementById('ownerMetodeCard');
-            if (card && role === 3) card.style.display = '';
+            if (card && CardHavenAuth.role() === 3) card.style.display = '';
         })();
     </script>
 </body>

@@ -25,10 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const forgotSubmit = document.getElementById("forgot-submit");
     const backToLogin = document.getElementById("back-to-login");
 
-    const idPenggunaa = localStorage.getItem('id_pengguna') || sessionStorage.getItem('id_pengguna');
-    const rolePenggunaa = localStorage.getItem('role') || sessionStorage.getItem('role');
-
-    if(idPenggunaa && rolePenggunaa !== 0){
+    // Kalau pegawai sudah punya session login aktif, langsung ke dashboard.
+    // Identitas diambil dari session PHP (window.CH_AUTH), bukan dari storage browser.
+    if (CardHavenAuth.isStaff()) {
         window.location.replace("/CardHaven/dashboard/activity");
     }
 
@@ -93,11 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = JSON.parse(responseText);
 
                 if (data.status === "success") {
-                    const storage = clicked ? localStorage : sessionStorage;
-                    storage.setItem("userEmail", email);
-                    storage.setItem("role", data.role);
-                    storage.setItem("id_pengguna", data.id_pengguna);
-                    storage.setItem("username", data.username);
+                    // Tidak ada lagi penyimpanan identitas di browser.
+                    // id_pengguna & role sudah tersimpan aman di PHP session.
 
                     // Animasi Sukses Login
                     Swal.fire({
@@ -110,11 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         background: '#ffffff',
                         customClass: { title: 'coolveticaa' }
                     }).then(() => {
-                        if (data.role == 2 || data.role == 3 || data.role == 1) {
-                            window.location.replace("/CardHaven/dashboard/activity");
-                        } else {
-                            window.location.replace("/CardHaven/home");
-                        }
+                        // Tujuan redirect ditentukan server berdasarkan role di session.
+                        window.location.replace(data.redirect || "/CardHaven/home");
                     });
 
                 } else {

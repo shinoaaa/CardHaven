@@ -1,7 +1,10 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../../auth/session.php';
 require_once __DIR__ . '/../../connection.php';
 require_once __DIR__ . '/controllerTransaction.php';
+
+// Seluruh data transaksi khusus pegawai (employee/manager/owner).
+auth_api_require_role(auth_staff_roles());
 
 $action = $_REQUEST['action'] ?? '';
 
@@ -16,20 +19,18 @@ if ($action !== '') {
     header('Content-Type: application/json');
     try {
         $ctrl = new controllerTransaction($conn);
-        $modified_by = $_SESSION['id_pengguna'] ?? 1;
+        // Pelaku aksi (jejak audit) diambil dari session, bukan dari body request.
+        $modified_by = auth_id();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $body = $postBody;
             $id = (int)($body['id_penjualan'] ?? 0);
 
             // Owner (role 3) view-only: tolak semua aksi mutasi transaksi.
-            $actorId = (int)($body['modified_by'] ?? $_SESSION['id_pengguna'] ?? 0);
-            if ($actorId) {
-                $rq = sqlsrv_query($conn, "SELECT role FROM dbo.pengguna WHERE id_pengguna = ?", [$actorId]);
-                $rr = $rq ? sqlsrv_fetch_array($rq, SQLSRV_FETCH_ASSOC) : null;
-                if ($rr && (int)$rr['role'] === 3) {
-                    echo json_encode(['status' => 'error', 'message' => 'Owner has view-only access to transactions.']); exit;
-                }
+            // Role dibaca dari session, jadi tidak perlu lagi query role
+            // berdasarkan id kiriman browser (yang bisa dipalsukan).
+            if (auth_role() === ROLE_OWNER) {
+                echo json_encode(['status' => 'error', 'message' => 'Owner has view-only access to transactions.']); exit;
             }
 
             switch ($action) {
@@ -39,7 +40,7 @@ if ($action !== '') {
                 case 'confirm_payment': // Harus sama persis dengan yang di JS
                     $id = (int)($body['id_penjualan'] ?? 0);
                     $status = (int)($body['status'] ?? 1); // Status 1 = Paid
-                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    $mod_by = $modified_by;
                     
                     // Panggil fungsi updateStatus dari controllerTransaction
                     if ($ctrl->updateStatus($id, $status, $mod_by)) {
@@ -51,7 +52,7 @@ if ($action !== '') {
                 case 'reject_payment':
                     $id = (int)($body['id_penjualan'] ?? 0);
                     $reason = trim($body['reason'] ?? '');
-                    $mod_by = (int)($_SESSION['id_pengguna'] ?? 1);
+                    $mod_by = $modified_by;
                     
                     if ($reason === '') {
                         echo json_encode(['status' => 'error', 'message' => 'Alasan penolakan harus diisi.']); exit;

@@ -1,9 +1,8 @@
 <?php
-session_start();
-if (!isset($_SESSION['id_pengguna'])) {
-    header("Location: /cardhaven/interface/auth/login.php");
-    exit;
-}
+require_once __DIR__ . '/../../auth/session.php';
+
+// Wajib login (dicek di server).
+auth_require_login();
 ?>
 <!DOCTYPE html>
 <html lang="id">

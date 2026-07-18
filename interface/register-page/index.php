@@ -50,8 +50,9 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
-    <link rel="stylesheet" href="/CardHaven/interface/global.css">
+    <link rel="stylesheet" href="/CardHaven/interface/global.css?v=<?= filemtime(__DIR__ . '/../global.css') ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/CardHaven/interface/password-toggle.js" defer></script>
     <script src="/CardHaven/interface/register-page/script_register.js" defer></script>
 </head>
 <body>
@@ -99,12 +100,22 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
                         </div>
                         <div class="form-group">
                             <label>Password<span class="required">*</span></label>
-                            <input type="password" name="password" id="password" placeholder="enter password...">
+                            <div class="password-wrap">
+                                <input type="password" name="password" id="password" placeholder="enter password...">
+                                <button type="button" class="password-toggle" data-target="password" aria-label="Show password" aria-pressed="false">
+                                    <img src="/cardhaven/assets/image/view.svg" alt="">
+                                </button>
+                            </div>
                             <div id="passwordError" class="error-message"></div>
                         </div>
                         <div class="form-group">
                             <label>Confirm password<span class="required">*</span></label>
-                            <input type="password" name="confirm_password" id="confirm_password" placeholder="confirm password">
+                            <div class="password-wrap">
+                                <input type="password" name="confirm_password" id="confirm_password" placeholder="confirm password">
+                                <button type="button" class="password-toggle" data-target="confirm_password" aria-label="Show password" aria-pressed="false">
+                                    <img src="/cardhaven/assets/image/view.svg" alt="">
+                                </button>
+                            </div>
                             <div id="confirmPasswordError" class="error-message"></div>
                         </div>
 

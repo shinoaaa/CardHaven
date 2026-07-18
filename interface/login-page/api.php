@@ -4,8 +4,9 @@ header('Content-Type: application/json');
 
 require __DIR__ . '/../../connection.php';
 require __DIR__ . '/ForgotPasswordController.php';
+require_once __DIR__ . '/../../auth/session.php';
 
-session_start();
+auth_session_start();
 
 try {
     if (!$conn) {

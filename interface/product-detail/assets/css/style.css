@@ -144,3 +144,22 @@ body {
     width: 30px; height: 30px; font-size: 18px; font-weight: bold;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
+
+/* ============================================================
+   RESPONSIVE (<=768). Desktop tidak diubah.
+   Layout gambar|info di-stack, related grid mengecil kolomnya.
+   ============================================================ */
+@media screen and (max-width: 768px) {
+    .pd-main-section { flex-direction: column; gap: 20px; padding: 0.75rem 1.25rem; margin-bottom: 32px; }
+    .pd-image-box { padding: 24px; }
+    .pd-image-box img { max-height: 320px; }
+    .pd-info-box h1 { font-size: 24px; }
+    .pd-specs { gap: 24px; flex-wrap: wrap; }
+    .pd-related-section { padding: 0.75rem 1.25rem 3rem 1.25rem; }
+    .related-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+}
+
+@media screen and (max-width: 420px) {
+    .related-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pd-price-row { flex-wrap: wrap; gap: 12px; }
+}
