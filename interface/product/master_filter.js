@@ -11,8 +11,8 @@ class MasterFilter {
         // 2. Initial State
         this.state = {
             search: '',
-            sort_by: this.idField, // Saat awal (None), pakai ID sebagai acuan
-            sort_order: 'ASC',
+            sort_by: this.cfg.defaultSort || this.idField, // Saat awal (None), pakai ID sebagai acuan
+            sort_order: this.cfg.defaultOrder || 'ASC',     // default arah bisa di-override per tabel
             page: 1,
             status: '' // Default All Status
         };
@@ -42,8 +42,14 @@ class MasterFilter {
         
         let html = `<div style="display:flex; flex-wrap:nowrap; gap:6px; align-items:center; margin-bottom:12px; width:100%; overflow-x:auto; padding-bottom:5px;">`;
         
-        // --- SEARCH BAR ---
-        html += `<input type="text" class="mf-search" placeholder="${c.searchPlaceholder || 'Search...'}" style="${inputStyle} flex:1; min-width:150px;">`;
+        // --- SEARCH BAR --- (dipendekkan agar filter tambahan muat)
+        html += `<input type="text" class="mf-search" placeholder="${c.searchPlaceholder || 'Search...'}" style="${inputStyle} flex:1; min-width:100px;">`;
+        // --- CUSTOM FILTERS (mis. Product Type) — diletakkan di antara search dan status ---
+        (c.filters || []).forEach(f => {
+            html += `<select class="mf-custom-filter" data-param="${f.param}" style="${inputStyle} cursor:pointer; width:auto; min-width:120px;">
+                <option value="">${f.label}</option>` +
+                f.options.map(o => `<option value="${o.val}">${o.label}</option>`).join('') + `</select>`;
+        });
         // --- STATUS FILTER ---
         html += `<select class="mf-status" style="${inputStyle} cursor:pointer; width:auto; min-width:100px;">
                     <option value="">All Status</option>
@@ -56,17 +62,10 @@ class MasterFilter {
         html += c.sortOptions.map(o => `<option value="${o.val}">${o.label}</option>`).join('') + `</select>`;
         
         // --- ORDER BUTTON (UP/DOWN) ---
-        html += `<button type="button" class="mf-order" title="Toggle Sort Order" style="${inputStyle} cursor:pointer; font-weight:700; width:35px; padding:0;">↑</button>`;
+        html += `<button type="button" class="mf-order" title="Toggle Sort Order" style="${inputStyle} cursor:pointer; font-weight:700; width:35px; padding:0;">${this.state.sort_order === 'ASC' ? '↑' : '↓'}</button>`;
         
         
 
-        // --- CUSTOM FILTERS (Like 'Game Filter' in Set/Rarity) ---
-        (c.filters || []).forEach(f => {
-            html += `<select class="mf-custom-filter" data-param="${f.param}" style="${inputStyle} cursor:pointer; width:auto; min-width:110px;">
-                <option value="">${f.label}</option>` +
-                f.options.map(o => `<option value="${o.val}">${o.label}</option>`).join('') + `</select>`;
-        });
-        
         html += `</div>`;
         tb.innerHTML = html;
 
@@ -204,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
             api: `${P}/controller_game.php`,
             toolbarId: 'game-toolbar', tbodyId: 'game-tbody', pagId: 'game-pag',
             colspan: 5,
+            defaultOrder: 'DESC', // data terbaru di nomor 1 (samakan dengan render PHP)
             searchPlaceholder: 'Search name / developer...',
             sortOptions: [
                 { val: 'nama_game', label: 'Sort: Name' },
@@ -229,6 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
             api: `${P}/controller_set.php`,
             toolbarId: 'set-toolbar', tbodyId: 'set-tbody', pagId: 'set-pag',
             colspan: 5,
+            defaultOrder: 'DESC', // data terbaru di nomor 1 (samakan dengan render PHP)
             searchPlaceholder: 'Search set or game name...',
             sortOptions: [
                 { val: 'nama_set', label: 'Sort: Name' },
@@ -255,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
             api: `${P}/controller_rarity.php`,
             toolbarId: 'rarity-toolbar', tbodyId: 'rarity-tbody', pagId: 'rarity-pag',
             colspan: 5,
+            defaultOrder: 'DESC', // data terbaru di nomor 1 (samakan dengan render PHP)
             searchPlaceholder: 'Search rarity or game name...',
             sortOptions: [
                 { val: 'nama_rarity', label: 'Sort: Name' },
@@ -281,7 +283,26 @@ document.addEventListener('DOMContentLoaded', function () {
             api: `${P}/controller_produk.php`,
             toolbarId: 'produk-toolbar', tbodyId: 'produk-tbody', pagId: 'produk-pag',
             colspan: 8,
-            searchPlaceholder: 'Search product or game...',
+            perPage: 7, // samakan dengan limit server (7) agar penomoran baris benar
+            defaultOrder: 'DESC', // samakan urutan awal dengan render PHP: status DESC, id_produk DESC
+
+            searchPlaceholder: 'Search product...',
+            filters: [
+                { param: 'tipe_produk', label: 'All Types', options: [
+                    { val: 'Single Card',    label: 'Single Card' },
+                    { val: 'Booster Pack',   label: 'Booster Pack' },
+                    { val: 'Booster Box',    label: 'Booster Box' },
+                    { val: 'Sleeve',         label: 'Sleeve' },
+                    { val: 'Playmat',        label: 'Playmat' },
+                    { val: 'Binder',         label: 'Binder' },
+                    { val: 'Deck Box',       label: 'Deck Box' },
+                    { val: 'Accessory',      label: 'Accessory' },
+                    { val: 'Card Protector', label: 'Card Protector' },
+                    { val: 'Toploader',      label: 'Toploader' },
+                    { val: 'Storage Box',    label: 'Storage Box' },
+                    { val: 'Other',          label: 'Other' }
+                ]}
+            ],
             sortOptions: [
                 { val: 'nama_produk', label: 'Sort: Name' },
                 { val: 'harga_jual', label: 'Sort: Price' },
@@ -308,10 +329,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('metode-toolbar')) {
         new MasterFilter({
             api: `${P}/controller_metode.php`,
-            toolbarId: 'metode-toolbar', 
-            tbodyId: 'metode-tbody', 
+            toolbarId: 'metode-toolbar',
+            tbodyId: 'metode-tbody',
             pagId: 'metode-pag',
             colspan: 6, // No, Nama, Provider, Biaya, Status, Action
+            defaultOrder: 'DESC', // data terbaru di nomor 1 (samakan dengan render PHP)
             searchPlaceholder: 'Search method or provider...',
             sortOptions: [
                 { val: 'nama_metode', label: 'Sort: Name' },
