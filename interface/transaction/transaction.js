@@ -148,9 +148,9 @@ async function openDetailModal(id_penjualan) {
                         <div style="font-size:.72rem;opacity:.55;">${item.tipe_produk ?? ''} · ${item.kondisi ?? ''}</div>
                     </div>
                 </td>
-                <td style="text-align:right;white-space:nowrap;">Rp ${item.harga_produk}</td>
+                <td style="text-align:right;white-space:nowrap;">Rp ${parseInt(item.harga_produk || 0).toLocaleString('id-ID')}</td>
                 <td style="text-align:center;">${item.jumlah_barang}</td>
-                <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${item.subtotal_harga}</td>
+                <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${parseInt(item.subtotal_harga || 0).toLocaleString('id-ID')}</td>
             </tr>
         `).join('');
 
@@ -180,7 +180,7 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Number</span><b>${h.rek_tujuan ?? h.no_rekening ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
-                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${h.biaya_admin ?? 0}</b></div>
+                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${parseInt(h.biaya_admin || 0).toLocaleString('id-ID')}</b></div>
                 </div>
 
                 <!-- Shipping -->
@@ -213,7 +213,7 @@ async function openDetailModal(id_penjualan) {
 
             <div style="display:flex;justify-content:flex-end;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.1);">
                 <span style="font-size:.85rem;opacity:.65;margin-right:.5rem;">${h.total_barang} item · Total</span>
-                <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${h.total_harga}</span>
+                <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${parseInt(h.total_harga || 0).toLocaleString('id-ID')}</span>
             </div>
 
             ${actionBtns ? `<div class="trx-action-row">${actionBtns}</div>` : ''}

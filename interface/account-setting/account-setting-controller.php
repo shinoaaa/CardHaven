@@ -72,7 +72,7 @@ if ($method === 'GET' && $action === 'get') {
             "email"       => $user['email'],
             "no_telepon"  => $user['no_telepon'] ?? '',
             "role"        => $user['role'],
-            "foto_profil" => $user['foto_profil'] ?? '/cardhaven/assets/image/default-profile.png',
+            "foto_profil" => $user['foto_profil'] ?? null,
             "status_akun" => $user['status_akun']
         ]
     ]);
@@ -117,7 +117,7 @@ if ($method === 'POST') {
                 jsonResponse(["status" => "error", "message" => "Image size must be less than 2MB."]);
             }
 
-            $uploadDir = __DIR__ . '/../../assets/image/';
+            $uploadDir = __DIR__ . '/../../image-profile/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
             $fileExt = strtolower(pathinfo($_FILES['fotoFile']['name'], PATHINFO_EXTENSION));
@@ -125,7 +125,8 @@ if ($method === 'POST') {
             $targetPath = $uploadDir . $fileName;
 
             if (move_uploaded_file($_FILES['fotoFile']['tmp_name'], $targetPath)) {
-                $foto_profil = '/cardhaven/assets/image/' . $fileName;
+                // DB hanya menyimpan nama file; prefix folder ditambahkan saat menampilkan.
+                $foto_profil = $fileName;
             } else {
                 jsonResponse(["status" => "error", "message" => "Failed to upload image."]);
             }

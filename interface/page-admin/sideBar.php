@@ -110,9 +110,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const data = JSON.parse(textData);
                     if (data.status === 'success' && data.image) {
-                        // [FIX] data.image sudah berisi full path relatif (misal: image-profile/foto.jpg)
-                        // langsung pakai /CardHaven/ + data.image, JANGAN tambah image-profile lagi
-                        profileImageElement.src = `/CardHaven/${data.image}`;
+                        // DB menyimpan nama file saja. Ambil nama file (buang path lama jika ada)
+                        // lalu tambahkan folder image-profile.
+                        const fileName = data.image.split('/').pop();
+                        profileImageElement.src = `/CardHaven/image-profile/${fileName}`;
                     }
                     // [FIX] Kalau gagal atau user tidak punya foto, biarkan default.jpg tetap tampil
                 } catch (e) {

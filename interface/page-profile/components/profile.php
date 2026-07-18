@@ -1,7 +1,7 @@
 <div class="profile-card">
     <div class="profile-left">
         <div class="profile-avatar-wrapper">
-            <img src="/cardhaven/image-profile/profil_97_1782695090.jpg" alt="Prode" id="displayAvatar" class="profile-avatar">
+            <img src="/cardhaven/assets/image/user.svg" alt="Profile" id="displayAvatar" class="profile-avatar">
         </div>
         <div class="profile-action-pill">
             <a href="/CardHaven/home" class="action-icon">
