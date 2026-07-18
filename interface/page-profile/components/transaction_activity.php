@@ -140,6 +140,9 @@
 
         <div class="pagination" id="bb-pagination"></div>
     </div>
+
+        <div class="pagination" id="bb-pagination"></div>
+    </div>
 </div>
 
 <!-- Order Detail Modal (opened by ••• action button) -->

@@ -346,7 +346,20 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         // --- 7. ISI DROPDOWN GAME EXPLORE FILTER ---
-        // 
+        const gameSelect = document.getElementById('homeGameName');
+        if (gameSelect && data.list_game_bar) {
+            // Bersihkan dulu biar kalau user pindah page, gamenya ga numpuk ganda
+            gameSelect.innerHTML = '<option value="">All Games</option>';
+            
+            // Loop data game dan jadikan opsi <option>
+            data.list_game_bar.forEach(game => {
+                const opt = document.createElement('option');
+                // Value pakai nama game agar ditangkap parameter `?game_name=` di Katalog
+                opt.value = game.nama_game; 
+                opt.textContent = game.nama_game;
+                gameSelect.appendChild(opt);
+            });
+        }
 
         // Event Preorder
         setBtnState(document.getElementById('btn-prev-event'), currentEventPage <= 1);
