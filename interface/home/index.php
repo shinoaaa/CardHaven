@@ -39,6 +39,12 @@ $baseUrl = '/CardHaven';
                 <img id="ui-event-image" src="" style="position: absolute; z-index: 1; transform: translateX(-1.5rem) translateY(2.5rem) scale(0.92);">
                 <!-- <img src="<?= $baseUrl ?>/assets/image/garis-belakang.png" style="position: absolute; z-index: 0; width: 65.5%; height: 62%; transform: translateX(-3rem) translateY(-6.75rem);"> -->
             </div>
+
+            <!-- Empty state: muncul kalau tidak ada preorder event (di-toggle oleh script.js) -->
+            <div class="hero-empty" id="heroEmpty" style="display: none; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 2rem;">
+                <img src="/cardhaven/assets/image/empty-state.png" alt="No preorder event" style="width: 180px; height: auto; image-rendering: pixelated;">
+                <p style="color: var(--paragraf, #4d4d4d); font-size: 1.25rem; font-weight: 600;">Preorder is currently unavailable</p>
+            </div>
         </div>
         
         <div class="bottom-bar">

@@ -118,7 +118,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function updateTampilan(data) {
         // --- 1. RENDER EVENT (PREORDER) ---
+        const heroDesc  = document.querySelector('.hero-section .hero-desc');
+        const heroImg   = document.querySelector('.hero-section .hero-img');
+        const heroEmpty = document.getElementById('heroEmpty');
         if (data.event) {
+            // Ada event → tampilkan konten normal, sembunyikan empty state.
+            if (heroEmpty) heroEmpty.style.display = 'none';
+            if (heroDesc)  heroDesc.style.display  = '';
+            if (heroImg)   heroImg.style.display   = '';
             document.getElementById('ui-event-title').textContent = data.event.nama_event;
             document.getElementById('ui-event-product').textContent = data.event.nama_produk;
             document.getElementById('ui-event-date').textContent = data.event.tanggal_sampai;
@@ -152,10 +159,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 eventTitle.textContent = "Upcoming event check detail";
                 eventTitle.disabled = false;
             } else {
+                // Event complete: tombol TETAP aktif supaya modal (detail/history) bisa dibuka.
+                // Tombol beli di dalam modal sudah dinonaktifkan (preorder-transaction/script.js).
                 eventTitle.textContent = "Event was complete";
-                eventTitle.disabled = true;  // Di-disable kalau event sudah selesai
-                eventTitle.onclick = null;   // Hapus fungsi klik sekalian biar aman
+                eventTitle.disabled = false;
+                // onclick tetap openPreOrderEvent(...) yang di-set di atas — sengaja tidak di-null-kan.
             }
+        } else {
+            // Tidak ada preorder event → tampilkan empty state (maskot + caption).
+            if (heroEmpty) heroEmpty.style.display = 'flex';
+            if (heroDesc)  heroDesc.style.display  = 'none';
+            if (heroImg)   heroImg.style.display   = 'none';
         }
 
         // --- 2. RENDER EVENT (PROMO) - RENDER 4 ITEM ---
@@ -205,7 +219,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             }
             else {
-                promoContainer.innerHTML = '<span style="color: white; text-align: center; display: block; width: 100%;">There are no promotional events at this time</span>';
+                // Empty state promo: maskot + caption (front-end English).
+                promoContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 2rem 1rem;">
+                        <img src="/cardhaven/assets/image/empty-state.png" alt="No promo" style="width: 160px; height: auto; image-rendering: pixelated;">
+                        <p style="color: #7e7e7e; font-size: 1.1rem; font-weight: 600;">Promo is currently unavailable</p>
+                    </div>`;
             }
         }
 

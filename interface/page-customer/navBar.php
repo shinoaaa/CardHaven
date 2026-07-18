@@ -33,7 +33,7 @@
             </div>
         </div>
             <div class="nav-profile" style="position: relative;"> 
-                <button onclick="window.location.replace('/CardHaven/register')" 
+                <button onclick="window.location.replace('/CardHaven/login')" 
                 class="sign-in-button coolveticaa" id="btn-sign" style="height: 70%; width: 30%; border-radius: 9999px; background: var(--bg-gradient); color: white; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
                     Sign In
                 </button>
