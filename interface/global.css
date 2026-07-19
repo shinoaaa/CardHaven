@@ -94,7 +94,8 @@ button{
 }
 
 .container {
-    width: 100vw;
+    /* 100% (bukan 100vw) supaya tidak melebar selebar scrollbar vertikal */
+    width: 100%;
     height: 100vh;
     background-color: var(--bg-light);
     display: flex;
@@ -713,6 +714,9 @@ input::placeholder {
     cursor: pointer;
     font-weight: 600;
     padding: 2px 5px;
+    background: transparent;   /* buang abu-abu default <button> biar konsisten */
+    border: none;
+    font-family: inherit;
 }
 .page-link.active {
     background-color: var(--primary-color);
@@ -2151,7 +2155,18 @@ p.product-paragraf {
     /* Modal Event (sistem sendiri) + grid form-nya di-stack */
     .event-modal { width: 92vw !important; max-width: 92vw !important; max-height: 88vh; overflow-y: auto; }
     .ae-grid-2, .ee-grid-2, .ae-product-form-grid, .ee-product-form-grid { grid-template-columns: 1fr !important; }
-}
+
+    /* ---------- REPORT (admin) ---------- */
+    /* Judul satu baris di atas, deretan tab satu baris di bawahnya —
+       kalau sempit tab digeser (scroll samping), bukan turun ke bawah. */
+    .card-title-row { flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem !important; }
+    .card-title-row h2 { font-size: 1.5rem !important; white-space: nowrap; }
+    .report-tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .report-tabs a { flex: 0 0 auto; white-space: nowrap; padding: 7px 16px !important; font-size: 0.8rem !important; }
+    /* Header kartu chart (judul + dropdown tahun) boleh wrap rapi */
+    .report-overview-head { flex-wrap: wrap; }
+    /* Baris filter (tahun/bulan/sort) yang dipaksa nowrap → boleh wrap di HP */
+    .filter-container div[style*="nowrap"] { flex-wrap: wrap !important; }
 
 @media screen and (max-width: 480px) {
     html { font-size: 12px; }
@@ -2193,5 +2208,39 @@ p.product-paragraf {
     body.sidebar-open .sidebar-overlay { display: block; }
 
     /* Konten admin full-width + ruang untuk tombol hamburger */
-    .container > .main-content { width: 100%; padding-top: 3.75rem; }
+    .container > .main-content { width: 100%; padding: 3.75rem 1rem 1.5rem; }
+}
+
+/* ============================================================
+   ACCOUNT SETTING (mobile). Halaman ini punya CSS sendiri
+   (account-setting.css) yang dimuat SEBELUM global.css, jadi aturan
+   responsive-nya ditaruh di sini agar menang lewat urutan muat.
+   Scoped pakai :has(.settings-layout) supaya tidak menyentuh halaman
+   lain. Desktop (>900) tidak berubah.
+   ============================================================ */
+@media screen and (max-width: 900px) {
+    /* Buka kunci scroll: halaman ini mengunci html/body/.container ke 100vh */
+    html:has(.settings-layout), body:has(.settings-layout) { overflow: auto; height: auto; }
+    .container:has(.settings-layout) { height: auto; min-height: 100vh; }
+    .page-shell { height: auto; overflow: visible; }
+    .content-wrap {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+        align-items: flex-start;   /* mulai dari atas supaya bisa discroll */
+        justify-content: center;
+        padding: 5.5rem 1rem 1.5rem; /* atas lega untuk tombol hamburger */
+    }
+
+    /* Form di atas, showcase kartu di bawah — semua kebaca & tidak terpotong */
+    .settings-layout { flex-direction: column; align-items: center; gap: 2.5rem; max-width: 100%; }
+    .account-card { min-height: auto; width: 100%; max-width: 460px; }
+    .card-showcase { flex: none; min-width: 0; width: 100%; margin-bottom: 1.5rem; }
+}
+
+@media screen and (max-width: 480px) {
+    .content-wrap { padding: 5.5rem 0.75rem 1.25rem; }
+    .account-card { padding: 1.25rem; }
+    .cards-wrapper { transform: scale(0.85); }   /* kartu dekoratif dikecilkan agar fit */
+    .btn-row .btn { flex: 1 1 auto; }
 }

@@ -1,12 +1,22 @@
 
 <?php
+require_once __DIR__ . '/../../auth/session.php';
+
 $type = $_GET['type'] ?? 'sales';
 $titles = [
     'sales'   => 'Sales Report',
     'buyback' => 'Buyback Report',
     'restok'  => 'Restock Report',
-    'event'   => 'Event Report'
+    'event'   => 'Event Report',
+    'profit'  => 'Profit Report'
 ];
+
+// Tab Profit khusus Owner — dicek di server, bukan sekadar disembunyikan.
+$isOwner = (auth_role() === ROLE_OWNER);
+if ($type === 'profit' && !$isOwner) {
+    $type = 'sales';
+}
+
 // Ambil judul berdasarkan tipe, default ke 'Report' jika tipe tidak ditemukan
 $currentTitle = $titles[$type] ?? 'Report';
 ?>
@@ -30,10 +40,11 @@ $currentTitle = $titles[$type] ?? 'Report';
                     <?= $currentTitle ?>
                 </h2>
                 
-                <div style="display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 999px;">
-                    <?php 
+                <div class="report-tabs" style="display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 999px;">
+                    <?php
                     $tabs = ['sales' => 'Sales', 'buyback' => 'Buyback', 'restok' => 'Restok', 'event' => 'Event'];
-                    foreach ($tabs as $key => $label): 
+                    if ($isOwner) $tabs['profit'] = 'Profit';
+                    foreach ($tabs as $key => $label):
                         $isActive = ($type === $key);
                     ?>
                         <a href="?type=<?= $key ?>" style="text-decoration: none; padding: 8px 24px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: 0.2s; 
@@ -44,10 +55,12 @@ $currentTitle = $titles[$type] ?? 'Report';
                 </div>
             </div>
 
-            <!-- ANALYTICS: bar chart bulanan + (khusus Sales) top 3 selling items -->
+            <!-- ANALYTICS: bar chart bulanan + (khusus Sales) top 3 selling items.
+                 Tab Profit punya chart sendiri di section-nya. -->
+            <?php if ($type !== 'profit'): ?>
             <div style="display:flex; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap;">
                 <div style="flex:2; min-width:320px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; box-sizing:border-box;">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.75rem; gap:1rem;">
+                    <div class="report-overview-head" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.75rem; gap:1rem;">
                         <div>
                             <div style="font-weight:700; color:var(--primary-color); font-size:1.05rem;"><?= htmlspecialchars($currentTitle) ?> Overview</div>
                             <div style="font-size:.72rem; color:#94a3b8;">Monthly total (Rp) per selected year</div>
@@ -65,6 +78,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                 </div>
                 <?php endif; ?>
             </div>
+            <?php endif; ?>
 
             <?php if ($type === 'sales'): ?>
                 <div class="filter-container" style="display: flex; flex-direction: column; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
@@ -441,7 +455,93 @@ $currentTitle = $titles[$type] ?? 'Report';
                     </div>
                 </div>
             <?php endif; ?>
-            
+
+            <?php if ($type === 'profit'): ?>
+                <!-- ── PROFIT (Owner only) ─────────────────────────────── -->
+                <div style="display:flex; justify-content:flex-end; margin-bottom:1.25rem;">
+                    <select id="profitYear" onchange="profitLoad(this.value)" style="height:38px; padding:0 36px 0 12px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.85rem; color:var(--primary-color); background-color:#fff; cursor:pointer;"></select>
+                </div>
+
+                <!-- Stat cards: 2 baris x 2 pasangan; tiap pasangan senada warnanya -->
+                <style>
+                    .profit-pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+                    .profit-pair {
+                        display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+                        background: #f8fafc; border: 1px solid #e2e8f0;
+                        border-left: 5px solid var(--pair-color);
+                        border-radius: 12px; padding: 1rem 1.1rem;
+                    }
+                    .profit-pair-label { font-size: .72rem; color: #64748b; font-weight: 600; margin-bottom: .3rem; }
+                    .profit-pair-value { font-size: 1.15rem; font-weight: 800; color: var(--pair-color); }
+                    @media screen and (max-width: 900px) { .profit-pairs { grid-template-columns: 1fr; } }
+                    @media screen and (max-width: 480px) { .profit-pair  { grid-template-columns: 1fr; } }
+                </style>
+                <div class="profit-pairs">
+                    <div class="profit-pair" style="--pair-color:#0F3891;">
+                        <div>
+                            <div class="profit-pair-label">Revenue (Completed Sales)</div>
+                            <div id="profitCardRevenue" class="profit-pair-value">Rp 0</div>
+                        </div>
+                        <div>
+                            <div class="profit-pair-label">Product Cost (COGS)</div>
+                            <div id="profitCardCogs" class="profit-pair-value">Rp 0</div>
+                        </div>
+                    </div>
+                    <div class="profit-pair" style="--pair-color:#27AE60;">
+                        <div>
+                            <div class="profit-pair-label">Gross Profit</div>
+                            <div id="profitCardProfit" class="profit-pair-value">Rp 0</div>
+                        </div>
+                        <div>
+                            <div class="profit-pair-label">Profit Margin</div>
+                            <div id="profitCardMargin" class="profit-pair-value">0 %</div>
+                        </div>
+                    </div>
+                    <div class="profit-pair" style="--pair-color:#E67E22;">
+                        <div>
+                            <div class="profit-pair-label">Restock Spending (Paid)</div>
+                            <div id="profitCardRestok" class="profit-pair-value">Rp 0</div>
+                        </div>
+                        <div>
+                            <div class="profit-pair-label">Buyback Spending</div>
+                            <div id="profitCardBuyback" class="profit-pair-value">Rp 0</div>
+                        </div>
+                    </div>
+                    <div class="profit-pair" style="--pair-color:#8E44AD;">
+                        <div>
+                            <div class="profit-pair-label">Items Sold</div>
+                            <div id="profitCardSold" class="profit-pair-value">0 Pcs</div>
+                        </div>
+                        <div>
+                            <div class="profit-pair-label">Completed Orders</div>
+                            <div id="profitCardOrders" class="profit-pair-value">0 Orders</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                    <div style="font-weight:700; color:var(--primary-color); font-size:1.05rem; margin-bottom:.25rem;">Profit Overview</div>
+                    <div style="font-size:.72rem; color:#94a3b8; margin-bottom:.75rem;">Monthly revenue vs gross profit (Rp)</div>
+                    <div style="height:260px; position:relative;"><canvas id="profitChart"></canvas></div>
+                </div>
+
+                <table class="styled-table" id="tableProfit">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Month</th>
+                            <th>Revenue</th>
+                            <th>Product Cost</th>
+                            <th>Gross Profit</th>
+                            <th>Restock Spend</th>
+                            <th>Buyback Spend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profitTableBody">
+                        <tr><td colspan="6">Loading…</td></tr>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+
 
         </div>
     </div>
@@ -462,6 +562,9 @@ $currentTitle = $titles[$type] ?? 'Report';
             <script>window.REPORT_TYPE = '<?= $type ?>';</script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
             <script src="/cardhaven/interface/report-sales/report_charts.js?v=<?= time() ?>"></script>
+    <?php elseif ($type === 'profit'): ?>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+            <script src="/cardhaven/interface/report-sales/laporan_profit_script.js?v=<?= time() ?>"></script>
     <?php endif; ?>
 
 </body>

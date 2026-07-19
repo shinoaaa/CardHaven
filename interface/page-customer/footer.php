@@ -52,17 +52,17 @@
             <div style="display: flex; gap: 1rem;">
                 
                 <!-- Ganti '#' dengan link Instagram nanti -->
-                <a href="#" target="_blank" class="community-icon">
+                <a href="https://www.instagram.com/cardhaven.nhsr?igsh=a2V0YmNibnNlNjI3" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/instagram.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </a>
                 
                 <!-- Ganti '#' dengan link X (Twitter) nanti -->
-                <a href="#" target="_blank" class="community-icon">
+                <a href="https://x.com/TCGCardHaven" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/x.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </a>
                 
                 <!-- Ganti '#' dengan link Discord nanti -->
-                <a href="#" target="_blank" class="community-icon">
+                <a href="https://discord.gg/TyX7qNwDP" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </a>
 

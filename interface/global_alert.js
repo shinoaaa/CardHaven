@@ -69,6 +69,7 @@ function cardhavenToast(iconType, title, timer = 2500) {
         position: "top-end",
 
         showConfirmButton: false,
+        showCloseButton: true,   // tombol X biar bisa ditutup manual
         timer,
         timerProgressBar: true,
 

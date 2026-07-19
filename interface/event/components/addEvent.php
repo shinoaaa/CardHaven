@@ -1,6 +1,6 @@
 <div class="add-event-card">
-    <div style="display: flex;">
-        <div>
+    <div class="ae-body-split">
+        <div class="ae-form-col">
             <div class="ae-header">
                 <span class="ae-title-black">ADD</span>
                 <span class="ae-title-blue"> Event</span>
@@ -92,8 +92,8 @@
             </div>
         </div>
 
-        <div style=" display: flex; align-items: center;">
-            <div id="ae_product_table_wrap" style="display:none; height: 13rem; overflow-y: auto;">
+        <div class="ae-table-col">
+            <div id="ae_product_table_wrap" style="display:none;">
                 <table class="ae-product-table">
                     <thead>
                         <tr>
@@ -133,6 +133,29 @@
 
 .ae-title-black { color: #1a1a1a; }
 .ae-title-blue  { color: #1284ff; }
+
+/* ── layout 2 kolom: form (kiri) + tabel produk (kanan) ── */
+.ae-body-split {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+.ae-form-col { flex: 1 1 auto; min-width: 0; }
+.ae-table-col {
+    flex: 0 1 400px;
+    min-width: 0;
+    margin-top: 58px;   /* sejajar dengan baris field pertama (di bawah judul) */
+}
+#ae_product_table_wrap {
+    max-height: 13rem;
+    overflow-y: auto;
+    border: 1px solid #eef2f8;
+    border-radius: 12px;
+}
+@media screen and (max-width: 768px) {
+    .ae-body-split { flex-direction: column; gap: 12px; }
+    .ae-table-col  { flex: 1 1 auto; width: 100%; margin-top: 0; }
+}
 
 .ae-grid-2 {
     display: grid;

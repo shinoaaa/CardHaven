@@ -442,18 +442,22 @@ function aeRenderProductTable() {
     }
 
     wrap.style.display = '';
-    wrap.style.marginLeft = '3rem';
-    
+
+    // Satu sel "Action" berisi kedua tombol, mengikuti pola tabel di modal Edit
+    // (header tabel memang 5 kolom: No/Product/Price/Stock/Action).
     tbody.innerHTML = aeProductList.map((p, i) => {
-        const subtotal = Math.round(p.harga_event * p.stok_event);
         return `
             <tr>
                 <td>${i + 1}</td>
                 <td style="font-weight:600;">${escHtml(p.nama_produk)}</td>
                 <td>Rp ${Math.round(p.harga_event).toLocaleString('id-ID')}</td>
                 <td>${p.stok_event}</td>
-                <td><button class="btn-edit-icon" onclick="aeEditProductStock(${i})" title="Edit Stock">✏️</button></td>
-                <td><button class="btn-delete-icon" onclick="aeRemoveProduct(${i})" title="Delete">🗑</button></td>
+                <td>
+                    <div class="btn-action-group">
+                        <button class="btn-edit-icon" onclick="aeEditProductStock(${i})" title="Edit Stock"><img src="/cardhaven/assets/image/edit.svg" alt="Edit"></button>
+                        <button class="btn-delete-icon" onclick="aeRemoveProduct(${i})" title="Delete"><img src="/cardhaven/assets/image/delete.svg" alt="Delete"></button>
+                    </div>
+                </td>
             </tr>
         `;
     }).join('');
@@ -495,6 +499,7 @@ async function aeSubmitEvent() {
     if (diskon < 1 )                            { aeSetError('ae_persen_diskon',    'err_persen_diskon',    'Discount can not less than 1.'); valid = false; }
     if (!maks || parseInt(maks) <= 0)           { aeSetError('ae_maks_pembelian',   'err_maks_pembelian',   'Max purchase can not less than 0.'); valid = false; }
     if (tipe === 'preorder' && !sampai)         { aeSetError('ae_tanggal_sampai',   'err_tanggal_sampai',   'Estimated arrival time are required for pre order.'); valid = false; }
+    if (tipe === 'preorder' && sampai && berakhir && sampai <= berakhir) { aeSetError('ae_tanggal_sampai', 'err_tanggal_sampai', 'Estimated arrival must be after the end date.'); valid = false; }
     if (aeProductList.length === 0) {
         const el = document.getElementById('err_product_list');
         if (el) el.textContent = 'You should add at least 1 item.';
@@ -905,6 +910,7 @@ async function eeSubmitEvent(idEvent) {
     if (diskon === '')                        { eeSetError('ee_persen_diskon',    'ee_err_persen_diskon',    'The "Discount" field is required.'); valid = false; }
     if (!maks || parseInt(maks) <= 0)         { eeSetError('ee_maks_pembelian',   'ee_err_maks_pembelian',   'Max purchase.'); valid = false; }
     if (tipe === 'preorder' && !sampai)       { eeSetError('ee_tanggal_sampai',   'ee_err_tanggal_sampai',   'The "Estimated Arrival" field must be filled out for pre-orders.'); valid = false; }
+    if (tipe === 'preorder' && sampai && berakhir && sampai <= berakhir) { eeSetError('ee_tanggal_sampai', 'ee_err_tanggal_sampai', 'Estimated arrival must be after the end date.'); valid = false; }
 
     if (!valid) return;
 

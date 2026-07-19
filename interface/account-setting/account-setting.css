@@ -270,26 +270,10 @@ body {
     margin-top: .35rem;
 }
 
-@media (max-width: 900px) {
-    .page-shell {
-        flex-direction: column;
-    }
-
-    .sidebar-wrap {
-        flex: 0 0 auto;
-        width: 100%;
-        height: auto;
-    }
-
-    .content-wrap {
-        padding: 1rem;
-        justify-content: center;
-    }
-
-    .account-card {
-        min-height: auto;
-    }
-}
+/* Catatan: aturan responsive halaman ini dipindah ke interface/global.css
+   (blok "ACCOUNT SETTING (mobile)") supaya konsisten dengan pattern responsive
+   di sana dan menang lewat urutan muat CSS, bukan lewat !important —
+   global.css dimuat SETELAH file ini di index.php halaman ini. */
 /* =========================================
    TCG SHOWCASE - BUG FIX (TWO-LAYER SYSTEM)
    ========================================= */
