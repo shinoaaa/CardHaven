@@ -50,7 +50,7 @@ function cleanSqlMessage(string $raw): string {
     return trim(preg_replace('/\[[^\]]*\]/', '', $raw));
 }
 
-// Simpan foto profil yang diupload ke folder image-profile/, kembalikan nama file (atau null).
+// Simpan foto profil yang diupload ke folder assets/image/image-profile/, kembalikan nama file (atau null).
 function saveProfilePhoto(?array $file): ?string {
     if (!$file || (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) return null;
     if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception('Photo upload failed.');
@@ -58,7 +58,7 @@ function saveProfilePhoto(?array $file): ?string {
     $mime = @mime_content_type($file['tmp_name']) ?: '';
     if (!isset($allowed[$mime])) throw new Exception('Photo must be JPG, PNG, WEBP, or GIF.');
     if (($file['size'] ?? 0) > 3 * 1024 * 1024) throw new Exception('Photo must be under 3 MB.');
-    $dir = __DIR__ . '/../../../image-profile/';
+    $dir = __DIR__ . '/../../../assets/image/image-profile/';
     if (!is_dir($dir)) @mkdir($dir, 0777, true);
     $name = 'user_' . uniqid() . '.' . $allowed[$mime];
     $ok = is_uploaded_file($file['tmp_name'])

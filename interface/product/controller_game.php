@@ -54,16 +54,17 @@ try {
         if (isset($_FILES['foto_banner']) && $_FILES['foto_banner']['error'] === UPLOAD_ERR_OK) {
             $ext          = strtolower(pathinfo($_FILES['foto_banner']['name'], PATHINFO_EXTENSION));
             $new_file_name = 'GAME_' . time() . '_' . uniqid() . '.' . $ext;
-            $target_dir   = '../../image-profile/';
+            $target_dir   = '../../assets/image/image-profile/';
             if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
             if (move_uploaded_file($_FILES['foto_banner']['tmp_name'], $target_dir . $new_file_name)) {
-                $path_foto_simpan = 'image-profile/' . $new_file_name;
+                $path_foto_simpan = 'assets/image/image-profile/' . $new_file_name;
                 if ($action === 'edit' && $id_game) {
                     $stmt_old = sqlsrv_query($conn, "SELECT dbo.udf_GetGamePhoto(?) AS foto", [$id_game]);
                     if ($stmt_old) {
                         $row_old = sqlsrv_fetch_array($stmt_old, SQLSRV_FETCH_ASSOC);
-                        if ($row_old && !empty($row_old['foto'])) @unlink('../../' . $row_old['foto']);
+                        // basename() agar kompatibel dgn data lama yg mungkin masih ada prefix folder lama
+                        if ($row_old && !empty($row_old['foto'])) @unlink('../../assets/image/image-profile/' . basename($row_old['foto']));
                     }
                 }
             }

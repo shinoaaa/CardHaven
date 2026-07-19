@@ -134,12 +134,15 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('endDate').textContent = formatTanggal(data.event.tanggal_berakhir);
             
             if (!data.event.foto) {
-                document.getElementById('ui-event-image').src = `/CardHaven/image-profile/defaultProduct.jpg`;
+                document.getElementById('ui-event-image').src = `/CardHaven/assets/image/image-profile/defaultProduct.jpg`;
             } else {
                 // Jika isinya hanya nama file (misal 'mewtwo_ex_special_art.webp'), arahkan ke folder products
                 let eventPath = data.event.foto;
                 if (!eventPath.includes('/')) {
                     eventPath = `assets/image/products/${eventPath}`;
+                } else if (eventPath.startsWith('image-profile/')) {
+                    // Data lama: foto tersimpan dgn prefix folder lama
+                    eventPath = `assets/image/${eventPath}`;
                 }
                 document.getElementById('ui-event-image').src = `/CardHaven/${eventPath}`;
             }
@@ -182,8 +185,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     let promoPath = promo.foto_banner;
                     if (promoPath && !promoPath.includes('/')) {
                         promoPath = `assets/image/products/${promoPath}`;
+                    } else if (promoPath && promoPath.startsWith('image-profile/')) {
+                        // Data lama: banner tersimpan dgn prefix folder lama
+                        promoPath = `assets/image/${promoPath}`;
                     }
-                    const bannerSrc = promoPath ? `/CardHaven/${promoPath}` : '/CardHaven/image-profile/defaultEvent.jpg';
+                    const bannerSrc = promoPath ? `/CardHaven/${promoPath}` : '/CardHaven/assets/image/image-profile/defaultEvent.jpg';
                     const gameName = promo.nama_game ? promo.nama_game : 'All Games';
 
                     if (promo.status_event == 1) {
@@ -237,8 +243,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     let gamePath = game.foto_banner;
                     if (gamePath && !gamePath.includes('/')) {
                         gamePath = `assets/image/products/${gamePath}`;
+                    } else if (gamePath && gamePath.startsWith('image-profile/')) {
+                        // Data lama: banner tersimpan dgn prefix folder lama
+                        gamePath = `assets/image/${gamePath}`;
                     }
-                    const bannerSrc = gamePath ? `/CardHaven/${gamePath}` : '/CardHaven/image-profile/defaultBanner.jpg';
+                    const bannerSrc = gamePath ? `/CardHaven/${gamePath}` : '/CardHaven/assets/image/image-profile/defaultBanner.jpg';
                     
                     // Mengganti <a href> dengan onclick pada div utama
                     const cardHTML = `
@@ -289,8 +298,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     let prodPath = prod.foto;
                     if (prodPath && !prodPath.includes('/')) {
                         prodPath = `assets/image/products/${prodPath}`;
+                    } else if (prodPath && prodPath.startsWith('image-profile/')) {
+                        // Data lama: foto tersimpan dgn prefix folder lama
+                        prodPath = `assets/image/${prodPath}`;
                     }
-                    const fotoSrc = prodPath ? `/CardHaven/${prodPath}` : '/CardHaven/image-profile/defaultProduct.jpg';
+                    const fotoSrc = prodPath ? `/CardHaven/${prodPath}` : '/CardHaven/assets/image/image-profile/defaultProduct.jpg';
 
                     const soldOut = (parseInt(prod.stok) || 0) <= 0;
 

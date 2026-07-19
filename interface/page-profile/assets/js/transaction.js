@@ -306,15 +306,20 @@ function openOrderDetail(idPenjualan) {
             }
             const o = res.data;
             const st = ORDER_STATUS[parseInt(o.status_penjualan)] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
-            const itemsHtml = (o.items || []).map(it => `
+            const itemsHtml = (o.items || []).map(it => {
+                let itFoto = it.foto || 'assets/image/image-profile/defaultProduct.jpg';
+                // Data lama: path tersimpan dgn prefix folder lama → arahkan ke lokasi baru
+                if (itFoto.startsWith('image-profile/')) itFoto = `assets/image/${itFoto}`;
+                return `
                 <div class="od-item-row">
-                    <img src="/cardhaven/${it.foto || 'image-profile/defaultProduct.jpg'}" onerror="this.src='/cardhaven/image-profile/defaultProduct.jpg'">
+                    <img src="/cardhaven/${itFoto}" onerror="this.src='/cardhaven/assets/image/image-profile/defaultProduct.jpg'">
                     <div style="flex:1;">
                         <div style="font-weight:600;font-size:.9rem;">${escHtml(it.nama_produk || '-')}</div>
                         <div style="font-size:.78rem;color:#888;">${fmtRp(it.harga_produk)} × ${it.jumlah_barang}</div>
                     </div>
                     <div style="font-weight:700;color:var(--primary-color,#1a3a6b);">${fmtRp(it.subtotal_harga)}</div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
 
             // ── LOGIKA DINAMIS UNTUK TOMBOL AKSI ──
             const statusNum = parseInt(o.status_penjualan);

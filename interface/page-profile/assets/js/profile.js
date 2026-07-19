@@ -40,7 +40,7 @@ function fetchProfileData() {
                 // ✅ Update avatar profile card
                 
                 const avatarSrc = user.foto_profil
-                    ? `/cardhaven/image-profile/${user.foto_profil}`   // DB simpan nama file saja
+                    ? `/cardhaven/assets/image/image-profile/${user.foto_profil}`   // DB simpan nama file saja
                     : '/cardhaven/assets/image/user.svg'; // fallback default
                 
                 document.getElementById('displayAvatar').src = avatarSrc;

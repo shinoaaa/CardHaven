@@ -117,7 +117,7 @@ if ($method === 'POST') {
                 jsonResponse(["status" => "error", "message" => "Image size must be less than 2MB."]);
             }
 
-            $uploadDir = __DIR__ . '/../../image-profile/';
+            $uploadDir = __DIR__ . '/../../assets/image/image-profile/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
             $fileExt = strtolower(pathinfo($_FILES['fotoFile']['name'], PATHINFO_EXTENSION));

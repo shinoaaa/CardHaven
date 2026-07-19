@@ -65,7 +65,7 @@ elseif ($action === 'updateProfile') {
 
         // Nama file unik: profil_{id}_{timestamp}.ext
         $filename  = 'profil_' . $user_id . '_' . time() . '.' . $ext;
-        $uploadDir = __DIR__ . '/../../../image-profile/'; // sesuaikan path ke D:\image-profile
+        $uploadDir = __DIR__ . '/../../../assets/image/image-profile/';
         $uploadPath = $uploadDir . $filename;
 
         if (!is_dir($uploadDir)) {
@@ -77,7 +77,7 @@ elseif ($action === 'updateProfile') {
             exit;
         }
 
-        // Yang disimpan ke DB HANYA nama file. Path folder (image-profile/)
+        // Yang disimpan ke DB HANYA nama file. Path folder (assets/image/image-profile/)
         // ditambahkan saat menampilkan, bukan disimpan.
         $foto_path = $filename;
     }

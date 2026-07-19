@@ -95,7 +95,7 @@ function renderCart(data) {
 function renderRow(item) {
     const tr = document.createElement('tr');
     const formatIDR = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
-    const fotoSrc = item.foto ? `${BASE_URL}/assets/image/products/${item.foto}` : `${BASE_URL}/image-profile/defaultProduct.jpg`;
+    const fotoSrc = item.foto ? `${BASE_URL}/assets/image/products/${item.foto}` : `${BASE_URL}/assets/image/image-profile/defaultProduct.jpg`;
  
     tr.setAttribute('data-id', item.id_detail_keranjang);
  
@@ -110,7 +110,7 @@ function renderRow(item) {
                 <div class="cart-img-wrap">
                     <img src="${fotoSrc}"
                          alt="${escapeHtml(item.nama_produk)}"
-                         onerror="this.src='${BASE_URL}/image-profile/no-image.png'">
+                         onerror="this.src='${BASE_URL}/assets/image/image-profile/no-image.png'">
                 </div>
                 <div class="cart-product-details">
                     <span class="cart-product-title">${escapeHtml(item.nama_produk)}</span>

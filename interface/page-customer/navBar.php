@@ -392,7 +392,7 @@
             if (result.status === 'success' && result.data) {
                 // ✅ Pakai variabel yang benar (result.data, bukan user)
                 const avatarSrc = result.data.foto_profil
-                    ? `/cardhaven/image-profile/${result.data.foto_profil}`
+                    ? `/cardhaven/assets/image/image-profile/${result.data.foto_profil}`
                     : '/cardhaven/assets/image/user.svg';
 
                 // ✅ Set ke semua elemen avatar di navbar
@@ -570,7 +570,7 @@ if (searchInput) {
                 .then(res => {
                     if (res.status === 'success' && res.data.length > 0) {
                         searchSuggestions.innerHTML = res.data.map(p => {
-                            let foto = p.foto ? `/cardhaven/assets/image/products/${p.foto}` : `/cardhaven/image-profile/defaultProduct.jpg`;
+                            let foto = p.foto ? `/cardhaven/assets/image/products/${p.foto}` : `/cardhaven/assets/image/image-profile/defaultProduct.jpg`;
                             return `
                             <div class="suggest-item" onclick="window.location.href='/CardHaven/home/productdetail?id_produk=${p.id_produk}'" style="display: flex; align-items: center; gap: 10px; padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
                                 <img src="${foto}" style="width: 35px; height: 45px; object-fit: contain; border-radius: 4px;">

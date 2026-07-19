@@ -245,12 +245,12 @@ function loadCartItems() {
 function renderCheckoutItem(item, outOfStock = false, stok = null, hargaCoretHtml = '') {
     const div = document.createElement('div');
     div.className = 'checkout-item';
-    const fotoSrc = item.foto ? `${BASE_IMG_URL}/assets/image/products/${item.foto}` : `${BASE_IMG_URL}/image-profile/defaultProduct.jpg`;
+    const fotoSrc = item.foto ? `${BASE_IMG_URL}/assets/image/products/${item.foto}` : `${BASE_IMG_URL}/assets/image/image-profile/defaultProduct.jpg`;
     const stockWarn = outOfStock ? `<div style="color:#dc2626; font-size:0.72rem; font-weight:700; margin-top:2px;">⚠ Only ${stok ?? 0} left in stock.</div>` : '';
 
     div.innerHTML = `
         <div class="checkout-item-img">
-            <img src="${fotoSrc}" alt="${escapeHtml(item.nama_produk)}" onerror="this.src='${BASE_IMG_URL}/image-profile/no-image.png'" style="${outOfStock ? 'filter: grayscale(1) brightness(0.75);' : ''}">
+            <img src="${fotoSrc}" alt="${escapeHtml(item.nama_produk)}" onerror="this.src='${BASE_IMG_URL}/assets/image/image-profile/no-image.png'" style="${outOfStock ? 'filter: grayscale(1) brightness(0.75);' : ''}">
         </div>
         <div class="checkout-item-info">
             <div class="checkout-item-name">${escapeHtml(item.nama_produk)}</div>

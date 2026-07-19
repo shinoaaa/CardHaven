@@ -136,19 +136,17 @@ class UserMasterFilter {
 }
 function resolveProfilePath(filename) {
     if (!filename) return '/cardhaven/assets/image/user.svg';
-    
-    return `/cardhaven/image-profile/${filename}`;
+
+    return `/cardhaven/assets/image/image-profile/${filename}`;
 }
 
 
 function handleImageError(img) {
-    const currentSrc = img.src;
     const defaultImg = '/cardhaven/assets/image/user.svg';
 
-    if (currentSrc.includes('/image-profile/')) {
-        img.src = currentSrc.replace('/image-profile/', '/');
-    } 
-    else if (img.src !== window.location.origin + defaultImg) {
+    // Foto profil hanya tersimpan di assets/image/image-profile/. Kalau gagal dimuat,
+    // langsung pakai avatar default.
+    if (img.src !== window.location.origin + defaultImg) {
         img.src = defaultImg;
     }
 }

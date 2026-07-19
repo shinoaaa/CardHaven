@@ -5,8 +5,8 @@
 
     <div class="profile-employee">
         <div class="photo-Profile">
-            <img id="profileImage" 
-                src="/cardhaven/image-profile/default.jpg" 
+            <img id="profileImage"
+                src="/cardhaven/assets/image/image-profile/default.jpg"
                 style="object-fit: cover; width: 100%; height: 100%;"
                 onerror="handleSidebarImageError(this)">
         </div>
@@ -111,9 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     const data = JSON.parse(textData);
                     if (data.status === 'success' && data.image) {
                         // DB menyimpan nama file saja. Ambil nama file (buang path lama jika ada)
-                        // lalu tambahkan folder image-profile.
+                        // lalu tambahkan folder assets/image/image-profile.
                         const fileName = data.image.split('/').pop();
-                        profileImageElement.src = `/CardHaven/image-profile/${fileName}`;
+                        profileImageElement.src = `/CardHaven/assets/image/image-profile/${fileName}`;
                     }
                     // [FIX] Kalau gagal atau user tidak punya foto, biarkan default.jpg tetap tampil
                 } catch (e) {
@@ -181,12 +181,9 @@ function handleSidebarImageError(img) {
     const defaultImg = '/cardhaven/assets/image/user.svg'; // Gambar fallback terakhir
     const currentSrc = img.src;
 
-    // Jika gagal saat mencoba path 'image-profile', coba cari di path root /cardhaven/
-    if (currentSrc.includes('/image-profile/')) {
-        img.src = currentSrc.replace('/image-profile/', '/');
-    } 
-    // Jika path root juga gagal, gunakan gambar default
-    else if (!currentSrc.endsWith(defaultImg)) {
+    // Foto profil hanya tersimpan di assets/image/image-profile/. Kalau gagal dimuat,
+    // langsung pakai gambar default.
+    if (!currentSrc.endsWith(defaultImg)) {
         img.src = defaultImg;
     }
 }
@@ -207,10 +204,10 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if (data.status === 'success' && data.image) {
                     // Bersihkan nama file jika data.image mengandung path lama
-                    const fileName = data.image.split('/').pop(); 
-                    
-                    // Coba load dari folder image-profile sebagai prioritas utama
-                    profileImageElement.src = `/CardHaven/image-profile/${fileName}`;
+                    const fileName = data.image.split('/').pop();
+
+                    // Coba load dari folder assets/image/image-profile sebagai prioritas utama
+                    profileImageElement.src = `/CardHaven/assets/image/image-profile/${fileName}`;
                 }
             })
             .catch(error => {

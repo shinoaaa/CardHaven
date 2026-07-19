@@ -200,7 +200,7 @@ async function loadData() {
 
         const foto = document.getElementById("fotoProfil");
         const fotoSrc = user.foto_profil
-            ? `/cardhaven/image-profile/${user.foto_profil}`
+            ? `/cardhaven/assets/image/image-profile/${user.foto_profil}`
             : '/cardhaven/assets/image/user.svg';
         if (foto) {
             // DB menyimpan nama file saja; folder ditambahkan di sini.

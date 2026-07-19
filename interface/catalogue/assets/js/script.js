@@ -259,8 +259,10 @@ function renderCatalogue(products) {
     }
 
     products.forEach(item => {
-        let fotoPath = item.foto || 'image-profile/defaultProduct.jpg';
-        let fotoSrc = fotoPath.includes('image-profile/') || fotoPath.includes('assets/') ? `${base}/${fotoPath}` : `${base}/assets/image/products/${fotoPath}`;
+        let fotoPath = item.foto || 'assets/image/image-profile/defaultProduct.jpg';
+        // Data lama: path tersimpan dgn prefix folder lama → arahkan ke lokasi baru
+        if (fotoPath.startsWith('image-profile/')) fotoPath = `assets/image/${fotoPath}`;
+        let fotoSrc = fotoPath.includes('assets/') ? `${base}/${fotoPath}` : `${base}/assets/image/products/${fotoPath}`;
 
         let stokTersedia = parseInt(item.stok);
         if (isNaN(stokTersedia)) stokTersedia = 0; 

@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { val: 'email', label: 'Sort: Email' }
             ],
             renderRow: (r, no) => {
-                const fotoPath = r.foto_profil ? `/cardhaven/image-profile/${mfEsc(r.foto_profil)}` : '/cardhaven/assets/image/user.svg';
+                const fotoPath = r.foto_profil ? `/cardhaven/assets/image/image-profile/${mfEsc(r.foto_profil)}` : '/cardhaven/assets/image/user.svg';
                 return `<tr>
                     <td>${no}</td>
                     <td><img src="${fotoPath}" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"></td>
@@ -150,7 +150,7 @@ function openAdminModal(id) {
             document.getElementById('detailCreated').textContent  = d.created_date || '-';
             
             const fotoEl = document.getElementById('detailFoto');
-            fotoEl.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
+            fotoEl.src = d.foto_profil ? `/cardhaven/assets/image/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
 
             const statusEl = document.getElementById('detailStatus');
             if (parseInt(d.status_akun) === 1) {
@@ -287,7 +287,7 @@ function openAdminEdit(id) {
             document.getElementById('adminChangeEmail').value = d.email || '';
             
             const preview = document.getElementById('editFotoPreview');
-            preview.src = d.foto_profil ? `/cardhaven/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
+            preview.src = d.foto_profil ? `/cardhaven/assets/image/image-profile/${d.foto_profil}` : '/cardhaven/assets/image/user.svg';
 
             clearAllErrors('edit');
             editFormSnapshot = snapshotForm('edit');

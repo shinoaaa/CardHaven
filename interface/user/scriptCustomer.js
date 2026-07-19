@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRow: (r, no) => {
             // Logika Foto
             const fotoPath = r.foto_profil
-                ? `/cardhaven/image-profile/${mfEsc(r.foto_profil)}`
+                ? `/cardhaven/assets/image/image-profile/${mfEsc(r.foto_profil)}`
                 : '/cardhaven/assets/image/user.svg';
 
             return `<tr>

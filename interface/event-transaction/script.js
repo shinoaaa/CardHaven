@@ -68,7 +68,7 @@ window.switchToPromoOrderView = function() {
         
         const product = promoEventProducts[promoSelectedProductIdx];
         document.getElementById('order-card-img').src =
-            product ? '/cardhaven/assets/image/products/' + product.foto : '/cardhaven/image-profile/defaultProduct.jpg';
+            product ? '/cardhaven/assets/image/products/' + product.foto : '/cardhaven/assets/image/image-profile/defaultProduct.jpg';
     });
     document.getElementById('view-detail').style.display = 'none';
     document.getElementById('view-order').style.display  = 'flex';
@@ -117,7 +117,7 @@ window.selectPromoDetailProduct = function(idx) {
 
     document.getElementById('detail-main-card-img').src = p.foto
     ? ('/cardhaven/assets/image/products/' + p.foto)
-    : '/cardhaven/image-profile/defaultProduct.jpg';
+    : '/cardhaven/assets/image/image-profile/defaultProduct.jpg';
 
     document.getElementById('detail-product-badge').textContent = p.nama_produk;
     document.getElementById('detail-stok').textContent          = e.maks_pembelian;
@@ -175,7 +175,7 @@ function renderPromoDetailThumbs() {
         const p       = promoEventProducts[i];
         const localI  = i;
         const img     = document.createElement('img');
-        img.src = p.foto ? '/cardhaven/assets/image/products/' + p.foto : '/cardhaven/image-profile/defaultProduct.jpg';
+        img.src = p.foto ? '/cardhaven/assets/image/products/' + p.foto : '/cardhaven/assets/image/image-profile/defaultProduct.jpg';
         img.alt       = p.nama_produk;
         img.className = 'detail-thumb';
         img.style.cssText = `width:60px; height:60px; object-fit:cover; border-radius:7px; cursor:pointer; border: ${i === promoSelectedProductIdx ? '3px solid #0f3891' : '2px solid #ccc'};`;

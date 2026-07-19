@@ -47,7 +47,9 @@ function getUserId() {
 // Resolusi path foto produk yang konsisten: path lengkap dipakai apa adanya,
 // nama file polos diarahkan ke folder produk.
 function productImg(foto) {
-    if (!foto) return '/CardHaven/image-profile/defaultProduct.jpg';
+    if (!foto) return '/CardHaven/assets/image/image-profile/defaultProduct.jpg';
+    // Data lama: path tersimpan dgn prefix folder lama → arahkan ke lokasi baru
+    if (foto.startsWith('image-profile/')) foto = `assets/image/${foto}`;
     return foto.includes('/') ? `/CardHaven/${foto}` : `/CardHaven/assets/image/products/${foto}`;
 }
 
@@ -129,10 +131,13 @@ async function openDetailModal(id_penjualan) {
                 </button>`;
         }
 
-        // Bukti bayar
+        // Bukti bayar — nilai DB adalah path relatif lengkap dari web root.
+        // Data lama masih memakai folder 'bukti_pembayaran/' → arahkan ke lokasi baru.
+        let buktiSrc = h.bukti_pembayaran || '';
+        if (buktiSrc.startsWith('bukti_pembayaran/')) buktiSrc = `assets/image/${buktiSrc}`;
         const buktiHtml = h.bukti_pembayaran
-            ? `<a href="/CardHaven/image-profile/${h.bukti_pembayaran}" target="_blank">
-                <img src="/CardHaven/image-profile/${h.bukti_pembayaran}"
+            ? `<a href="/CardHaven/${buktiSrc}" target="_blank">
+                <img src="/CardHaven/${buktiSrc}"
                     style="max-width:180px;max-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,.15);object-fit:cover;cursor:pointer;">
                </a>`
             : `<span style="opacity:.45;font-size:.8rem;">No proof yet</span>`;
@@ -141,22 +146,16 @@ async function openDetailModal(id_penjualan) {
         const itemsHtml = (data.items || []).map(item => `
             <tr>
                 <td style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;">
-                    <img src="${item.foto ? `/CardHaven/assets/image/products/${item.foto}` : '/CardHaven/image-profile/defaultProduct.jpg'}"
+                    <img src="${item.foto ? `/CardHaven/assets/image/products/${item.foto}` : '/CardHaven/assets/image/image-profile/defaultProduct.jpg'}"
                         style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;">
                     <div>
                         <div style="font-weight:600;font-size:.85rem;">${item.nama_produk ?? '-'}</div>
                         <div style="font-size:.72rem;opacity:.55;">${item.tipe_produk ?? ''} · ${item.kondisi ?? ''}</div>
                     </div>
                 </td>
-<<<<<<< HEAD
                 <td style="text-align:right;white-space:nowrap;">Rp ${Number(item.harga_produk).toLocaleString('id-ID')}</td>
                 <td style="text-align:center;">${item.jumlah_barang}</td>
                 <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${Number(item.subtotal_harga).toLocaleString('id-ID')}</td>
-=======
-                <td style="text-align:right;white-space:nowrap;">Rp ${parseInt(item.harga_produk || 0).toLocaleString('id-ID')}</td>
-                <td style="text-align:center;">${item.jumlah_barang}</td>
-                <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${parseInt(item.subtotal_harga || 0).toLocaleString('id-ID')}</td>
->>>>>>> b91472c4fac3eedf1ce73ea7db5b01ca3c58f098
             </tr>
         `).join('');
 
@@ -186,11 +185,7 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Number</span><b>${h.rek_tujuan ?? h.no_rekening ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
-<<<<<<< HEAD
-                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${Number(h.biaya_admin ?? 0).toLocaleString('id-ID')}</b></div>
-=======
                     <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${parseInt(h.biaya_admin || 0).toLocaleString('id-ID')}</b></div>
->>>>>>> b91472c4fac3eedf1ce73ea7db5b01ca3c58f098
                 </div>
 
                 <!-- Shipping -->
@@ -223,11 +218,7 @@ async function openDetailModal(id_penjualan) {
 
             <div style="display:flex;justify-content:flex-end;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.1);">
                 <span style="font-size:.85rem;opacity:.65;margin-right:.5rem;">${h.total_barang} item · Total</span>
-<<<<<<< HEAD
-                <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${Number(h.total_harga).toLocaleString('id-ID')}</span>
-=======
                 <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${parseInt(h.total_harga || 0).toLocaleString('id-ID')}</span>
->>>>>>> b91472c4fac3eedf1ce73ea7db5b01ca3c58f098
             </div>
 
             ${actionBtns ? `<div class="trx-action-row">${actionBtns}</div>` : ''}

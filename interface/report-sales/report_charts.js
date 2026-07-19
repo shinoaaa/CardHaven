@@ -80,7 +80,9 @@ function rcRenderChart(money, qty) {
 
 // ── Top 3 selling items (Sales) ────────────────────────────────────────────────
 function rcProductImg(foto) {
-    if (!foto) return '/CardHaven/image-profile/defaultProduct.jpg';
+    if (!foto) return '/CardHaven/assets/image/image-profile/defaultProduct.jpg';
+    // Data lama: path tersimpan dgn prefix folder lama → arahkan ke lokasi baru
+    if (foto.startsWith('image-profile/')) foto = `assets/image/${foto}`;
     return foto.includes('/') ? `/CardHaven/${foto}` : `/CardHaven/assets/image/products/${foto}`;
 }
 
@@ -103,7 +105,7 @@ function rcTopItem(p, i) {
     const medal = ['#f59e0b', '#94a3b8', '#b45309'][i] || '#cbd5e1';
     return `<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid #eef1f6;">
         <div style="width:24px;height:24px;border-radius:50%;background:${medal};color:#fff;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i + 1}</div>
-        <img src="${rcProductImg(p.foto)}" onerror="this.src='/CardHaven/image-profile/defaultProduct.jpg'" style="width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#eef1f6;">
+        <img src="${rcProductImg(p.foto)}" onerror="this.src='/CardHaven/assets/image/image-profile/defaultProduct.jpg'" style="width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#eef1f6;">
         <div style="flex:1;min-width:0;">
             <div style="font-weight:700;font-size:.83rem;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${rcEsc(p.nama_produk)}</div>
             <div style="font-size:.72rem;color:#94a3b8;">${p.total_qty} sold · ${rcRupiah(p.total_harga)}</div>
