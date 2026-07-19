@@ -41,11 +41,10 @@ function profitFillYearSelect(years, active) {
         opt.textContent = y;
         sel.appendChild(opt);
     });
-    const optAll = document.createElement('option');
-    optAll.value = 0;
-    optAll.textContent = 'All Years';
-    sel.appendChild(optAll);
+    // Kalau tahun aktif tidak ada di daftar (mis. default tahun ini belum ada data),
+    // pilih tahun pertama yang tersedia supaya dropdown & data selalu sinkron.
     sel.value = String(active);
+    if (sel.selectedIndex < 0) sel.value = String(years[0]);
 }
 
 function profitRenderCards(total) {

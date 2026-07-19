@@ -40,13 +40,8 @@
                 <div style="height: 100%; display: flex; align-items: center; gap: 0.75rem;">
                     <h3 class="coolveticaa" id="namaUser" style="color: var(--primary-color); font-size: 1.25rem; margin-right: 0.75rem;"></h3>
                     
-<<<<<<< HEAD
-                    <div id="avatar-trigger" style="height: 100%; aspect-ratio: 1/1; background-color: #fff; border-radius: 9999px; overflow: hidden; border: 1px solid var(--primary-color); cursor: pointer;">
-                        <img src="/cardhaven/assets/image/user.svg" style="width: 100%; height: 100%; object-fit: cover;">
-=======
                     <div id="avatar-trigger" style="height: 100%; aspect-ratio: 1/1; background-color: blue; border-radius: 9999px; overflow: hidden; border: 1px solid var(--primary-color); cursor: pointer;">
                         <img src="/cardhaven/assets/image/defaultpfp.jpg" style="width: 100%; height: 100%; object-fit: cover;">
->>>>>>> minorFix
                     </div>
                     
                     <div style="height: 80%; aspect-ratio: 1/1; display: flex; align-items: center;">
