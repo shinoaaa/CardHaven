@@ -220,9 +220,14 @@ switch ($action) {
                     ON dp.id_penjualan = pj.id_penjualan
                 INNER JOIN [CardHaven].[dbo].[produk_event] pe
                     ON pe.id_produk = dp.id_produk AND pe.id_event = ?
+                INNER JOIN [CardHaven].[dbo].[event] ev 
+                    ON ev.id_event = pe.id_event
                 WHERE  pj.id_pengguna = ?
                 AND  dp.id_produk   = ?
                 AND  pj.status_penjualan NOT IN (7, 8) 
+                AND  dp.harga_produk = pe.harga_event
+                AND  pj.tanggal_penjualan >= ev.tanggal_mulai
+                AND  pj.tanggal_penjualan <= DATEADD(day, 1, ev.tanggal_berakhir)
             ";
             $stmtCount = sqlsrv_query($conn, $sqlCount, [$idEvent, $idPengguna, $idProduk]);
             if (!$stmtCount) {

@@ -188,7 +188,7 @@ function escHtml($str) {
                 <div class="ee-field">
                     <label class="ee-label">End Date <span class="ee-required">*</span></label>
                     <input id="ee_tanggal_berakhir" type="date" class="ee-input"
-                        value="<?= escHtml($event['tanggal_berakhir'] ?? '') ?>">
+                        value="<?= escHtml($event['tanggal_berakhir'] ?? '') ?>" onchange="eeOnEndDateChange()">
                     <span class="ee-error" id="ee_err_tanggal_berakhir"></span>
                 </div>
 

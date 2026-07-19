@@ -33,7 +33,7 @@
                 
                 <div class="ae-field">
                     <label class="ae-label">End Date <span class="ae-required">*</span></label>
-                    <input id="ae_tanggal_berakhir" type="date" class="ae-input">
+                    <input id="ae_tanggal_berakhir" type="date" class="ae-input" onchange="aeOnEndDateChange()">
                     <span class="ae-error" id="err_tanggal_berakhir"></span>
                 </div>
                 
@@ -140,7 +140,7 @@
     gap: 24px;
     align-items: flex-start;
 }
-.ae-form-col { flex: 1 1 auto; min-width: 0; }
+.ae-form-col { width: 460px; flex: 0 0 460px; min-width: 0; }
 .ae-table-col {
     flex: 0 1 400px;
     min-width: 0;

@@ -61,7 +61,7 @@ function cardhavenConfirm(title, text, confirmText, callback, cancelCallback) {
 
 // Toast notification (top-right, auto-dismiss, no OK button needed)
 function cardhavenToast(iconType, title, timer = 2500) {
-    Swal.fire({
+    return Swal.fire({
         icon: iconType,
         title,
 
@@ -109,7 +109,19 @@ function cardhavenAlert(iconType, title, text, callback = null) {
             htmlContainer: "cardhaven-text",
             confirmButton: "btn-confirm"
         }
-    }).then(() => {
-        if (callback) callback();
+    }).then(result => {
+        if (result.isConfirmed && callback) {
+            callback();
+        }
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const toastMsg = sessionStorage.getItem('ch_toast_msg');
+    const toastIcon = sessionStorage.getItem('ch_toast_icon');
+    if (toastMsg && typeof cardhavenToast === 'function') {
+        cardhavenToast(toastIcon || 'success', toastMsg, 2500);
+        sessionStorage.removeItem('ch_toast_msg');
+        sessionStorage.removeItem('ch_toast_icon');
+    }
+});

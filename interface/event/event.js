@@ -218,11 +218,12 @@ function setBatasTanggalMinimal() {
         const currentStartVal = eeStart.value; 
         
         if (currentStartVal) {
-            // Pas modal kebuka, End Date & Arrive Date langsung dikunci minimal sesuai Start Date-nya!
             if (eeEnd) eeEnd.min = currentStartVal;
-            if (eeArrive) eeArrive.min = currentStartVal;
+            if (eeArrive) {
+                const currentEndVal = eeEnd ? eeEnd.value : null;
+                eeArrive.min = currentEndVal || currentStartVal;
+            }
         } else {
-            // Kalau misal tanggal mulainya kosong, default-nya pakai hari ini
             if (eeEnd) eeEnd.min = hariIni;
             if (eeArrive) eeArrive.min = hariIni;
         }
@@ -232,17 +233,26 @@ function setBatasTanggalMinimal() {
 function aeOnStartDateChange() {
     const startVal = document.getElementById('ae_tanggal_mulai').value;
     const endInput = document.getElementById('ae_tanggal_berakhir');
-    const arriveInput = document.getElementById('ae_tanggal_sampai');
     
     if (startVal) {
         if (endInput) endInput.min = startVal;
-        if (arriveInput) arriveInput.min = startVal;
         
-        // Reset kalau tanggal berakhir atau sampai malah lebih kecil dari tanggal mulai
-        if ((endInput && endInput.value && endInput.value < startVal) || 
-            (arriveInput && arriveInput.value && arriveInput.value < startVal)) {
-            if (endInput) endInput.value = '';
-            if (arriveInput) arriveInput.value = '';
+        // Reset kalau tanggal berakhir malah lebih kecil dari tanggal mulai
+        if (endInput && endInput.value && endInput.value < startVal) {
+            endInput.value = '';
+        }
+    }
+}
+
+function aeOnEndDateChange() {
+    const endVal = document.getElementById('ae_tanggal_berakhir').value;
+    const arriveInput = document.getElementById('ae_tanggal_sampai');
+    
+    if (endVal && arriveInput) {
+        arriveInput.min = endVal;
+        
+        if (arriveInput.value && arriveInput.value < endVal) {
+            arriveInput.value = '';
         }
     }
 }
@@ -594,29 +604,29 @@ function eeOnTypeChange() {
 
 function eeOnStartDateChange() {
     const startInput = document.getElementById('ee_tanggal_mulai');
-    if (!startInput) return; // Jaga-jaga kalau input start tidak ditemukan
+    if (!startInput) return;
 
     const startVal    = startInput.value;
     const endInput    = document.getElementById('ee_tanggal_berakhir');
-    const arriveInput = document.getElementById('ee_tanggal_sampai');
 
     if (startVal) {
-        // 1. Validasi untuk End Date (Tanggal Berakhir)
         if (endInput) {
             endInput.min = startVal;
-            // Reset kalau nilai end date melanggar aturan (lebih kecil dari start date)
             if (endInput.value && endInput.value < startVal) {
                 endInput.value = '';
             }
         }
-        
-        // 2. Validasi untuk Arrive Date (Tanggal Sampai / Estimasi)
-        if (arriveInput) {
-            arriveInput.min = startVal;
-            // Reset juga nilai arrive date kalau melanggar aturan (lebih kecil dari start date)
-            if (arriveInput.value && arriveInput.value < startVal) {
-                arriveInput.value = '';
-            }
+    }
+}
+
+function eeOnEndDateChange() {
+    const endVal = document.getElementById('ee_tanggal_berakhir').value;
+    const arriveInput = document.getElementById('ee_tanggal_sampai');
+    
+    if (endVal && arriveInput) {
+        arriveInput.min = endVal;
+        if (arriveInput.value && arriveInput.value < endVal) {
+            arriveInput.value = '';
         }
     }
 }
@@ -1202,6 +1212,7 @@ function parseInitialUrl() {
     if (urlParams.has('dir'))    currentEventSortDir = urlParams.get('dir');
 
     const initialPage = urlParams.has('page') ? parseInt(urlParams.get('page')) : 1;
+    updateSortUI();
     applyEventFilters(initialPage);
 }
 
@@ -1226,11 +1237,19 @@ function applyEventFilters(page = 1) {
     params.append('dir', currentEventSortDir);
 
     const tbody = document.getElementById('event-tbody');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="padding: 30px; text-align: center; color:#173C99; font-weight:bold;">Loading data...</td></tr>';
+    if (tbody) {
+        tbody.style.opacity = '0.5';
+        tbody.style.pointerEvents = 'none';
+        tbody.style.transition = 'opacity 0.2s ease';
+    }
 
     fetch('/cardhaven/interface/event/apifetch.php?' + params.toString())
         .then(res => res.json())
         .then(res => {
+            if (tbody) {
+                tbody.style.opacity = '1';
+                tbody.style.pointerEvents = 'auto';
+            }
             if(res.status === 'success') {
                 // PERBAIKAN: Kirim res.page ke fungsi render agar Nomor Urut bisa dihitung!
                 renderEventTable(res.data, res.page);
@@ -1241,11 +1260,19 @@ function applyEventFilters(page = 1) {
                 stateParams.delete('action');
                 window.history.pushState({}, '', '?' + stateParams.toString());
             } else {
+                if (tbody) {
+                    tbody.style.opacity = '1';
+                    tbody.style.pointerEvents = 'auto';
+                }
                 console.error("Backend Error:", res.msg);
                 if (tbody) tbody.innerHTML = `<tr><td colspan="9" style="padding: 30px; text-align: center; color:red;">Gagal memuat data: ${res.msg}</td></tr>`;
             }
         })
         .catch(err => {
+            if (tbody) {
+                tbody.style.opacity = '1';
+                tbody.style.pointerEvents = 'auto';
+            }
             console.error("Fetch Error:", err);
             if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="padding: 30px; text-align: center; color:red;">Terjadi kesalahan sistem. Cek Console.</td></tr>';
         });
@@ -1329,8 +1356,20 @@ function renderEventTable(data, currentPage = 1) {
     tbody.innerHTML = html;
 }
 
+function updateSortUI() {
+    const iconEl = document.getElementById('sortDirIcon');
+    if (iconEl) {
+        if (currentEventSortDir === 'asc') {
+            iconEl.innerHTML = '<path d="M12 19V5M5 12l7-7 7 7"/>';
+        } else {
+            iconEl.innerHTML = '<path d="M12 5v14M19 12l-7 7-7-7"/>';
+        }
+    }
+}
+
 function toggleEventSortDir() {
     currentEventSortDir = currentEventSortDir === 'desc' ? 'asc' : 'desc';
+    updateSortUI();
     applyEventFilters(1);
 }
 

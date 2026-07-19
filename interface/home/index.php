@@ -59,11 +59,11 @@ $baseUrl = '/CardHaven';
     <div class="promo" id="promo-section">
         <div class="promo-header">
             <h3 class="coolveticaa">Promo🔥</h3>
-            <div style="width: 25%;">
+            <!-- <div style="width: 25%;">
                 <select name="" class="modal-input">
                     <option value="">-- Select Game --</option>
                 </select>
-            </div>
+            </div> -->
         </div>
         <div class="promo-content"></div>
         <div class="promo-pagination">
@@ -121,7 +121,13 @@ $baseUrl = '/CardHaven';
                         <option value="Booster box">Booster box</option>
                         <option value="Sleeve">Sleeve</option>
                         <option value="Playmat">Playmat</option>
+                        <option value="Binder">Binder</option>
+                        <option value="Deck box">Deck box</option>
+                        <option value="Accessory">Accessory</option>
+                        <option value="Card Protector">Card Protector</option>
                         <option value="Toploader">Toploader</option>
+                        <option value="Storage Box">Storage Box</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div>
