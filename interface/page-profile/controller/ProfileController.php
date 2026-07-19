@@ -77,8 +77,9 @@ elseif ($action === 'updateProfile') {
             exit;
         }
 
-        // Path yang disimpan ke DB (relatif dari root cardhaven)
-        $foto_path = 'image-profile/' . $filename;
+        // Yang disimpan ke DB HANYA nama file. Path folder (image-profile/)
+        // ditambahkan saat menampilkan, bukan disimpan.
+        $foto_path = $filename;
     }
 
     // Query: update foto hanya kalau ada file baru

@@ -148,9 +148,15 @@ async function openDetailModal(id_penjualan) {
                         <div style="font-size:.72rem;opacity:.55;">${item.tipe_produk ?? ''} · ${item.kondisi ?? ''}</div>
                     </div>
                 </td>
+<<<<<<< HEAD
                 <td style="text-align:right;white-space:nowrap;">Rp ${Number(item.harga_produk).toLocaleString('id-ID')}</td>
                 <td style="text-align:center;">${item.jumlah_barang}</td>
                 <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${Number(item.subtotal_harga).toLocaleString('id-ID')}</td>
+=======
+                <td style="text-align:right;white-space:nowrap;">Rp ${parseInt(item.harga_produk || 0).toLocaleString('id-ID')}</td>
+                <td style="text-align:center;">${item.jumlah_barang}</td>
+                <td style="text-align:right;white-space:nowrap;font-weight:700;">Rp ${parseInt(item.subtotal_harga || 0).toLocaleString('id-ID')}</td>
+>>>>>>> b91472c4fac3eedf1ce73ea7db5b01ca3c58f098
             </tr>
         `).join('');
 
@@ -180,7 +186,11 @@ async function openDetailModal(id_penjualan) {
                     <div class="trx-info-row"><span>Provider</span><b>${h.provider ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Number</span><b>${h.rek_tujuan ?? h.no_rekening ?? '-'}</b></div>
                     <div class="trx-info-row"><span>Account Holder</span><b>${h.atas_nama ?? '-'}</b></div>
+<<<<<<< HEAD
                     <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${Number(h.biaya_admin ?? 0).toLocaleString('id-ID')}</b></div>
+=======
+                    <div class="trx-info-row"><span>Admin Fee</span><b>Rp ${parseInt(h.biaya_admin || 0).toLocaleString('id-ID')}</b></div>
+>>>>>>> b91472c4fac3eedf1ce73ea7db5b01ca3c58f098
                 </div>
 
                 <!-- Shipping -->
@@ -213,7 +223,11 @@ async function openDetailModal(id_penjualan) {
 
             <div style="display:flex;justify-content:flex-end;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.1);">
                 <span style="font-size:.85rem;opacity:.65;margin-right:.5rem;">${h.total_barang} item · Total</span>
+<<<<<<< HEAD
                 <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${Number(h.total_harga).toLocaleString('id-ID')}</span>
+=======
+                <span style="font-size:1rem;font-weight:800;color:var(--primary-color);">Rp ${parseInt(h.total_harga || 0).toLocaleString('id-ID')}</span>
+>>>>>>> b91472c4fac3eedf1ce73ea7db5b01ca3c58f098
             </div>
 
             ${actionBtns ? `<div class="trx-action-row">${actionBtns}</div>` : ''}

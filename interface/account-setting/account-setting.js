@@ -20,6 +20,61 @@ function setValue(id, value) {
     if (el) el.value = value;
 }
 
+// Halaman dimulai dalam mode "lihat". Tombol Change Detail membuka mode edit.
+let editMode = false;
+// Nilai profil tersimpan; dipakai tombol Cancel untuk membatalkan perubahan.
+let originalData = { nama: "", email: "", no_telepon: "", fotoSrc: "" };
+
+function setEditMode(on) {
+    editMode = on;
+    ['nama', 'email', 'no_telepon'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.readOnly = !on;
+    });
+    const fotoField = document.getElementById('fotoField');
+    if (fotoField) fotoField.style.display = on ? 'block' : 'none';
+    const btn = document.getElementById('btnEditSave');
+    if (btn) btn.textContent = on ? 'Save Changes' : 'Change Detail';
+    // Cancel hanya muncul saat edit; Delete Account disembunyikan saat edit.
+    const btnCancel = document.getElementById('btnCancel');
+    if (btnCancel) btnCancel.style.display = on ? 'inline-block' : 'none';
+    const btnDeleteEl = document.getElementById('btnDelete');
+    if (btnDeleteEl) btnDeleteEl.style.display = on ? 'none' : 'inline-block';
+    if (!on) clearAllAccountErrors();
+}
+
+// Batalkan edit: kembalikan nilai tersimpan lalu balik ke mode "lihat".
+function handleCancel() {
+    setValue('nama', originalData.nama);
+    setValue('email', originalData.email);
+    setValue('no_telepon', originalData.no_telepon);
+    const fotoInput = document.getElementById('fotoFile');
+    if (fotoInput) fotoInput.value = '';
+    const foto = document.getElementById('fotoProfil');
+    if (foto && originalData.fotoSrc) foto.src = originalData.fotoSrc;
+    setEditMode(false);
+}
+
+// Validasi inline: pesan merah di bawah input + border merah (bukan popup).
+function showFieldError(inputId, errorId, message) {
+    const input = document.getElementById(inputId);
+    const error = document.getElementById(errorId);
+    if (input) input.style.borderColor = 'red';
+    if (error) { error.innerText = message; error.style.display = 'block'; }
+}
+
+function clearFieldError(inputId, errorId) {
+    const input = document.getElementById(inputId);
+    const error = document.getElementById(errorId);
+    if (input) input.style.borderColor = '';
+    if (error) { error.style.display = 'none'; error.innerText = ''; }
+}
+
+function clearAllAccountErrors() {
+    [['nama', 'namaError'], ['email', 'emailError'], ['no_telepon', 'noTeleponError'], ['fotoFile', 'fotoError']]
+        .forEach(([i, e]) => clearFieldError(i, e));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     setText("userName", CardHavenAuth.username() || "Guest");
     setText("userEmail", CardHavenAuth.email() || "-");
@@ -33,6 +88,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (form) form.addEventListener("submit", handleSubmit);
     if (btnDeactivate) btnDeactivate.addEventListener("click", handleDeactivate);
     if (btnDelete) btnDelete.addEventListener("click", handleDelete);
+
+    const btnCancel = document.getElementById("btnCancel");
+    if (btnCancel) btnCancel.addEventListener("click", handleCancel);
+
+    // Mulai dalam mode "lihat" (read-only).
+    setEditMode(false);
+
+    // Hilangkan error inline begitu user mengetik ulang di field-nya.
+    [['nama', 'namaError'], ['email', 'emailError'], ['no_telepon', 'noTeleponError']].forEach(([inpId, errId]) => {
+        const inp = document.getElementById(inpId);
+        if (inp) inp.addEventListener('input', () => clearFieldError(inpId, errId));
+    });
+
+    // Preview foto baru sebelum disimpan.
+    const fotoFile = document.getElementById('fotoFile');
+    if (fotoFile) {
+        fotoFile.addEventListener('change', () => {
+            clearFieldError('fotoFile', 'fotoError');
+            const f = fotoFile.files[0];
+            const foto = document.getElementById('fotoProfil');
+            if (f && foto) foto.src = URL.createObjectURL(f);
+        });
+    }
 
     if (btnOpenPwModal) {
         btnOpenPwModal.onclick = () => { pwModal.style.display = "flex"; };
@@ -121,9 +199,21 @@ async function loadData() {
         setText("profileInfo", `${user.username || "-"} • ${user.email || "-"}`);
 
         const foto = document.getElementById("fotoProfil");
-        if (foto && user.foto_profil) {
-            foto.src = user.foto_profil;
+        const fotoSrc = user.foto_profil
+            ? `/cardhaven/image-profile/${user.foto_profil}`
+            : '/cardhaven/assets/image/user.svg';
+        if (foto) {
+            // DB menyimpan nama file saja; folder ditambahkan di sini.
+            foto.src = fotoSrc;
         }
+
+        // Simpan nilai tersimpan agar tombol Cancel bisa mengembalikannya.
+        originalData = {
+            nama: user.username || "",
+            email: user.email || "",
+            no_telepon: user.no_telepon || "",
+            fotoSrc: fotoSrc
+        };
     } catch (err) {
         cardhavenAlert('error', 'Server Error', "Failed to connect to the server.");
         console.error(err);
@@ -132,32 +222,49 @@ async function loadData() {
 
 async function handleSubmit(e) {
     e.preventDefault();
+
+    // Klik pertama ("Change Detail") hanya membuka mode edit, belum menyimpan.
+    if (!editMode) {
+        setEditMode(true);
+        return;
+    }
+
     const nama = document.getElementById("nama").value.trim();
     const email = document.getElementById("email").value.trim();
     const no_telepon = document.getElementById("no_telepon").value.trim();
     const fotoInput = document.getElementById("fotoFile");
 
-    if (!nama || !email || !no_telepon) {
-        cardhavenAlert('error', 'Error', "Name, Email, and Phone Number cannot be empty!");
-        return;
+    clearAllAccountErrors();
+    let valid = true;
+
+    if (!nama) {
+        showFieldError('nama', 'namaError', "Name cannot be empty");
+        valid = false;
     }
 
-    const rawPhone = no_telepon.replace(/[\-\s]/g, ""); 
-    const phoneRegex = /^\+?[0-9]{9,15}$/; 
-    
-    if (!phoneRegex.test(rawPhone) || no_telepon.length > 20) {
-        cardhavenAlert('error', 'Error', "Invalid phone number! Please enter 9-15 valid digits.");
-        return;
+    if (!email) {
+        showFieldError('email', 'emailError', "Email cannot be empty");
+        valid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showFieldError('email', 'emailError', "Invalid email format");
+        valid = false;
     }
 
-    if (fotoInput.files.length > 0) {
-        const file = fotoInput.files[0];
-        const maxSize = 2 * 1024 * 1024;
-        if (file.size > maxSize) {
-            cardhavenAlert('error', 'Error', "Profile picture size must be less than 2MB!");
-            return;
-        }
+    const rawPhone = no_telepon.replace(/[\-\s]/g, "");
+    if (!no_telepon) {
+        showFieldError('no_telepon', 'noTeleponError', "Phone number cannot be empty");
+        valid = false;
+    } else if (!/^\+?[0-9]{9,15}$/.test(rawPhone) || no_telepon.length > 20) {
+        showFieldError('no_telepon', 'noTeleponError', "Invalid phone number! Please enter 9-15 valid digits.");
+        valid = false;
     }
+
+    if (fotoInput.files.length > 0 && fotoInput.files[0].size > 2 * 1024 * 1024) {
+        showFieldError('fotoFile', 'fotoError', "Profile picture size must be less than 2MB!");
+        valid = false;
+    }
+
+    if (!valid) return;
 
     try {
         // id_pengguna tidak dikirim — server memakai id dari session.
@@ -177,6 +284,9 @@ async function handleSubmit(e) {
         if (data.status === "success") {
             // Nama baru sudah disimpan server ke session; cukup reload halaman.
             cardhavenAlert('success', 'Success', data.message, () => location.reload());
+        } else if (/email/i.test(data.message || '')) {
+            // Error validasi email dari server (mis. "Email already exists") tampil inline.
+            showFieldError('email', 'emailError', data.message);
         } else {
             cardhavenAlert('error', 'Failed', data.message);
         }

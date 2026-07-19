@@ -117,14 +117,14 @@ switch ($action) {
             'header'      => $header,
             'items'       => $items,
             // Manager (role 2) menjalankan lifecycle PO; Owner (role 3) view-only.
-            'can_approve' => ($role === 2) ? 1 : 0,
+            'can_approve' => ($role === 3) ? 1 : 0,
             'can_receive' => ($role === 2) ? 1 : 0,
             'can_pay'     => ($role === 2) ? 1 : 0,
         ]);
 
     // ─── APPROVE ─────────────────────────────────────────────────────────
     case 'approve':
-        if ($role !== 2) jsonOut('error', 'Only Manager can approve a Purchase Order.');
+        if ($role !== 3) jsonOut('error', 'Only Owner can approve a Purchase Order.');
         $id = (int)($_POST['id_restok'] ?? 0);
         if (!$id) jsonOut('error', 'Invalid ID.');
 
@@ -135,7 +135,7 @@ switch ($action) {
 
     // ─── REJECT ──────────────────────────────────────────────────────────
     case 'reject':
-        if ($role !== 2) jsonOut('error', 'Only Manager can reject a Purchase Order.');
+        if ($role !== 3) jsonOut('error', 'Only Owner can reject a Purchase Order.');
         $id = (int)($_POST['id_restok'] ?? 0);
         if (!$id) jsonOut('error', 'Invalid ID.');
 
@@ -194,7 +194,7 @@ switch ($action) {
 
     // ─── CREATE PO BARU ─────────────────────────────────────────────────────
     case 'create':
-        if ($role !== 2) jsonOut('error', 'Only Superadmin can create a Purchase Order.');
+        if ($role !== 2) jsonOut('error', 'Only Manager can create a Purchase Order.');
         $id_supplier = (int)($_POST['id_supplier'] ?? 0);
         $itemsJson   = $_POST['items'] ?? '';
         $items       = json_decode($itemsJson, true);

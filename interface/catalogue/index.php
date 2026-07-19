@@ -52,7 +52,13 @@ $pageTitle = 'Catalogue – CardHaven';
                         <div class="filter-item" onclick="toggleFilter('type', 'Booster box',this)">Booster box</div>
                         <div class="filter-item" onclick="toggleFilter('type', 'Sleeve',this)">Sleeve</div>
                         <div class="filter-item" onclick="toggleFilter('type', 'Playmat',this)">Playmat</div>
+                        <div class="filter-item" onclick="toggleFilter('type', 'Binder',this)">Binder</div>
+                        <div class="filter-item" onclick="toggleFilter('type', 'Deck box',this)">Deck box</div>
+                        <div class="filter-item" onclick="toggleFilter('type', 'Accessory',this)">Accessory</div>
+                        <div class="filter-item" onclick="toggleFilter('type', 'Card Protector',this)">Card Protector</div>
                         <div class="filter-item" onclick="toggleFilter('type', 'Toploader',this)">Toploader</div>
+                        <div class="filter-item" onclick="toggleFilter('type', 'Storage Box',this)">Storage Box</div>
+                        <div class="filter-item" onclick="toggleFilter('type', 'Other',this)">Other</div>
                     </div>
                 </div>
 

@@ -74,7 +74,8 @@ try {
         $status = ($_GET['status'] === '' || !isset($_GET['status'])) ? -1 : (int)$_GET['status'];
         
         $sortBy  = $_GET['sort_by'] ?? 'id_metode';
-        $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+        // Default DESC: data terbaru (id_metode besar) tampil di atas, samakan dengan render awal.
+        $sortDir = strtoupper($_GET['sort_order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
         // Panggil SP
         $sql = "{CALL dbo.sp_GetMetodeList(?, ?, ?, ?, ?, ?)}";

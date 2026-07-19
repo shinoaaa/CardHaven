@@ -441,9 +441,16 @@ function addItemRow() {
                 <input type="hidden" id="produkId${rowId}">
                 <div id="produkSuggest${rowId}" class="suggestion-box"></div>
             </div>
+            <div class="row-error" id="errProduk${rowId}" style="color:#E74C3C; font-size:0.72rem; margin-top:3px; display:none;"></div>
         </td>
-        <td><input type="number" min="1" value="1" id="qty${rowId}" oninput="recalcRow(${rowId})"></td>
-        <td><input type="number" min="0" step="0.01" value="0" id="harga${rowId}" oninput="recalcRow(${rowId})"></td>
+        <td>
+            <input type="number" min="1" value="1" id="qty${rowId}" oninput="recalcRow(${rowId})">
+            <div class="row-error" id="errQty${rowId}" style="color:#E74C3C; font-size:0.72rem; margin-top:3px; display:none;"></div>
+        </td>
+        <td>
+            <input type="number" min="0" step="0.01" value="0" id="harga${rowId}" oninput="recalcRow(${rowId})">
+            <div class="row-error" id="errHarga${rowId}" style="color:#E74C3C; font-size:0.72rem; margin-top:3px; display:none;"></div>
+        </td>
         <td style="text-align:right; font-weight:600;" id="subtotal${rowId}">Rp0</td>
         <td><button type="button" class="btn-remove-row" onclick="removeItemRow(${rowId})">&times;</button></td>
     `;
@@ -479,53 +486,73 @@ function recalcAddTotal() {
 
 // ─── ADD PO: submit ──────────────────────────────────────────────────────────
 function submitAddRestok() {
-   const suppInputEl = document.getElementById('addSupplierSearch');
-const id_supplier = document.getElementById('addIdSupplier').value;
-let errors = [];
+    const suppInputEl = document.getElementById('addSupplierSearch');
+    const id_supplier = document.getElementById('addIdSupplier').value;
+    let hasError = false;
 
-// Reset semua border dulu
-suppInputEl.style.border = '';
-document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
-    tr.querySelectorAll('input').forEach(el => el.style.border = '');
-});
+    // Reset semua border & pesan error dulu
+    suppInputEl.style.border = '';
+    clearError(suppInputEl);
+    document.getElementById('errNoItems').style.display = 'none';
+    document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
+        tr.querySelectorAll('input').forEach(el => el.style.border = '');
+        tr.querySelectorAll('.row-error').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+    });
 
-if (!id_supplier) {
-    showError(suppInputEl, 'Supplier is required.');
-    errors.push('Supplier is required.');
-}
-
-const rows = document.querySelectorAll('#addItemsBody tr.item-row');
-if (rows.length === 0) {
-    errors.push('Add at least one item.');
-}
-
-const items = [];
-rows.forEach((tr, idx) => {
-    const n = tr.id.replace('itemRow', '');
-    const selProduk  = document.getElementById(`produkId${n}`);
-    const inputQty   = document.getElementById(`qty${n}`);
-    const inputHarga = document.getElementById(`harga${n}`);
-
-    const id_produk     = selProduk.value;
-    const jumlah_barang = parseInt(inputQty.value) || 0;
-    const harga_beli    = parseFloat(inputHarga.value) || 0;
-
-    let rowErrors = [];
-    if (!id_produk)        { document.getElementById(`produkSearch${n}`).style.border = '2px solid #E74C3C'; rowErrors.push('product'); }
-    if (jumlah_barang < 1) { inputQty.style.border   = '2px solid #E74C3C'; rowErrors.push('quantity'); }
-    if (harga_beli <= 0)   { inputHarga.style.border = '2px solid #E74C3C'; rowErrors.push('price'); }
-
-    if (rowErrors.length > 0) {
-        errors.push(`Row ${idx + 1}: ${rowErrors.join(', ')} is required.`);
-    } else {
-        items.push({ id_produk, jumlah_barang, harga_beli });
+    if (!id_supplier) {
+        showError(suppInputEl, 'Supplier is required.');
+        hasError = true;
     }
-});
 
-if (errors.length > 0) {
-    cardhavenAlert('error', 'Please fix the following:', errors.join('\n'));
-    return;
-}
+    const rows = document.querySelectorAll('#addItemsBody tr.item-row');
+
+    const items = [];
+    rows.forEach((tr) => {
+        const n = tr.id.replace('itemRow', '');
+        const selProduk  = document.getElementById(`produkId${n}`);
+        const inputQty   = document.getElementById(`qty${n}`);
+        const inputHarga = document.getElementById(`harga${n}`);
+
+        const id_produk     = selProduk.value;
+        const jumlah_barang = parseInt(inputQty.value) || 0;
+        const harga_beli    = parseFloat(inputHarga.value) || 0;
+
+        let rowHasError = false;
+
+        if (!id_produk) {
+            document.getElementById(`produkSearch${n}`).style.border = '2px solid #E74C3C';
+            const err = document.getElementById(`errProduk${n}`);
+            err.textContent = 'Product is required.';
+            err.style.display = 'block';
+            rowHasError = true;
+        }
+        if (jumlah_barang < 1) {
+            inputQty.style.border = '2px solid #E74C3C';
+            const err = document.getElementById(`errQty${n}`);
+            err.textContent = 'Min. 1.';
+            err.style.display = 'block';
+            rowHasError = true;
+        }
+        if (harga_beli <= 0) {
+            inputHarga.style.border = '2px solid #E74C3C';
+            const err = document.getElementById(`errHarga${n}`);
+            err.textContent = 'Price is required.';
+            err.style.display = 'block';
+            rowHasError = true;
+        }
+
+        if (rowHasError) {
+            hasError = true;
+        } else {
+            items.push({ id_produk, jumlah_barang, harga_beli });
+        }
+    });
+
+    if (rows.length === 0) {
+        document.getElementById('errNoItems').style.display = 'block';
+        hasError = true;
+    }
+    if (hasError) return; // Berhenti diam-diam, pesan udah kelihatan di bawah tiap field.
 
     const body = new FormData();
     body.append('action', 'create');

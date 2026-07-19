@@ -392,7 +392,7 @@
             if (result.status === 'success' && result.data) {
                 // ✅ Pakai variabel yang benar (result.data, bukan user)
                 const avatarSrc = result.data.foto_profil
-                    ? `/cardhaven/${result.data.foto_profil}`
+                    ? `/cardhaven/image-profile/${result.data.foto_profil}`
                     : '/cardhaven/assets/image/user.svg';
 
                 // ✅ Set ke semua elemen avatar di navbar

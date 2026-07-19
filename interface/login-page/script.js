@@ -50,6 +50,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (checkBox) checkBox.addEventListener("click", rememberMe);
     if (checkText) checkText.addEventListener("click", rememberMe);
 
+    // Hilangkan pesan error (dan border merah) begitu user mengetik ulang di field-nya.
+    [
+        [emailInput, errorEmail],
+        [passwordInput, errorPass],
+    ].forEach(([input, error]) => {
+        if (input && error) {
+            input.addEventListener("input", () => clearError(input, error));
+        }
+    });
+
     // ==========================================
     // LOGIKA LOGIN
     // ==========================================
@@ -339,6 +349,12 @@ function showError(inputElement, errorElement, message) {
     inputElement.style.borderColor = "red";
     errorElement.innerText = message;
     errorElement.style.display = "block";
+}
+
+function clearError(inputElement, errorElement) {
+    inputElement.style.borderColor = "#0F3891";
+    errorElement.style.display = "none";
+    errorElement.innerText = "";
 }
 
 function resetErrors(inputs, errors) {

@@ -25,9 +25,10 @@
                         <option value="Playmat">Playmat</option>
                         <option value="Binder">Binder</option>
                         <option value="Deck Box">Deck Box</option>
-                        <option value="Dice">Accessory</option>
-                        <option value="Token">Card Protector</option>
+                        <option value="Accessory">Accessory</option>
+                        <option value="Card Protector">Card Protector</option>
                         <option value="Toploader">Toploader</option>
+                        <option value="Storage Box">Storage Box</option>
                         <option value="Other">Other</option>
                     </select>
                     <div class="error-message"></div>
