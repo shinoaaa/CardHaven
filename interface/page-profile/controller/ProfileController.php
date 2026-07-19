@@ -207,7 +207,7 @@ elseif($action === 'cancelOrder'){
         exit;
     }
 
-    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $cek_stmt = sqlsrv_query($conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
 
     if (!$row || $row['id_pengguna'] != $id_pengguna) {
@@ -224,7 +224,7 @@ elseif($action === 'cancelOrder'){
         null
     ];
     
-    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
 
     if ($stmt) {
         echo json_encode(['status' => 'success', 'message' => 'The order was successfully canceled.']);
@@ -245,14 +245,15 @@ elseif ($action === 'completeOrder') {
     $data = json_decode($json, true);
 
     $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
-    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+    // Pelaku aksi = user yang sedang login (dari session), bukan id kiriman browser.
+    $id_pengguna = (int)$user_id;
 
     if ($id_penjualan === 0 || $id_pengguna === 0) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid data provided.']);
         exit;
     }
 
-    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $cek_stmt = sqlsrv_query($conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
 
     if (!$row || $row['id_pengguna'] != $id_pengguna) {
@@ -260,17 +261,17 @@ elseif ($action === 'completeOrder') {
         exit;
     }
 
-    // Update status menjadi 8 (Completed)
+    // Update status menjadi 6 (Completed)
     $params = [
-        $id_penjualan, 
-        8, 
+        $id_penjualan,
+        6,
         $id_pengguna, 
         null, 
         null, 
         null
     ];
     
-    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
 
     if ($stmt) {
         echo json_encode(['status' => 'success', 'message' => 'The order has been successfully completed.']);
@@ -291,14 +292,15 @@ elseif ($action === 'returnOrder') {
     $data = json_decode($json, true);
 
     $id_penjualan = isset($data['id_penjualan']) ? (int)$data['id_penjualan'] : 0;
-    $id_pengguna = isset($data['id_pengguna']) ? (int)$data['id_pengguna'] : 0;
+    // Pelaku aksi = user yang sedang login (dari session), bukan id kiriman browser.
+    $id_pengguna = (int)$user_id;
 
     if ($id_penjualan === 0 || $id_pengguna === 0) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid data provided.']);
         exit;
     }
 
-    $cek_stmt = sqlsrv_query($this->conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    $cek_stmt = sqlsrv_query($conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
 
     if (!$row || $row['id_pengguna'] != $id_pengguna) {
@@ -306,17 +308,17 @@ elseif ($action === 'returnOrder') {
         exit;
     }
 
-    // Update status menjadi 9 (Return Requested)
+    // Update status menjadi 7 (Returned)
     $params = [
-        $id_penjualan, 
-        9, 
+        $id_penjualan,
+        7,
         $id_pengguna, 
         null, 
         null, 
         null
     ];
     
-    $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateSalesStatus(?, ?, ?, ?, ?, ?)}", $params);
 
     if ($stmt) {
         echo json_encode(['status' => 'success', 'message' => 'Return request has been successfully submitted.']);

@@ -274,7 +274,10 @@ function openDetailModal(id_pembelian) {
                 }
 
                 let cardActionHtml = '';
-                if (pem.status_pembelian == 1) {
+                if (userRole === 3) {
+                    // Owner: akses hanya-lihat (mirip Sales/Transaction) — tanpa tombol aksi per-kartu.
+                    cardActionHtml = '';
+                } else if (pem.status_pembelian == 1) {
                     if (!hasDecision) {
                         cardActionHtml = `
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -343,7 +346,11 @@ function openDetailModal(id_pembelian) {
             const btnGreen = `background: #065f46; color: white; ${btnBase}`;
             const btnDisabled = `background: #7c3aed; color: white; opacity: 0.4; cursor: not-allowed; ${btnBase}`;
 
-            if (status == 0) {
+            if (userRole === 3) {
+                // Owner: akses hanya-lihat (mirip halaman Sales/Transaction) — tanpa tombol aksi.
+                footerHtml = '<div style="text-align:center; width:100%; color:#64748b; font-weight:600; padding:12px; background:#f3f4f6; border-radius:8px;">View-only access — buyback actions are handled by staff.</div>';
+            }
+            else if (status == 0) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')" style="${btnBlue}">Start Review</button>`;
             }

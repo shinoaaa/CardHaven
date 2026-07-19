@@ -40,8 +40,8 @@
                 <div style="height: 100%; display: flex; align-items: center; gap: 0.75rem;">
                     <h3 class="coolveticaa" id="namaUser" style="color: var(--primary-color); font-size: 1.25rem; margin-right: 0.75rem;"></h3>
                     
-                    <div id="avatar-trigger" style="height: 100%; aspect-ratio: 1/1; background-color: blue; border-radius: 9999px; overflow: hidden; border: 1px solid var(--primary-color); cursor: pointer;">
-                        <img src="https://i.pinimg.com/736x/5e/14/90/5e149094251c9316fc696e7aeba7b2b1.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div id="avatar-trigger" style="height: 100%; aspect-ratio: 1/1; background-color: #fff; border-radius: 9999px; overflow: hidden; border: 1px solid var(--primary-color); cursor: pointer;">
+                        <img src="/cardhaven/assets/image/user.svg" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     
                     <div style="height: 80%; aspect-ratio: 1/1; display: flex; align-items: center;">
@@ -55,7 +55,7 @@
                     <div class="popup-body">
                         <div class="profile-summary">
                             <div class="profile-avatar-large">
-                                <img src="https://i.pinimg.com/736x/5e/14/90/5e149094251c9316fc696e7aeba7b2b1.jpg" alt="Avatar">
+                                <img src="/cardhaven/assets/image/user.svg" alt="Avatar">
                             </div>
                             <div class="profile-info">
                                 <h4 id="popNamaUser">Username</h4>
@@ -354,6 +354,32 @@
     const btnBackToProfile = document.getElementById('btn-back-to-profile');
     const btnLogout = document.getElementById('btn-logout');
 
+    // ── Avatar anti-kedip (flicker) ──────────────────────────────────────────
+    // Dulu foto profil baru muncul SETELAH fetch selesai, jadi tiap pindah
+    // halaman kelihatan gambar default dulu baru foto asli. Sekarang hasil fetch
+    // di-cache di localStorage per-user, lalu dipasang langsung saat halaman
+    // diparse (sinkron) sehingga foto langsung benar tanpa kedip.
+    const AVATAR_CACHE_KEY = 'ch_avatar';
+    const DEFAULT_AVATAR = '/cardhaven/assets/image/user.svg';
+
+    function applyAvatar(src) {
+        document.querySelectorAll('#avatar-trigger img, .profile-avatar-large img')
+            .forEach(img => { if (img.getAttribute('src') !== src) img.src = src; });
+    }
+
+    function readAvatarCache() {
+        try {
+            const obj = JSON.parse(localStorage.getItem(AVATAR_CACHE_KEY) || 'null');
+            // Hanya pakai kalau cache milik user yang sedang login (hindari bocor antar akun).
+            return (obj && String(obj.id) === String(CardHavenAuth.id())) ? obj.src : null;
+        } catch (e) { return null; }
+    }
+
+    // Pasang secepatnya (parse-time), sebelum fetch, supaya tidak ada kedip.
+    if (CardHavenAuth.isLoggedIn()) {
+        applyAvatar(readAvatarCache() || DEFAULT_AVATAR);
+    }
+
     // Cek Session Login
     if(isUser){
         signBtn.style.display = 'none'; // Sembunyikan tombol Sign In jika sudah login
@@ -393,11 +419,13 @@
                 // ✅ Pakai variabel yang benar (result.data, bukan user)
                 const avatarSrc = result.data.foto_profil
                     ? `/cardhaven/assets/image/image-profile/${result.data.foto_profil}`
-                    : '/cardhaven/assets/image/user.svg';
+                    : DEFAULT_AVATAR;
 
-                // ✅ Set ke semua elemen avatar di navbar
-                const avatarImgs = document.querySelectorAll('#avatar-trigger img, .profile-avatar-large img');
-                avatarImgs.forEach(img => img.src = avatarSrc);
+                // Pasang ke semua elemen avatar + simpan ke cache untuk halaman berikutnya.
+                applyAvatar(avatarSrc);
+                try {
+                    localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify({ id: CardHavenAuth.id(), src: avatarSrc }));
+                } catch (e) { /* localStorage penuh/diblokir — abaikan, fetch tetap jalan */ }
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -436,6 +464,7 @@
             "Logout",
             () => {
                 // Session dihapus di server; browser tidak menyimpan identitas apa pun.
+                try { localStorage.removeItem(AVATAR_CACHE_KEY); } catch (e) {}
                 CardHavenAuth.logout();
             }
         );

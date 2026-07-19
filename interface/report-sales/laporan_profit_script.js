@@ -127,6 +127,15 @@ function profitRenderChart(months) {
     });
 }
 
+// Export Excel/PDF mengikuti tahun yang sedang dipilih. Nama file & style
+// mengikuti report lain (Laporan_Profit_<tanggal>.xls/.pdf, kop CardHaven).
+function profitExport(type) {
+    const sel = document.getElementById('profitYear');
+    const tahun = sel ? (sel.value || 0) : 0;
+    const url = `${PROFIT_API}?action=export_${type}&tahun=${encodeURIComponent(tahun)}`;
+    window.open(url, '_blank');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     profitLoad(new Date().getFullYear());
 });

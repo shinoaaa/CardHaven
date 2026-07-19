@@ -458,8 +458,13 @@ $currentTitle = $titles[$type] ?? 'Report';
 
             <?php if ($type === 'profit'): ?>
                 <!-- ── PROFIT (Owner only) ─────────────────────────────── -->
-                <div style="display:flex; justify-content:flex-end; margin-bottom:1.25rem;">
-                    <select id="profitYear" onchange="profitLoad(this.value)" style="height:38px; padding:0 36px 0 12px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.85rem; color:var(--primary-color); background-color:#fff; cursor:pointer;"></select>
+                <div style="display:flex; align-items:center; margin-bottom:1.25rem; gap:15px; flex-wrap:wrap; width:100%;">
+                    <select id="profitYear" onchange="profitLoad(this.value)" style="flex: 1; height:38px; min-width: 150px; padding:0 36px 0 12px; border:1.5px solid #D0DAF0; border-radius:9999px; font-size:.85rem; color:var(--primary-color); background-color:#fff; cursor:pointer;"></select>
+
+                    <div class="export-group" style="display:flex; gap:10px; flex-shrink:0;">
+                        <button class="btn-add-green" onclick="profitExport('excel')" style="background-color:#27AE60; border-radius:9999px; height:38px; padding:0 15px; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">Export Excel</button>
+                        <button class="btn-add-green" onclick="profitExport('pdf')" style="background-color:#E74C3C; border-radius:9999px; height:38px; padding:0 15px; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">Export PDF</button>
+                    </div>
                 </div>
 
                 <!-- Stat cards: 2 baris x 2 pasangan; tiap pasangan senada warnanya -->

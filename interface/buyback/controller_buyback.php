@@ -35,6 +35,29 @@ function requireBuybackCustomer(): void {
     auth_api_require_role([ROLE_CUSTOMER]);
 }
 
+/**
+ * Owner = akses hanya-lihat pada buyback (mirip halaman Sales/Transaction):
+ * boleh membuka list & detail, tapi semua aksi mutasi (ubah status, nego harga,
+ * kirim pembayaran) ditolak. Role dibaca dari session, bukan dari URL.
+ */
+function denyBuybackOwnerAction(): void {
+    if (auth_role() === ROLE_OWNER) {
+        ob_clean();
+        echo json_encode(["status" => "error", "message" => "Owner has view-only access to buyback."]);
+        exit;
+    }
+}
+
+/**
+ * Role efektif untuk query BACA buyback. sp_GetBuybackList / sp_GetBuybackDetail
+ * membedakan admin (2 = lihat semua) vs customer (0 = lihat miliknya). Owner (3)
+ * adalah staff view-only yang harus melihat SEMUA data seperti Manager, jadi
+ * dipetakan ke 2 di sini. (Mutasi tetap ditolak untuk Owner lewat auth_role().)
+ */
+function buybackViewRole(int $role): int {
+    return ($role === ROLE_OWNER) ? ROLE_MANAGER : $role;
+}
+
 function getSqlError() {
     $errors = sqlsrv_errors();
     return $errors[0]['message'] ?? 'Unknown SQL Server Error';
@@ -102,7 +125,8 @@ switch ($action) {
         try {
             // Role & id dari session: customer otomatis hanya melihat miliknya,
             // admin melihat semua. Tidak bisa dinaikkan lewat URL.
-            $role        = $authRole;
+            // Owner (3) dipetakan ke admin (2) agar ikut melihat SEMUA data.
+            $role        = buybackViewRole($authRole);
             $id_pengguna = $authId;
             $page        = max(1, intval($_GET['page'] ?? 1));
             // Limit bisa di-override lewat query (dipakai admin untuk menarik semua data
@@ -143,6 +167,7 @@ switch ($action) {
 
     case 'update_status':
         try {
+            denyBuybackOwnerAction(); // Owner hanya-lihat
             // Dipakai admin maupun customer; SP yang memvalidasi kepemilikan
             // berdasarkan id_pengguna — yang kini selalu dari session.
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackStatus(?, ?, ?, ?)}",
@@ -156,6 +181,7 @@ switch ($action) {
     case 'admin_negotiate':
         try {
             requireBuybackAdmin();
+            denyBuybackOwnerAction(); // Owner hanya-lihat
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_AdminNegotiateCard(?, ?)}", [$_POST['id_kartu'], $_POST['penawaran_admin']]);
             if ($stmt === false) throw new Exception(getSqlError());
             ob_clean(); echo json_encode(["status" => "success"]);
@@ -206,7 +232,7 @@ switch ($action) {
         try {
             // Role & id dari session — SP inilah yang menolak akses kalau
             // transaksi bukan milik customer yang bersangkutan.
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetBuybackDetail(?, ?, ?)}", [$_GET['id_pembelian'], $authRole, $authId]);
+            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetBuybackDetail(?, ?, ?)}", [$_GET['id_pembelian'], buybackViewRole($authRole), $authId]);
             if ($stmt === false) throw new Exception(getSqlError());
             
             $pembelian = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
@@ -228,6 +254,7 @@ switch ($action) {
     case 'admin_send_payment':
         try {
             requireBuybackAdmin();
+            denyBuybackOwnerAction(); // Owner hanya-lihat
             if (!isset($_FILES['bukti_pembayaran']) || $_FILES['bukti_pembayaran']['error'] !== UPLOAD_ERR_OK) throw new Exception("Payment proof file is invalid or missing.");
 
             $uploadDir = '../../assets/image/buyback/payment/';
