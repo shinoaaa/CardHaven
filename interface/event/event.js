@@ -1212,6 +1212,7 @@ function parseInitialUrl() {
     if (urlParams.has('dir'))    currentEventSortDir = urlParams.get('dir');
 
     const initialPage = urlParams.has('page') ? parseInt(urlParams.get('page')) : 1;
+    updateSortUI();
     applyEventFilters(initialPage);
 }
 
@@ -1355,8 +1356,20 @@ function renderEventTable(data, currentPage = 1) {
     tbody.innerHTML = html;
 }
 
+function updateSortUI() {
+    const iconEl = document.getElementById('sortDirIcon');
+    if (iconEl) {
+        if (currentEventSortDir === 'asc') {
+            iconEl.innerHTML = '<path d="M12 19V5M5 12l7-7 7 7"/>';
+        } else {
+            iconEl.innerHTML = '<path d="M12 5v14M19 12l-7 7-7-7"/>';
+        }
+    }
+}
+
 function toggleEventSortDir() {
     currentEventSortDir = currentEventSortDir === 'desc' ? 'asc' : 'desc';
+    updateSortUI();
     applyEventFilters(1);
 }
 
