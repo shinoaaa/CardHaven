@@ -105,20 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Tidak ada lagi penyimpanan identitas di browser.
                     // id_pengguna & role sudah tersimpan aman di PHP session.
 
-                    // Animasi Sukses Login
-                    Swal.fire({
-                        icon: 'success',
-                        iconColor: '#0088FF',
-                        title: 'Login successful!',
-                        text: 'Welcome back to CardHaven.',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        background: '#ffffff',
-                        customClass: { title: 'coolveticaa' }
-                    }).then(() => {
-                        // Tujuan redirect ditentukan server berdasarkan role di session.
-                        window.location.replace(data.redirect || "/CardHaven/home");
-                    });
+                    // Animasi Sukses Login (muncul di halaman tujuan)
+                    sessionStorage.setItem('ch_toast_msg', 'Login successful!');
+                    sessionStorage.setItem('ch_toast_icon', 'success');
+                    window.location.replace(data.redirect || "/CardHaven/home");
 
                 } else {
                     btnSubmit.innerText = originalText;

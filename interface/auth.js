@@ -75,6 +75,8 @@
             })
                 .catch(function () { /* tetap lanjut redirect walau request gagal */ })
                 .then(function () {
+                    sessionStorage.setItem('ch_toast_msg', 'Logged out successfully');
+                    sessionStorage.setItem('ch_toast_icon', 'success');
                     window.location.href = '/CardHaven/login';
                 });
         }

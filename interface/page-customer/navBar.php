@@ -41,7 +41,7 @@
                     <h3 class="coolveticaa" id="namaUser" style="color: var(--primary-color); font-size: 1.25rem; margin-right: 0.75rem;"></h3>
                     
                     <div id="avatar-trigger" style="height: 100%; aspect-ratio: 1/1; background-color: blue; border-radius: 9999px; overflow: hidden; border: 1px solid var(--primary-color); cursor: pointer;">
-                        <img src="https://i.pinimg.com/736x/5e/14/90/5e149094251c9316fc696e7aeba7b2b1.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/cardhaven/assets/image/defaultpfp.jpg" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     
                     <div style="height: 80%; aspect-ratio: 1/1; display: flex; align-items: center;">
@@ -91,7 +91,7 @@
                 <div id="popup-mailbox" class="modal-popup coolveticaa">
                     <div class="popup-header">
                         <button id="btn-back-to-profile" class="btn-back">
-                            <img src="/cardhaven/assets/image/arrow-back.svg" alt="back">
+                            <img src="/cardhaven/assets/image/left-arrow.svg" alt="back" style="filter: invert(30%) sepia(75%) saturate(8090%) hue-rotate(173deg) brightness(64%) contrast(200%);">
                         </button>
                         <h4>Mailbox</h4>
                         <button id="btn-nav-mark-all" class="mailbox-markall" title="Mark all as read">Mark all read</button>

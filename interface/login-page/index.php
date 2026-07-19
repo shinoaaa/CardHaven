@@ -52,6 +52,7 @@ $facebook_login_url = "https://www.facebook.com/v20.0/dialog/oauth?" . http_buil
     <link rel="icon" type="image/svg+xml" href="/cardhaven/assets/image/logo.svg">
     <link rel="stylesheet" href="/cardhaven/interface/global.css?v=<?= filemtime(__DIR__ . '/../global.css') ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/cardhaven/interface/global_alert.js"></script>
     <?php require_once __DIR__ . '/../../auth/session.php'; auth_emit_js(); ?>
 </head>
 <body>

@@ -64,7 +64,7 @@
                 </a>
                 
                 <!-- Ganti '#' dengan link Discord nanti -->
-                <a href="https://discord.gg/TyX7qNwDP" target="_blank" class="community-icon">
+                <a href="https://discord.gg/3QrZ8XgPC" target="_blank" class="community-icon">
                     <img src="/cardhaven/assets/image/discord.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </a>
 

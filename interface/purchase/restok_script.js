@@ -386,23 +386,28 @@ function setupProdukSuggest(rowId) {
     const hidden = document.getElementById(`produkId${rowId}`);
     const box    = document.getElementById(`produkSuggest${rowId}`);
 
-    input.oninput = function () {
-        hidden.value = '';
-        if (this.value.length < 1) { box.style.display = 'none'; return; }
-
+    function triggerSearch() {
         if (!suppHidden.value) {
             box.innerHTML = '<div style="color:#E74C3C; cursor:default;">⚠ Please select a Supplier first!</div>';
             box.style.display = 'block';
             return;
         }
 
-        fetch(`${API}?action=search_produk&search_produk=${encodeURIComponent(this.value)}&id_supplier=${suppHidden.value}&actor_id=${ACTOR_ID}`)
+        const keyword = input.value.trim();
+
+        fetch(`${API}?action=search_produk&search_produk=${encodeURIComponent(keyword)}&id_supplier=${suppHidden.value}&actor_id=${ACTOR_ID}`)
             .then(r => r.json())
             .then(data => {
                 box.innerHTML = '';
-                if (data.length > 0) {
+                
+                let displayData = data;
+                if (keyword === '') {
+                    displayData = data.slice(0, 3);
+                }
+
+                if (displayData.length > 0) {
                     box.style.display = 'block';
-                    data.forEach(item => {
+                    displayData.forEach(item => {
                         const div = document.createElement('div');
                         div.innerHTML = item.nama_produk;
                         div.onclick = () => {
@@ -414,11 +419,38 @@ function setupProdukSuggest(rowId) {
                         };
                         box.appendChild(div);
                     });
+                    
+                    if (keyword === '' && data.length > 3) {
+                        const moreDiv = document.createElement('div');
+                        moreDiv.innerHTML = '<i>Type to search more products...</i>';
+                        moreDiv.style.color = '#888';
+                        moreDiv.style.cursor = 'default';
+                        moreDiv.style.pointerEvents = 'none';
+                        moreDiv.style.fontSize = '0.8rem';
+                        box.appendChild(moreDiv);
+                    }
                 } else {
                     box.innerHTML = '<div style="color:#888; cursor:default;">No product found.</div>';
                     box.style.display = 'block';
                 }
             });
+    }
+
+    input.onfocus = function () {
+        if (this.value.trim() === '') {
+            triggerSearch();
+        }
+    };
+
+    input.onclick = function () {
+        if (this.value.trim() === '' && box.style.display !== 'block') {
+            triggerSearch();
+        }
+    };
+
+    input.oninput = function () {
+        hidden.value = '';
+        triggerSearch();
     };
 }
 

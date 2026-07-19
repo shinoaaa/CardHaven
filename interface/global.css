@@ -101,7 +101,13 @@ button{
     display: flex;
     justify-content: center;
     align-items: center;
-    
+    overflow: hidden;
+}
+
+/* Lock outer scroll when admin dashboard is active — only .main-content scrolls */
+body:has(.container > .sideBar) {
+    overflow: hidden;
+    height: 100vh;
 }
 
 
@@ -429,8 +435,9 @@ input::placeholder {
     padding: .35rem .75rem;
     background: var(--bg-gradient);
     border-radius: 999px;
-    position: absolute;
-    top: 12rem;
+    margin-top: -12px;
+    position: relative;
+    z-index: 5;
 }
 
 /* --- MAIN CONTENT (Bisa Scroll Vertikal) --- */
@@ -1356,12 +1363,15 @@ input:checked + .slider:before {
 
 .nav-logo {
     transform: scale(1);
-    height: 100%;
+    height: 60%;
+    max-width: 12rem;
     object-fit: cover;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
 }
+.nav-logo img { width: auto; height: 100%; }
 
 .nav-menu {
     width: 82%;
@@ -2082,6 +2092,7 @@ p.product-paragraf {
 
     /* ---------- NAVBAR (shared halaman customer) ---------- */
     .nav-bar   { padding: 0.5rem 1rem; height: 4.75rem; }
+    .nav-logo  { height: 45%; max-width: 6rem; flex-shrink: 0; }
     .nav-menu  { width: auto; flex: 1 1 auto; gap: 0.5rem; margin-left: 0.5rem; }
     .nav-search{ width: auto; flex: 1 1 auto; gap: 0.5rem; }
     .nav-profile{ width: auto; flex: 0 0 auto; gap: 0.75rem; }
@@ -2171,6 +2182,7 @@ p.product-paragraf {
 @media screen and (max-width: 480px) {
     html { font-size: 12px; }
     #namaUser { display: none !important; }   /* hemat ruang di HP kecil */
+    .nav-logo  { height: 40%; max-width: 5rem; }
     .game-list { grid-template-columns: 1fr; }
     .foot-top  { grid-template-columns: 1fr; }
     .hero-title { font-size: 2.2rem; }
