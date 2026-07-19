@@ -493,6 +493,7 @@ function submitAddRestok() {
     // Reset semua border & pesan error dulu
     suppInputEl.style.border = '';
     clearError(suppInputEl);
+    document.getElementById('errNoItems').style.display = 'none';
     document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
         tr.querySelectorAll('input').forEach(el => el.style.border = '');
         tr.querySelectorAll('.row-error').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
@@ -547,7 +548,10 @@ function submitAddRestok() {
         }
     });
 
-    if (rows.length === 0) hasError = true;
+    if (rows.length === 0) {
+        document.getElementById('errNoItems').style.display = 'block';
+        hasError = true;
+    }
     if (hasError) return; // Berhenti diam-diam, pesan udah kelihatan di bawah tiap field.
 
     const body = new FormData();
