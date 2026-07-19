@@ -1,19 +1,20 @@
 <div style="width: 100%; height: 1px; background-color: #0F3891; padding: 0rem 2.75rem;"></div>
 <div class="footer">
     <div class="foot-top">
-        <div class="foot-game">
+<div class="foot-game">
             <div class="list-header">
                 <div style="width: 2rem; height: 2rem;">
                     <img src="/cardhaven/assets/image/games.svg" style="object-fit: cover; width: 100%; height: 100%;">
                 </div>
                 <h1 style="font-size: 1.25rem;">Games</h1>
             </div>
+            <!-- Games = filter catalogue by game_name -->
             <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
-                <li>Yu-Gi-Oh! Official DB</li>
-                <li>Pokémon TCG Live</li>
-                <li>Magic: The Gathering</li>
-                <li>One Piece Card Game</li>
-                <li>Cardfight !! Vanguard</li>
+                <li><a href="/CardHaven/home/list?game_name=Yu-Gi-Oh!" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Yu-Gi-Oh!</a></li>
+                <li><a href="/CardHaven/home/list?game_name=Pokemon TCG" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Pokémon TCG</a></li>
+                <li><a href="/CardHaven/home/list?game_name=Magic: The Gathering" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Magic: The Gathering</a></li>
+                <li><a href="/CardHaven/home/list?game_name=One Piece Card Game" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">One Piece Card Game</a></li>
+                <li><a href="/CardHaven/home/list?game_name=Cardfight!! Vanguard" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Cardfight!! Vanguard</a></li>
             </ul>
         </div>
         <div class="foot-service">
@@ -23,13 +24,14 @@
                 </div>
                 <h1 style="font-size: 1.25rem;">Product</h1>
             </div>
+            <!-- Products = filter catalogue by product_type -->
             <ul class="footer-list" style="margin-left: 1.25rem; margin-top: 0.25rem; color: #6B81B2;">
-                <li>Single Card</li>
-                <li>Booster Pack</li>
-                <li>Booster Box</li>
-                <li>Sleeve</li>
-                <li>Playmat</li>
-                <li>Toploader</li>
+                <li><a href="/CardHaven/home/list?product_type=Single card" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Single Card</a></li>
+                <li><a href="/CardHaven/home/list?product_type=Booster pack" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Booster Pack</a></li>
+                <li><a href="/CardHaven/home/list?product_type=Booster box" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Booster Box</a></li>
+                <li><a href="/CardHaven/home/list?product_type=Sleeve" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Sleeve</a></li>
+                <li><a href="/CardHaven/home/list?product_type=Playmat" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Playmat</a></li>
+                <li><a href="/CardHaven/home/list?product_type=Toploader" style="color: inherit; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Toploader</a></li>
             </ul>
         </div>
         <div class="foot-about">

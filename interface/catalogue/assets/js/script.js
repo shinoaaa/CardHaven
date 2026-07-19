@@ -105,7 +105,11 @@ function fetchFiltersDB() {
                 
                 // --- PENCOCOKAN NAMA GAME KE ID GAME (Jika dari form Explore) ---
                 if (pendingGameName) {
-                    const matchedGame = data.games.find(g => g.nama_game.toLowerCase() === pendingGameName);
+                    const matchedGame = data.games.find(g => 
+                        g.nama_game.toLowerCase() === pendingGameName || 
+                        g.nama_game.toLowerCase().includes(pendingGameName) ||
+                        pendingGameName.includes(g.nama_game.toLowerCase())
+                    );
                     // Kalau ketemu ID-nya, masukkan ke array filter
                     if (matchedGame && !state.games.includes(matchedGame.id_game.toString())) {
                         state.games.push(matchedGame.id_game.toString());
