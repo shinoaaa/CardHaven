@@ -202,8 +202,18 @@ if ($isAjax) {
             foreach ($r as $key => $val) {
                 if ($val instanceof DateTime) $r[$key] = $val->format('d M Y');
             }
-            $r['shopping_total']  = (float)($r['shopping_total'] ?? 0);
-            $r['shopping_amount'] = (int)($r['shopping_amount'] ?? 0);
+            // sp_GetCustomerList hanya SELECT * dari pengguna — tidak menghitung
+            // shopping_total/shopping_amount, jadi selama ini selalu 0. Hitung di sini
+            // dari tabel penjualan. Konvensi "total belanja" mengikuti ProfileController:
+            // semua order milik customer kecuali yang dibatalkan (status_penjualan = 8).
+            $idc = (int)($r['id_pengguna'] ?? 0);
+            $aggStmt = sqlsrv_query($conn,
+                "SELECT COUNT(*) AS amt, ISNULL(SUM(total_harga), 0) AS tot
+                 FROM dbo.penjualan WHERE id_pengguna = ? AND status_penjualan <> 8",
+                [$idc]);
+            $agg = $aggStmt ? sqlsrv_fetch_array($aggStmt, SQLSRV_FETCH_ASSOC) : null;
+            $r['shopping_amount'] = (int)($agg['amt'] ?? 0);
+            $r['shopping_total']  = (float)($agg['tot'] ?? 0);
             $data[] = $r;
         }
     }
