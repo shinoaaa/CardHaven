@@ -97,7 +97,7 @@ setupSuggest('pSupplierSearch', 'pIdSupplier', 'pSupplierSuggest', 'search_suppl
 
 function toggleProdFields() {
     const tipe = document.getElementById('pTipe').value;
-    document.getElementById('pSetGroup').style.display = (tipe.includes('Card') || tipe.includes('Booster')) ? 'block' : 'none';
+    document.getElementById('pSetGroup').style.display = (tipe.includes('Single Card') || tipe.includes('Booster')) ? 'block' : 'none';
     document.getElementById('pRarityGroup').style.display = (tipe === 'Single Card') ? 'block' : 'none';
     document.getElementById('pKondisiGroup').style.display = (tipe === 'Single Card') ? 'block' : 'none';
 
@@ -169,13 +169,13 @@ document.getElementById('productForm').onsubmit = async function(e) {
         if (!val) {
             showError(el, `${f.label} must be filled in`);
             isValid = false;
-        } else if (f.isNum && (isNaN(val) || parseFloat(val) < (f.id === 'pStok' ? 1 : 0))) {
-            showError(el, `${f.label} must be at least ${f.id === 'pStok' ? 1 : 0}`);
+        } else if (f.isNum && (isNaN(val) || parseFloat(val) < 0)) {
+            showError(el, `${f.label} must be at least 0`);
             isValid = false;
         }
     });
 
-    if (tipe.includes('Card') || tipe.includes('Booster')) {
+    if (tipe.includes('Single Card') || tipe.includes('Booster')) {
         const gameId = document.getElementById('pIdGame').value;
         const gameSearch = document.getElementById('pGameSearch');
         
@@ -404,7 +404,7 @@ function openDetailProductModal(id) {
             if(rowRarity) rowRarity.style.display = 'none';
             if(rowKondisi) rowKondisi.style.display = 'none';
 
-            if (rowSet && (tipe.includes('Card') || tipe.includes('Booster'))) {
+            if (rowSet && (tipe.includes('Single Card') || tipe.includes('Booster'))) {
                 rowSet.style.display = 'table-row';
                 document.getElementById('detProdSet').innerText = data.nama_set || '-';
             }
