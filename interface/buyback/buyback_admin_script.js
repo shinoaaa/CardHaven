@@ -326,7 +326,7 @@ function openDetailModal(id_pembelian) {
                         <div style="font-size: 0.9rem; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
                             <p style="margin: 4px 0;"><strong>Customer Ask:</strong> Rp ${parseInt(k.penawaran_customer).toLocaleString('id-ID')}</p>
                             <p style="margin: 4px 0;"><strong>Admin Decision:</strong> ${adminOfferLabel}</p>
-                      html      <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${actualAttempts} / 3</span></p>
+                            <p style="margin: 4px 0;"><strong>Customer Attempts:</strong> <span style="color: #E67E22; font-weight: 600;">${actualAttempts} / 3</span></p>
                         </div>
                         <div id="admin-action-${k.id_kartu}">${cardActionHtml}</div>
                     </div>`;
@@ -347,7 +347,11 @@ function openDetailModal(id_pembelian) {
             const btnDisabled = `background: #7c3aed; color: white; opacity: 0.4; cursor: not-allowed; ${btnBase}`;
 
             
-            if (status == 0) {
+            if (userRole === 3) {
+                // Owner: akses hanya-lihat (mirip Sales/Transaction) — tanpa tombol aksi.
+                footerHtml = '';
+            }
+            else if (status == 0) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')" style="${btnBlue}">Start Review</button>`;
             }
@@ -385,7 +389,10 @@ function openDetailModal(id_pembelian) {
                 footerHtml += `<button onclick="uploadPayment(${pem.id_pembelian})" style="${btnBlue}">Upload Payment Proof</button>`;
             }
 
-            document.getElementById('modalFooter').innerHTML = footerHtml;
+            const modalFooterEl = document.getElementById('modalFooter');
+            modalFooterEl.innerHTML = footerHtml;
+            // Owner view-only: sembunyikan area tombol biar tidak ada kotak kosong.
+            modalFooterEl.style.display = (userRole === 3) ? 'none' : 'flex';
             document.getElementById('detailModal').style.display = 'flex';
         }
     });

@@ -235,17 +235,10 @@ body {
 
 /* Mode "lihat": input read-only tampil seperti teks biasa, bukan kotak input */
 .field input[readonly] {
-    background: transparent;
-    border-color: transparent;
-    padding-left: 0;
-    color: var(--primary-color);
-    font-weight: 700;
+    
     cursor: default;
 }
 
-.field input[readonly]:focus {
-    border-color: transparent;
-}
 
 .btn-row {
     display: flex;
