@@ -307,9 +307,14 @@ function openOrderDetail(idPenjualan) {
             const o = res.data;
             const st = ORDER_STATUS[parseInt(o.status_penjualan)] || { label: 'Unknown', bg: '#f3f4f6', color: '#555' };
             const itemsHtml = (o.items || []).map(it => {
-                let itFoto = it.foto || 'assets/image/image-profile/defaultProduct.jpg';
-                // Data lama: path tersimpan dgn prefix folder lama → arahkan ke lokasi baru
-                if (itFoto.startsWith('image-profile/')) itFoto = `assets/image/${itFoto}`;
+                let itFoto = it.foto || '';
+                if (itFoto && !itFoto.includes('/')) {
+                    itFoto = `assets/image/products/${itFoto}`;
+                } else if (itFoto.startsWith('image-profile/')) {
+                    itFoto = `assets/image/${itFoto}`;
+                } else if (!itFoto) {
+                    itFoto = 'assets/image/image-profile/defaultProduct.jpg';
+                }
                 return `
                 <div class="od-item-row">
                     <img src="/cardhaven/${itFoto}" onerror="this.src='/cardhaven/assets/image/image-profile/defaultProduct.jpg'">

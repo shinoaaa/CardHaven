@@ -12,31 +12,27 @@ $action = $_GET['action'] ?? '';
 
 if ($action === 'getProfile') {
 
-    // 1. Dapatkan Profil
-    $sql = "SELECT username, email, foto_profil, no_telepon, created_date FROM pengguna WHERE id_pengguna = ?";
-    $stmt = sqlsrv_query($conn, $sql, array($user_id));
-    $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    
+    // 1. Panggil SP untuk Dashboard Profil (mengembalikan 3 result set)
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetProfileDashboard(?)}", array($user_id));
+    if (!$stmt) { echo json_encode(['status'=>'error', 'msg'=>'Failed to load profile.']); exit; }
 
+    // Result 1: Profil
+    $user = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     if($user && $user['created_date'] instanceof DateTime) {
-        // Output -> 25-01-2025 (Format dari Figma)
         $user['created_date'] = $user['created_date']->format('d-m-Y');
     }
 
-    // 2. Dapatkan Nilai di Keranjang (Banyak / Count ID Keranjang, bukan Quantity)
-    // Hitung total item di detail_keranjang milik user (via JOIN keranjang)
-    $sqlCart = "SELECT COUNT(dk.id_detail_keranjang) as cart_count 
-                FROM detail_keranjang dk
-                INNER JOIN keranjang k ON dk.id_keranjang = k.id_keranjang
-                WHERE k.id_pengguna = ?";
-    $stmtCart = sqlsrv_query($conn, $sqlCart, array($user_id));
-    $cart = sqlsrv_fetch_array($stmtCart, SQLSRV_FETCH_ASSOC);
-    $user['cart_count'] = $cart['cart_count'] ?? 0;
+    // Result 2: Cart Count
+    sqlsrv_next_result($stmt);
+    $cart = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $user['cart_count'] = $cart ? (int)$cart['cart_count'] : 0;
 
-    // 3. Dapatkan Nilai Penjualan Total (Menghiraukan ID = 8 / Canceled)
-    $sqlExp = "SELECT SUM(total_harga) as total_exp FROM penjualan WHERE id_pengguna = ? AND status_penjualan != 8";
-    $stmtExp = sqlsrv_query($conn, $sqlExp, array($user_id));
-    $exp = sqlsrv_fetch_array($stmtExp, SQLSRV_FETCH_ASSOC);
-    $user['total_expenditure'] = $exp['total_exp'] ?? 0;
+    // Result 3: Total Expenditure
+    sqlsrv_next_result($stmt);
+    $exp = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    $user['total_expenditure'] = $exp ? (float)$exp['total_exp'] : 0;
+
 
     echo json_encode(['status'=>'success', 'data'=>$user]);
 } 
@@ -82,16 +78,10 @@ elseif ($action === 'updateProfile') {
         $foto_path = $filename;
     }
 
-    // Query: update foto hanya kalau ada file baru
-    if ($foto_path !== null) {
-        $sql  = "UPDATE pengguna SET username=?, email=?, no_telepon=?, foto_profil=?, modified_date=GETDATE(), modified_by=? WHERE id_pengguna=? AND role=0";
-        $params = array($username, $email, $notelp, $foto_path, $user_id, $user_id);
-    } else {
-        $sql  = "UPDATE pengguna SET username=?, email=?, no_telepon=?, modified_date=GETDATE(), modified_by=? WHERE id_pengguna=? AND role=0";
-        $params = array($username, $email, $notelp, $user_id, $user_id);
-    }
+    
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateProfile(?, ?, ?, ?, ?)}", 
+        array($user_id, $username, $email, $notelp, $foto_path));
 
-    $stmt = sqlsrv_query($conn, $sql, $params);
 
     if ($stmt) {
         echo json_encode(['status' => 'success', 'msg' => 'Profile Updated!']);
@@ -105,13 +95,7 @@ elseif ($action === 'updateProfile') {
 // ==========================================
 elseif ($action === 'getOrders') {
     // PERBAIKAN: Tambahkan AND p.tanggal_sampai IS NULL agar Preorder tidak ikut masuk ke sini
-    $sql = "SELECT p.id_penjualan, p.tanggal_penjualan, p.alamat, p.total_barang, p.total_harga,
-                   p.status_penjualan, p.no_resi, m.nama_metode
-            FROM penjualan p
-            LEFT JOIN metode_pembayaran m ON p.id_metode = m.id_metode
-            WHERE p.id_pengguna = ? AND p.tanggal_sampai IS NULL
-            ORDER BY p.tanggal_penjualan DESC, p.id_penjualan DESC";
-    $stmt = sqlsrv_query($conn, $sql, array($user_id));
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetCustomerOrders(?)}", array($user_id));
 
     $orders = [];
     if ($stmt) {
@@ -132,27 +116,7 @@ elseif ($action === 'getOrders') {
 elseif ($action === 'getPreorders') {
     // AMBIL DATA YANG TANGGAL PENGIRIMANNYA TIDAK NULL
     // Serta kita Sub-Query untuk mengambil 1 nama produknya
-    $sql = "SELECT 
-                p.id_penjualan, 
-                p.tanggal_penjualan, 
-                p.tanggal_sampai AS tanggal_sampai, 
-                p.total_barang, 
-                p.total_harga,
-                p.status_penjualan, 
-                p.no_resi, 
-                m.nama_metode,
-                (
-                    SELECT TOP 1 pr.nama_produk
-                    FROM detail_penjualan dp
-                    JOIN produk pr ON dp.id_produk = pr.id_produk
-                    WHERE dp.id_penjualan = p.id_penjualan
-                ) AS nama_produk
-            FROM penjualan p
-            LEFT JOIN metode_pembayaran m ON p.id_metode = m.id_metode
-            WHERE p.id_pengguna = ? AND p.tanggal_sampai IS NOT NULL
-            ORDER BY p.tanggal_penjualan DESC, p.id_penjualan DESC";
-            
-    $stmt = sqlsrv_query($conn, $sql, array($user_id));
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetCustomerPreorders(?)}", array($user_id));
 
     $preorders = [];
     if ($stmt) {
@@ -207,10 +171,10 @@ elseif($action === 'cancelOrder'){
         exit;
     }
 
-    $cek_stmt = sqlsrv_query($conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    
+    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_VerifyOrderOwner(?, ?)}", [$id_penjualan, $id_pengguna]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
-
-    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+    if (!$row || $row['IsOwner'] == 0) {
         echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
         exit;
     }
@@ -253,10 +217,10 @@ elseif ($action === 'completeOrder') {
         exit;
     }
 
-    $cek_stmt = sqlsrv_query($conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    
+    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_VerifyOrderOwner(?, ?)}", [$id_penjualan, $id_pengguna]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
-
-    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+    if (!$row || $row['IsOwner'] == 0) {
         echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
         exit;
     }
@@ -300,10 +264,10 @@ elseif ($action === 'returnOrder') {
         exit;
     }
 
-    $cek_stmt = sqlsrv_query($conn, "SELECT id_pengguna FROM dbo.penjualan WHERE id_penjualan = ?", [$id_penjualan]);
+    
+    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_VerifyOrderOwner(?, ?)}", [$id_penjualan, $id_pengguna]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
-
-    if (!$row || $row['id_pengguna'] != $id_pengguna) {
+    if (!$row || $row['IsOwner'] == 0) {
         echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
         exit;
     }

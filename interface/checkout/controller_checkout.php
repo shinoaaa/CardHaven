@@ -35,17 +35,8 @@ try {
 
             if (!$id_metode || empty($alamat)) throw new Exception("Please select a payment method and provide your full address.");
 
-            // Guard: pastikan keranjang punya item terpilih. Tanpa ini, menekan
-            // "Place Order" ulang (mis. setelah back/undo) akan membuat order kosong
-            // ("bisa bayar lagi") karena sp_PlaceOrder tetap meng-INSERT header penjualan.
-            $chk = sqlsrv_query(
-                $conn,
-                "SELECT COUNT(*) AS n
-                   FROM dbo.detail_keranjang dk
-                   INNER JOIN dbo.keranjang k ON dk.id_keranjang = k.id_keranjang
-                  WHERE k.id_pengguna = ? AND dk.is_selected = 1",
-                [$id_sekarang]
-            );
+            // Guard: pastikan keranjang punya item terpilih
+            $chk = sqlsrv_query($conn, "{CALL dbo.sp_CheckCartSelection(?)}", [$id_sekarang]);
             $selectedCount = $chk ? (int)(sqlsrv_fetch_array($chk, SQLSRV_FETCH_ASSOC)['n'] ?? 0) : 0;
             if ($selectedCount === 0) {
                 throw new Exception("Your cart is empty or this order was already placed.");
@@ -62,15 +53,8 @@ try {
             $id_penjualan = (int)($_POST['id_penjualan'] ?? 0);
             if (!isset($_FILES['bukti_pembayaran']) || $_FILES['bukti_pembayaran']['error'] !== UPLOAD_ERR_OK) throw new Exception("Failed to upload the file.");
 
-            // Guard: order harus milik user ini dan masih Pending Payment.
-            // Tanpa ini, upload ulang (mis. lewat tombol back) tetap menyimpan file
-            // dan UI menampilkan sukses palsu padahal sp_UploadPaymentProof tidak
-            // mengubah apa pun (SP hanya menerima status_penjualan = 0).
-            $chk = sqlsrv_query(
-                $conn,
-                "SELECT status_penjualan FROM dbo.penjualan WHERE id_penjualan = ? AND id_pengguna = ?",
-                [$id_penjualan, $id_sekarang]
-            );
+            // Guard: order harus milik user ini dan masih Pending Payment
+            $chk = sqlsrv_query($conn, "{CALL dbo.sp_CheckOrderForPayment(?, ?)}", [$id_penjualan, $id_sekarang]);
             $ord = $chk ? sqlsrv_fetch_array($chk, SQLSRV_FETCH_ASSOC) : null;
             if (!$ord) throw new Exception("Order not found.");
             if ((int)$ord['status_penjualan'] !== 0) {
