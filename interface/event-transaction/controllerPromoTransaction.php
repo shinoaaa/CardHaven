@@ -341,40 +341,43 @@ switch ($action) {
 
         // ... Lanjut ke proses INSERT detail_penjualan ...
 
-        // Insert detail_penjualan + deduct stok_event
+        // Insert detail_penjualan WITH id_produk_event so the DB triggers can
+        // apply the correct stock logic (promo = deduct physical + quota at
+        // payment). Stock is owned entirely by the triggers now — no manual
+        // deduction here (that used to double-count and could go negative).
         foreach ($items as $it) {
             $idProduk    = (int)$it['id_produk'];
             $jumlah      = (int)$it['jumlah'];
             $hargaProduk = (float)$it['harga_produk'];
             $subtotal    = $jumlah * $hargaProduk;
 
+            // Resolve the event-product link (authoritative, server-side).
+            $stmtPe = sqlsrv_query($conn,
+                "SELECT id_produk_event FROM [CardHaven].[dbo].[produk_event]
+                 WHERE id_produk = ? AND id_event = ? AND ISNULL(is_deleted, 0) = 0",
+                [$idProduk, $idEvent]);
+            $peRow = $stmtPe ? sqlsrv_fetch_array($stmtPe, SQLSRV_FETCH_ASSOC) : null;
+            if ($stmtPe) sqlsrv_free_stmt($stmtPe);
+            if (!$peRow) {
+                sqlsrv_rollback($conn);
+                echo json_encode(['success' => false, 'message' => 'Event product not found for this order.']); exit;
+            }
+            $idProdukEvent = (int)$peRow['id_produk_event'];
+
             $sqlDet = "
                 INSERT INTO [CardHaven].[dbo].[detail_penjualan]
-                    (id_penjualan, id_produk, jumlah_barang, harga_produk, subtotal_harga)
-                VALUES (?, ?, ?, ?, ?)
+                    (id_penjualan, id_produk, id_produk_event, jumlah_barang, harga_produk, subtotal_harga)
+                VALUES (?, ?, ?, ?, ?, ?)
             ";
             $stmtDet = sqlsrv_query($conn, $sqlDet, [
-                $idPenjualan, $idProduk, $jumlah, $hargaProduk, $subtotal
+                $idPenjualan, $idProduk, $idProdukEvent, $jumlah, $hargaProduk, $subtotal
             ]);
             if (!$stmtDet) {
                 sqlsrv_rollback($conn);
-                echo json_encode(['success' => false, 'message' => 'Failed to insert order detail.']); exit;
+                $dbErrors = sqlsrv_errors();
+                echo json_encode(['success' => false, 'message' => $dbErrors[0]['message'] ?? 'Failed to insert order detail.']); exit;
             }
             sqlsrv_free_stmt($stmtDet);
-
-            // Deduct event stock
-            $sqlDeduct = "
-                UPDATE [CardHaven].[dbo].[produk_event]
-                SET stok_event = stok_event - ?
-                WHERE id_produk = ? AND id_event = ?
-                  AND ISNULL(is_deleted, 0) = 0
-            ";
-            $stmtDeduct = sqlsrv_query($conn, $sqlDeduct, [$jumlah, $idProduk, $idEvent]);
-            if (!$stmtDeduct) {
-                sqlsrv_rollback($conn);
-                echo json_encode(['success' => false, 'message' => 'Failed to update stock.']); exit;
-            }
-            sqlsrv_free_stmt($stmtDeduct);
         }
 
         sqlsrv_commit($conn);
