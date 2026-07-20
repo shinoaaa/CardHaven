@@ -115,7 +115,11 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="QTY">Quantity</option>
                             </select>
 
-                            <button id="btnSortOrder" class="btn-sort-small" onclick="toggleSortOrder()" style="margin-left: 5px; width: 120px;">Descending ↓</button>
+                            <button id="btnSortOrder" class="sort-btn" onclick="toggleSortOrder()" title="Change Ascending/Descending" style="margin-left: 5px;">
+                                <svg id="sortOrderIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
@@ -209,7 +213,11 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="QTY">Quantity</option>
                             </select>
 
-                            <button id="btnSortOrder" class="btn-sort-small" onclick="toggleSortOrder()" style="margin-left: 5px; width: 120px;">Descending ↓</button>
+                            <button id="btnSortOrder" class="sort-btn" onclick="toggleSortOrder()" title="Change Ascending/Descending" style="margin-left: 5px;">
+                                <svg id="sortOrderIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
@@ -302,7 +310,11 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="QTY">Quantity</option>
                             </select>
 
-                            <button id="btnSortOrder" class="btn-sort-small" onclick="toggleSortOrder()" style="margin-left: 5px; width: 120px;">Descending ↓</button>
+                            <button id="btnSortOrder" class="sort-btn" onclick="toggleSortOrder()" title="Change Ascending/Descending" style="margin-left: 5px;">
+                                <svg id="sortOrderIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">
@@ -395,7 +407,11 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="QTY">Quantity</option>
                             </select>
 
-                            <button id="btnSortOrder" class="btn-sort-small" onclick="toggleSortOrder()" style="margin-left: 5px; width: 120px;">Descending ↓</button>
+                            <button id="btnSortOrder" class="sort-btn" onclick="toggleSortOrder()" title="Change Ascending/Descending" style="margin-left: 5px;">
+                                <svg id="sortOrderIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">

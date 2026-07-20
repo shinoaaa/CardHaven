@@ -440,10 +440,12 @@ function toggleTrxOrder() {
     const current = url.searchParams.get('sort_order') || 'DESC'; 
     const nextOrder = current === 'ASC' ? 'DESC' : 'ASC';
     
-    const btn = document.getElementById('btnSortOrder');
-    if(btn) btn.textContent = nextOrder === 'ASC' ? 'Ascending ↑' : 'Descending ↓';
-    
-    trxNavigate({ sort_order: nextOrder }); 
+    const icon = document.getElementById('trxSortIcon');
+    if(icon) icon.innerHTML = nextOrder === 'ASC'
+        ? '<path d="M12 19V5M5 12l7-7 7 7"/>'
+        : '<path d="M12 5v14M19 12l-7 7-7-7"/>';
+
+    trxNavigate({ sort_order: nextOrder });
 }
 
 // ════════════════════════════════════════════════════════════════════════════

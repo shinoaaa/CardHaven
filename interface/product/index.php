@@ -138,6 +138,7 @@ require_once 'components/fetch_dashboard.php';
 
     <?php include 'components/modal.php'; ?>
 
+    <script src="/cardhaven/interface/add_product_shortcut.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/master_filter.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/produk_script.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/product/set_script.js?v=<?= time() ?>"></script>

@@ -37,7 +37,10 @@
         </table>
 
         <div id="errNoItems" style="color:#E74C3C; font-size:0.8rem; margin-top:8px; display:none;">Add at least one item.</div>
-        <button type="button" class="btn-cancel-outline" style="margin-top:10px;" onclick="addItemRow()">+ Add Item</button>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:10px;">
+            <button type="button" class="btn-cancel-outline" onclick="addItemRow()">+ Add Item</button>
+            <button type="button" class="btn-cancel-outline" onclick="startAddProductFromRestok()" title="Create a brand-new product, then come back here">+ Add New Product</button>
+        </div>
 
         <div class="modal-footer" style="gap: 0.75rem; margin-top: 20px;">
             <button class="btn-cancel-outline" onclick="closeAddRestokModal()">Cancel</button>

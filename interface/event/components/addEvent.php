@@ -62,7 +62,11 @@
             
             <div class="ae-product-search-wrap">
                 <div class="ae-field" style="flex:1; margin-bottom:0;">
-                    <label class="ae-label">Search Product</label>
+                    <label class="ae-label" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Search Product</span>
+                        <button type="button" onclick="aeStartAddProduct()" title="Create a brand-new product, then come back here"
+                            style="background:none; border:none; color:var(--primary-color,#173C99); font-weight:700; font-size:0.72rem; cursor:pointer; padding:0;">+ New Product</button>
+                    </label>
                     <input id="ae_search_produk" type="text" class="ae-input" placeholder="Type product name..."
                     oninput="aeDebounceSearch()" autocomplete="off">
                     <div id="ae_search_results" class="ae-search-dropdown"></div>

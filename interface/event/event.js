@@ -165,6 +165,41 @@ function _aeForceClose() {
     document.body.style.overflow = '';
 }
 
+// ── "Add New Product" shortcut (Add Event) ────────────────────────────────────
+function aeCollectState() {
+    return {
+        nama_event:       document.getElementById('ae_nama_event')?.value      ?? '',
+        tipe_event:       document.getElementById('ae_tipe_event')?.value      ?? '',
+        tanggal_mulai:    document.getElementById('ae_tanggal_mulai')?.value    ?? '',
+        tanggal_berakhir: document.getElementById('ae_tanggal_berakhir')?.value ?? '',
+        tanggal_sampai:   document.getElementById('ae_tanggal_sampai')?.value   ?? '',
+        persen_diskon:    document.getElementById('ae_persen_diskon')?.value    ?? '',
+        maks_pembelian:   document.getElementById('ae_maks_pembelian')?.value   ?? '',
+        productList:      aeProductList,
+    };
+}
+
+function aeStartAddProduct() {
+    chStartAddProductShortcut({ origin: 'addevent', state: aeCollectState() });
+}
+
+// Restore a previously captured Add Event form (called after returning from the
+// Product page). Assumes the Add Event modal HTML is already in the DOM.
+function aeRestoreState(state) {
+    if (!state) return;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+    set('ae_nama_event',       state.nama_event);
+    set('ae_tipe_event',       state.tipe_event);
+    set('ae_tanggal_mulai',    state.tanggal_mulai);
+    set('ae_tanggal_berakhir', state.tanggal_berakhir);
+    set('ae_tanggal_sampai',   state.tanggal_sampai);
+    set('ae_persen_diskon',    state.persen_diskon);
+    set('ae_maks_pembelian',   state.maks_pembelian);
+    aeProductList = Array.isArray(state.productList) ? state.productList : [];
+    aeOnTypeChange();          // show/hide pre-order arrival row
+    aeRenderProductTable();
+}
+
 function _aeHasAnyInput() {
     const fields = [
         'ae_nama_event', 'ae_tipe_event', 'ae_tanggal_mulai',
@@ -600,6 +635,38 @@ function eeOnTypeChange() {
     if (rowSampai) {
         rowSampai.style.display = (type === 'preorder') ? '' : 'none';
     }
+}
+
+// ── "Add New Product" shortcut (Edit Event) ───────────────────────────────────
+// Event products are already persisted server-side; we only preserve the (as yet
+// unsaved) header field edits so nothing typed is lost during the round-trip.
+function eeCollectState() {
+    return {
+        nama_event:       document.getElementById('ee_nama_event')?.value      ?? '',
+        tipe_event:       document.getElementById('ee_tipe_event')?.value      ?? '',
+        tanggal_mulai:    document.getElementById('ee_tanggal_mulai')?.value    ?? '',
+        tanggal_berakhir: document.getElementById('ee_tanggal_berakhir')?.value ?? '',
+        tanggal_sampai:   document.getElementById('ee_tanggal_sampai')?.value   ?? '',
+        persen_diskon:    document.getElementById('ee_persen_diskon')?.value    ?? '',
+        maks_pembelian:   document.getElementById('ee_maks_pembelian')?.value   ?? '',
+    };
+}
+
+function eeStartAddProduct(idEvent) {
+    chStartAddProductShortcut({ origin: 'editevent', eventId: idEvent, state: eeCollectState() });
+}
+
+function eeRestoreState(state) {
+    if (!state) return;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+    set('ee_nama_event',       state.nama_event);
+    set('ee_tipe_event',       state.tipe_event);
+    set('ee_tanggal_mulai',    state.tanggal_mulai);
+    set('ee_tanggal_berakhir', state.tanggal_berakhir);
+    set('ee_tanggal_sampai',   state.tanggal_sampai);
+    set('ee_persen_diskon',    state.persen_diskon);
+    set('ee_maks_pembelian',   state.maks_pembelian);
+    eeOnTypeChange();
 }
 
 function eeOnStartDateChange() {
@@ -1412,6 +1479,46 @@ function renderPaginationUI(current, total) {
 }
 
 // Jalankan ketika halaman ter-load
+// ── Return from the "Add New Product" shortcut ────────────────────────────────
+// Look up the freshly-created product by name and pre-select it in the event's
+// Search Product box (staff then enter the event stock and click "+ Add Product").
+async function chEventSelectNewProduct(newProd, prefix) {
+    try {
+        const res  = await fetch(`${SEARCH_URL}?action=search_produk&q=${encodeURIComponent(newProd.nama_produk)}`);
+        const list = await res.json();
+        if (!Array.isArray(list) || list.length === 0) return;
+        const wanted = newProd.nama_produk.trim().toLowerCase();
+        const match  = list.find(p => (p.nama_produk || '').trim().toLowerCase() === wanted) || list[0];
+        if (prefix === 'ae') {
+            aeSelectProduct(match.id_produk, match.nama_produk, match.harga_jual, match.stok);
+        } else {
+            eeSelectProduct(match.id_produk, match.nama_produk, match.harga_jual, match.stok);
+        }
+    } catch (e) {
+        console.error('[Event shortcut] product lookup failed', e);
+    }
+}
+
+async function chHandleEventReturn() {
+    if (typeof chGetReturnCtx !== 'function') return;
+    const apCtx = chGetReturnCtx();
+    if (!apCtx) return;
+
+    if (apCtx.origin === 'addevent') {
+        await openAddEventModal();
+        aeRestoreState(apCtx.state || {});
+        const newProd = chGetNewProduct();
+        if (newProd) await chEventSelectNewProduct(newProd, 'ae');
+        chClearShortcut();
+    } else if (apCtx.origin === 'editevent') {
+        await openEditModal(apCtx.eventId);
+        eeRestoreState(apCtx.state || {});
+        const newProd = chGetNewProduct();
+        if (newProd) await chEventSelectNewProduct(newProd, 'ee');
+        chClearShortcut();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     parseInitialUrl();
 
@@ -1424,4 +1531,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    chHandleEventReturn();
 });

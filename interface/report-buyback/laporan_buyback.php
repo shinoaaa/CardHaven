@@ -46,7 +46,11 @@
                             <option value="12">December</option>
                         </select>
 
-                        <button id="btnSort" class="btn-sort-small" onclick="toggleSort()">Newest</button>
+                        <button id="btnSort" class="sort-btn" onclick="toggleSort()" title="Change Ascending/Descending">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14M19 12l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
 
                     <div class="export-group" style="display: flex; gap: 10px; flex-shrink: 0;">

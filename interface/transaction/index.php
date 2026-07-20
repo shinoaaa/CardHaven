@@ -328,8 +328,10 @@ if (isset($conn) && $conn !== false) {
                             <option value="QTY"   <?= $activeSortBy === 'QTY'   ? 'selected' : '' ?>>Sort: Items</option>
                         </select>
 
-                        <button id="btnSortOrder" onclick="toggleTrxOrder()" style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color); <?= $trxPill ?>">
-                            <?= $activeSortOrder === 'ASC' ? 'Ascending ↑' : 'Descending ↓' ?>
+                        <button id="btnSortOrder" class="sort-btn" onclick="toggleTrxOrder()" title="Change Ascending/Descending">
+                            <svg id="trxSortIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="<?= $activeSortOrder === 'ASC' ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M19 12l-7 7-7-7' ?>"/>
+                            </svg>
                         </button>
                     </div>
 

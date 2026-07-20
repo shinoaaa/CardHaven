@@ -109,6 +109,7 @@ $sort   = $_GET['sort'] ?? 'date';
     </div>
 
     <!-- MURNI PANGGIL DARI FILE TERPISAH -->
+    <script src="/cardhaven/interface/add_product_shortcut.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/event/event.js"></script>
 </body>
 </html>

@@ -210,9 +210,19 @@ document.getElementById('productForm').onsubmit = async function(e) {
         const res = JSON.parse(await response.text());
 
         if (res.status === 'success') {
+            const apCtx = (typeof chGetReturnCtx === 'function') ? chGetReturnCtx() : null;
             cardhavenAlert('success', 'Success', 'Product data saved successfully.', () => {
-                document.getElementById('productModal').style.display = 'none'; 
-                setTimeout(() => { location.reload(); }, 300);
+                document.getElementById('productModal').style.display = 'none';
+                if (apCtx) {
+                    // Shortcut flow: remember the new product and return to the origin modal.
+                    chSetNewProduct({
+                        nama_produk: (document.getElementById('pNama').value || '').trim(),
+                        id_supplier: (document.getElementById('pIdSupplier').value || '').toString(),
+                    });
+                    window.location.href = apCtx.returnUrl;
+                } else {
+                    setTimeout(() => { location.reload(); }, 300);
+                }
             });
         } else {
             cardhavenAlert('error', 'Failed', res.message);
@@ -431,24 +441,27 @@ function openDetailProductModal(id) {
         });
 }
 
-window.addEventListener('click', function(e) { 
+window.addEventListener('click', function(e) {
     const md = document.getElementById('productModal');
     if (md && e.target === md) {
+        const apCtx = (typeof chGetReturnCtx === 'function') ? chGetReturnCtx() : null;
         const nama = document.getElementById('pNama').value.trim();
         if (nama !== '') {
             md.style.display = 'none'; // Sembunyikan form seketika
             let isConfirmed = false;
-            
+
             const actionText = document.getElementById('pAction').value === 'edit' ? 'Edit' : 'Add';
             // Gunakan fungsi bawaan sistem Anda
             cardhavenConfirm(
-                `Cancel ${actionText} Product?`, 
+                `Cancel ${actionText} Product?`,
                 "The data you have entered will be lost.",
-                "Yes, Exit", 
+                "Yes, Exit",
                 () => {
                     isConfirmed = true;
                     document.getElementById('productForm').reset();
                     clearAllErrors('productForm');
+                    // Shortcut flow: go back to the origin modal (nothing added).
+                    if (apCtx) window.location.href = apCtx.returnUrl;
                 }
             );
 
@@ -461,10 +474,30 @@ window.addEventListener('click', function(e) {
             }, 15);
         } else {
             md.style.display = 'none';
+            // Shortcut flow with an empty form: just return to the origin modal.
+            if (apCtx) window.location.href = apCtx.returnUrl;
         }
-    } 
-    const mdDetail = document.getElementById('productDetailModal'); 
+    }
+    const mdDetail = document.getElementById('productDetailModal');
     if (mdDetail && e.target === mdDetail) mdDetail.style.display = 'none';
+});
+
+// ── "Add New Product" shortcut: auto-open the Add Product modal when we arrived
+//    here from an Add PO / Add Event / Edit Event flow. ────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof chGetReturnCtx !== 'function') return;
+    const apCtx = chGetReturnCtx();
+    if (!apCtx) return;
+
+    openAddProductModal();
+
+    // For Add PO, lock the new product to the PO's supplier.
+    if (apCtx.origin === 'addpo' && apCtx.supplier) {
+        const sName = document.getElementById('pSupplierSearch');
+        const sId   = document.getElementById('pIdSupplier');
+        if (sName) sName.value = apCtx.supplier.name || '';
+        if (sId)   sId.value   = apCtx.supplier.id   || '';
+    }
 });
 
 document.addEventListener('DOMContentLoaded', () => {

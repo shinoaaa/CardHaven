@@ -78,8 +78,11 @@ $BUYBACK_STATUS = [
                             <option value="QTY">Sort: Total Items</option>
                         </select>
 
-                        <button id="btnRestokSortOrder" class="purchase-filter-input" onclick="toggleRestokSortOrder()"
-                            style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color);">Descending ↓</button>
+                        <button id="btnRestokSortOrder" class="sort-btn" onclick="toggleRestokSortOrder()" title="Change Ascending/Descending">
+                            <svg id="restokSortIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14M19 12l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
 
                     <input type="text" id="searchInput" class="purchase-filter-input" placeholder="Search supplier or PO ID..."
@@ -125,8 +128,11 @@ $BUYBACK_STATUS = [
                             <option value="PRICE">Sort: Total Offer</option>
                         </select>
 
-                        <button id="btnBuybackSortOrder" class="purchase-filter-input" onclick="toggleBuybackSortOrder()"
-                            style="width:150px; cursor:pointer; font-weight:700; color:var(--primary-color);">Descending ↓</button>
+                        <button id="btnBuybackSortOrder" class="sort-btn" onclick="toggleBuybackSortOrder()" title="Change Ascending/Descending">
+                            <svg id="buybackSortIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14M19 12l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
 
                     <input type="text" id="buybackSearch" class="purchase-filter-input" placeholder="Search customer, order ID, date, or offer..."
@@ -158,6 +164,7 @@ $BUYBACK_STATUS = [
     <?php if ($type === 'restok'): ?>
         <?php include 'modal_restok.php'; ?>
         <?php include 'modal_add_restok.php'; ?>
+        <script src="/cardhaven/interface/add_product_shortcut.js?v=<?= time() ?>"></script>
         <script src="/cardhaven/interface/purchase/restok_script.js?v=<?= time() ?>"></script>
 
     <?php elseif ($type === 'buyback'): ?>

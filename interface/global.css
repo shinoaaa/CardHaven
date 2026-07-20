@@ -12,6 +12,19 @@
     }
 }
 
+/* Shared ascending/descending sort toggle button (samakan seperti Event) */
+.sort-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--primary-color, #173C99);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+.sort-btn svg { display: block; }
+
 
 @media screen and (max-width: 768px) {
     html {

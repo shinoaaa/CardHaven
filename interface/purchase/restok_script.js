@@ -69,8 +69,10 @@ function changeRestokSort() {
 
 function toggleRestokSortOrder() {
     restokSortOrder = restokSortOrder === 'DESC' ? 'ASC' : 'DESC';
-    const btn = document.getElementById('btnRestokSortOrder');
-    if (btn) btn.innerHTML = restokSortOrder === 'DESC' ? 'Descending ↓' : 'Ascending ↑';
+    const icon = document.getElementById('restokSortIcon');
+    if (icon) icon.innerHTML = restokSortOrder === 'ASC'
+        ? '<path d="M12 19V5M5 12l7-7 7 7"/>'
+        : '<path d="M12 5v14M19 12l-7 7-7-7"/>';
     applyRestokFilter(1);
 }
 
@@ -311,6 +313,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Shortcut dari dashboard Activity: buka modal PO langsung via ?open_restok=<id>
     const openId = new URLSearchParams(window.location.search).get('open_restok');
     if (openId) openRestokModal(parseInt(openId));
+
+    // Return from the "Add New Product" shortcut: re-open Add PO, restore the
+    // previous form, and add the freshly-created product as a new row.
+    if (typeof chGetReturnCtx === 'function') {
+        const apCtx = chGetReturnCtx();
+        if (apCtx && apCtx.origin === 'addpo') {
+            restoreRestokState(apCtx.state || {});
+            const newProd = chGetNewProduct();
+            if (newProd) injectNewRestokProduct(newProd);
+            chClearShortcut();
+        }
+    }
 });
 
 // Klik di luar modal box (di area overlay) untuk menutup, sama seperti modul Product
@@ -456,6 +470,89 @@ function setupProdukSuggest(rowId) {
 
 function closeAddRestokModal() {
     document.getElementById('addRestokModal').style.display = 'none';
+}
+
+// ─── ADD PO: "Add New Product" shortcut ──────────────────────────────────────
+// Snapshot the current Add PO form so it can be restored after the round-trip.
+function collectRestokState() {
+    const rows = [];
+    document.querySelectorAll('#addItemsBody tr.item-row').forEach(tr => {
+        const n = tr.id.replace('itemRow', '');
+        rows.push({
+            id:    document.getElementById(`produkId${n}`)?.value || '',
+            name:  document.getElementById(`produkSearch${n}`)?.value || '',
+            qty:   document.getElementById(`qty${n}`)?.value || '1',
+            harga: document.getElementById(`harga${n}`)?.value || '0',
+        });
+    });
+    return {
+        supplierId:   document.getElementById('addIdSupplier')?.value || '',
+        supplierName: document.getElementById('addSupplierSearch')?.value || '',
+        rows,
+    };
+}
+
+function startAddProductFromRestok() {
+    const idSupplier = document.getElementById('addIdSupplier')?.value || '';
+    if (!idSupplier) {
+        cardhavenAlert('error', 'Select a Supplier First',
+            'Please choose a supplier before adding a new product, so it is linked to this PO.');
+        return;
+    }
+    const state = collectRestokState();
+    chStartAddProductShortcut({
+        origin: 'addpo',
+        supplier: { id: state.supplierId, name: state.supplierName },
+        state,
+    });
+}
+
+// Re-open the Add PO modal and restore a previously captured state.
+function restoreRestokState(state) {
+    openAddRestokModal();                       // resets + adds 1 empty row
+    document.getElementById('addItemsBody').innerHTML = '';
+    itemRowCount = 0;
+
+    if (state.supplierName) document.getElementById('addSupplierSearch').value = state.supplierName;
+    if (state.supplierId)   document.getElementById('addIdSupplier').value = state.supplierId;
+
+    const rows = Array.isArray(state.rows) ? state.rows : [];
+    if (rows.length === 0) {
+        addItemRow();
+    } else {
+        rows.forEach(r => {
+            addItemRow();
+            const n = itemRowCount;
+            document.getElementById(`produkSearch${n}`).value = r.name || '';
+            document.getElementById(`produkId${n}`).value     = r.id || '';
+            document.getElementById(`qty${n}`).value          = r.qty || '1';
+            document.getElementById(`harga${n}`).value        = r.harga || '0';
+            recalcRow(n);
+        });
+    }
+}
+
+// Add a freshly-created product (looked up by name for this supplier) as a new row.
+function injectNewRestokProduct(newProd) {
+    const idSupplier = document.getElementById('addIdSupplier')?.value || '';
+    if (!newProd || !newProd.nama_produk || !idSupplier) return;
+
+    fetch(`${API}?action=search_produk&search_produk=${encodeURIComponent(newProd.nama_produk)}&id_supplier=${idSupplier}&actor_id=${ACTOR_ID}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!Array.isArray(data) || data.length === 0) return;
+            const wanted = newProd.nama_produk.trim().toLowerCase();
+            const match = data.find(p => (p.nama_produk || '').trim().toLowerCase() === wanted) || data[0];
+
+            addItemRow();
+            const n = itemRowCount;
+            document.getElementById(`produkSearch${n}`).value = match.nama_produk;
+            document.getElementById(`produkId${n}`).value     = match.id_produk;
+            document.getElementById(`qty${n}`).value          = 1;
+            document.getElementById(`harga${n}`).value        = match.harga_beli ?? 0;
+            recalcRow(n);
+        })
+        .catch(() => {});
 }
 
 // ─── ADD PO: baris item dinamis ──────────────────────────────────────────────

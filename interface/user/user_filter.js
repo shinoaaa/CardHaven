@@ -53,7 +53,7 @@ class UserMasterFilter {
         html += c.sortOptions.map(o => `<option value="${o.val}">${o.label}</option>`).join('') + `</select>`;
         
         // Order Direction (↑↓)
-        html += `<button type="button" class="mf-order" title="Change Order" style="${baseStyle} padding:6px 10px; cursor:pointer; font-weight:bold; width:40px;">↑</button>`;
+        html += `<button type="button" class="mf-order sort-btn" title="Change Ascending/Descending"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="${this.state.sort_order === 'ASC' ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M19 12l-7 7-7-7'}"/></svg></button>`;
         
         // Status Filter
         
@@ -72,7 +72,7 @@ class UserMasterFilter {
         });
         tb.querySelector('.mf-order').addEventListener('click', function() {
             self.state.sort_order = self.state.sort_order === 'ASC' ? 'DESC' : 'ASC';
-            this.textContent = self.state.sort_order === 'ASC' ? '↑' : '↓';
+            this.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="${self.state.sort_order === 'ASC' ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M19 12l-7 7-7-7'}"/></svg>`;
             self.load();
         });
         tb.querySelector('.mf-status').addEventListener('change', function() {
