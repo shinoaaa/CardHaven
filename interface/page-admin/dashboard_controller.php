@@ -1,11 +1,21 @@
 <?php
 // Endpoint JSON untuk Activity Dashboard (kartu statistik, grouped bar chart, recent activity).
 // Semua data diambil lewat SP/UDF (tanpa query inline).
-session_start();
 ini_set('display_errors', 0);
 error_reporting(0);
 header('Content-Type: application/json');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/connection.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/CardHaven/auth/session.php';
+
+// Endpoint khusus pegawai. Role dibaca dari session, bukan dari URL.
+$authUser = auth_api_require_role(auth_staff_roles());
+
+// Employee (1) tidak punya akses menu 'purchase' (Buyback/Restock), jadi
+// shortcut Recent Activity untuk mereka dibatasi hanya Sales — kalau tidak,
+// klik item Buyback/Restock akan dipental balik oleh auth_require_role().
+// Manager (2) & Owner (3) tetap melihat ketiganya.
+$canSeePurchase = in_array($authUser['role'], [ROLE_MANAGER, ROLE_OWNER], true);
+$salesOnly = $canSeePurchase ? 0 : 1;
 
 ob_start();
 
@@ -56,7 +66,7 @@ try {
     // ── 15 transaksi terbaru gabungan
     if ($action === 'recent') {
         $limit = max(1, (int)($_GET['limit'] ?? 15));
-        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetRecentActivity(?)}', [$limit]);
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetRecentActivity(?, ?)}', [$limit, $salesOnly]);
         if ($stmt === false) throw new Exception('Failed to load recent activity.');
         $rows = [];
         while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
