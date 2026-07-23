@@ -97,6 +97,23 @@
         </div>
 
         <div class="ae-table-col">
+            <!-- Banner upload: SELALU tampil, di atas tabel -->
+            <div class="ae-banner-wrap">
+                <label class="ae-label">Event Banner <small style="font-weight:400;color:#888;">(optional)</small></label>
+                <label for="ae_banner_input" class="ae-banner-drop" id="ae_banner_drop">
+                    <img id="ae_banner_preview" alt="banner preview">
+                    <div class="ae-banner-placeholder" id="ae_banner_placeholder">
+                        <span style="font-size:26px; line-height:1;">🖼️</span>
+                        <span style="font-weight:700; font-size:13px; color:#333;">Upload Banner</span>
+                        <small style="color:#8a97b5;">JPG / PNG / WEBP · max 3 MB</small>
+                    </div>
+                    <button type="button" class="ae-banner-remove" id="ae_banner_remove" onclick="aeRemoveBanner(event)" title="Remove banner">&times;</button>
+                </label>
+                <input type="file" id="ae_banner_input" accept="image/png,image/jpeg,image/webp" onchange="aePreviewBanner(this)" style="display:none;">
+                <span class="ae-error" id="err_banner"></span>
+            </div>
+
+            <!-- Tabel produk: hanya muncul setelah ada produk ditambahkan -->
             <div id="ae_product_table_wrap" style="display:none;">
                 <table class="ae-product-table">
                     <thead>
@@ -146,16 +163,42 @@
 }
 .ae-form-col { width: 460px; flex: 0 0 460px; min-width: 0; }
 .ae-table-col {
-    flex: 0 1 400px;
+    flex: 0 0 360px;
     min-width: 0;
-    margin-top: 58px;   /* sejajar dengan baris field pertama (di bawah judul) */
+    margin-top: 44px;   /* sejajar dengan baris field pertama (di bawah judul) */
 }
+
+/* ── Banner upload (dropzone + preview) ── */
+.ae-banner-wrap { margin-bottom: 18px; }
+.ae-banner-drop {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; height: 170px; margin-top: 5px;
+    border: 1.5px dashed #b9c6de; border-radius: 12px;
+    background: #f7faff; cursor: pointer; overflow: hidden;
+    transition: border-color .15s, background .15s;
+}
+.ae-banner-drop:hover { border-color: #1284ff; background: #eef4ff; }
+.ae-banner-drop img { display: none; width: 100%; height: 100%; object-fit: cover; }
+.ae-banner-drop.has-img img { display: block; }
+.ae-banner-drop.has-img .ae-banner-placeholder { display: none; }
+.ae-banner-placeholder { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; pointer-events: none; }
+.ae-banner-remove {
+    display: none; position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%; border: none;
+    background: rgba(231,76,60,.92); color: #fff; font-size: 16px; cursor: pointer;
+    align-items: center; justify-content: center; line-height: 1;
+}
+.ae-banner-drop.has-img .ae-banner-remove { display: flex; }
+
+/* ── Tabel produk: header nempel (sticky) + scroll setelah ~3 baris ── */
 #ae_product_table_wrap {
-    max-height: 13rem;
+    max-height: 12rem;     /* header + ~3 baris penuh; sisanya discroll */
     overflow-y: auto;
     border: 1px solid #eef2f8;
     border-radius: 12px;
 }
+.ae-product-table thead th { position: sticky; top: 0; z-index: 2; }
 @media screen and (max-width: 768px) {
     .ae-body-split { flex-direction: column; gap: 12px; }
     .ae-table-col  { flex: 1 1 auto; width: 100%; margin-top: 0; }

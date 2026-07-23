@@ -165,6 +165,45 @@ function _aeForceClose() {
     document.body.style.overflow = '';
 }
 
+// ── Banner upload (Add Event) ─────────────────────────────────────────────────
+function aePreviewBanner(input) {
+    const errEl   = document.getElementById('err_banner');
+    if (errEl) errEl.textContent = '';
+    const drop    = document.getElementById('ae_banner_drop');
+    const preview = document.getElementById('ae_banner_preview');
+    const file    = input.files && input.files[0];
+    if (!file) return;
+
+    const okTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!okTypes.includes(file.type)) {
+        if (errEl) errEl.textContent = 'Banner must be a JPG, PNG, or WEBP image.';
+        input.value = '';
+        return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+        if (errEl) errEl.textContent = 'Banner is too large (max 3 MB).';
+        input.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        if (preview) preview.src = e.target.result;
+        if (drop)    drop.classList.add('has-img');
+    };
+    reader.readAsDataURL(file);
+}
+
+function aeRemoveBanner(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const input   = document.getElementById('ae_banner_input');
+    const preview = document.getElementById('ae_banner_preview');
+    const drop    = document.getElementById('ae_banner_drop');
+    if (input)   input.value = '';
+    if (preview) preview.src = '';
+    if (drop)    drop.classList.remove('has-img');
+}
+
 // ── "Add New Product" shortcut (Add Event) ────────────────────────────────────
 function aeCollectState() {
     return {
@@ -572,28 +611,36 @@ async function aeSubmitEvent() {
     // 4. Bandingkan secara matematis (Date object)
     const statusEvent = (eventDate > todayDate) ? 2 : 1;
 
-    const payload = {
-        nama_event:       nama,
-        tipe_event:       tipe,
-        tanggal_mulai:    mulai,
-        tanggal_berakhir: berakhir,
-        tanggal_sampai:   sampai || null,
-        persen_diskon:    parseFloat(diskon),
-        maks_pembelian:   parseInt(maks, 10),
-        status_event:     statusEvent, // <-- Lempar status ke PHP
-        id_karyawan:      CardHavenAuth.id() || null,
-        products: aeProductList.map(p => ({
-            id_produk:   p.id_produk,
-            harga_event: Math.round(((100 - parseFloat(diskon)) * p.harga_jual) / 100),
-            stok_event:  p.stok_event
-        }))
-    };
-    
+    const products = aeProductList.map(p => ({
+        id_produk:   p.id_produk,
+        harga_event: Math.round(((100 - parseFloat(diskon)) * p.harga_jual) / 100),
+        stok_event:  p.stok_event
+    }));
+
+    // FormData supaya bisa membawa file banner sekaligus. products dikirim sebagai
+    // string JSON, di-decode lagi di controllerAdd.php.
+    const fd = new FormData();
+    fd.append('nama_event',       nama);
+    fd.append('tipe_event',       tipe);
+    fd.append('tanggal_mulai',    mulai);
+    fd.append('tanggal_berakhir', berakhir);
+    fd.append('tanggal_sampai',   sampai || '');
+    fd.append('persen_diskon',    parseFloat(diskon));
+    fd.append('maks_pembelian',   parseInt(maks, 10));
+    fd.append('status_event',     statusEvent);
+    fd.append('id_karyawan',      CardHavenAuth.id() || '');
+    fd.append('products',         JSON.stringify(products));
+
+    const bannerInput = document.getElementById('ae_banner_input');
+    if (bannerInput && bannerInput.files && bannerInput.files[0]) {
+        fd.append('banner', bannerInput.files[0]);
+    }
+
     try {
+        // Tidak set Content-Type manual — browser mengatur multipart boundary otomatis.
         const res = await fetch(ADD_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: fd
         });
         const data = await res.json();
 
