@@ -147,6 +147,12 @@ function escHtml($str) {
 <?php
     $event = $row['event'] ?? $row;
     $products = $products ?? [];
+    // sp_GetEventDetail tidak mengembalikan foto_banner, jadi ambil lewat query ringan.
+    $curBanner = '';
+    $stmtBan = sqlsrv_query($conn, "SELECT foto_banner FROM dbo.event WHERE id_event = ?", [$id]);
+    if ($stmtBan && ($rowBan = sqlsrv_fetch_array($stmtBan, SQLSRV_FETCH_ASSOC))) {
+        $curBanner = trim((string)($rowBan['foto_banner'] ?? ''));
+    }
 ?>
 <div class="ee-card">
     <div class="ee-header">
@@ -156,8 +162,8 @@ function escHtml($str) {
 
     <div class="ee-code">EVN-<?= (int)$id ?></div>
 
-    <div style="display: flex; gap: 1rem;">
-        <div>
+    <div class="ee-body-split">
+        <div class="ee-form-col">
             <div class="ee-grid-2">
                 <div class="ee-field">
                     <label class="ee-label">Event Name <span class="ee-required">*</span></label>
@@ -265,9 +271,27 @@ function escHtml($str) {
             </div>
         </div>
 
-        <?php if (count($products) > 0): ?>
-            <div style="display: flex; align-items: center; margin-bottom: 75px;">
-                <div style="height: 13rem; overflow-y: auto; padding: 0px 10px; margin: 0 12px;" class="main-content">
+        <div class="ee-table-col">
+            <!-- Banner: SELALU tampil, di atas tabel. Kalau event sudah punya banner,
+                 langsung ditampilkan sebagai preview. -->
+            <div class="ee-banner-wrap">
+                <label class="ee-label">Event Banner <small style="font-weight:400;color:#888;">(optional)</small></label>
+                <label for="ee_banner_input" class="ee-banner-drop <?= $curBanner ? 'has-img' : '' ?>" id="ee_banner_drop">
+                    <img id="ee_banner_preview" alt="banner preview" <?= $curBanner ? 'src="/CardHaven/' . escHtml($curBanner) . '"' : '' ?>>
+                    <div class="ee-banner-placeholder" id="ee_banner_placeholder">
+                        <span style="font-size:26px; line-height:1;">🖼️</span>
+                        <span style="font-weight:700; font-size:13px; color:#333;">Upload Banner</span>
+                        <small style="color:#8a97b5;">JPG / PNG / WEBP · max 3 MB</small>
+                    </div>
+                    <button type="button" class="ee-banner-remove" id="ee_banner_remove" onclick="eeRemoveBanner(event)" title="Remove banner">&times;</button>
+                </label>
+                <input type="file" id="ee_banner_input" accept="image/png,image/jpeg,image/webp" onchange="eePreviewBanner(this)" style="display:none;">
+                <input type="hidden" id="ee_banner_remove_flag" value="0">
+                <span class="ee-error" id="ee_err_banner"></span>
+            </div>
+
+            <?php if (count($products) > 0): ?>
+            <div id="ee_product_table_wrap">
                     <table class="ee-product-table">
                         <thead>
                             <tr>
@@ -309,9 +333,9 @@ function escHtml($str) {
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                </div>
             </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </div>
 
     <div class="ee-footer">
@@ -331,6 +355,49 @@ function escHtml($str) {
 }
 .ee-title-black { color: #1a1a1a; }
 .ee-title-blue  { color: #1284ff; }
+
+/* ── layout 2 kolom: form (kiri) + banner/tabel (kanan) ── */
+.ee-body-split { display: flex; gap: 24px; align-items: flex-start; }
+.ee-form-col { width: 460px; flex: 0 0 460px; min-width: 0; }
+.ee-table-col { flex: 0 0 360px; min-width: 0; margin-top: 40px; }
+
+/* ── Banner upload (dropzone + preview) ── */
+.ee-banner-wrap { margin-bottom: 18px; }
+.ee-banner-drop {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; height: 170px; margin-top: 5px;
+    border: 1.5px dashed #b9c6de; border-radius: 12px;
+    background: #f7faff; cursor: pointer; overflow: hidden;
+    transition: border-color .15s, background .15s;
+}
+.ee-banner-drop:hover { border-color: #1284ff; background: #eef4ff; }
+.ee-banner-drop img { display: none; width: 100%; height: 100%; object-fit: cover; }
+.ee-banner-drop.has-img img { display: block; }
+.ee-banner-drop.has-img .ee-banner-placeholder { display: none; }
+.ee-banner-placeholder { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; pointer-events: none; }
+.ee-banner-remove {
+    display: none; position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%; border: none;
+    background: rgba(231,76,60,.92); color: #fff; font-size: 16px; cursor: pointer;
+    align-items: center; justify-content: center; line-height: 1;
+}
+.ee-banner-drop.has-img .ee-banner-remove { display: flex; }
+
+/* ── Tabel produk: header sticky + scroll setelah ~3 baris ── */
+#ee_product_table_wrap {
+    max-height: 12rem;
+    overflow-y: auto;
+    border: 1px solid #eef2f8;
+    border-radius: 12px;
+}
+#ee_product_table_wrap .ee-product-table thead th { position: sticky; top: 0; z-index: 2; }
+
+@media screen and (max-width: 768px) {
+    .ee-body-split { flex-direction: column; gap: 12px; }
+    .ee-form-col, .ee-table-col { width: 100%; flex: 1 1 auto; margin-top: 0; }
+}
+
 .ee-code {
     text-align: center;
     font-weight: 700;
