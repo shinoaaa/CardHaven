@@ -93,13 +93,15 @@ try {
         exit;
     }
 
-    if (isset($_GET['get_games'])) {
-        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownGame('')}");
+    // Search-suggest game pada modal Set (menggantikan dropdown penuh).
+    if (isset($_GET['search_game'])) {
+        $keyword = trim($_GET['search_game']);
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetDropdownGame(?)}', [$keyword]);
         if ($stmt === false) throw new Exception('sp_GetDropdownGame query failed.');
         $games = [];
         while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $games[] = $row;
         ob_clean();
-        echo json_encode(['status' => 'success', 'data' => $games], JSON_UNESCAPED_UNICODE);
+        echo json_encode($games, JSON_UNESCAPED_UNICODE);
         exit;
     }
 

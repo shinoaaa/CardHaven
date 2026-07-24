@@ -317,18 +317,11 @@
 
             <div class="modal-form-group">
                 <label>Game <span style="color: #E74C3C;">*</span></label>
-                <select id="inputGameRarity" name="id_game" class="modal-input">
-                    <option value="">-- Select Game --</option>
-                    <?php
-                    $sql_dropdown_r = "SELECT id_game, nama_game FROM dbo.game WHERE aktif = 1 ORDER BY nama_game ASC";
-                    $stmt_dropdown_r = sqlsrv_query($conn, $sql_dropdown_r);
-                    if ($stmt_dropdown_r) {
-                        while ($rowGame = sqlsrv_fetch_array($stmt_dropdown_r, SQLSRV_FETCH_ASSOC)) {
-                            echo '<option value="' . htmlspecialchars($rowGame['id_game']) . '">' . htmlspecialchars($rowGame['nama_game']) . '</option>';
-                        }
-                    }
-                    ?>
-                </select>
+                <div style="position:relative;">
+                    <input type="text" id="rarityGameSearch" class="modal-input" placeholder="Type game name..." autocomplete="off">
+                    <input type="hidden" name="id_game" id="inputGameRarity">
+                    <div id="rarityGameSuggest" class="suggestion-box"></div>
+                </div>
                 <div class="error-message"></div>
             </div>
 
@@ -396,9 +389,11 @@
 
             <div class="modal-form-group">
                 <label>Game <span style="color:#E74C3C;">*</span></label>
-                <select name="id_game" id="setGameId" class="modal-input">
-                    <option value="">-- Select Game --</option>
-                </select>
+                <div style="position:relative;">
+                    <input type="text" id="setGameSearch" class="modal-input" placeholder="Type game name..." autocomplete="off">
+                    <input type="hidden" name="id_game" id="setGameId">
+                    <div id="setGameSuggest" class="suggestion-box"></div>
+                </div>
                 <div class="error-message"></div>
             </div>
 

@@ -45,8 +45,9 @@
                     </div>
                     
                     <div style="height: 80%; aspect-ratio: 1/1; display: flex; align-items: center;">
-                        <a href="/CardHaven/home/cart" style="height: 60%; aspect-ratio: 1/1; display: block;">
+                        <a href="/CardHaven/home/cart" style="height: 100%; aspect-ratio: 1/1; display: block; position: relative;">
                             <img src="/cardhaven/assets/image/cart.svg" style="object-fit: cover; width: 100%; height: 100%; cursor: pointer;" title="Shopping Cart">
+                            <span class="badge-cart" id="navCartBadge" style="display:none;">0</span>
                         </a>
                     </div>
                 </div>
@@ -219,6 +220,26 @@
         font-size: 0.75rem;
         padding: 2px 6px;
         border-radius: 9999px;
+    }
+
+    /* Bulatan merah jumlah produk di keranjang (menempel di ikon cart) */
+    .badge-cart {
+        position: absolute;
+        Top: -4px;
+        right: -6px;
+        min-width: 14px;
+        height: 14px;
+        padding: 0px;
+        background-color: red;
+        color: #fff;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 14px;
+        text-align: center;
+        border-radius: 9999px;
+        border: 1.5px solid #fff;
+        box-sizing: content-box;
+        pointer-events: none;
     }
 
     /* Logout Button */
@@ -556,6 +577,29 @@
 
     // Muat notifikasi saat halaman dibuka (badge tampil tanpa perlu buka My Profile dulu).
     if(isUser && navMailUserId) navLoadMails();
+
+    // ── Badge jumlah produk di keranjang ──────────────────────────────────
+    const NAV_CART_API = '/cardhaven/interface/cart/controller_keranjang.php';
+
+    // Dipakai halaman cart yang sudah tahu jumlah itemnya (hemat 1 request).
+    window.setCartBadge = function(n){
+        const badge = document.getElementById('navCartBadge');
+        if(!badge) return;
+        n = parseInt(n) || 0;
+        if(n > 0){ badge.textContent = n > 99 ? '99+' : n; badge.style.display = ''; }
+        else badge.style.display = 'none';
+    };
+
+    // Dipanggil ulang setiap ada perubahan isi keranjang (add to cart / hapus item).
+    window.refreshCartBadge = function(){
+        if(!navMailUserId) return;
+        fetch(`${NAV_CART_API}?action=get_count`)
+            .then(r=>r.json())
+            .then(res=>{ window.setCartBadge((res && res.success) ? res.count : 0); })
+            .catch(()=>{});
+    };
+
+    if(isUser && navMailUserId) window.refreshCartBadge();
 
 
     // ── Fitur Search & Suggestion Navbar ──────────────────────────────────────────────

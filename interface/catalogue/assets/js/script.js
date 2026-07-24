@@ -352,7 +352,10 @@ window.addCatToCart = function(idProduk, hargaSatuan) {
 
     fetch(CART_CONTROLLER, { method: 'POST', body: fd })
     .then(res => res.json()).then(res => {
-        if (res.success || res.status === 'success') cardhavenToast('success', 'Product added to cart!');
+        if (res.success || res.status === 'success') {
+            cardhavenToast('success', 'Product added to cart!');
+            if (typeof refreshCartBadge === 'function') refreshCartBadge();
+        }
         else cardhavenAlert('error', 'Failed', res.message || res.msg || 'Gagal menambahkan produk.');
     });
 };

@@ -3,6 +3,16 @@ const rarityForm = document.getElementById('rarityForm');
 const API_URL = '/CardHaven/interface/product/controller_rarity.php'; // Pastikan path sesuai dengan foldermu
 // getEmpId() didefinisikan di produk_script.js (ambil id dari PHP session via CardHavenAuth).
 
+// Game dipilih lewat search-suggest (sama seperti Master Produk), bukan dropdown penuh.
+document.addEventListener('DOMContentLoaded', function() {
+    setupSuggest('rarityGameSearch', 'inputGameRarity', 'rarityGameSuggest', 'search_game', null, API_URL);
+});
+
+function setRarityGame(id, nama) {
+    document.getElementById('inputGameRarity').value  = id || '';
+    document.getElementById('rarityGameSearch').value = nama || '';
+}
+
 async function isDuplicate(idGame, nama, kode, excludeId) {
     const resp = await fetch(`${API_URL}?check_duplicate=1&id_game=${idGame}&nama_rarity=${encodeURIComponent(nama)}&kode_rarity=${encodeURIComponent(kode)}&exclude_id=${excludeId}`);
     const data = await resp.json();
@@ -15,6 +25,7 @@ function openModalRarity() {
     document.getElementById('formActionRarity').value = 'add';
     rarityForm.reset();
     clearAllErrors('rarityForm');
+    setRarityGame('', '');
     document.getElementById('inputIdRarity').value = "0";
     modalRarity.style.display = 'flex';
 }
@@ -69,15 +80,7 @@ function openEditRarity(id) {
             document.getElementById('displayIDRarity').innerText = 'RAR-' + String(id).padStart(3, '0');
             document.getElementById('formActionRarity').value = 'edit';
             document.getElementById('inputIdRarity').value = id;
-            const selectGame = document.getElementById('inputGameRarity');
-            selectGame.value = data.id_game;
-            if (!selectGame.value) {
-                const opt = document.createElement('option');
-                opt.value = data.id_game;
-                opt.text = data.nama_game ?? 'Unknown Game';
-                selectGame.appendChild(opt);
-                selectGame.value = data.id_game;
-            }
+            setRarityGame(data.id_game, data.nama_game);
             document.getElementById('inputNamaRarity').value = data.nama_rarity;
             document.getElementById('inputKodeRarity').value = data.kode_rarity;
             if (document.getElementById('inputAktifRarity')) document.getElementById('inputAktifRarity').value = data.aktif;
@@ -99,15 +102,16 @@ rarityForm.onsubmit = async function(e) {
     e.preventDefault();
     let isValid = true;
     const game = document.getElementById('inputGameRarity');
+    const gameSearch = document.getElementById('rarityGameSearch');
     const nama = document.getElementById('inputNamaRarity');
     const kode = document.getElementById('inputKodeRarity');
-    const idRarity = document.getElementById('inputIdRarity').value; 
-    
-    if (!game.value) {
-    showError(game, "Please select a game!");
+    const idRarity = document.getElementById('inputIdRarity').value;
+
+    if (!game.value || gameSearch.value.trim() === '') {
+    showError(gameSearch, "Please select a game from the list!");
     isValid = false;
 } else {
-    clearError(game);
+    clearError(gameSearch);
 }
 if (!nama.value.trim()) {
     showError(nama, "Rarity name is required.");
@@ -221,7 +225,7 @@ function confirmDeleteRarity(id) {
 
 window.addEventListener('click', (e) => {
     if (e.target == modalRarity) {
-        const game = document.getElementById('inputGameRarity').value;
+        const game = document.getElementById('rarityGameSearch').value.trim();
         const nama = document.getElementById('inputNamaRarity').value.trim();
         const kode = document.getElementById('inputKodeRarity').value.trim();
         

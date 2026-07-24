@@ -213,11 +213,10 @@ function openDetailModal(id_pembelian) {
                 proofHtml = `
                     <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed #ccc;">
                         <strong style="display:block; margin-bottom:5px; font-size:0.75rem; text-transform:uppercase; color:#666;">Payment Proof:</strong>
-                        <a href="/CardHaven/${pem.bukti_pembayaran}" target="_blank">
-                            <img src="/CardHaven/${pem.bukti_pembayaran}" 
-                                style="max-width: 150px; max-height: 100px; border-radius: 6px; border: 1px solid #ddd; object-fit: cover; cursor: pointer;"
-                                title="Click to enlarge">
-                        </a>
+                        <img src="/CardHaven/${pem.bukti_pembayaran}"
+                            style="max-width: 150px; max-height: 100px; border-radius: 6px; border: 1px solid #ddd; object-fit: cover; cursor: pointer;"
+                            title="Click to enlarge"
+                            onclick="chViewImage(this.src, 'Payment Proof')">
                     </div>
                 `;
             } else {
@@ -313,15 +312,13 @@ function openDetailModal(id_pembelian) {
                         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                             <div style="flex: 1;">
                                 <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Front Photo:</p>
-                                <a href="/CardHaven/${k.foto_depan}" target="_blank">
-                                    <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
-                                </a>
+                                <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;"
+                                    title="Click to enlarge" onclick="chViewImage(this.src, 'Front Photo')">
                             </div>
                             <div style="flex: 1;">
                                 <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Back Photo:</p>
-                                <a href="/CardHaven/${k.foto_belakang}" target="_blank">
-                                    <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
-                                </a>
+                                <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;"
+                                    title="Click to enlarge" onclick="chViewImage(this.src, 'Back Photo')">
                             </div>
                         </div>
 
@@ -354,11 +351,11 @@ function openDetailModal(id_pembelian) {
                 footerHtml = '';
             }
             else if (status == 0) {
-                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
+                footerHtml += `<button onclick="promptCancelBuyback(${pem.id_pembelian})" style="${btnCancel}">Cancel Submission</button>`;
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 1, 'Reviewing started')" style="${btnBlue}">Start Review</button>`;
             }
             else if (status == 1) {
-                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 10, 'Submission cancelled')" style="${btnCancel}">Cancel Submission</button>`;
+                footerHtml += `<button onclick="promptCancelBuyback(${pem.id_pembelian})" style="${btnCancel}">Cancel Submission</button>`;
 
                 if (!anyDecided && !customerHasCountered) {
                     // MODE 1: Belum ada keputusan sama sekali → cuma bisa Approve All
@@ -384,7 +381,7 @@ function openDetailModal(id_pembelian) {
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 5, 'Received')" style="${btnGreen}">Receive Package</button>`;
             }
             else if (status == 5) {
-                footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 9, 'Rejected')" style="${btnCancel}">Reject & Return</button>`;
+                footerHtml += `<button onclick="promptRejectBuyback(${pem.id_pembelian})" style="${btnCancel}">Reject & Return</button>`;
                 footerHtml += `<button onclick="updateStatus(${pem.id_pembelian}, 6, 'Verified')" style="${btnGreen}">Quality Match (Proceed)</button>`;
             }
             else if (status == 6) {
@@ -404,18 +401,76 @@ function closeDetailModal() {
     document.getElementById('detailModal').style.display = 'none';
 }
 
-function updateStatus(id_pembelian, statusBaru, message) {
+// Cancel / Reject oleh admin wajib disertai pesan untuk customer — pesannya
+// masuk ke Mailbox customer, sama seperti alur Reject Payment di halaman Sales.
+function promptRejectBuyback(id_pembelian) {
+    promptBuybackWithMessage({
+        id_pembelian,
+        status: 9,
+        title: 'Reject & Return?',
+        text: 'Write a message for the customer explaining why this buyback is rejected. The cards will be returned to them.',
+        placeholder: 'Examples: Card condition does not match the photos, card is counterfeit, etc...',
+        confirmText: 'Reject & Notify',
+        validationMsg: 'Please write the reason for rejecting this buyback.',
+        successMsg: 'Buyback rejected. The message has been sent to the customer.',
+    });
+}
+
+function promptCancelBuyback(id_pembelian) {
+    promptBuybackWithMessage({
+        id_pembelian,
+        status: 10,
+        title: 'Cancel Submission?',
+        text: 'Write a message for the customer explaining why this buyback submission is cancelled.',
+        placeholder: 'Examples: Submission data is incomplete, cards are not accepted at the moment, etc...',
+        confirmText: 'Cancel & Notify',
+        validationMsg: 'Please write the reason for cancelling this submission.',
+        successMsg: 'Submission cancelled. The message has been sent to the customer.',
+    });
+}
+
+function promptBuybackWithMessage(cfg) {
+    Swal.fire({
+        title: cfg.title,
+        text: cfg.text,
+        input: 'textarea',
+        inputPlaceholder: cfg.placeholder,
+        showCancelButton: true,
+        confirmButtonText: cfg.confirmText,
+        confirmButtonColor: '#b91c1c',
+        preConfirm: (pesan) => {
+            if (!pesan || !pesan.trim()) {
+                Swal.showValidationMessage(cfg.validationMsg);
+            }
+            return pesan;
+        }
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        updateStatus(cfg.id_pembelian, cfg.status, cfg.successMsg, result.value);
+    });
+}
+
+function updateStatus(id_pembelian, statusBaru, message, pesan = null) {
     closeDetailModal();
     const formData = new URLSearchParams();
     formData.append('action', 'update_status');
     formData.append('id_pembelian', id_pembelian);
     formData.append('status', statusBaru);
     formData.append('id_pengguna', idPengguna);
+    if (pesan) formData.append('pesan', pesan);
 
     fetch(BUYBACK_CONTROLLER, { method: 'POST', body: formData })
-    .then(() => {
+    .then(res => res.json())
+    .then(res => {
+        if (res.status === 'error') {
+            Swal.fire({icon: 'error', title: 'Failed', text: res.message || 'Failed to update status.'});
+            return;
+        }
         Swal.fire({icon: 'success', title: 'Success', text: message, timer: 1500, showConfirmButton: false});
         loadDaftar();
+    })
+    .catch(() => {
+        Swal.fire({icon: 'error', title: 'Error', text: 'A connection error occurred.'});
     });
 }
 function adminCounterItem(idP, idK) {

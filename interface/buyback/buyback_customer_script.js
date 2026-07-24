@@ -478,15 +478,13 @@ function openDetailModal(id_pembelian) {
                     <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                         <div style="flex: 1;">
                             <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Front Photo:</p>
-                            <a href="/CardHaven/${k.foto_depan}" target="_blank">
-                                <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
-                            </a>
+                            <img src="/CardHaven/${k.foto_depan}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;"
+                                title="Click to enlarge" onclick="chViewImage(this.src, 'Front Photo')">
                         </div>
                         <div style="flex: 1;">
                             <p style="margin: 0 0 5px 0; font-size: 0.8rem; color: #666;">Back Photo:</p>
-                            <a href="/CardHaven/${k.foto_belakang}" target="_blank">
-                                <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">
-                            </a>
+                            <img src="/CardHaven/${k.foto_belakang}" style="width: 100%; height: auto; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;"
+                                title="Click to enlarge" onclick="chViewImage(this.src, 'Back Photo')">
                         </div>
                     </div>
 
@@ -543,9 +541,8 @@ function openDetailModal(id_pembelian) {
                 htmlContent += `
                 <div style="background: #E1EBFF; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
                     <h4 style="margin: 0 0 10px 0; color: var(--primary-color);">Payment Proof</h4>
-                    <a href="/CardHaven/${pem.bukti_pembayaran}" target="_blank">
-                        <img src="/CardHaven/${pem.bukti_pembayaran}" style="max-width: 100%; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    </a>
+                    <img src="/CardHaven/${pem.bukti_pembayaran}" style="max-width: 100%; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer;"
+                        title="Click to enlarge" onclick="chViewImage(this.src, 'Payment Proof')">
                 </div>`;
             }
 

@@ -249,6 +249,7 @@ window.addRelatedToCart = function(id_produk, harga) {
     .then(res => {
         if (res.status === 'success') {
             cardhavenToast('success', 'Successfully added related product to cart!');
+            if (typeof refreshCartBadge === 'function') refreshCartBadge();
         } else {
             cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }
@@ -367,6 +368,7 @@ function addToCart() {
     .then(res => {
         if (res.status === 'success') {
             cardhavenToast('success', 'Successfully added product to cart!');
+            if (typeof refreshCartBadge === 'function') refreshCartBadge();
         } else {
             cardhavenAlert('error', 'Error', res.msg || 'Gagal menambahkan produk.');
         }

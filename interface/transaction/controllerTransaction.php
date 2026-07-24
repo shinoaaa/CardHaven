@@ -91,9 +91,39 @@ class controllerTransaction {
         return $stmt !== false;
     }
 
+    /**
+     * Kirim pesan admin ke Mailbox customer pemilik order.
+     * Query-nya ada di dbo.sp_AddNotifikasiTransaksi (lihat
+     * db/migrations/2026-07-24_admin_cancel_return_message.sql).
+     */
+    public function notifyCustomer($id_penjualan, $judul, $isi) {
+        $stmt = sqlsrv_query($this->conn, "{CALL dbo.sp_AddNotifikasiTransaksi('penjualan', ?, ?, ?)}",
+            [$id_penjualan, $judul, $isi]);
+        return $stmt !== false;
+    }
+
     public function prosesOrder($id, $mod_by) { return $this->updateStatus($id, 3, $mod_by); }
     public function kirimOrder($id, $mod_by, $resi) { return $this->updateStatus($id, 4, $mod_by, $resi); }
     public function setDelivered($id, $mod_by) { return $this->updateStatus($id, 5, $mod_by); }
-    public function cancelOrder($id, $mod_by) { return $this->updateStatus($id, 8, $mod_by); }
+
+    /** Cancel oleh admin: status 8 + alasan dikirim ke customer. */
+    public function cancelOrder($id, $mod_by, $reason = null) {
+        if (!$this->updateStatus($id, 8, $mod_by)) return false;
+        if ($reason !== null && $reason !== '') {
+            $this->notifyCustomer($id, 'Order Cancelled',
+                "Your order #$id has been cancelled by our team.\n\nReason: $reason");
+        }
+        return true;
+    }
+
+    /** Return oleh admin: status 7 + alasan dikirim ke customer. */
+    public function returnOrder($id, $mod_by, $reason = null) {
+        if (!$this->updateStatus($id, 7, $mod_by)) return false;
+        if ($reason !== null && $reason !== '') {
+            $this->notifyCustomer($id, 'Order Returned',
+                "Your order #$id has been marked as returned by our team.\n\nReason: $reason");
+        }
+        return true;
+    }
 }
 ?>

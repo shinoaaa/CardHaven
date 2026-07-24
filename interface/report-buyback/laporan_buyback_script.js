@@ -65,6 +65,41 @@ function debounceSearch() {
     typingTimer = setTimeout(applyFilterAndSort, 250);
 }
 
+// ── Filter rentang tanggal ───────────────────────────────────────────
+// Nilai input <date> sudah berformat YYYY-MM-DD, sama seperti awalan string
+// tanggal dari server, jadi cukup dibandingkan sebagai string.
+function getDateRange() {
+    const s = document.getElementById('filterStartDate');
+    const e = document.getElementById('filterEndDate');
+    return { start: s ? s.value : '', end: e ? e.value : '' };
+}
+
+function inDateRange(rawTgl) {
+    const { start, end } = getDateRange();
+    if (!start && !end) return true;
+    const d = (rawTgl || '').toString().substring(0, 10);
+    if (!d) return false;
+    if (start && d < start) return false;
+    if (end && d > end) return false;
+    return true;
+}
+
+function applyDateRange() {
+    const s = document.getElementById('filterStartDate');
+    const e = document.getElementById('filterEndDate');
+    // Batasi supaya tanggal akhir tidak bisa lebih awal dari tanggal mulai.
+    if (s && e) { e.min = s.value || ''; s.max = e.value || ''; }
+    applyFilterAndSort();
+}
+
+function clearDateRange() {
+    const s = document.getElementById('filterStartDate');
+    const e = document.getElementById('filterEndDate');
+    if (s) { s.value = ''; s.max = ''; }
+    if (e) { e.value = ''; e.min = ''; }
+    applyFilterAndSort();
+}
+
 // BULLETPROOF FILTERING ENGINE
 function applyFilterAndSort() {
     const search = document.getElementById('searchReport').value.toLowerCase().trim();
@@ -75,6 +110,8 @@ function applyFilterAndSort() {
     
     filteredData = allData.filter(row => {
         const rawTgl = row.tanggal_pembelian ? row.tanggal_pembelian.toString() : '';
+
+        if (!inDateRange(rawTgl)) return false;
         
         // 1. Validasi Ekstra Bulan & Tahun (Jika SQL gagal memfilter)
         if (rawTgl.length >= 10) {
@@ -202,7 +239,7 @@ function exportReport(type) {
     const search = document.getElementById('searchReport').value.trim();
     
     // Gunakan variabel urutan yang baru
-    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${currentSortBy}&sort_order=${currentSortOrder}&role=${userRole}`;
+    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${currentSortBy}&sort_order=${currentSortOrder}&start_date=${getDateRange().start}&end_date=${getDateRange().end}&role=${userRole}`;
     
     window.open(url, '_blank');
 }
@@ -261,8 +298,8 @@ function openDetailModal(id) {
                 <div style="display: flex; gap: 15px; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                     
                     <div style="display: flex; gap: 8px; flex-shrink: 0;">
-                        <img src="${imgDepan}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.2s;" title="Front Photo" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        <img src="${imgBelakang}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.2s;" title="Back Photo" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="${imgDepan}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.2s;" title="Front Photo" onclick="chViewImage(this.src, 'Front Photo')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="${imgBelakang}" style="width: 55px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; transition: 0.2s;" title="Back Photo" onclick="chViewImage(this.src, 'Back Photo')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     </div>
                     
                     <div style="flex-grow: 1;">
@@ -292,7 +329,7 @@ function openDetailModal(id) {
             html += `
                 <div style="margin-top:20px; text-align:center; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
                     <h4 style="margin: 0 0 15px 0; color:#475569; font-size:0.95rem;">Payment Proof</h4>
-                    <img src="${imgBukti}" onerror="this.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius:8px; border:2px solid #cbd5e1; cursor:pointer; transition:0.2s;" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="${imgBukti}" onerror="this.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius:8px; border:2px solid #cbd5e1; cursor:pointer; transition:0.2s;" onclick="chViewImage(this.src, 'Payment Proof')" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
                 </div>
             `;
         } else {

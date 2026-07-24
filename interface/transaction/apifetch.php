@@ -90,10 +90,20 @@ if ($action !== '') {
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
 
                 case 'returned': // Status 7 (Dikembalikan/Restorasi Stok)
-                    $ok = $ctrl->updateStatus($id, 7, $modified_by);
+                    // Alasan wajib: dikirim ke Mailbox customer.
+                    $reason = trim($body['reason'] ?? '');
+                    if ($reason === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'Please write the message for the customer.']); exit;
+                    }
+                    $ok = $ctrl->returnOrder($id, $modified_by, $reason);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
                 case 'cancel':
-                    $ok = $ctrl->cancelOrder($id, $modified_by);
+                    // Alasan wajib: dikirim ke Mailbox customer.
+                    $reason = trim($body['reason'] ?? '');
+                    if ($reason === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'Please write the message for the customer.']); exit;
+                    }
+                    $ok = $ctrl->cancelOrder($id, $modified_by, $reason);
                     echo json_encode(['status' => $ok ? 'success' : 'error']); exit;
                 default:
                     echo json_encode(['status' => 'error', 'message' => 'Unknown POST action']); exit;

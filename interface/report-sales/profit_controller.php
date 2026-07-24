@@ -148,7 +148,7 @@ try {
         $labelTahun = $tahun === 0 ? 'All Years' : (string)$tahun;
 
         if (ob_get_length()) ob_clean();
-        $tanggalSekarang = date('d-m-Y');
+        $tanggalSekarang = date('d-m-Y_H.i');
         header("Content-Type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename=Laporan_Profit_{$tanggalSekarang}.xls");
         header("Pragma: no-cache"); header("Expires: 0");
@@ -275,7 +275,7 @@ try {
         $html .= '</tbody></table>';
 
         // Penamaan file menggunakan tanggal dinamis (sama seperti report lain)
-        $tanggalSekarang = date('d-m-Y');
+        $tanggalSekarang = date('d-m-Y_H.i');
         $namaFile = 'Laporan_Profit_' . $tanggalSekarang . '.pdf';
 
         $pdf->writeHTML($html, true, false, true, false, '');

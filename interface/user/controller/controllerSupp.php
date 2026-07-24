@@ -120,7 +120,8 @@ if ($action !== '') {
     $search = trim($_GET['search'] ?? '');
     $status = ($_GET['status'] === '' || !isset($_GET['status'])) ? -1 : (int)$_GET['status'];
     $sortBy  = $_GET['sort_by'] ?? 'id_supplier';
-    $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+    // Default DESC: supplier paling baru dibuat tampil di urutan pertama.
+    $sortDir = strtoupper($_GET['sort_order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
     $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSupplierList(?, ?, ?, ?, ?, ?)}", 
         [$search, $sortBy, $sortDir, $status, $page, $limit]);

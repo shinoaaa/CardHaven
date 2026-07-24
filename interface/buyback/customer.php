@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/cardhaven/interface/buyback/buyback_style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>
-    
+    <script src="/cardhaven/interface/image_viewer.js"></script>
 </head>
 <body>
     <div class="main-content">

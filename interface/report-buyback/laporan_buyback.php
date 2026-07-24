@@ -46,6 +46,14 @@
                             <option value="12">December</option>
                         </select>
 
+                        <!-- Filter rentang tanggal: dipakai bersama filter Year/Month (AND) -->
+                        <div style="display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #ccc; border-radius: 9999px; height: 38px; padding: 0 12px; flex-shrink: 0; box-sizing: border-box;">
+                            <input type="date" id="filterStartDate" onchange="applyDateRange()" title="Start date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                            <span style="color: #94a3b8; font-weight: 700;">&ndash;</span>
+                            <input type="date" id="filterEndDate" onchange="applyDateRange()" title="End date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                            <button type="button" onclick="clearDateRange()" title="Clear date range" style="border: none; background: transparent; color: #94a3b8; font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 2px;">&times;</button>
+                        </div>
+
                         <button id="btnSort" class="sort-btn" onclick="toggleSort()" title="Change Ascending/Descending">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 5v14M19 12l-7 7-7-7"/>
@@ -104,6 +112,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/cardhaven/interface/global_alert.js"></script>
+    <script src="/cardhaven/interface/image_viewer.js"></script>
     <script src="/cardhaven/interface/report-buyback/laporan_buyback_script.js"></script>
 </body>
 </html>

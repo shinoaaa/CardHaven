@@ -76,6 +76,41 @@ function debounceSearch() {
     typingTimer = setTimeout(applyFilterAndSort, 250);
 }
 
+// ── Filter rentang tanggal ───────────────────────────────────────────
+// Nilai input <date> sudah berformat YYYY-MM-DD, sama seperti awalan string
+// tanggal dari server, jadi cukup dibandingkan sebagai string.
+function getDateRange() {
+    const s = document.getElementById('filterStartDate');
+    const e = document.getElementById('filterEndDate');
+    return { start: s ? s.value : '', end: e ? e.value : '' };
+}
+
+function inDateRange(rawTgl) {
+    const { start, end } = getDateRange();
+    if (!start && !end) return true;
+    const d = (rawTgl || '').toString().substring(0, 10);
+    if (!d) return false;
+    if (start && d < start) return false;
+    if (end && d > end) return false;
+    return true;
+}
+
+function applyDateRange() {
+    const s = document.getElementById('filterStartDate');
+    const e = document.getElementById('filterEndDate');
+    // Batasi supaya tanggal akhir tidak bisa lebih awal dari tanggal mulai.
+    if (s && e) { e.min = s.value || ''; s.max = e.value || ''; }
+    applyFilterAndSort();
+}
+
+function clearDateRange() {
+    const s = document.getElementById('filterStartDate');
+    const e = document.getElementById('filterEndDate');
+    if (s) { s.value = ''; s.max = ''; }
+    if (e) { e.value = ''; e.min = ''; }
+    applyFilterAndSort();
+}
+
 function applyFilterAndSort() {
     const search = document.getElementById('searchReport').value.toLowerCase().trim();
     const targetTahun = parseInt(document.getElementById('filterTahun').value) || 0;
@@ -83,6 +118,8 @@ function applyFilterAndSort() {
 
     filteredData = allData.filter(row => {
         const rawTgl = row.tanggal_mulai ? row.tanggal_mulai.toString() : '';
+
+        if (!inDateRange(rawTgl)) return false;
 
         // Validasi ekstra bulan & tahun (jika SQL gagal memfilter)
         if (rawTgl.length >= 10) {
@@ -201,7 +238,7 @@ function exportReport(type) {
     const bulan = document.getElementById('filterBulan').value || 0;
     const search = document.getElementById('searchReport').value.trim();
 
-    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${currentSortBy}&sort_order=${currentSortOrder}&role=${userRole}`;
+    const url = `${REPORT_CONTROLLER}?action=export_${type}&tahun=${tahun}&bulan=${bulan}&search=${encodeURIComponent(search)}&sort_by=${currentSortBy}&sort_order=${currentSortOrder}&start_date=${getDateRange().start}&end_date=${getDateRange().end}&role=${userRole}`;
 
     window.open(url, '_blank');
 }
@@ -278,7 +315,7 @@ function openDetailModal(id) {
                 <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
 
                     <div style="display: flex; gap: 12px; align-items: center; flex-grow: 1;">
-                        <img src="${prodPath}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #cbd5e1; flex-shrink: 0; cursor: pointer; transition: 0.2s;" title="View Photo" onclick="window.open(this.src, '_blank')" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="${prodPath}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #cbd5e1; flex-shrink: 0; cursor: pointer; transition: 0.2s;" title="View Photo" onclick="chViewImage(this.src, this.title)" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                         <div>
                             <div style="font-weight: 700; color: #1e293b; font-size: 1.05rem; margin-bottom: 4px;">${item.nama_produk}</div>
                             <div style="font-size: 0.85rem; color: #64748b;">Qty Sold: <b style="color:#0F3891;">${item.jumlah_barang}</b></div>

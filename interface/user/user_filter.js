@@ -12,10 +12,11 @@ class UserMasterFilter {
         this.statusField = isSupplier ? 'aktif' : 'status_akun';
 
         // 2. Initial State
+        // Default urut ID menurun: data yang baru dibuat muncul di nomor 1.
         this.state = {
             search: '',
-            sort_by: this.idField, 
-            sort_order: 'ASC',
+            sort_by: this.idField,
+            sort_order: 'DESC',
             page: 1,
             status: ''
         };

@@ -3,27 +3,14 @@ const setForm  = document.getElementById('setForm');
 const SET_API  = '/CardHaven/interface/product/controller_set.php';
 // getEmpId() didefinisikan di produk_script.js (ambil id dari PHP session via CardHavenAuth).
 
-let setGamesLoaded = false;
+// Game dipilih lewat search-suggest (sama seperti Master Produk), bukan dropdown penuh.
+document.addEventListener('DOMContentLoaded', function() {
+    setupSuggest('setGameSearch', 'setGameId', 'setGameSuggest', 'search_game', null, SET_API);
+});
 
-function loadGameOptionsForSet(selectedId) {
-    if (setGamesLoaded && selectedId) {
-        document.getElementById('setGameId').value = selectedId;
-        return;
-    }
-
-    fetch(`${SET_API}?get_games=1`)
-        .then(async res => JSON.parse(await res.text()))
-        .then(res => {
-            const select = document.getElementById('setGameId');
-            select.innerHTML = '<option value="">-- Select Game --</option>';
-            res.data.forEach(g => { select.appendChild(new Option(g.nama_game, g.id_game)); });
-            setGamesLoaded = true;
-            if (selectedId) select.value = selectedId;
-        })
-        .catch(err => {
-            console.error('loadGameOptionsForSet error:', err);
-            cardhavenAlert('error', 'System Error', 'Failed to load game list.');
-        });
+function setSetGame(id, nama) {
+    document.getElementById('setGameId').value     = id || '';
+    document.getElementById('setGameSearch').value = nama || '';
 }
 
 function loadSetPage(page) {
@@ -50,7 +37,7 @@ function openAddSetModal() {
     document.getElementById('setFormAction').value     = 'add';
     setForm.reset();
     document.getElementById('setTanggal').value = '';
-    loadGameOptionsForSet(null);
+    setSetGame('', '');
     setModal.style.display = 'flex';
 }
 
@@ -70,7 +57,7 @@ function openEditSetModal(id) {
 
             if (data.tanggal_rilis) document.getElementById('setTanggal').value = data.tanggal_rilis;
 
-            loadGameOptionsForSet(data.id_game);
+            setSetGame(data.id_game, data.nama_game);
             const setStatusDisplay = document.getElementById('setStatusDisplay');
             if (setStatusDisplay) {
             setStatusDisplay.value      = data.aktif == 1 ? 'Active' : 'Inactive';
@@ -89,15 +76,16 @@ setForm.onsubmit = async function(e) {
     e.preventDefault();
     let isValid = true;
 
-    const game = document.getElementById('setGameId');
+    const gameId     = document.getElementById('setGameId');
+    const gameSearch = document.getElementById('setGameSearch');
     const nama = document.getElementById('setNama');
     const kode = document.getElementById('setKode');
 
-    if (!game.value) {
-    showError(game, 'Please select a game!');
+    if (!gameId.value || gameSearch.value.trim() === '') {
+    showError(gameSearch, 'Please select a game from the list!');
     isValid = false;
 } else {
-    clearError(game);
+    clearError(gameSearch);
 }
 if (!nama.value.trim()) {
     showError(nama, 'Set name is required.');
@@ -237,7 +225,7 @@ function openDetailSetModal(id) {
 
 window.addEventListener('click', function(e) {
     if (e.target === setModal) {
-        const game    = document.getElementById('setGameId').value;
+        const game    = document.getElementById('setGameSearch').value.trim();
         const nama    = document.getElementById('setNama').value.trim();
         const kode    = document.getElementById('setKode').value.trim();
         const tanggal = document.getElementById('setTanggal').value;

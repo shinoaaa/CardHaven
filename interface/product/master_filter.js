@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td style="text-align:left; font-weight:600;">${mfEsc(r.nama_produk)}</td>
                 <td>${mfEsc(r.nama_game || '-')}</td>
                 <td>${mfEsc(r.tipe_produk)}</td>
-                <td>${parseInt(r.stok)}</td>
+                <td style="text-align:right">${parseInt(r.stok).toLocaleString('id-ID')}</td>
                 <td style="text-align:right; font-weight:bold;">Rp${Number(r.harga_jual).toLocaleString('id-ID')}</td>
                 <td>${mfStatusPill(r.status)}</td>
                 <td><div class="btn-action-group">

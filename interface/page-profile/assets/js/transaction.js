@@ -326,6 +326,18 @@ function openOrderDetail(idPenjualan) {
                 </div>`;
             }).join('');
 
+            // ── Bukti pembayaran ──
+            // Nilai DB adalah path relatif lengkap dari web root; data lama masih
+            // memakai folder 'bukti_pembayaran/' → arahkan ke lokasi baru.
+            let buktiSrc = o.bukti_pembayaran || '';
+            if (buktiSrc.startsWith('bukti_pembayaran/')) buktiSrc = `assets/image/${buktiSrc}`;
+            const buktiHtml = o.bukti_pembayaran
+                ? `<img src="/cardhaven/${escHtml(buktiSrc)}" alt="Payment Proof" title="Click to enlarge"
+                        style="max-width:100%;max-height:220px;border-radius:8px;border:1px solid #e5e7eb;object-fit:contain;cursor:pointer;display:block;"
+                        onclick="chViewImage(this.src, 'Payment Proof')"
+                        onerror="this.outerHTML='<p style=&quot;color:#888;font-size:.85rem;margin:0;&quot;>Preview unavailable.</p>'">`
+                : `<p style="color:#888;font-size:.85rem;margin:0;">No payment proof yet.</p>`;
+
             // ── LOGIKA DINAMIS UNTUK TOMBOL AKSI ──
             const statusNum = parseInt(o.status_penjualan);
             let actionButtonsHtml = '';
@@ -381,6 +393,8 @@ function openOrderDetail(idPenjualan) {
                     <div><span style="color:#888;">Tracking No.</span><br><b>${escHtml(o.no_resi || '-')}</b></div>
                     <div style="grid-column:1/-1;"><span style="color:#888;">Address</span><br><b>${escHtml(o.alamat || '-')}</b></div>
                 </div>
+                <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#888;margin-bottom:.4rem;">Payment Proof</div>
+                <div style="margin-bottom:1rem;">${buktiHtml}</div>
                 <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#888;margin-bottom:.4rem;">Items</div>
                 ${itemsHtml || '<div style="color:#888;font-size:.85rem;">No items.</div>'}
                 <div style="display:flex;justify-content:space-between;margin-top:1rem;padding-top:.75rem;border-top:1px solid #eee;">

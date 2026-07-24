@@ -480,6 +480,7 @@ window.addToCart = function(idProduk, harga) {
         if (res.success) {
             // Toast notification, ngk perlu klik OK
             cardhavenToast('success', 'Product added to cart!');
+            if (typeof refreshCartBadge === 'function') refreshCartBadge();
         } else {
             alert("Failed: " + res.message);
         }
@@ -598,6 +599,7 @@ window.addToCart = function(idProduk, hargaSatuan) {
     .then(res => {
         if (res.success) {
             cardhavenToast('success', `${qty} Product added to cart!`);
+            if (typeof refreshCartBadge === 'function') refreshCartBadge();
             // Reset qty ke 1 setelah berhasil
             document.getElementById(`qty-val-${idProduk}`).value = 1;
             document.getElementById(`display-price-${idProduk}`).textContent = formatRupiah(hargaSatuan);

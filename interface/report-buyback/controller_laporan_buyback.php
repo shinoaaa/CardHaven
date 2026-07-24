@@ -15,9 +15,12 @@ $bulan = (int)($_GET['bulan'] ?? 0);
 $search = trim(strtolower($_GET['search'] ?? ''));
 $sortBy = strtoupper($_GET['sort_by'] ?? 'DATE');
 $sortOrder = strtoupper($_GET['sort_order'] ?? 'DESC');
+// Rentang tanggal opsional dari toolbar laporan (format YYYY-MM-DD).
+$startDate = trim($_GET['start_date'] ?? '');
+$endDate   = trim($_GET['end_date'] ?? '');
 
 // 2. TIMPA FUNGSI getFilteredAndSortedData DENGAN YANG BARU INI
-function getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder) {
+function getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder, $startDate = '', $endDate = '') {
     $sqlData = "SELECT * FROM dbo.udf_LaporanBuyback(?, ?)";
     $stmtData = sqlsrv_query($conn, $sqlData, [$tahun, $bulan]);
     $data = [];
@@ -29,6 +32,11 @@ function getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sort
 
         if ($tahun !== 0 && $rowYear !== $tahun) continue;
         if ($bulan !== 0 && $rowMonth !== $bulan) continue;
+
+        // Filter rentang tanggal — tanggal ISO bisa dibandingkan sebagai string.
+        $rowDate = ($row['tanggal_pembelian'] instanceof DateTime) ? $row['tanggal_pembelian']->format('Y-m-d') : '';
+        if ($startDate !== '' && ($rowDate === '' || $rowDate < $startDate)) continue;
+        if ($endDate   !== '' && ($rowDate === '' || $rowDate > $endDate)) continue;
 
         // Pencarian Teks Terintegrasi
         $tglStr = ($row['tanggal_pembelian'] instanceof DateTime) ? $row['tanggal_pembelian']->format('d-m-Y') : '';
@@ -119,11 +127,11 @@ switch ($action) {
         break;
     case 'export_excel':
         header("Content-Type: application/vnd.ms-excel");
-        $tanggalSekarang = date('d-m-Y');
+        $tanggalSekarang = date('d-m-Y_H:i');
     header("Content-Disposition: attachment; filename=Laporan_Buyback_{$tanggalSekarang}.xls");
         header("Pragma: no-cache"); header("Expires: 0");
         
-        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
+        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder, $startDate, $endDate);
         
         // Bagian Kop Laporan
         echo "<table style='font-family: sans-serif;'>";
@@ -180,7 +188,7 @@ switch ($action) {
         }
 
         if (ob_get_length()) ob_end_clean();
-        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder);
+        $data = getFilteredAndSortedData($conn, $tahun, $bulan, $search, $sortBy, $sortOrder, $startDate, $endDate);
         
         // Inisialisasi TCPDF Landscape (L)
         require_once __DIR__ . '/../report_pdf.php'; // kop & footer standar CardHaven
@@ -254,7 +262,7 @@ switch ($action) {
         $html .= '</tbody></table>';
 
         // Penamaan file menggunakan tanggal dinamis
-        $tanggalSekarang = date('d-m-Y'); 
+        $tanggalSekarang = date('d-m-Y_H.i'); 
         $namaFile = 'Laporan_Buyback_' . $tanggalSekarang . '.pdf';
         
         // Render HTML ke PDF

@@ -183,7 +183,8 @@ if ($isAjax) {
     $search = trim($_GET['search'] ?? '');
     $status = ($_GET['status'] === '' || !isset($_GET['status'])) ? -1 : (int)$_GET['status'];
     $sortBy  = $_GET['sort_by'] ?? 'id_pengguna';
-    $sortDir = strtoupper($_GET['sort_order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+    // Default DESC: user paling baru dibuat tampil di urutan pertama.
+    $sortDir = strtoupper($_GET['sort_order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
     $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetPenggunaList(?, ?, ?, ?, ?, ?, ?)}", 
         [$role, $search, $sortBy, $sortDir, $status, $page, $limit]);

@@ -85,10 +85,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;">
-                            <div style="display: flex; align-items: center; background: white; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
-                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
+                            <div style="display: flex; align-items: center; background: white; border: 1px solid #173C99; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
+                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
                                 <input type="number" id="filterTahun" placeholder="All Years" onchange="fetchReportData()" style="border: none; outline: none; text-align: center; width: 60px; height: 100%; font-size: 0.85rem; font-weight: 600; color: #333; padding: 0;">
-                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
+                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
                             
                             <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
@@ -106,6 +106,14 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
+
+                            <!-- Filter rentang tanggal: dipakai bersama filter Year/Month (AND) -->
+                            <div style="display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #173C99; border-radius: 9999px; height: 38px; padding: 0 12px; flex-shrink: 0; box-sizing: border-box;">
+                                <input type="date" id="filterStartDate" onchange="applyDateRange()" title="Start date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <span style="color: #94a3b8; font-weight: 700;">&ndash;</span>
+                                <input type="date" id="filterEndDate" onchange="applyDateRange()" title="End date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <button type="button" onclick="clearDateRange()" title="Clear date range" style="border: none; background: transparent; color: #94a3b8; font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 2px;">&times;</button>
+                            </div>
 
                             <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
@@ -183,10 +191,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;">
-                            <div style="display: flex; align-items: center; background: white; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
-                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
+                            <div style="display: flex; align-items: center; background: white; border: 1px solid #173C99; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
+                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
                                 <input type="number" id="filterTahun" placeholder="All Years" onchange="fetchReportData()" style="border: none; outline: none; text-align: center; width: 60px; height: 100%; font-size: 0.85rem; font-weight: 600; color: #333; padding: 0;">
-                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
+                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
                             
                             <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
@@ -204,6 +212,14 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
+
+                            <!-- Filter rentang tanggal: dipakai bersama filter Year/Month (AND) -->
+                            <div style="display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #173C99; border-radius: 9999px; height: 38px; padding: 0 12px; flex-shrink: 0; box-sizing: border-box;">
+                                <input type="date" id="filterStartDate" onchange="applyDateRange()" title="Start date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <span style="color: #94a3b8; font-weight: 700;">&ndash;</span>
+                                <input type="date" id="filterEndDate" onchange="applyDateRange()" title="End date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <button type="button" onclick="clearDateRange()" title="Clear date range" style="border: none; background: transparent; color: #94a3b8; font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 2px;">&times;</button>
+                            </div>
 
                             <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
@@ -280,10 +296,10 @@ $currentTitle = $titles[$type] ?? 'Report';
 
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;">
-                            <div style="display: flex; align-items: center; background: white; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
-                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
+                            <div style="display: flex; align-items: center; background: white; border: 1px solid #173C99; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
+                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
                                 <input type="number" id="filterTahun" placeholder="All Years" onchange="fetchReportData()" style="border: none; outline: none; text-align: center; width: 60px; height: 100%; font-size: 0.85rem; font-weight: 600; color: #333; padding: 0;">
-                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
+                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
 
                             <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
@@ -301,6 +317,14 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
+
+                            <!-- Filter rentang tanggal: dipakai bersama filter Year/Month (AND) -->
+                            <div style="display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #173C99; border-radius: 9999px; height: 38px; padding: 0 12px; flex-shrink: 0; box-sizing: border-box;">
+                                <input type="date" id="filterStartDate" onchange="applyDateRange()" title="Start date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <span style="color: #94a3b8; font-weight: 700;">&ndash;</span>
+                                <input type="date" id="filterEndDate" onchange="applyDateRange()" title="End date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <button type="button" onclick="clearDateRange()" title="Clear date range" style="border: none; background: transparent; color: #94a3b8; font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 2px;">&times;</button>
+                            </div>
 
                             <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
@@ -377,10 +401,10 @@ $currentTitle = $titles[$type] ?? 'Report';
 
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: nowrap;">
-                            <div style="display: flex; align-items: center; background: white; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
-                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
+                            <div style="display: flex; align-items: center; background: white; border: 1px solid #173C99; border-radius: 8px; overflow: hidden; height: 38px; width: 130px; flex-shrink: 0;">
+                                <button onclick="shiftYear(-1)" style="background: #f8fafc; border: none; border-right: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">-</button>
                                 <input type="number" id="filterTahun" placeholder="All Years" onchange="fetchReportData()" style="border: none; outline: none; text-align: center; width: 60px; height: 100%; font-size: 0.85rem; font-weight: 600; color: #333; padding: 0;">
-                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #ccc; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
+                                <button onclick="shiftYear(1)" style="background: #f8fafc; border: none; border-left: 1px solid #173C99; width: 35px; height: 100%; cursor: pointer; font-weight: bold; color: var(--primary-color); font-size: 1.2rem;">+</button>
                             </div>
 
                             <select id="filterBulan" class="modal-input" onchange="fetchReportData()" style="height: 38px; width: 130px; padding: 0 36px 0 12px; border-radius: 9999px;">
@@ -398,6 +422,14 @@ $currentTitle = $titles[$type] ?? 'Report';
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
+
+                            <!-- Filter rentang tanggal: dipakai bersama filter Year/Month (AND) -->
+                            <div style="display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #173C99; border-radius: 9999px; height: 38px; padding: 0 12px; flex-shrink: 0; box-sizing: border-box;">
+                                <input type="date" id="filterStartDate" onchange="applyDateRange()" title="Start date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <span style="color: #94a3b8; font-weight: 700;">&ndash;</span>
+                                <input type="date" id="filterEndDate" onchange="applyDateRange()" title="End date" style="border: none; outline: none; font-size: 0.8rem; font-weight: 600; color: #333; background: transparent; cursor: pointer;">
+                                <button type="button" onclick="clearDateRange()" title="Clear date range" style="border: none; background: transparent; color: #94a3b8; font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 2px;">&times;</button>
+                            </div>
 
                             <select id="sortCriterion" class="modal-input" onchange="changeSortCriterion()" style="height: 38px; width: 140px; padding: 0 36px 0 12px; border-radius: 9999px;">
                                 <option value="NONE" hidden selected>Sort By...</option>
@@ -577,6 +609,7 @@ $currentTitle = $titles[$type] ?? 'Report';
         if (array_key_exists($type, $scripts)): ?>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>
+            <script src="/cardhaven/interface/image_viewer.js?v=<?= time() ?>"></script>
             <script src="<?= $scripts[$type] ?>?v=<?= time() ?>"></script>
 
             <!-- Analytics card: bar chart + top selling (Sales) -->

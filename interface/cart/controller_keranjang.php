@@ -38,6 +38,21 @@ try {
     }
 
     // =====================================
+    // 1a. GET COUNT (badge jumlah produk di keranjang pada ikon cart navbar)
+    // =====================================
+    if ($action === 'get_count') {
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetCartItems(?)}", [$id_pengguna]);
+        if ($stmt === false) throw new Exception(sqlsrv_errors()[0]['message']);
+
+        $count = 0;
+        while (sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $count++;
+
+        ob_clean();
+        echo json_encode(['success' => true, 'count' => $count]);
+        exit;
+    }
+
+    // =====================================
     // 1b. BUY NOW (Checkout langsung 1 produk)
     // =====================================
     if ($action === 'buy_now') {

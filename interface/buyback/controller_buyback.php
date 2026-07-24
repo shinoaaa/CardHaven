@@ -168,12 +168,38 @@ switch ($action) {
     case 'update_status':
         try {
             denyBuybackOwnerAction(); // Owner hanya-lihat
+            $idPembelian = (int)($_POST['id_pembelian'] ?? 0);
+            $statusBaru  = (int)($_POST['status'] ?? 0);
+            // Reject & Return (9) dan Cancel Submission (10) oleh admin wajib
+            // menyertakan pesan untuk customer — dikirim ke Mailbox, sama seperti
+            // alur Reject Payment di halaman Sales.
+            // Catatan: status 10 juga dipakai customer untuk membatalkan
+            // pengajuannya sendiri, di situ pesan tidak diminta.
+            $isAdmin      = in_array((int)$authRole, [ROLE_MANAGER, ROLE_OWNER], true);
+            $butuhPesan   = $isAdmin && in_array($statusBaru, [9, 10], true);
+            $pesan        = trim($_POST['pesan'] ?? '');
+            if ($butuhPesan && $pesan === '') {
+                throw new Exception('Please write the message for the customer.');
+            }
+
             // Dipakai admin maupun customer; SP yang memvalidasi kepemilikan
             // berdasarkan id_pengguna — yang kini selalu dari session.
             $stmt = sqlsrv_query($conn, "{CALL dbo.sp_UpdateBuybackStatus(?, ?, ?, ?)}",
-                [$_POST['id_pembelian'], $_POST['status'], $_POST['no_resi'] ?? null, $authId]);
+                [$idPembelian, $statusBaru, $_POST['no_resi'] ?? null, $authId]);
             if ($stmt === false) throw new Exception(getSqlError());
-            
+
+            if ($butuhPesan && $pesan !== '') {
+                $judul = ($statusBaru === 9) ? 'Buyback Rejected' : 'Buyback Cancelled';
+                $isi   = ($statusBaru === 9)
+                    ? "Your buyback request #$idPembelian has been rejected and your cards will be returned.\n\nReason: $pesan"
+                    : "Your buyback submission #$idPembelian has been cancelled by our team.\n\nReason: $pesan";
+
+                // Query-nya ada di dbo.sp_AddNotifikasiTransaksi
+                // (db/migrations/2026-07-24_admin_cancel_return_message.sql).
+                sqlsrv_query($conn, "{CALL dbo.sp_AddNotifikasiTransaksi('pembelian', ?, ?, ?)}",
+                    [$idPembelian, $judul, $isi]);
+            }
+
             ob_clean(); echo json_encode(["status" => "success", "message" => "Status updated successfully."]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
         break;

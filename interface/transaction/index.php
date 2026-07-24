@@ -8,7 +8,7 @@ $type = 'sales';
 // Status mapping untuk PHP render (Khusus Sales)
 $STATUS_LABEL = [
     0 => 'Pending Payment',
-    1 => 'Paid',
+    1 => 'Payment Approval',
     2 => 'Waiting Stock',
     3 => 'Processing',
     4 => 'Shipped',
@@ -448,6 +448,7 @@ if (isset($conn) && $conn !== false) {
             <div id="trxModalBody"></div>
         </div>
     </div>
+    <script src="/cardhaven/interface/image_viewer.js?v=<?= time() ?>"></script>
     <script src="/cardhaven/interface/transaction/transaction.js?v=<?= time() ?>"></script>
 
     <script src="/cardhaven/interface/global_alert.js?v=<?= time() ?>"></script>

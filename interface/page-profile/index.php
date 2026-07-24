@@ -51,6 +51,7 @@ $pageTitle = 'My Profile – CardHaven';
 
     <!-- Scripts -->
     <script src="/cardhaven/interface/global_alert.js"></script>
+    <script src="/cardhaven/interface/image_viewer.js"></script>
     <script src="/cardhaven/interface/page-profile/assets/js/profile.js"></script>
     <script src="/cardhaven/interface/page-profile/assets/js/mailbox.js"></script>
     <script src="/cardhaven/interface/page-profile/assets/js/transaction.js"></script>

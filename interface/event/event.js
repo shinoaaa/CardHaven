@@ -1278,6 +1278,7 @@ function hideEvent(idEvent, isHidden, element) {
     // isHidden = true (ON) -> status 3 (Hidden)
     // isHidden = false (OFF) -> status 1 (Visible/Active)
     const newStatus = isHidden ? 0 : 1; 
+    // const label  = isHidden ? 'show' : 'hide';
 
     fetch(TOGGLE_URL, { 
         method: "POST",

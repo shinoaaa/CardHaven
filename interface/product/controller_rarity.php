@@ -44,6 +44,18 @@ try {
         exit;
     }
 
+    // Search-suggest game pada modal Rarity (menggantikan dropdown penuh).
+    if (isset($_GET['search_game'])) {
+        $keyword = trim($_GET['search_game']);
+        $stmt = sqlsrv_query($conn, '{CALL dbo.sp_GetDropdownGame(?)}', [$keyword]);
+        if ($stmt === false) throw new Exception('sp_GetDropdownGame query failed.');
+        $games = [];
+        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $games[] = $row;
+        ob_clean();
+        echo json_encode($games, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     // [FIX] check_duplicate via GET
     if (isset($_GET['check_duplicate'])) {
         $id_game    = (int)($_GET['id_game'] ?? 0);

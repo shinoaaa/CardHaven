@@ -42,19 +42,21 @@ function loadRarities(gameId, selectedId = null) {
         });
     });
 }
-function setupSuggest(inputId, hiddenId, boxId, param, dependId = null) {
+// baseUrl bisa diganti agar master lain (Set/Rarity) memakai controller-nya sendiri.
+function setupSuggest(inputId, hiddenId, boxId, param, dependId = null, baseUrl = URL_PRODUK) {
     const input = document.getElementById(inputId);
     const hidden = document.getElementById(hiddenId);
     const box = document.getElementById(boxId);
+    if (!input || !hidden || !box) return;
 
     input.oninput = function() {
         clearError(this); // Tambahkan ini agar border merah hilang saat user mengetik kembali
-        if (this.value.length < 1) { 
-            box.style.display = 'none'; 
+        if (this.value.length < 1) {
+            box.style.display = 'none';
             hidden.value = '';
-            return; 
+            return;
         }
-        let url = `${URL_PRODUK}?${param}=${this.value}`;
+        let url = `${baseUrl}?${param}=${encodeURIComponent(this.value)}`;
         if (dependId) {
             const depVal = document.getElementById(dependId).value;
             if (!depVal) { showError(input, "Please select a Game first!"); return; }
@@ -272,26 +274,34 @@ function openAddProductModal() {
 
 function toggleProductStatus(id, isActive, el) {
     const action = isActive ? 'aktifkan' : 'nonaktifkan';
-    
-    const fd = new FormData();
-    fd.append('action', action);
-    fd.append('id_produk', id);
+    const label  = isActive ? 'activated' : 'deactivated';
+    cardhavenConfirm(
+        `${isActive ? 'Activate' : 'Deactivate'} Rarity?`,
+        `Are you sure you want to ${isActive ? 'activate' : 'deactivate'} this product?`,
+        isActive ? 'Activate' : 'Deactivate',
+        () => {
+            const fd = new FormData();
+            fd.append('action', action);
+            fd.append('id_produk', id);
 
-    fetch(URL_PRODUK, { method: 'POST', body: fd })
-    .then(res => res.json())
-    .then(res => {
-        if (res.status === 'success') {
-            Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Product status changed.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
-        } else {
-            el.checked = !isActive;
-            Swal.fire('Failed', res.message, 'error');
-        }
-    })
-    .catch(err => {
-        el.checked = !isActive;
-        console.error(err);
-        Swal.fire('Error', 'Connection error occurred.', 'error');
-    });
+            fetch(URL_PRODUK, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    Swal.fire({ icon: 'success', iconColor: '#0088FF', title: 'Success!', text: `Product status changed.`, showConfirmButton: false, timer: 1500, customClass: { title: 'coolveticaa' } }).then(() => location.reload());
+                } else {
+                    el.checked = !isActive;
+                    Swal.fire('Failed', res.message, 'error');
+                }
+            })
+            .catch(err => {
+                el.checked = !isActive;
+                console.error(err);
+                Swal.fire('Error', 'Connection error occurred.', 'error');
+            });
+        },
+        () => { el.checked = !isActive; }
+    );
 }
 
 function openEditProductModal(id) {

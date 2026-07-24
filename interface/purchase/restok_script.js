@@ -226,7 +226,7 @@ function openRestokModal(id) {
                 itemHtml += `
                 <tr>
                     <td style="text-align:left;">${item.nama_produk ?? '-'}</td>
-                    <td>${item.jumlah_barang}</td>
+                    <td style="text-align:right;">${item.jumlah_barang}</td>
                     <td style="text-align:right;">${formatRupiah(item.harga_beli)}</td>
                     <td style="text-align:right; font-weight:600;">${formatRupiah(item.subtotal_harga)}</td>
                 </tr>`;

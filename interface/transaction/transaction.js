@@ -2,7 +2,7 @@ const TRX_API = '/cardhaven/interface/transaction/apifetch.php';
 
 const STATUS_LABEL = {
     0: 'Pending Payment',
-    1: 'Paid',
+    1: 'Payment Approval',
     2: 'Waiting Stock',
     3: 'Processing',
     4: 'Shipped',
@@ -99,7 +99,7 @@ async function openDetailModal(id_penjualan) {
             // view-only: tidak ada tombol aksi untuk Owner
         } else if (st === 0) {
             actionBtns = `
-                <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
+                <button class="btn-trx-action btn-cancel" onclick="promptCancelOrder(${id_penjualan})">
                     Cancel
                 </button>`;
         } else if (st === 1) {
@@ -116,7 +116,7 @@ async function openDetailModal(id_penjualan) {
                 <button class="btn-trx-action btn-process" onclick="doAction('proses', ${id_penjualan})">
                     Process Order
                 </button>
-                <button class="btn-trx-action btn-cancel" onclick="doAction('cancel', ${id_penjualan})">
+                <button class="btn-trx-action btn-cancel" onclick="promptCancelOrder(${id_penjualan})">
                     Cancel
                 </button>`;
         } else if (st === 3) {
@@ -129,6 +129,13 @@ async function openDetailModal(id_penjualan) {
                 <button class="btn-trx-action btn-deliver" onclick="doAction('delivered', ${id_penjualan})">
                     Set Delivered
                 </button>`;
+        } else if (st === 5) {
+            // Barang sudah sampai: admin bisa memproses pengembalian barang,
+            // wajib menuliskan pesan alasannya untuk customer.
+            actionBtns = `
+                <button class="btn-trx-action btn-cancel" onclick="promptReturnOrder(${id_penjualan})">
+                    Return Order
+                </button>`;
         }
 
         // Bukti bayar — nilai DB adalah path relatif lengkap dari web root.
@@ -136,10 +143,9 @@ async function openDetailModal(id_penjualan) {
         let buktiSrc = h.bukti_pembayaran || '';
         if (buktiSrc.startsWith('bukti_pembayaran/')) buktiSrc = `assets/image/${buktiSrc}`;
         const buktiHtml = h.bukti_pembayaran
-            ? `<a href="/CardHaven/${buktiSrc}" target="_blank">
-                <img src="/CardHaven/${buktiSrc}"
-                    style="max-width:180px;max-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,.15);object-fit:cover;cursor:pointer;">
-               </a>`
+            ? `<img src="/CardHaven/${buktiSrc}"
+                    style="max-width:180px;max-height:130px;border-radius:8px;border:1px solid rgba(255,255,255,.15);object-fit:cover;cursor:pointer;"
+                    title="Click to enlarge" onclick="chViewImage(this.src, 'Payment Proof')">`
             : `<span style="opacity:.45;font-size:.8rem;">No proof yet</span>`;
 
         // Item rows
@@ -320,6 +326,62 @@ async function postAction(action, id_penjualan, extra = {}) {
     return await res.json();
 }
 
+// Cancel / Return oleh admin wajib disertai pesan untuk customer — pesannya
+// dikirim ke Mailbox customer, sama seperti alur Reject Payment.
+function promptCancelOrder(id_penjualan) {
+    promptActionWithMessage({
+        action: 'cancel',
+        id_penjualan,
+        title: 'Cancel Order?',
+        text: 'Write a message for the customer explaining why this order is cancelled. The product stock will be restored.',
+        placeholder: 'Examples: Product is out of stock, customer requested cancellation, etc...',
+        confirmText: 'Cancel & Notify',
+        validationMsg: 'Please write the reason for cancelling this order.',
+        successMsg: 'Order cancelled. The message has been sent to the customer.',
+    });
+}
+
+function promptReturnOrder(id_penjualan) {
+    promptActionWithMessage({
+        action: 'returned',
+        id_penjualan,
+        title: 'Return Order?',
+        text: 'Write a message for the customer explaining why this order is returned.',
+        placeholder: 'Examples: Item damaged on arrival, wrong item shipped, etc...',
+        confirmText: 'Return & Notify',
+        validationMsg: 'Please write the reason for returning this order.',
+        successMsg: 'Order returned. The message has been sent to the customer.',
+    });
+}
+
+function promptActionWithMessage(cfg) {
+    Swal.fire({
+        title: cfg.title,
+        text: cfg.text,
+        input: 'textarea',
+        inputPlaceholder: cfg.placeholder,
+        showCancelButton: true,
+        confirmButtonText: cfg.confirmText,
+        confirmButtonColor: '#b91c1c',
+        preConfirm: (reason) => {
+            if (!reason || !reason.trim()) {
+                Swal.showValidationMessage(cfg.validationMsg);
+            }
+            return reason;
+        }
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+        const res = await postAction(cfg.action, cfg.id_penjualan, { reason: result.value });
+        if (res.status === 'success') {
+            cardhavenAlert('Success', 'success', cfg.successMsg);
+            closeTrxModal();
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            cardhavenAlert('Error', 'error', res.message || 'Failed to update status.');
+        }
+    });
+}
+
 function promptRejectPayment(id_penjualan) {
     Swal.fire({
         title: 'Reject Payment?',
@@ -354,7 +416,8 @@ async function doAction(action, id_penjualan) {
         confirm_payment: ['Confirm Payment?', 'The payment will be marked as received.', 'Yes, Confirm'],
         proses:           ['Process Order?', 'The order will be moved to the Processing status.', 'Yes, Process'],
         delivered:        ['Mark as Delivered?', 'The order will be marked as delivered to the customer.', 'Yes, Mark as Delivered'],
-        cancel:           ['Cancel Order?', 'The product stock will be restored. This action cannot be undone.', 'Yes, Cancel'],
+        // cancel & returned tidak lewat sini: keduanya wajib pesan untuk customer
+        // (lihat promptCancelOrder / promptReturnOrder).
     };
 
     const [title, text, btnText] = CONFIRM_MSG[action] ?? ['Konfirmasi?', '', 'Ya'];

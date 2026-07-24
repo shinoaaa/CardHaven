@@ -25,6 +25,8 @@ function loadCart() {
         })
         .then(data => {
             renderCart(data);
+            // Badge cart di navbar ikut turun/naik saat item dihapus dari halaman ini.
+            if (typeof setCartBadge === 'function') setCartBadge((data || []).length);
         })
         .catch(err => {
             console.error('Failed to load cart:', err);

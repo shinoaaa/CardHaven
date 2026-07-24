@@ -180,6 +180,7 @@ $BUYBACK_STATUS = [
                 <div class="modal-footer" id="modalFooter" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"></div>
             </div>
         </div>
+        <script src="/cardhaven/interface/image_viewer.js?v=<?= time() ?>"></script>
         <script src="/cardhaven/interface/buyback/buyback_admin_script.js?v=<?= time() ?>"></script>
     <?php endif; ?>
 
