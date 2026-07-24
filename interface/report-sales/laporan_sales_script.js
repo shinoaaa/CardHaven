@@ -243,7 +243,7 @@ function openDetailModal(id) {
 
             if (diskon > 0) {
                 hrgTampilHtml = `
-                    <div style="font-size: 0.75rem; color: #94a3b8; text-decoration: line-through;">Rp ${parseInt(item.harga_produk).toLocaleString('id-ID')}</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8; text-decoration: line-through;">Rp ${parseInt(item.harga_awal).toLocaleString('id-ID')}</div>
                     <div style="font-size: 0.95rem; font-weight: 600; color: #E74C3C;">Rp ${parseInt(item.harga_diskon).toLocaleString('id-ID')} <span style="background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:bold; margin-left:4px;">-${diskon}%</span></div>
                 `;
             } else {

@@ -61,7 +61,7 @@ try {
                 throw new Exception("This order has already been paid or can no longer be paid.");
             }
 
-            $dir = __DIR__ . '/../../../assets/image/receipt/';
+            $dir = __DIR__ . '/../../assets/image/receipt/';
             if (!is_dir($dir)) mkdir($dir, 0777, true);
             
             $fileName = uniqid('rcpt_') . '_' . basename($_FILES['bukti_pembayaran']['name']);
