@@ -175,7 +175,7 @@ function renderTable() {
             <td style="text-align:right; font-weight:600; padding-right: 1rem;">${row.total_barang} Pcs</td>
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">
-                <button class="btn-view-icon" onclick="openDetailModal(${row.id_restok})">...</button>
+                <button class="btn-view-icon" onclick="openDetailModal(${row.id_restok})"><img src="/cardhaven/assets/image/detail.svg"></button>
             </td>
         </tr>`;
         tbody.innerHTML += tr;
@@ -205,9 +205,7 @@ function exportReport(type) {
 }
 
 function openDetailModal(id) {
-    const headerTitle = document.querySelector('#detailModal .modal-header h2');
-    if (headerTitle) headerTitle.innerHTML = `PO ID: <span class="blue-text">#${id}</span>`;
-
+    // Judul modal statis di index.php — id restok tidak ditampilkan.
     document.getElementById('detailModal').style.display = 'flex';
     const content = document.getElementById('modalContent');
     content.innerHTML = `<div style="text-align:center; padding: 2rem; color:#888;">Loading PO details...</div>`;

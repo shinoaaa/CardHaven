@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function openAddMetode() {
     clearAllErrors('metodeForm');
     document.getElementById('metodeModalTitle').innerHTML = 'ADD <span class="blue-text">PAYMENT METHOD</span>';
-    document.getElementById('metodeDisplayID').innerText  = '';
     document.getElementById('metodeFormAction').value     = 'add';
     metodeForm.reset();
     metodeModal.style.display = 'flex';
@@ -57,7 +56,6 @@ function openEditMetode(id) {
 
             clearAllErrors('metodeForm');
             document.getElementById('metodeModalTitle').innerHTML = '<span class="blue-text">EDIT</span> PAYMENT METHOD';
-            document.getElementById('metodeDisplayID').innerText  = 'MTD-' + String(id).padStart(3, '0');
             document.getElementById('metodeFormAction').value     = 'edit';
             document.getElementById('metodeIdInput').value        = id;
 
@@ -228,7 +226,6 @@ function openDetailMetode(id) {
         .then(data => {
             if (!data || data.error) return cardhavenAlert('error', 'Error', data.error || 'Failed to fetch data.');
 
-            document.getElementById('metodeDetailDisplayID').innerText = 'MTD-' + String(id).padStart(3, '0');
             document.getElementById('detailMetodeNama').innerText     = data.nama_metode  || '-';
             document.getElementById('detailMetodeProvider').innerText = data.provider     || '-';
             document.getElementById('detailMetodeNoRek').innerText    = data.no_rekening  || '-';

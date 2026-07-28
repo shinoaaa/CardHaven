@@ -33,7 +33,6 @@ function loadSetPage(page) {
 function openAddSetModal() {
     clearAllErrors('setForm');
     document.getElementById('setModalTitle').innerHTML = 'ADD <span class="blue-text">SET</span>';
-    document.getElementById('setDisplayID').innerText  = '';
     document.getElementById('setFormAction').value     = 'add';
     setForm.reset();
     document.getElementById('setTanggal').value = '';
@@ -49,7 +48,6 @@ function openEditSetModal(id) {
 
             clearAllErrors('setForm');
             document.getElementById('setModalTitle').innerHTML = '<span class="blue-text">EDIT</span> SET';
-            document.getElementById('setDisplayID').innerText  = 'SET-' + String(id).padStart(3, '0');
             document.getElementById('setFormAction').value     = 'edit';
             document.getElementById('setIdInput').value        = id;
             document.getElementById('setNama').value           = data.nama_set  || '';
@@ -197,7 +195,6 @@ function openDetailSetModal(id) {
         .then(data => {
             if (!data || data.error) return cardhavenAlert('error', 'Error', data.error || 'Failed to fetch set data.');
 
-            document.getElementById('setDetailDisplayID').innerText  = 'SET-' + String(id).padStart(3, '0');
             document.getElementById('detailSetNama').innerText        = data.nama_set    || '-';
             document.getElementById('detailSetKode').innerText        = data.kode_set    || '-';
             document.getElementById('detailSetGame').innerText        = data.nama_game   || '-';

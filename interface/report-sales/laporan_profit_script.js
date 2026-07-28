@@ -73,23 +73,23 @@ function profitRenderTable(months, total) {
         return `
             <tr>
                 <td style="text-align:left; font-weight:600;">${PROFIT_MONTH_NAMES[m.bulan - 1]}</td>
-                <td>${profitFormatRp(m.revenue)}</td>
-                <td>${profitFormatRp(m.cogs)}</td>
-                <td style="color:${profitColor}; font-weight:700;">${profitFormatRp(m.profit)}</td>
-                <td>${profitFormatRp(m.restok_spend)}</td>
-                <td>${profitFormatRp(m.buyback_spend)}</td>
+                <td style="text-align: right;">${profitFormatRp(m.revenue)}</td>
+                <td style="text-align: right;">${profitFormatRp(m.cogs)}</td>
+                <td style="color:${profitColor}; text-align: right; font-weight:700;">${profitFormatRp(m.profit)}</td>
+                <td style="text-align: right;">${profitFormatRp(m.restok_spend)}</td>
+                <td style="text-align: right;">${profitFormatRp(m.buyback_spend)}</td>
             </tr>`;
     }).join('');
 
     const profitColor = total.profit > 0 ? '#27AE60' : (total.profit < 0 ? '#e74c3c' : '#333');
     tbody.innerHTML += `
         <tr style="border-top:2px solid var(--primary-color);">
-            <td style="text-align:left; font-weight:800; color:var(--primary-color);">Total</td>
-            <td style="font-weight:800;">${profitFormatRp(total.revenue)}</td>
-            <td style="font-weight:800;">${profitFormatRp(total.cogs)}</td>
-            <td style="font-weight:800; color:${profitColor};">${profitFormatRp(total.profit)}</td>
-            <td style="font-weight:800;">${profitFormatRp(total.restok_spend)}</td>
-            <td style="font-weight:800;">${profitFormatRp(total.buyback_spend)}</td>
+            <td style="text-align: left; font-weight:800; color:var(--primary-color);">Total</td>
+            <td style="text-align: right; font-weight:800;">${profitFormatRp(total.revenue)}</td>
+            <td style="text-align: right; font-weight:800;">${profitFormatRp(total.cogs)}</td>
+            <td style="text-align: right; font-weight:800; color:${profitColor};">${profitFormatRp(total.profit)}</td>
+            <td style="text-align: right; font-weight:800;">${profitFormatRp(total.restok_spend)}</td>
+            <td style="text-align: right; font-weight:800;">${profitFormatRp(total.buyback_spend)}</td>
         </tr>`;
 }
 

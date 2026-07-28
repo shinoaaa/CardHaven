@@ -2,7 +2,6 @@
     <div class="modal-box" style="width: 650px;">
         <div class="modal-header">
             <h2 id="pTitle">ADD <span class="blue-text">PRODUCT</span></h2>
-            <span id="pDisplayID" class="game-id"></span>
         </div>
         <form id="productForm">
             <input type="hidden" name="action" id="pAction" value="add">
@@ -105,7 +104,7 @@
             </div>
             
             <div class="modal-form-group">
-                <label>Description (Optional)</label>
+                <label>Description</label>
                 <textarea name="deskripsi" id="pDeskripsi" class="modal-input" rows="3" placeholder="Additional product details..."></textarea>
                 <div class="error-message"></div>
             </div>
@@ -130,7 +129,7 @@
             </div>
             
             <div class="modal-form-group">
-                <label>Product Image <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
+                <label>Product Image</label>
                 <div style="text-align: center; margin-bottom: 8px;">
                     <img id="pPreview" src="" style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:contain;">
                     <div id="pPlaceholder" style="color:#aaa; padding: 20px; border: 2px dashed #ccc; border-radius:8px; font-size:0.9rem;">No image selected</div>
@@ -151,7 +150,6 @@
     <div class="modal-box" style="width: 800px; max-width: 95%;">
         <div class="modal-header">
             <h2>PRODUCT <span class="blue-text">DETAILS</span></h2>
-            <span id="detProdID" class="game-id" style="padding: 4px 10px; border-radius: 5px; font-size: 0.9rem;"></span>
         </div>
         
         <div class="detail-container" style="display: flex; gap: 30px; margin-top: 20px; align-items: flex-start;">
@@ -231,7 +229,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2 id="modalTitle">ADD <span class="blue-text">GAME</span></h2>
-            <span id="displayID" class="game-id"></span>
         </div>
 
         <form id="gameForm">
@@ -258,7 +255,7 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Game Banner <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
+                <label>Game Banner</label>
                 <div style="text-align: center; margin-bottom: 8px;">
                     <img id="gPreview" src="" style="display:none; max-width:100%; max-height:150px; border-radius:8px; object-fit:contain; border: 1px solid #ddd;">
                     <div id="gPlaceholder" style="color:#aaa; padding: 20px; border: 2px dashed #ccc; border-radius:8px; font-size:0.9rem;">No banner selected</div>
@@ -275,7 +272,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2>GAME <span class="blue-text">DETAIL</span></h2>
-            <span id="gameDetailDisplayID" class="game-id"></span>
         </div>
         <div class="modal-form-group" style="text-align: center;">
             <div style="border: 1px solid #eee; border-radius: 8px; padding: 5px; background: #f9f9f9;">
@@ -307,7 +303,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2 id="modalTitleRarity">ADD <span class="blue-text">RARITY</span></h2>
-            <span id="displayIDRarity" class="game-id"></span>
         </div>
 
         <form id="rarityForm">
@@ -349,7 +344,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2>RARITY <span class="blue-text">DETAIL</span></h2>
-            <span id="rarityDetailDisplayID" class="game-id"></span>
         </div>
 
         <div class="modal-form-group">
@@ -380,7 +374,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2 id="setModalTitle">ADD <span class="blue-text">SET</span></h2>
-            <span id="setDisplayID" class="game-id"></span>
         </div>
 
         <form id="setForm">
@@ -410,7 +403,7 @@
             </div>
 
             <div class="modal-form-group">
-                <label>Release Date <span style="color:#888; font-size:0.85em;">(Optional)</span></label>
+                <label>Release Date</label>
                 <input type="date" name="tanggal_rilis" id="setTanggal" class="modal-input">
                 <div class="error-message"></div>
             </div>
@@ -427,7 +420,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2>SET <span class="blue-text">DETAIL</span></h2>
-            <span id="setDetailDisplayID" class="game-id"></span>
         </div>
 
         <div class="modal-form-group">
@@ -463,7 +455,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2 id="metodeModalTitle">ADD <span class="blue-text">PAYMENT METHOD</span></h2>
-            <span id="metodeDisplayID" class="game-id"></span>
         </div>
 
         <form id="metodeForm">
@@ -523,7 +514,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2>PAYMENT METHOD <span class="blue-text">DETAIL</span></h2>
-            <span id="metodeDetailDisplayID" class="game-id"></span>
         </div>
 
         <div class="modal-form-group">

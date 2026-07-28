@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${mfEsc(r.developer)}</td>
                 <td>${mfStatusPill(r.aktif)}</td>
                 <td><div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openDetailModal(${r.id_game})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailModal(${r.id_game})"><img src="/cardhaven/assets/image/detail.svg"></button>
                     <button class="btn-edit-icon" onclick="openEditModal(${r.id_game})"><img src="/cardhaven/assets/image/edit.svg"></button>
                     <button class="btn-delete-icon" onclick="confirmDelete(${r.id_game})"><img src="/cardhaven/assets/image/delete.svg"></button>
                     <label class="switch"><input type="checkbox" ${parseInt(r.aktif) === 1 ? 'checked' : ''} onchange="toggleStatus(${r.id_game}, this.checked, this)"><span class="slider"></span></label>
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${mfEsc(r.nama_game || 'N/A')}</td>
                 <td>${mfStatusPill(r.aktif)}</td>
                 <td><div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openDetailSetModal(${r.id_set})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailSetModal(${r.id_set})"><img src="/cardhaven/assets/image/detail.svg"></button>
                     <button class="btn-edit-icon" onclick="openEditSetModal(${r.id_set})"><img src="/cardhaven/assets/image/edit.svg"></button>
                     <button class="btn-delete-icon" onclick="confirmDeleteSet(${r.id_set})"><img src="/cardhaven/assets/image/delete.svg"></button>
                     <label class="switch"><input type="checkbox" ${parseInt(r.aktif) === 1 ? 'checked' : ''} onchange="toggleSetStatus(${r.id_set}, this.checked, this)"><span class="slider"></span></label>
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${mfEsc(r.nama_game || 'N/A')}</td>
                 <td>${mfStatusPill(r.aktif)}</td>
                 <td><div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openDetailRarity(${r.id_rarity})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailRarity(${r.id_rarity})"><img src="/cardhaven/assets/image/detail.svg"></button>
                     <button class="btn-edit-icon" onclick="openEditRarity(${r.id_rarity})"><img src="/cardhaven/assets/image/edit.svg"></button>
                     <button class="btn-delete-icon" onclick="confirmDeleteRarity(${r.id_rarity})"><img src="/cardhaven/assets/image/delete.svg"></button>
                     <label class="switch"><input type="checkbox" ${parseInt(r.aktif) === 1 ? 'checked' : ''} onchange="toggleRarityStatus(${r.id_rarity}, this.checked, this)"><span class="slider"></span></label>
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td style="text-align:right; font-weight:bold;">Rp${Number(r.harga_jual).toLocaleString('id-ID')}</td>
                 <td>${mfStatusPill(r.status)}</td>
                 <td><div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openDetailProductModal(${r.id_produk})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailProductModal(${r.id_produk})"><img src="/cardhaven/assets/image/detail.svg"></button>
                     <button class="btn-edit-icon" onclick="openEditProductModal(${r.id_produk})"><img src="/cardhaven/assets/image/edit.svg"></button>
                     <button class="btn-delete-icon" onclick="confirmDeleteProduct(${r.id_produk})"><img src="/cardhaven/assets/image/delete.svg"></button>
                     <label class="switch"><input type="checkbox" ${parseInt(r.status) === 1 ? 'checked' : ''} onchange="toggleProductStatus(${r.id_produk}, this.checked, this)"><span class="slider"></span></label>
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td style="text-align:right;">Rp${Number(r.biaya_admin || 0).toLocaleString('id-ID')}</td>
                 <td>${mfStatusPill(r.aktif)}</td>
                 <td><div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openDetailMetode(${r.id_metode})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailMetode(${r.id_metode})"><img src="/cardhaven/assets/image/detail.svg"></button>
                     <button class="btn-edit-icon" onclick="openEditMetode(${r.id_metode})"><img src="/cardhaven/assets/image/edit.svg"></button>
                     <button class="btn-delete-icon" onclick="confirmDeleteMetode(${r.id_metode})"><img src="/cardhaven/assets/image/delete.svg"></button>
                     <label class="switch">

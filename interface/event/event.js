@@ -1491,7 +1491,7 @@ function renderEventTable(data, currentPage = 1) {
         // ── 2. LOGIKA BUTTON ACTION (Class Asli Milikmu) ──
         let actionHtml = `
             <div class="btn-action-group">
-                <button class="btn-view-icon" onclick="openEventModal(${row.id_event})">...</button>
+                <button class="btn-view-icon" onclick="openEventModal(${row.id_event})"><img src="/cardhaven/assets/image/detail.svg"></button>
         `;
 
         // Tombol Edit

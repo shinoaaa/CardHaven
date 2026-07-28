@@ -66,7 +66,7 @@ require_once 'components/fetch_dashboard.php';
                             </td>
                             <td>
                                 <div class="btn-action-group">
-                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)">...</button>
+                                    <button class="btn-view-icon" onclick="openDetailProductModal(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/detail.svg"></button>
                                     <button class="btn-edit-icon" onclick="openEditProductModal(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
                                     <button class="btn-delete-icon" onclick="confirmDeleteProduct(<?= $row['id_produk'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
                                     <label class="switch">

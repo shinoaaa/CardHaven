@@ -3,7 +3,6 @@
 <div id="modalSupplierDetail" class="supp-modal" style="min-width: 30rem;">
     <div class="modal-header">
         <h2 id="pTitle">Supplier <span class="blue-text">Details</span></h2>
-        <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -46,7 +45,6 @@
 <div id="modalSupplierAdd" class="supp-modal">
     <div class="modal-header">
         <h2 id="pTitle">Add <span class="blue-text">Supplier</span></h2>
-        <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <form id="suppAddForm" novalidate>
@@ -85,7 +83,6 @@
 <div id="modalSupplierEdit" class="supp-modal">
     <div class="modal-header">
         <h2 id="pTitle">Edit <span class="blue-text">Supplier</span></h2>
-        <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <form id="suppEditForm" novalidate>

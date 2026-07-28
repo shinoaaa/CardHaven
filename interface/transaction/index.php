@@ -335,7 +335,7 @@ if (isset($conn) && $conn !== false) {
                         </button>
                     </div>
 
-                    <input type="text" placeholder="Search username or Order ID..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)" style="width:100%; box-sizing:border-box; <?= $trxPill ?>">
+                    <input type="text" placeholder="Search customer name..." value="<?= htmlspecialchars($activeSearch) ?>" oninput="onSearchInput(this.value)" style="width:100%; box-sizing:border-box; <?= $trxPill ?>">
                 </div>
 
                 <div id="tableContainer">
@@ -388,7 +388,7 @@ if (isset($conn) && $conn !== false) {
                                         </td>
                                         <td style="text-align:center;">
                                             <div class="btn-action-group" style="justify-content:center;">
-                                                <button class="btn-view-icon" title="View detail" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)">...</button>
+                                                <button class="btn-view-icon" title="View detail" onclick="openDetailModal(<?= (int)$row['id_penjualan'] ?>)"><img src="/cardhaven/assets/image/detail.svg"></button>
                                             </div>
                                         </td>
                                     </tr>

@@ -3,7 +3,6 @@
 <div id="modalAdminDetail" class="supp-modal" style="min-width: 30rem;">
     <div class="modal-header">
         <h2 id="pTitle">Manager <span class="blue-text">Details</span></h2>
-        <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -40,7 +39,6 @@
 <div id="modalAdminAdd" class="supp-modal">
     <div class="modal-header">
         <h2 id="pTitle">Add <span class="blue-text">Super Admin</span></h2>
-        <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <form id="adminAddForm" novalidate enctype="multipart/form-data">
@@ -92,7 +90,6 @@
 <div id="modalAdminEdit" class="supp-modal">
     <div class="modal-header">
         <h2 id="pTitle">Edit <span class="blue-text">Super Admin</span></h2>
-        <span id="pDisplayID" class="game-id"></span>
     </div>
     <div class="supp-modal-body">
         <form id="adminEditForm" novalidate enctype="multipart/form-data">

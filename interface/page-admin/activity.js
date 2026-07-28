@@ -164,7 +164,6 @@ function dashActivityItem(row) {
         <div class="dash-act-main">
             <div class="dash-act-title">
                 <span class="dash-type-tag" style="background:${meta.tagBg};color:${meta.tagColor};">${meta.label}</span>
-                #${row.ref_id}
             </div>
             <div class="dash-act-sub">${dashEsc(row.pihak)} · ${tgl}</div>
         </div>

@@ -63,6 +63,35 @@ function getSqlError() {
     return $errors[0]['message'] ?? 'Unknown SQL Server Error';
 }
 
+/**
+ * Nama customer + nama kartu untuk teks notifikasi buyback.
+ * Notifikasi TIDAK memuat id_pembelian: PK database tidak ditampilkan di
+ * aplikasi, dan angka itu tidak berarti apa-apa buat customer.
+ */
+function buybackNotifInfo($conn, $idPembelian, int $viewRole, int $actorId): array {
+    $info = ['nama' => '', 'kartu' => []];
+
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetBuybackDetail(?, ?, ?)}", [$idPembelian, $viewRole, $actorId]);
+    if ($stmt === false) return $info;
+
+    $header = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    if ($header) $info['nama'] = $header['username'] ?? '';
+
+    sqlsrv_next_result($stmt);
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        if (!empty($row['nama_kartu'])) $info['kartu'][] = $row['nama_kartu'];
+    }
+    return $info;
+}
+
+/** "Pikachu VMAX" atau "Pikachu VMAX and 2 other cards". */
+function buybackCardLabel(array $kartu): string {
+    if (!$kartu) return 'your cards';
+    $sisa = count($kartu) - 1;
+    if ($sisa <= 0) return $kartu[0];
+    return $kartu[0] . ' and ' . $sisa . ' other card' . ($sisa > 1 ? 's' : '');
+}
+
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
 switch ($action) {
@@ -189,10 +218,15 @@ switch ($action) {
             if ($stmt === false) throw new Exception(getSqlError());
 
             if ($butuhPesan && $pesan !== '') {
+                // Pesan memakai nama customer & nama kartu, bukan id transaksi.
+                $info  = buybackNotifInfo($conn, $idPembelian, buybackViewRole((int)$authRole), (int)$authId);
+                $sapa  = $info['nama'] !== '' ? "Hi {$info['nama']},\n\n" : '';
+                $kartu = buybackCardLabel($info['kartu']);
+
                 $judul = ($statusBaru === 9) ? 'Buyback Rejected' : 'Buyback Cancelled';
                 $isi   = ($statusBaru === 9)
-                    ? "Your buyback request #$idPembelian has been rejected and your cards will be returned.\n\nReason: $pesan"
-                    : "Your buyback submission #$idPembelian has been cancelled by our team.\n\nReason: $pesan";
+                    ? $sapa . "Your buyback request for $kartu has been rejected and your cards will be returned.\n\nReason: $pesan"
+                    : $sapa . "Your buyback submission for $kartu has been cancelled by our team.\n\nReason: $pesan";
 
                 // Query-nya ada di dbo.sp_AddNotifikasiTransaksi
                 // (db/migrations/2026-07-24_admin_cancel_return_message.sql).

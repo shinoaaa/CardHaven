@@ -3,7 +3,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2 id="metodeModalTitle">ADD <span class="blue-text">PAYMENT METHOD</span></h2>
-            <span id="metodeDisplayID" class="game-id"></span>
         </div>
 
         <form id="metodeForm">
@@ -63,7 +62,6 @@
     <div class="modal-box">
         <div class="modal-header">
             <h2>PAYMENT METHOD <span class="blue-text">DETAIL</span></h2>
-            <span id="metodeDetailDisplayID" class="game-id"></span>
         </div>
 
         <div class="modal-form-group">

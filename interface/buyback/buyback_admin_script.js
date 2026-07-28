@@ -83,15 +83,14 @@ function applyBuybackFilter() {
         // Filter by status
         if (currentStatusFilter !== '' && String(row.status_pembelian) !== String(currentStatusFilter)) return false;
 
-        // Searching (username, order id, harga, tanggal)
+        // Searching (username, harga, tanggal) — id transaksi tidak lagi dicari
+        // karena PK-nya tidak ditampilkan di mana pun.
         if (search !== '') {
             const uname = (row.username || '').toString().toLowerCase();
-            const idPlain = String(row.id_pembelian || '');
             const harga = (row.total_harga || '').toString().toLowerCase();
             const rawTgl = getRowDate(row);
             const tgl = rawTgl.length >= 10 ? rawTgl.substring(0, 10).split('-').reverse().join('-') : rawTgl;
-            const match = uname.includes(search) || idPlain.includes(search) ||
-                          ('#' + idPlain).includes(search) || harga.includes(search) || tgl.includes(search);
+            const match = uname.includes(search) || harga.includes(search) || tgl.includes(search);
             if (!match) return false;
         }
         return true;
@@ -146,7 +145,7 @@ function renderTable() {
             <td>${parseStatus(row.status_pembelian)}</td>
             <td>
                 <div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_pembelian})"><img src="/cardhaven/assets/image/detail.svg"></button>
                 </div>
             </td>
         </tr>`;
@@ -205,7 +204,7 @@ function openDetailModal(id_pembelian) {
             const data = res.data;
             const pem = data.pembelian;
 
-            document.getElementById('modalTxId').innerText = `${pem.id_pembelian}`;
+            // Judul modal statis — id_pembelian (PK) tidak ditampilkan.
             document.getElementById('modalStatus').innerHTML = parseStatus(pem.status_pembelian);
 
             let proofHtml = '';

@@ -189,7 +189,7 @@ function renderTable() {
             <td style="text-align:right; font-weight:700; padding-right: 1rem;">Rp ${parseInt(row.total_harga).toLocaleString('id-ID')}</td>
             <td style="text-align:center;">
                 <div width="100%" style="display:flex; justify-content:center; align-items:center;">
-                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_penjualan})">...</button>
+                    <button class="btn-view-icon" onclick="openDetailModal(${row.id_penjualan})"><img src="/cardhaven/assets/image/detail.svg"></button>
                 </div>
             </td>
         </tr>`;
@@ -223,9 +223,7 @@ function exportReport(type) {
     window.open(url, '_blank');
 }
 function openDetailModal(id) {
-    const headerTitle = document.querySelector('#detailModal .modal-header h2');
-    if (headerTitle) headerTitle.innerHTML = `SALES ID: <span class="blue-text">#${id}</span>`;
-    
+    // Judul modal statis di index.php — id transaksi tidak ditampilkan.
     document.getElementById('detailModal').style.display = 'flex';
     const content = document.getElementById('modalContent');
     content.innerHTML = `<div style="text-align:center; padding: 2rem; color:#888;">Loading sales details...</div>`;

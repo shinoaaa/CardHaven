@@ -3,6 +3,20 @@ const gameForm = document.getElementById('gameForm');
 const URL_GAME = '/cardhaven/interface/product/controller_game.php';
 // getEmpId() didefinisikan di produk_script.js (ambil id dari PHP session via CardHavenAuth).
 
+/**
+ * URL banner game. Data lama menyimpan path pendek 'image-profile/xxx.jpg'
+ * (tanpa awalan 'assets/image/'), sedangkan upload baru sudah menyimpan path
+ * lengkap. Nama file polos berarti folder produk. Pola yang sama dipakai
+ * home/script.js untuk banner game & promo di halaman customer.
+ */
+function gameBannerSrc(foto) {
+    if (!foto) return '';
+    let path = foto;
+    if (!path.includes('/')) path = `assets/image/products/${path}`;
+    else if (path.startsWith('image-profile/')) path = `assets/image/${path}`;
+    return `/CardHaven/${path}`;
+}
+
 document.querySelectorAll('#gameForm .modal-input').forEach(input => {
     input.addEventListener('input', function() { clearError(this); });
 });
@@ -74,7 +88,6 @@ function resetGameForm() {
 function openAddModal() {
     resetGameForm();
     document.getElementById('modalTitle').innerHTML = 'ADD <span class="blue-text">GAME</span>';
-    document.getElementById('displayID').innerText = '';
     document.getElementById('formAction').value = 'add';
     gameForm.reset();
 
@@ -90,7 +103,6 @@ function openDetailModal(id) {
         .then(data => {
             if (data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            document.getElementById('gameDetailDisplayID').innerText = 'GAM-' + String(id).padStart(4, '0');
             document.getElementById('detailGameNama').innerText = data.nama_game || '-';
             document.getElementById('detailGameDev').innerText = data.developer || '-';
 
@@ -103,7 +115,7 @@ function openDetailModal(id) {
             const detImg = document.getElementById('detailGameBanner');
             const detNoImg = document.getElementById('detailGameNoBanner');
             if (data.foto_banner) {
-                detImg.src = '/CardHaven/' + data.foto_banner;
+                detImg.src = gameBannerSrc(data.foto_banner);
                 detImg.style.display = 'block';
                 detNoImg.style.display = 'none';
             } else {
@@ -127,7 +139,6 @@ function openEditModal(id) {
 
             clearAllErrors('gameForm');
             document.getElementById('modalTitle').innerHTML = '<span class="blue-text">EDIT</span> GAME';
-            document.getElementById('displayID').innerText = 'GAM-' + id;
             document.getElementById('formAction').value = 'edit';
             document.getElementById('formID').value = id;
             document.getElementById('nama_game').value = data.nama_game;
@@ -141,7 +152,7 @@ function openEditModal(id) {
             const preview = document.getElementById('gPreview');
             const placeholder = document.getElementById('gPlaceholder');
             if (data.foto_banner) {
-                preview.src = '/CardHaven/' + data.foto_banner;
+                preview.src = gameBannerSrc(data.foto_banner);
                 preview.style.display = 'block';
                 placeholder.style.display = 'none';
             } else {

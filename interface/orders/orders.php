@@ -438,7 +438,6 @@ auth_require_login();
             div.innerHTML = `
                 <div class="order-card-header">
                     <div>
-                        <div class="order-id">#${o.id_penjualan}</div>
                         <div class="order-date">${formatDate(o.tanggal_penjualan)}</div>
                     </div>
                     <span class="order-status-badge badge-${st}">
@@ -498,7 +497,7 @@ auth_require_login();
 
         // ---- Cancel Order ----
         function cancelOrder(id) {
-            if (!confirm(`Cancel order #${id}? This action cannot be undone.`)) return;
+            if (!confirm('Cancel this order? This action cannot be undone.')) return;
             const fd = new FormData();
             fd.append('action',       'cancel_order');
             fd.append('id_penjualan', id);

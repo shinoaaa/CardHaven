@@ -177,7 +177,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                         <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
                         
                         <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
-                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Buyback ID: <span class="blue-text" id="modalTxId"></span></h2>
+                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">SALES <span class="blue-text">DETAIL</span></h2>
                             <span style="font-weight: 600; color: #15803d; background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">Completed</span>
                         </div>
                         
@@ -283,7 +283,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                         <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
                         
                         <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
-                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Buyback ID: <span class="blue-text" id="modalTxId"></span></h2>
+                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">BUYBACK <span class="blue-text">DETAIL</span></h2>
                             <span style="font-weight: 600; color: #15803d; background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">Completed</span>
                         </div>
                         
@@ -389,7 +389,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                         <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
 
                         <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
-                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">PO ID: <span class="blue-text" id="modalTxId"></span></h2>
+                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">PURCHASE <span class="blue-text">ORDER</span></h2>
                         </div>
 
                         <div id="modalContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;">
@@ -494,7 +494,7 @@ $currentTitle = $titles[$type] ?? 'Report';
                         <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
 
                         <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
-                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Event ID: <span class="blue-text" id="modalTxId"></span></h2>
+                            <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">EVENT <span class="blue-text">DETAIL</span></h2>
                             <span style="font-weight: 600; color: #15803d; background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">Event Report</span>
                         </div>
 

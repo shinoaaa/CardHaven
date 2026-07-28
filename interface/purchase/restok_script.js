@@ -86,12 +86,11 @@ function applyRestokFilter(page = 1) {
         if (status !== '' && String(row.status_restok) !== String(status)) return false;
         if (search !== '') {
             const supplier = (row.nama_suplier || '').toString().toLowerCase();
-            const id = String(row.id_restok || '');
             const by = (row.created_by_name || '').toString().toLowerCase();
             const harga = String(row.total_harga || '');
             const tgl = (row.tanggal_restok || '').toString().toLowerCase();
-            const match = supplier.includes(search) || id.includes(search) ||
-                          ('#' + id).includes(search) || by.includes(search) ||
+            // id_restok tidak ikut dicari — PK-nya tidak ditampilkan di mana pun.
+            const match = supplier.includes(search) || by.includes(search) ||
                           harga.includes(search) || tgl.includes(search);
             if (!match) return false;
         }
@@ -140,7 +139,7 @@ function renderRestokTable() {
             <td>${statusLabel(row.status_restok)}</td>
             <td>
                 <div class="btn-action-group">
-                    <button class="btn-view-icon" onclick="openRestokModal(${row.id_restok})">...</button>
+                    <button class="btn-view-icon" onclick="openRestokModal(${row.id_restok})"><img src="/cardhaven/assets/image/detail.svg"></button>
                 </div>
             </td>
         </tr>`;
@@ -204,7 +203,7 @@ function openRestokModal(id) {
             const h = res.data.header;
             const items = res.data.items;
 
-            document.getElementById('modalPOId').textContent = `#${h.id_restok}`;
+            // Tanpa sub-judul id — nama supplier sudah tampil di field Supplier.
             document.getElementById('modalSupplier').textContent = h.nama_suplier ?? '-';
             document.getElementById('modalTelp').textContent = h.telp_suplier ?? '-';
             document.getElementById('modalTanggal').textContent = h.tanggal_restok;

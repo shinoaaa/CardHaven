@@ -58,8 +58,6 @@ function escHtml($str) {
             <span class="title-dark">DETAIL</span>
         </div>
 
-        <div class="modal-code" style="margin: 0;">EVN-<?= $id ?></div>
-
         <div class="modal-field">
             <label>Event Name</label>
             <div class="modal-input-like"><?= escHtml($row['nama_event']) ?></div>
@@ -159,8 +157,6 @@ function escHtml($str) {
         <span class="ee-title-black">EDIT</span>
         <span class="ee-title-blue"> Event</span>
     </div>
-
-    <div class="ee-code">EVN-<?= (int)$id ?></div>
 
     <div class="ee-body-split">
         <div class="ee-form-col">
@@ -275,7 +271,7 @@ function escHtml($str) {
             <!-- Banner: SELALU tampil, di atas tabel. Kalau event sudah punya banner,
                  langsung ditampilkan sebagai preview. -->
             <div class="ee-banner-wrap">
-                <label class="ee-label">Event Banner <small style="font-weight:400;color:#888;">(optional)</small></label>
+                <label class="ee-label">Event Banner</label>
                 <label for="ee_banner_input" class="ee-banner-drop <?= $curBanner ? 'has-img' : '' ?>" id="ee_banner_drop">
                     <img id="ee_banner_preview" alt="banner preview" <?= $curBanner ? 'src="/CardHaven/' . escHtml($curBanner) . '"' : '' ?>>
                     <div class="ee-banner-placeholder" id="ee_banner_placeholder">
@@ -398,12 +394,6 @@ function escHtml($str) {
     .ee-form-col, .ee-table-col { width: 100%; flex: 1 1 auto; margin-top: 0; }
 }
 
-.ee-code {
-    text-align: center;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: #666;
-}
 .ee-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;

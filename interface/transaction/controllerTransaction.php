@@ -102,6 +102,35 @@ class controllerTransaction {
         return $stmt !== false;
     }
 
+    /**
+     * Nama customer + nama produk untuk teks notifikasi.
+     * Notifikasi TIDAK memuat id_penjualan: PK database tidak ditampilkan
+     * di aplikasi, dan angka itu tidak berarti apa-apa buat customer.
+     */
+    private function orderNotifInfo($id_penjualan) {
+        $order = $this->fetchDetail($id_penjualan);
+        if (!$order) return ['nama' => '', 'produk' => []];
+
+        $produk = [];
+        foreach (($order['items'] ?? []) as $item) {
+            if (!empty($item['nama_produk'])) $produk[] = $item['nama_produk'];
+        }
+        return ['nama' => $order['username'] ?? '', 'produk' => $produk];
+    }
+
+    /** "Pikachu VMAX" atau "Pikachu VMAX and 2 other items". */
+    private function labelProduk(array $produk) {
+        if (!$produk) return 'your order';
+        $sisa = count($produk) - 1;
+        if ($sisa <= 0) return $produk[0];
+        return $produk[0] . ' and ' . $sisa . ' other item' . ($sisa > 1 ? 's' : '');
+    }
+
+    /** Sapaan "Hi <nama>," kalau nama customer diketahui. */
+    private function sapaan($nama) {
+        return $nama !== '' ? "Hi $nama,\n\n" : '';
+    }
+
     public function prosesOrder($id, $mod_by) { return $this->updateStatus($id, 3, $mod_by); }
     public function kirimOrder($id, $mod_by, $resi) { return $this->updateStatus($id, 4, $mod_by, $resi); }
     public function setDelivered($id, $mod_by) { return $this->updateStatus($id, 5, $mod_by); }
@@ -110,8 +139,11 @@ class controllerTransaction {
     public function cancelOrder($id, $mod_by, $reason = null) {
         if (!$this->updateStatus($id, 8, $mod_by)) return false;
         if ($reason !== null && $reason !== '') {
+            $info = $this->orderNotifInfo($id);
             $this->notifyCustomer($id, 'Order Cancelled',
-                "Your order #$id has been cancelled by our team.\n\nReason: $reason");
+                $this->sapaan($info['nama'])
+                . "Your order for " . $this->labelProduk($info['produk'])
+                . " has been cancelled by our team.\n\nReason: $reason");
         }
         return true;
     }
@@ -120,8 +152,11 @@ class controllerTransaction {
     public function returnOrder($id, $mod_by, $reason = null) {
         if (!$this->updateStatus($id, 7, $mod_by)) return false;
         if ($reason !== null && $reason !== '') {
+            $info = $this->orderNotifInfo($id);
             $this->notifyCustomer($id, 'Order Returned',
-                "Your order #$id has been marked as returned by our team.\n\nReason: $reason");
+                $this->sapaan($info['nama'])
+                . "Your order for " . $this->labelProduk($info['produk'])
+                . " has been marked as returned by our team.\n\nReason: $reason");
         }
         return true;
     }

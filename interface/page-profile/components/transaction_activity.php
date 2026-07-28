@@ -38,7 +38,7 @@
         <div class="transaction-toolbar" id="bp-toolbar">
             <div class="search-box">
                 <img src="/cardhaven/assets/image/search.svg" alt="Search">
-                <input type="text" id="bp-search" placeholder="Search order ID, payment, address..." oninput="onOrderFilterChange()">
+                <input type="text" id="bp-search" placeholder="Search payment method or address..." oninput="onOrderFilterChange()">
             </div>
             <select class="filter-btn" id="bp-status" onchange="onOrderFilterChange()">
                 <option value="">All Status</option>
@@ -93,7 +93,7 @@
         <div class="transaction-toolbar" id="bb-toolbar">
             <div class="search-box">
                 <img src="/cardhaven/assets/image/search.svg" alt="Search">
-                <input type="text" id="bb-search" placeholder="Search transaction ID or status..." oninput="onBuybackFilterChange()">
+                <input type="text" id="bb-search" placeholder="Search status, date, or price..." oninput="onBuybackFilterChange()">
             </div>
             <select class="filter-btn" id="bb-status" onchange="onBuybackFilterChange()">
                 <option value="">All Status</option>
@@ -124,7 +124,6 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Transaction ID</th>
                         <th>Deal Date</th>
                         <th>Total Product</th>
                         <th>Total Price</th>
@@ -133,7 +132,7 @@
                     </tr>
                 </thead>
                 <tbody id="buyback-history-body">
-                    <tr><td colspan="7" style="text-align: center;">Loading buyback history...</td></tr>
+                    <tr><td colspan="6" style="text-align: center;">Loading buyback history...</td></tr>
                 </tbody>
             </table>
         </div>

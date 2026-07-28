@@ -85,7 +85,7 @@ $BUYBACK_STATUS = [
                         </button>
                     </div>
 
-                    <input type="text" id="searchInput" class="purchase-filter-input" placeholder="Search supplier or PO ID..."
+                    <input type="text" id="searchInput" class="purchase-filter-input" placeholder="Search supplier, creator, date, or price..."
                         style="width:100%; box-sizing:border-box;" oninput="debounceSearch()">
                 </div>
 
@@ -135,7 +135,7 @@ $BUYBACK_STATUS = [
                         </button>
                     </div>
 
-                    <input type="text" id="buybackSearch" class="purchase-filter-input" placeholder="Search customer, order ID, date, or offer..."
+                    <input type="text" id="buybackSearch" class="purchase-filter-input" placeholder="Search customer, date, or offer..."
                         style="width:100%; box-sizing:border-box;" oninput="handleBuybackSearch()">
                 </div>
 
@@ -173,7 +173,7 @@ $BUYBACK_STATUS = [
             <div class="modal-box" style="width: 650px; max-width: 95vw;" onclick="event.stopPropagation()">
                 <button class="event-modal-close" onclick="closeDetailModal()">&times;</button>
                 <div class="modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-                    <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Transaction <span class="blue-text" id="modalTxId"></span></h2>
+                    <h2 style="font-size: 1.5rem; margin: 0 0 5px 0;">Transaction <span class="blue-text">Detail</span></h2>
                     <span class="game-id" id="modalStatus" style="font-weight: 600;"></span>
                 </div>
                 <div id="modalContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;"></div>

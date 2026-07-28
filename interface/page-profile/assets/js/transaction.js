@@ -102,8 +102,8 @@ function getFilteredOrders() {
     }
     if (orderSearch.trim() !== '') {
         const q = orderSearch.trim().toLowerCase();
+        // id_penjualan tidak ikut dicari — PK-nya tidak ditampilkan di mana pun.
         rows = rows.filter(r =>
-            String(r.id_penjualan).includes(q) ||
             (r.nama_metode || '').toLowerCase().includes(q) ||
             (r.alamat || '').toLowerCase().includes(q));
     }
@@ -152,7 +152,7 @@ function renderOrders() {
                 <td style="text-align:right; padding-right: 5px">${row.total_barang ?? '-'}</td>
                 <td style="text-align:right;">${fmtRp(row.total_harga)}</td>
                 <td><span class="status-pill" style="background:${st.bg};color:${st.color};">${st.label}</span></td>
-                <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})">•••</button></td>
+                <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})"><img src="/cardhaven/assets/image/detail.svg"></button></td>
             </tr>`;
     }).join('');
 
@@ -383,7 +383,7 @@ function openOrderDetail(idPenjualan) {
             content.innerHTML = `
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #eee;padding-bottom:.85rem;margin-bottom:1rem;">
                     <div>
-                        <div style="font-size:1.15rem;font-weight:800;color:var(--primary-color,#1a3a6b);">Order #${o.id_penjualan}</div>
+                        <div style="font-size:1.15rem;font-weight:800;color:var(--primary-color,#1a3a6b);">Order Detail</div>
                         <div style="font-size:.78rem;color:#888;margin-top:.2rem;">${escHtml((o.tanggal_penjualan || '').replace('T', ' '))}</div>
                     </div>
                     <span class="status-pill" style="background:${st.bg};color:${st.color};">${st.label}</span>
@@ -509,7 +509,7 @@ function renderPreorders() {
                 <td style="text-align:right; padding-right: 5px">${row.total_barang ?? '-'}</td>
                 <td><span class="status-pill" style="background:${st.bg};color:${st.color};">${st.label}</span></td>
                 <td style="text-align:right;">${fmtRp(row.total_harga)}</td>
-                <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})">•••</button></td>
+                <td><button class="action-dots-btn" title="View detail" onclick="openOrderDetail(${row.id_penjualan})"><img src="/cardhaven/assets/image/detail.svg"></button></td>
             </tr>`;
     }).join('');
     

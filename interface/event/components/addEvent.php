@@ -99,7 +99,7 @@
         <div class="ae-table-col">
             <!-- Banner upload: SELALU tampil, di atas tabel -->
             <div class="ae-banner-wrap">
-                <label class="ae-label">Event Banner <small style="font-weight:400;color:#888;">(optional)</small></label>
+                <label class="ae-label">Event Banner</label>
                 <label for="ae_banner_input" class="ae-banner-drop" id="ae_banner_drop">
                     <img id="ae_banner_preview" alt="banner preview">
                     <div class="ae-banner-placeholder" id="ae_banner_placeholder">

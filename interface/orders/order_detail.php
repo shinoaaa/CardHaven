@@ -444,7 +444,7 @@ if (!$id_penjualan) {
             const content = document.getElementById('detail-content');
             content.innerHTML = `
                 <h1 class="detail-title">
-                    ORDER <span class="accent">#${o.id_penjualan}</span>
+                    ORDER <span class="accent">DETAIL</span>
                     <span style="font-size:0.85rem;font-weight:700;padding:4px 14px;border-radius:20px;
                           vertical-align:middle;margin-left:12px;${badgeClass}">
                         ${STATUS_LABEL[st] || 'Unknown'}

@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${mfStatusPill(r.aktif)}</td>
                 <td>
                     <div class="btn-action-group">
-                        <button class="btn-view-icon" onclick="openSupplierModal(${r.id_supplier})">...</button>
+                        <button class="btn-view-icon" onclick="openSupplierModal(${r.id_supplier})"><img src="/cardhaven/assets/image/detail.svg"></button>
                         <button class="btn-edit-icon" onclick="openSupplierEdit(${r.id_supplier})"><img src="/cardhaven/assets/image/edit.svg"></button>
                         <button class="btn-delete-icon" onclick="deleteSupplier(${r.id_supplier})"><img src="/cardhaven/assets/image/delete.svg"></button>
                         <label class="switch">

@@ -88,7 +88,6 @@ function resumeOrderPayment(orderId) {
             document.getElementById('step1-content').style.display = 'none';
             document.getElementById('step2-content').style.display = 'block';
 
-            document.getElementById('step2-order-id').textContent             = '#' + o.id_penjualan;
             document.getElementById('step2-total').textContent                = fmt(o.total_harga);
             document.getElementById('payment-instruction-amount').textContent = fmt(o.total_harga);
             document.getElementById('payment-instruction-detail').innerHTML   = detailParts.join(' · ') || '-';
@@ -476,7 +475,6 @@ function goToStep2(orderData) {
     document.getElementById('step1-content').style.display = 'none';
     document.getElementById('step2-content').style.display = 'block';
 
-    document.getElementById('step2-order-id').textContent = '#' + currentOrderId;
     const totalWithFee = cartSubtotal + selectedMethodFee;
     document.getElementById('step2-total').textContent = fmt(totalWithFee);
     
@@ -557,7 +555,6 @@ function goToStep3() {
     markStepDone(2); markStepActive(3);
     document.getElementById('step2-content').style.display = 'none';
     document.getElementById('step3-content').style.display = 'block';
-    document.getElementById('confirm-order-id').textContent = '#' + currentOrderId;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

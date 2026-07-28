@@ -215,11 +215,6 @@ auth_require_login();
                             <div class="summary-header"><h2>Order Summary</h2></div>
                             <div class="summary-body">
                                 <div class="summary-row">
-                                    <span>Order ID</span>
-                                    <span class="val" id="step2-order-id">#-</span>
-                                </div>
-                                <div class="summary-divider"></div>
-                                <div class="summary-row">
                                     <span>Total Payment</span>
                                     <span class="val" id="step2-total">Rp 0</span>
                                 </div>
@@ -248,9 +243,7 @@ auth_require_login();
                     padding:24px 48px;
                     margin-bottom:2rem;
                 ">
-                    <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:#888;margin:0 0 4px;">Order ID</p>
-                    <p id="confirm-order-id" style="font-size:1.5rem;font-weight:800;color:#1a3a6b;margin:0;"></p>
-                    <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:#888;margin:12px 0 4px;">Status</p>
+                    <p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:#888;margin:0 0 4px;">Status</p>
                     <p style="font-size:0.9rem;font-weight:700;color:#d97706;margin:0;">⏳ Pending Payment Verification</p>
                 </div>
 

@@ -21,7 +21,6 @@ async function isDuplicate(idGame, nama, kode, excludeId) {
 
 function openModalRarity() {
     document.getElementById('modalTitleRarity').innerHTML = 'ADD <span class="blue-text">RARITY</span>';
-    document.getElementById('displayIDRarity').innerText = '';
     document.getElementById('formActionRarity').value = 'add';
     rarityForm.reset();
     clearAllErrors('rarityForm');
@@ -53,7 +52,6 @@ function openDetailRarity(id) {
         .then(data => {
             if (data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            document.getElementById('rarityDetailDisplayID').innerText = 'RAR-' + String(id).padStart(3, '0');
             document.getElementById('detailRarityGame').innerText = data.nama_game ?? '-';
             document.getElementById('detailRarityNama').innerText = data.nama_rarity ?? '-';
             document.getElementById('detailRarityKode').innerText = data.kode_rarity || '-';
@@ -77,7 +75,6 @@ function openEditRarity(id) {
 
             clearAllErrors('rarityForm');
             document.getElementById('modalTitleRarity').innerHTML = '<span class="blue-text">EDIT</span> RARITY';
-            document.getElementById('displayIDRarity').innerText = 'RAR-' + String(id).padStart(3, '0');
             document.getElementById('formActionRarity').value = 'edit';
             document.getElementById('inputIdRarity').value = id;
             setRarityGame(data.id_game, data.nama_game);

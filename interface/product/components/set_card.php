@@ -34,7 +34,7 @@
                 </td>
                 <td>
                     <div class="btn-action-group">
-                        <button class="btn-view-icon" onclick="openDetailSetModal(<?= $rowSet['id_set'] ?>)">...</button>
+                        <button class="btn-view-icon" onclick="openDetailSetModal(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/detail.svg"></button>
                         <button class="btn-edit-icon" onclick="openEditSetModal(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
                         <button class="btn-delete-icon" onclick="confirmDeleteSet(<?= $rowSet['id_set'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>
                         <label class="switch">

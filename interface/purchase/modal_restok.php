@@ -2,7 +2,6 @@
     <div class="modal-box" style="width: 700px; max-width: 95%;">
         <div class="modal-header">
             <h2>PURCHASE <span class="blue-text">ORDER</span></h2>
-            <span class="game-id" id="modalPOId"></span>
         </div>
 
         <!-- Info Header -->

@@ -168,7 +168,7 @@ async function openDetailModal(id_penjualan) {
         body.innerHTML = `
             <div class="trx-modal-header">
                 <div>
-                    <div class="trx-modal-id">Order #${h.id_penjualan}</div>
+                    <div class="trx-modal-id">Order Detail</div>
                     <div class="trx-modal-date">${h.tanggal_penjualan}</div>
                 </div>
                 ${statusBadge(h.status_penjualan)}
@@ -253,7 +253,7 @@ function openShipModal(id_penjualan) {
 
     body.innerHTML = `
         <div class="trx-modal-header">
-            <div class="trx-modal-id">Ship Order #${id_penjualan}</div>
+            <div class="trx-modal-id">Ship Order</div>
         </div>
         <div class="trx-modal-section" style="margin-top:1rem;">
             <div class="trx-section-title">Shipping Details</div>

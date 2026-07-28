@@ -378,7 +378,6 @@ function openDetailProductModal(id) {
         .then(data => {
             if(data.error) return cardhavenAlert('error', 'Error', data.error);
 
-            document.getElementById('detProdID').innerText = 'PRD-' + String(id).padStart(4, '0');
             document.getElementById('detProdNama').innerText = data.nama_produk || '-';
             document.getElementById('detProdTipe').innerText = data.tipe_produk || '-';
             document.getElementById('detProdGame').innerText = data.nama_game || '-';

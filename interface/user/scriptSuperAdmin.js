@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${mfStatusPill(r.status_akun)}</td>
                     <td>
                         <div class="btn-action-group">
-                            <button class="btn-view-icon" onclick="openAdminModal(${r.id_pengguna})">...</button>
+                            <button class="btn-view-icon" onclick="openAdminModal(${r.id_pengguna})"><img src="/cardhaven/assets/image/detail.svg"></button>
                             <button class="btn-edit-icon" onclick="openAdminEdit(${r.id_pengguna})"><img src="/cardhaven/assets/image/edit.svg"></button>
                             <button class="btn-delete-icon" onclick="deleteAdmin(${r.id_pengguna})"><img src="/cardhaven/assets/image/delete.svg"></button>
                             <label class="switch">

@@ -20,7 +20,6 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Transaction ID</th>
                         <th>Customer</th>
                         <th>Date</th>
                         <th>Total Offer</th>

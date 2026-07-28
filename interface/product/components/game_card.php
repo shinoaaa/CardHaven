@@ -34,7 +34,7 @@
                 </td>
                 <td>
                     <div class="btn-action-group">
-                        <button class="btn-view-icon" onclick="openDetailModal(<?= $row['id_game'] ?>)">...</button>
+                        <button class="btn-view-icon" onclick="openDetailModal(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/detail.svg"></button>
                         <button class="btn-edit-icon" onclick="openEditModal(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/edit.svg" alt=""></button>
                         <?php if ($row['is_deleted'] == 0): ?>
                             <button class="btn-delete-icon" onclick="confirmDelete(<?= $row['id_game'] ?>)"><img src="/cardhaven/assets/image/delete.svg" alt=""></button>

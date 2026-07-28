@@ -36,8 +36,6 @@ function getFilteredBuyback() {
     if (bbSearch.trim() !== '') {
         const q = bbSearch.trim().toLowerCase();
         rows = rows.filter(r =>
-            String(r.id_pembelian).includes(q) ||
-            ('#' + r.id_pembelian).includes(q) ||
             parseStatus(r.status_pembelian).toLowerCase().includes(q) ||
             String(r.total_harga || '').includes(q) ||
             (r.tanggal_pembelian || '').toLowerCase().includes(q));
@@ -59,7 +57,7 @@ function renderBuyback() {
 
     const rows = getFilteredBuyback();
     if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No BuyBack records yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No BuyBack records yet.</td></tr>';
         renderBuybackPagination(0);
         return;
     }
@@ -75,11 +73,10 @@ function renderBuyback() {
             const [tahun, bulan, hari] = row.tanggal_pembelian.substring(0, 10).split('-');
             tanggal = `${hari}-${bulan}-${tahun}`;
         }
-        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})">•••</button>`;
+        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})"><img src="/cardhaven/assets/image/detail.svg"></button>`;
         const sc = buybackStatusColor(row.status_pembelian);
         return `<tr>
             <td>${start + i + 1}</td>
-            <td>#${row.id_pembelian}</td>
             <td>${tanggal}</td>
             <td style="text-align:right;">${row.total_barang ?? '-'}</td>
             <td style="text-align:right;">Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
@@ -254,7 +251,7 @@ function renderBuyback() {
 
     const rows = getFilteredBuyback();
     if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No BuyBack records yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No BuyBack records yet.</td></tr>';
         renderBuybackPagination(0);
         return;
     }
@@ -270,11 +267,10 @@ function renderBuyback() {
             const [tahun, bulan, hari] = row.tanggal_pembelian.substring(0, 10).split('-');
             tanggal = `${hari}-${bulan}-${tahun}`;
         }
-        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})">•••</button>`;
+        const aksi = `<button class="action-dots-btn" title="View detail" onclick="openDetailModal(${row.id_pembelian})"><img src="/cardhaven/assets/image/detail.svg"></button>`;
         const sc = buybackStatusColor(row.status_pembelian);
         return `<tr>
             <td>${start + i + 1}</td>
-            <td>#${row.id_pembelian}</td>
             <td>${tanggal}</td>
             <td style="text-align:right;">${row.total_barang ?? '-'}</td>
             <td style="text-align:right;">Rp ${parseInt(row.total_harga || 0).toLocaleString('id-ID')}</td>
@@ -298,7 +294,7 @@ function loadRiwayat() {
         renderBuyback();
     })
     .catch(() => {
-        if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#dc2626;">Failed to load buyback history.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#dc2626;">Failed to load buyback history.</td></tr>';
     });
 }
 function submitBuyback() {
@@ -421,7 +417,7 @@ function openDetailModal(id_pembelian) {
         if(res.status === 'success') {
             const data = res.data;
             const pem = data.pembelian;
-            document.getElementById('modalTxId').innerText = `#${pem.id_pembelian}`;
+            // Judul modal statis — id_pembelian (PK) tidak ditampilkan.
             document.getElementById('modalStatus').innerHTML = parseStatus(pem.status_pembelian);
             
             let htmlContent = '';
