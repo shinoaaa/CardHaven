@@ -438,8 +438,8 @@ function placeOrder() {
         fd.append('action',       'place_order');
         fd.append('alamat',       alamat);
         fd.append('id_metode',    selectedMethodId);
-        fd.append('total_harga',  cartSubtotal + selectedMethodFee); 
-        fd.append('total_barang', cartTotalItems); 
+        // total_harga & total_barang TIDAK dikirim lagi: server yang menghitung
+        // dari keranjang + biaya_admin, lalu mengembalikannya di response.
 
         fetchWithTimeout(CHECKOUT_CONTROLLER, { method: 'POST', body: fd }, 15000)
             .then(r => r.json())
@@ -475,9 +475,14 @@ function goToStep2(orderData) {
     document.getElementById('step1-content').style.display = 'none';
     document.getElementById('step2-content').style.display = 'block';
 
-    const totalWithFee = cartSubtotal + selectedMethodFee;
+    // Pakai total dari server kalau ada, supaya jumlah yang diminta ditransfer
+    // dijamin sama dengan yang tercatat di order. Hitungan lokal cuma cadangan
+    // untuk jalur event/preorder yang belum mengembalikan total.
+    const totalWithFee = (orderData && orderData.total_harga != null)
+        ? parseFloat(orderData.total_harga)
+        : cartSubtotal + selectedMethodFee;
     document.getElementById('step2-total').textContent = fmt(totalWithFee);
-    
+
     const activeMethod = allMethods.find(m => String(m.id_metode) === String(selectedMethodId));
     document.getElementById('payment-instruction-amount').textContent = fmt(totalWithFee);
     document.getElementById('payment-instruction-detail').innerHTML = orderData.payment_detail || `Please transfer to <b>${activeMethod.provider}</b><br>No. Rekening: <b>${activeMethod.no_rekening}</b>`;

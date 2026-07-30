@@ -278,15 +278,10 @@ switch ($action) {
             ob_clean(); echo json_encode(["status" => "success", "message" => "Address saved successfully."]);
         } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
         break;
-    case 'customer_negotiate':
-        try {
-            requireBuybackCustomer();
-            $stmt = sqlsrv_query($conn, "{CALL dbo.sp_CustomerNegotiateTransaction(?, ?, ?)}",
-                [$_POST['id_pembelian'], $authId, $_POST['penawaran_customer']]);
-            if ($stmt === false) throw new Exception(getSqlError());
-            ob_clean(); echo json_encode(["status" => "success", "message" => "Counter-offer submitted."]);
-        } catch (Throwable $e) { ob_clean(); echo json_encode(["status" => "error", "message" => $e->getMessage()]); }
-        break;
+    // Dihapus: case 'customer_negotiate' beserta dbo.sp_CustomerNegotiateTransaction.
+    // Fungsinya kembar dengan 'customer_negotiate_item' (counter offer customer),
+    // tidak pernah dipanggil UI, dan batasnya berbeda sendiri sehingga
+    // bertentangan dengan aturan 3 kali counter offer.
 
     case 'get_detail':
         try {

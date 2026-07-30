@@ -440,8 +440,9 @@ function openDetailModal(id_pembelian) {
                 const isAgreed      = adminHasOffer && priceMatch;
                 const isWaitingAdmin = isNegotiating && !adminHasOffer;
 
-                // Menghitung percobaan murni (Submit awal tidak dihitung)
-                let actualAttempts = Math.max(0, parseInt(k.percobaan_penawaran) - 1);
+                // percobaan_penawaran sekarang sudah berbasis 0 di database
+                // (submit awal tidak dihitung), jadi dipakai apa adanya.
+                let actualAttempts = parseInt(k.percobaan_penawaran) || 0;
                 const maxAttempts  = actualAttempts >= 3;
 
                 if (isNegotiating) {

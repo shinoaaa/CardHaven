@@ -1,0 +1,13 @@
+# Folder ini hanya menampung gambar bukti pembayaran yang diupload customer.
+# Rewrite rule di root sengaja melewatkan file yang benar-benar ada (!-f), jadi
+# apa pun di sini dilayani Apache secara langsung. Matikan semua eksekusi skrip
+# supaya file yang lolos validasi PHP pun tidak bisa dijalankan.
+
+php_flag engine off
+
+<FilesMatch "\.(?i:php|phtml|php3|php4|php5|php7|phps|pht|phar|cgi|pl|py|asp|aspx|jsp|sh|htaccess)$">
+    Require all denied
+</FilesMatch>
+
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps .pht .phar
+RemoveType    .php .phtml .php3 .php4 .php5 .php7 .phps .pht .phar

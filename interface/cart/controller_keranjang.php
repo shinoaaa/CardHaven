@@ -80,8 +80,14 @@ try {
     // =====================================
     // 2. MANIPULASI DATA KERANJANG (DML)
     // =====================================
-    $id_detail = isset($_POST['id']) ? (int)$_POST['id'] : null;
+    // $_POST['id'] = id baris keranjang (dulu id_detail_keranjang di tabel detail).
+    $id_keranjang = isset($_POST['id']) ? (int)$_POST['id'] : null;
     $id_produk = isset($_POST['id_produk']) ? (int)$_POST['id_produk'] : null;
+
+    // Harga masih dikirim demi kompatibilitas parameter SP, tapi sp_ManageCart
+    // MENGABAIKANNYA dan selalu memakai produk.harga_jual dari database.
+    // Dulu nilai ini masuk ke keranjang lalu ikut ke detail_penjualan, jadi
+    // harga order bisa ditentukan dari browser.
     $harga     = isset($_POST['harga_produk']) ? (float)$_POST['harga_produk'] : 0;
     
     $qty = 0;
@@ -99,7 +105,7 @@ try {
 
     if ($sp_action !== '') {
         $stmt = sqlsrv_query($conn, "{CALL dbo.sp_ManageCart(?, ?, ?, ?, ?, ?, ?)}", 
-            [$sp_action, $id_pengguna, $id_detail, $id_produk, $harga, $qty, $status]);
+            [$sp_action, $id_pengguna, $id_keranjang, $id_produk, $harga, $qty, $status]);
         
         if ($stmt === false) throw new Exception(sqlsrv_errors()[0]['message']);
         

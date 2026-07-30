@@ -249,10 +249,12 @@ function openDetailModal(id_pembelian) {
                 const isApproved = hasDecision && (parseFloat(k.penawaran_admin) === parseFloat(k.penawaran_customer));
                 const isCountered = hasDecision && !isApproved;
 
-                let actualAttempts = Math.max(0, parseInt(k.percobaan_penawaran) - 1);
-                
-                // ✅ DETECT CUSTOMER COUNTER: penawaran_admin NULL tapi percobaan > 1
-                const customerCountered = !hasDecision && parseInt(k.percobaan_penawaran) > 1;
+                // percobaan_penawaran sekarang sudah berbasis 0 di database
+                // (submit awal tidak dihitung), jadi dipakai apa adanya.
+                let actualAttempts = parseInt(k.percobaan_penawaran) || 0;
+
+                // ✅ DETECT CUSTOMER COUNTER: penawaran_admin NULL tapi sudah pernah counter
+                const customerCountered = !hasDecision && actualAttempts > 0;
 
                 if (hasDecision) anyDecided = true; // Set true jika ada minimal 1 kartu yg diklik
                 if (!hasDecision) allDecided = false;

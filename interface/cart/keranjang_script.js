@@ -99,13 +99,22 @@ function renderRow(item) {
     const formatIDR = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
     const fotoSrc = item.foto ? `${BASE_URL}/assets/image/products/${item.foto}` : `${BASE_URL}/assets/image/image-profile/defaultProduct.jpg`;
  
-    tr.setAttribute('data-id', item.id_detail_keranjang);
- 
+    tr.setAttribute('data-id', item.id_keranjang);
+
+    // Harga di keranjang dikunci saat produk dimasukkan, dan itulah harga yang
+    // nanti dipakai saat order. Kalau harga katalog sudah berubah, beri tahu
+    // supaya angka di sini tidak terlihat salah dibanding halaman produk.
+    const priceNote = parseInt(item.harga_berubah) === 1
+        ? `<span style="display:block; font-size:0.68rem; color:#b45309; font-weight:600; margin-top:2px;">
+               Catalogue price is now ${formatIDR(item.harga_jual_terkini)}
+           </span>`
+        : '';
+
     tr.innerHTML = `
         <td>
             <input type="checkbox"
                    ${parseInt(item.is_selected) === 1 ? 'checked' : ''}
-                   onchange="toggleSelect(${item.id_detail_keranjang}, this.checked)">
+                   onchange="toggleSelect(${item.id_keranjang}, this.checked)">
         </td>
         <td>
             <div class="cart-product-info">
@@ -121,11 +130,14 @@ function renderRow(item) {
                 </div>
             </div>
         </td>
-        <td class="cart-price">${formatIDR(item.harga_produk)}</td>
+        <td class="cart-price">
+            ${formatIDR(item.harga_produk)}
+            ${priceNote}
+        </td>
         <td style="text-align:center;">
             <div class="cart-qty-control">
                 <button class="cart-qty-btn"
-                        onclick="updateQty(${item.id_detail_keranjang}, -1)"
+                        onclick="updateQty(${item.id_keranjang}, -1)"
                         title="Subtract"
                         ${item.jumlah_barang <= 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>−</button>
                 <input type="number"
@@ -134,9 +146,9 @@ function renderRow(item) {
                        max="${item.stok}"
                        value="${item.jumlah_barang}"
                        data-qty="${item.jumlah_barang}"
-                       onchange="handleCartQtyTyped(${item.id_detail_keranjang}, this, ${item.stok})">
+                       onchange="handleCartQtyTyped(${item.id_keranjang}, this, ${item.stok})">
                 <button class="cart-qty-btn"
-                        onclick="updateQty(${item.id_detail_keranjang}, 1)"
+                        onclick="updateQty(${item.id_keranjang}, 1)"
                         title="Add"
                         ${item.jumlah_barang >= item.stok ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>+</button>
             </div>
@@ -144,7 +156,7 @@ function renderRow(item) {
         <td class="cart-total">${formatIDR(item.subtotal_harga)}</td>
         <td>
             <button class="cart-btn-remove"
-                    onclick="deleteItem(${item.id_detail_keranjang})"
+                    onclick="deleteItem(${item.id_keranjang})"
                     title="Delete form cart">✕</button>
         </td>
     `;
