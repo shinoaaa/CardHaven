@@ -42,6 +42,14 @@ switch ($action) {
         if ($stmt === false) jsonOut(false, ['error' => sqlsrv_errors()[0]['message']]);
         jsonOut(true, ['message' => 'Product removed']);
 
+    case 'toggle_status':
+        // is_inactive: 0 = aktif, 1 = nonaktif
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_ToggleEventProductStatus(?, ?)}", [
+            (int)$body['id_produk_event'], (int)$body['is_inactive']
+        ]);
+        if ($stmt === false) jsonOut(false, ['error' => sqlsrv_errors()[0]['message']]);
+        jsonOut(true, ['message' => 'Product status updated']);
+
     default: jsonOut(false, ['error' => 'Unknown action']);
 }
 ?>

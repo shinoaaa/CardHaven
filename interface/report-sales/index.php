@@ -157,10 +157,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </tbody>
                 </table>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
+                <div class="report-foot-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
                     <div id="paginationReport" class="pagination-container" style="margin-top: 0; padding-top: 0;"></div>
                     
-                    <div style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
+                    <div class="report-summary-box" style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: #64748b; font-size: 0.85rem;">Total Items:</span>
                             <span id="summaryTotalItems" style="color: var(--primary-color); font-size: 1.1rem;">0 Pcs</span>
@@ -263,10 +263,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </tbody>
                 </table>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
+                <div class="report-foot-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
                     <div id="paginationReport" class="pagination-container" style="margin-top: 0; padding-top: 0;"></div>
                     
-                    <div style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
+                    <div class="report-summary-box" style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: #64748b; font-size: 0.85rem;">Total Items:</span>
                             <span id="summaryTotalItems" style="color: var(--primary-color); font-size: 1.1rem;">0 Pcs</span>
@@ -368,10 +368,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
+                <div class="report-foot-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
                     <div id="paginationReport" class="pagination-container" style="margin-top: 0; padding-top: 0;"></div>
 
-                    <div style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
+                    <div class="report-summary-box" style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: #64748b; font-size: 0.85rem;">Total Items:</span>
                             <span id="summaryTotalItems" style="color: var(--primary-color); font-size: 1.1rem;">0 Pcs</span>
@@ -473,10 +473,10 @@ $currentTitle = $titles[$type] ?? 'Report';
                         </tbody>
                 </table>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
+                <div class="report-foot-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px;">
                     <div id="paginationReport" class="pagination-container" style="margin-top: 0; padding-top: 0;"></div>
 
-                    <div style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
+                    <div class="report-summary-box" style="background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600; display: flex; gap: 20px; align-items: center; white-space: nowrap; width: fit-content;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: #64748b; font-size: 0.85rem;">Total Items:</span>
                             <span id="summaryTotalItems" style="color: var(--primary-color); font-size: 1.1rem;">0 Pcs</span>

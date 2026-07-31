@@ -1014,6 +1014,25 @@ function eeRemoveProductFromEvent(idProdukEvent) {
     );
 }
 
+// ── Toggle status aktif/nonaktif produk event ─────────────────────────────────
+// checked = aktif (is_inactive 0); unchecked = nonaktif (is_inactive 1).
+async function eeToggleProductStatus(idProdukEvent, isChecked, el) {
+    const isInactive = isChecked ? 0 : 1;
+    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1800, timerProgressBar: true });
+    try {
+        const data = await eePost('toggle_status', { id_produk_event: idProdukEvent, is_inactive: isInactive });
+        if (data.success) {
+            Toast.fire({ icon: isInactive ? 'info' : 'success', title: isInactive ? 'Product set to inactive' : 'Product set to active' });
+        } else {
+            el.checked = !isChecked; // balikin posisi toggle kalau gagal
+            Swal.fire({ icon: 'error', title: 'Failed', text: data.error || 'Failed to update product status.' });
+        }
+    } catch (e) {
+        el.checked = !isChecked;
+        Swal.fire({ icon: 'error', title: 'Error', text: 'A network error occurred.' });
+    }
+}
+
 // ── Banner upload (Edit Event) ────────────────────────────────────────────────
 function eePreviewBanner(input) {
     const errEl   = document.getElementById('ee_err_banner');

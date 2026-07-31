@@ -32,6 +32,17 @@ $sort   = $_GET['sort'] ?? 'date';
             color: var(--primary-color, #173C99); font-weight: bold; font-size: 18px;
             display: flex; align-items: center; justify-content: center;
         }
+
+        /* ── Responsive (HP/tablet) — mengikuti pola halaman Purchase ── */
+        @media screen and (max-width: 768px) {
+            /* Toolbar: search satu baris penuh, dropdown wrap (bukan dijejer paksa) */
+            .event-toolbar { flex-wrap: wrap; }
+            .filter-input  { width: 100%; box-sizing: border-box; }
+            .filter-select { flex: 1 1 140px; box-sizing: border-box; }
+            /* Netralkan inline justify-center + overflow-y:hidden supaya konten
+               mengalir dari atas & bisa discroll penuh di HP */
+            .main-content  { justify-content: flex-start !important; overflow-y: auto !important; }
+        }
     </style>
 </head>
 <body>

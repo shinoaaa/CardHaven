@@ -38,7 +38,14 @@
         gap: 1.5rem;
         flex-shrink: 0;
     }
-    @media (max-width: 1100px) { .dash-main-grid { grid-template-columns: 1fr; } .dash-stats { grid-template-columns: repeat(2, 1fr); } }
+    /* minmax(0,1fr): kolom tetap rata & tidak dipaksa melebar oleh angka panjang
+       (mis. "Rp 253.762.290"), jadi grid tidak pernah melebihi lebar layar. */
+    @media (max-width: 1100px) { .dash-main-grid { grid-template-columns: 1fr; } .dash-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    /* HP kecil: stat card jadi 1 kolom (full-width) supaya angka besar lega & rapi. */
+    @media (max-width: 520px)  { .dash-stats { grid-template-columns: 1fr; } }
+    /* Cegah isi kartu (angka nowrap) memaksa lebar kolom. */
+    .dash-stat-card { min-width: 0; }
+    .dash-stat-card > div { min-width: 0; }
 
     .dash-panel {
         background: #fff;

@@ -313,8 +313,15 @@ function escHtml($str) {
                                     <td><?= number_format((int)($p['stok_event'] ?? 0), 0, ',', '.') ?></td>
                                     <td>
                                         <div class="btn-action-group">
+                                            <!-- Toggle status aktif/nonaktif produk (checked = aktif) -->
+                                            <label class="switch" title="Active / Inactive">
+                                                <input type="checkbox" <?= (int)($p['is_inactive'] ?? 0) === 0 ? 'checked' : '' ?>
+                                                    onchange="eeToggleProductStatus(<?= (int)($p['id_produk_event'] ?? 0) ?>, this.checked, this)">
+                                                <span class="slider"></span>
+                                            </label>
+
                                             <button class="btn-edit-icon"
-                                                    onclick="eeEditStock(<?= (int)($p['id_produk_event'] ?? 0) ?>, <?= (int)($p['stok_event'] ?? 0) ?>, <?= (int)($p['stok'] ?? 0) ?>)" 
+                                                    onclick="eeEditStock(<?= (int)($p['id_produk_event'] ?? 0) ?>, <?= (int)($p['stok_event'] ?? 0) ?>, <?= (int)($p['stok'] ?? 0) ?>)"
                                                     title="Edit Stock">
                                                 <img src="/cardhaven/assets/image/edit.svg" alt="Edit">
                                             </button>

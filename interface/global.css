@@ -2191,6 +2191,15 @@ p.product-paragraf {
     .report-overview-head { flex-wrap: wrap; }
     /* Baris filter (tahun/bulan/sort) yang dipaksa nowrap → boleh wrap di HP */
     .filter-container div[style*="nowrap"] { flex-wrap: wrap !important; }
+    /* Baris kaki (pagination + box Total Items/Revenue): summary turun ke bawah,
+       tidak dipaksa sebaris sampai meleber. */
+    .report-foot-row { flex-wrap: wrap; gap: 12px; }
+    .report-summary-box { width: 100% !important; box-sizing: border-box; justify-content: space-between; }
+
+    /* ---------- USER: tombol role (Manager/Employee/Customer/Supplier) ---------- */
+    /* Deretan tombol jangan dipaksa sebaris (meleber) — biar wrap ke bawah. */
+    .list-user { flex-wrap: wrap; height: auto; gap: 0.5rem; }
+    .unselectedRole, .selectedRole { padding: 0.4rem 1.1rem; font-size: 0.85rem; }
 
 @media screen and (max-width: 480px) {
     html { font-size: 12px; }
