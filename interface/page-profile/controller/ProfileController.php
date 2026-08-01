@@ -172,8 +172,9 @@ elseif($action === 'cancelOrder'){
     }
 
     
-    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_VerifyOrderOwner(?, ?)}", [$id_penjualan, $id_pengguna]);
+    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_CheckOrderForPayment(?, ?)}", [$id_penjualan, $id_pengguna]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
     if (!$row || $row['IsOwner'] == 0) {
         echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
         exit;
@@ -218,8 +219,9 @@ elseif ($action === 'completeOrder') {
     }
 
     
-    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_VerifyOrderOwner(?, ?)}", [$id_penjualan, $id_pengguna]);
+    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_CheckOrderForPayment(?, ?)}", [$id_penjualan, $id_pengguna]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
     if (!$row || $row['IsOwner'] == 0) {
         echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
         exit;
@@ -265,8 +267,9 @@ elseif ($action === 'returnOrder') {
     }
 
     
-    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_VerifyOrderOwner(?, ?)}", [$id_penjualan, $id_pengguna]);
+    $cek_stmt = sqlsrv_query($conn, "{CALL dbo.sp_CheckOrderForPayment(?, ?)}", [$id_penjualan, $id_pengguna]);
     $row = sqlsrv_fetch_array($cek_stmt, SQLSRV_FETCH_ASSOC);
+
     if (!$row || $row['IsOwner'] == 0) {
         echo json_encode(['status' => 'error', 'message' => 'Order not found or access denied.']);
         exit;

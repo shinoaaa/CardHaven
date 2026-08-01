@@ -189,8 +189,9 @@ if ($isAjax) {
     // Default DESC: user paling baru dibuat tampil di urutan pertama.
     $sortDir = strtoupper($_GET['sort_order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
-    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetCustomerList(?, ?, ?, ?, ?, ?)}", 
-        [$search, $sortBy, $sortDir, $status, $page, $limit]);
+    $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetPenggunaList(?, ?, ?, ?, ?, ?, ?)}",
+        [0, $search, $sortBy, $sortDir, $status, $page, $limit]);
+
 
     $data = [];
     $total_rows = 0;

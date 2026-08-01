@@ -169,7 +169,7 @@ switch ($action) {
     // ─── SEARCH SUPPLIER (autocomplete, mirip search_game) ──────────────────
     case 'search_supplier':
         $keyword = trim($_GET['search_supplier'] ?? '');
-        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetDropdownSupplier(?)}", [$keyword]);
+        $stmt = sqlsrv_query($conn, "{CALL dbo.sp_GetSearchSupplier(?)}", [$keyword]);
         $res = [];
         if ($stmt) while ($r = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) $res[] = $r;
         ob_clean();
